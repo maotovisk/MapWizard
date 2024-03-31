@@ -11,5 +11,5 @@ public interface IUninheritedTimingPoint : ITimingPoint
     /// <summary>
     /// Gets or sets Amount of beats in a measure of the beatmap.
     /// </summary>
-    float Meter { get; set; }
+    int TimeSignature { get; set; }
 }
