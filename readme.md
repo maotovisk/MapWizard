@@ -2,6 +2,8 @@
 
 A tool that aims to replicate the hitsounds of a beatmap difficulty to other difficulties on the set. It is useful to avoid the inconvenience of having to redo the same hitsound logic for many difficulties across the set.
 
+<br/>
+
 <p align="right"><b>Current Status</b>: Developing a new beatmap (.osu file) parser</p>
 
 ## Project Goals
