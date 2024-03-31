@@ -1,11 +1,11 @@
 # Hitsound Copier
 
-This is a simple tool that copies the hitsounds from one beatmap to another, for now.
+A tool that aims to replicate the hitsounds of a beatmap difficulty to other difficulties on the set. It is useful to avoid the inconvenience of having to redo the same hitsound logic for many difficulties across the set.
 
 ## Project Goals
 
 - Fully cross-platform;
-- Allow hitsounds from one beatmap to multiple beatmaps;
+- Replicate hitsounds from a difficulty to other beatmaps;
 - Metadata manager funcionality;
 - Map cleaner funcionality.
 
