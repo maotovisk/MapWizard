@@ -1,3 +1,5 @@
+using System.IO;
+
 namespace HitsoundCopier
 {
     class Program
