@@ -63,5 +63,22 @@ public class Beatmap : IBeatmap
         int.Parse(section[0]);
     }
 
+    /// <summary>
+    /// Gets the hit object type from a bitwise.
+    /// </summary>
+    /// <param name="data"></param>
+    /// <returns></returns>
+    public static HitObjectType? GetHitObjectType(int data)
+    {
+        List<HitObjectType> types = [];
+        foreach (HitObjectType name in Enum.GetValues(typeof(HitObjectType)))
+        {
+            if ((data & (int)name) != 0x000000000) types.Add(name);
+        }
+        if (types.Count == 1) return types.First();
+
+        return null;
+    }
+
 }
 

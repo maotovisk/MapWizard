@@ -6,7 +6,7 @@ namespace Beatmap;
 public class HitSoundList
 {
     /// <summary>
-    /// Converts integer bitwise into a hitsound list.
+    /// Converts integer bitwise into a <see cref="HitSound"/> list.
     /// </summary>
     /// <param name="data"></param>
     /// <returns></returns>

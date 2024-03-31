@@ -77,7 +77,7 @@ public class Slider : HitObject, ISlider
         Coordinates = new Vector2();
         Time = TimeSpan.FromSeconds(0);
         HitSounds = new List<HitSound>();
-        HitSample = new HitSample();
+        HitSampleData = new HitSample();
         NewCombo = false;
         ComboColour = 0;
     }
@@ -108,7 +108,7 @@ public class Slider : HitObject, ISlider
 
         var objectParams = split[5].Split('|');
 
-        var slider = new Slider(ParseHitObject(split))
+        var slider = new Slider(HitObject.FromData(split))
         {
             CurveType = (CurveType)Enum.Parse(typeof(CurveType), objectParams[0]),
             CurvePoints = objectParams[1..^1].Select(x =>
@@ -118,7 +118,7 @@ public class Slider : HitObject, ISlider
                 }).ToList(),
             Repeats = uint.Parse(split[6]),
             Length = uint.Parse(split[7]),
-            EdgeHitSound = GetHitSounds(int.Parse(split[8])),
+            EdgeHitSound = HitSoundList.FromData(int.Parse(split[8])),
             EdgeSampleSets = (SampleSet)Enum.Parse(typeof(SampleSet), split[9]),
         };
         return slider;

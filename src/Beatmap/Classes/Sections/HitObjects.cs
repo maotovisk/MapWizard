@@ -27,7 +27,13 @@ public class HitObjects : IHitObjects
         Objects = new List<IHitObject>();
     }
 
-    public static List<IHitObject> FromData(ref Beatmap beatmap, List<string> lines)
+    /// <summary>
+    /// Converts a list of strings into a <see cref="HitObjects"/> object.
+    /// </summary>
+    /// <param name="beatmap"></param>
+    /// <param name="lines"></param>
+    /// <returns></returns>
+    public static HitObjects FromData(ref Beatmap beatmap, List<string> lines)
     {
         List<IHitObject> result = [];
         foreach (var line in lines)
@@ -35,18 +41,16 @@ public class HitObjects : IHitObjects
             var split = line.Split(',').ToList();
             try
             {
-                var type = GetHitObjectType(int.Parse(split[3])) ?? throw new Exception("objectType is invalid");
+                var type = Beatmap.GetHitObjectType(int.Parse(split[3])) ?? throw new Exception("objectType is invalid");
 
                 IHitObject hitObject = type switch
                 {
-                    //HitObjectType.Circle => typeof(Circle),
-                    HitObjectType.Slider => Slider.FromData(split),
-                    //HitObjectType.Spinner => typeof(Spinner),
-                    //HitObjectType.ManiaHold => typeof(ManiaHold),
+                    HitObjectType.Circle => Circle.FromData(split),
+                    HitObjectType.Slider => Slider.ParseFromData(split),
+                    HitObjectType.Spinner => Spinner.FromData(split),
+                    HitObjectType.ManiaHold => ManiaHold.FromData(split),
                     _ => HitObject.FromData(split),
                 };
-
-                //var obj = (IHitObject?)Activator.CreateInstance(hitObjectType, split) ?? throw new Exception("Object instance is null");
 
                 result.Add(hitObject);
             }
@@ -56,6 +60,9 @@ public class HitObjects : IHitObjects
             }
         }
 
-        return new HitObjects(result);
+        return new HitObjects()
+        {
+            Objects = result
+        };
     }
 }

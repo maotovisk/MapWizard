@@ -71,14 +71,12 @@ public class HitObject : IHitObject
     /// <summary>
     /// Parses a hit object from a string.
     /// </summary>
-    /// <param name="data"></param>
+    /// <param name="splitData"></param>
     /// <returns></returns>
-    public static HitObject FromData(string data)
+    public static HitObject FromData(List<string> splitData)
     {
         try
         {
-            string[] splitData = data.Split(',');
-
             return new HitObject(
                 coordinates: new Vector2(float.Parse(splitData[0]), float.Parse(splitData[1])),
                 time: TimeSpan.FromMilliseconds(double.Parse(splitData[2])),
@@ -88,9 +86,9 @@ public class HitObject : IHitObject
                 comboColour: (uint)((int.Parse(splitData[3]) & 0x00FFF0000) >> 4 * 4)
             );
         }
-        catch (Exception e)
+        catch (Exception ex)
         {
-            Console.WriteLine($"Failed to parse HitObject {e}");
+            Console.WriteLine($"Failed to parse HitObject {ex}");
             return new HitObject();
         }
     }

@@ -1,4 +1,5 @@
 using System.Numerics;
+using System.Reflection.Metadata.Ecma335;
 
 namespace Beatmap;
 
@@ -28,4 +29,26 @@ public class TimingPoints : ITimingPoints
     {
         TimingPointList = new List<ITimingPoint>();
     }
+
+
+    public TimingPoints FromData(ref Beatmap beatmap, List<string> section)
+    {
+        List<TimingPoint> timingPoints = section.Select(x =>
+        {
+            var split = x.Split(',');
+
+            return new TimingPoint()
+            {
+                Time = TimeSpan.FromMilliseconds(double.Parse(split[0])),
+                SampleSet = (SampleSet)int.Parse(split[1]),
+                SampleIndex = uint.Parse(split[2]),
+                Volume = uint.Parse(split[3]),
+                Effects = new List<Effect> { (Effect)int.Parse(split[4]) }
+            };
+        }).ToList();
+
+        return new TimingPoints(timingPoints);
+    }
+
+
 }
