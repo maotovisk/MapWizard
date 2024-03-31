@@ -2,6 +2,10 @@
 
 A tool that aims to replicate the hitsounds of a beatmap difficulty to other difficulties on the set. It is useful to avoid the inconvenience of having to redo the same hitsound logic for many difficulties across the set.
 
+<br/>
+
+<p align="right"><b>Current Status</b>: Developing a new beatmap (.osu file) parser</p>
+
 ## Project Goals
 
 - Fully cross-platform;
@@ -11,7 +15,7 @@ A tool that aims to replicate the hitsounds of a beatmap difficulty to other dif
 
 ## Requirements
 
-- .NET SDK 8.0
+- .NET 8 or above
 
 ## Usage
 
@@ -26,10 +30,6 @@ git clone https://github.com/maotovisk/HitsoundCopier.git
 ```bash
 dotnet run
 ```
-
-## Current Status
-
-- Developing a new beatmap (.osu file) parser
 
 ## Roadmap
 
