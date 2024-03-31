@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("HitsoundCopier")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+efd1593b0c539dbca8d62f769c76c1a79d1adb8b")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+4ff5eaf990d906bd81e5ad6b1f89ef6749a2d115")]
 [assembly: System.Reflection.AssemblyProductAttribute("HitsoundCopier")]
 [assembly: System.Reflection.AssemblyTitleAttribute("HitsoundCopier")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
