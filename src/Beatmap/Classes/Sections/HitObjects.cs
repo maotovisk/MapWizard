@@ -39,7 +39,7 @@ public class HitObjects : IHitObjects
 
                 IHitObject hitObject = type switch
                 {
-                    HitObjectType.Circle => typeof(Circle),
+                    //HitObjectType.Circle => typeof(Circle),
                     HitObjectType.Slider => Slider.FromData(split),
                     //HitObjectType.Spinner => typeof(Spinner),
                     //HitObjectType.ManiaHold => typeof(ManiaHold),
@@ -56,8 +56,6 @@ public class HitObjects : IHitObjects
             }
         }
 
-        return new HitObjects(objects: result);
+        return new HitObjects(result);
     }
 }
-
-// vou fazer uma tapioca ja volto

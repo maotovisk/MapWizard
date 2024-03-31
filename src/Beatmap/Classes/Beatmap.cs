@@ -58,5 +58,10 @@ public class Beatmap : IBeatmap
         TimingPoints = new TimingPoints();
         HitObjects = new HitObjects();
     }
+    private static void Version(List<string> section)
+    {
+        int.Parse(section[0]);
+    }
+
 }
 

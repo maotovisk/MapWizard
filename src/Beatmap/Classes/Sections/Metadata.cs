@@ -94,4 +94,22 @@ public class Metadata : IMetadata
         Source = string.Empty;
         Tags = [];
     }
+
+
+    public Metadata FromData(List<string> section)
+    {
+        return new Metadata()
+        {
+            Title = section[0],
+            TitleUnicode = section[1],
+            Artist = section[2],
+            ArtistUnicode = section[3],
+            Creator = section[4],
+            Version = section[5],
+            Source = section[6],
+            Tags = section[7].Split(' ').ToList(),
+            BeatmapID = int.Parse(section[8]),
+            BeatmapSetID = int.Parse(section[9])
+        };
+    }
 }

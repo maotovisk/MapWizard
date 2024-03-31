@@ -163,4 +163,20 @@ public class General : IGeneral
         WidescreenStoryboard = false;
         SamplesMatchPlaybackRate = false;
     }
+
+
+    public static General FromData(List<string> section)
+    {
+        return new General(
+            audioFilename: section[0],
+            audioLeadIn: int.Parse(section[1]),
+            previewTime: int.Parse(section[2]),
+            countdown: bool.Parse(section[3]),
+            sampleSet: section[4],
+            stackLeniency: double.Parse(section[5]),
+            mode: int.Parse(section[6]),
+            letterboxInBreaks: bool.Parse(section[7]),
+            widescreenStoryboard: bool.Parse(section[8])
+        );
+    }
 }

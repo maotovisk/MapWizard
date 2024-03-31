@@ -39,4 +39,17 @@ public class Colours : IColours
     {
         Combos = new List<IComboColour>();
     }
+
+    public Colours FromData(List<string> section)
+    {
+        beatmap.Colours = section.Select(x =>
+        {
+            var split = x.Split(':');
+            return new Colour
+            {
+                Name = split[0],
+                Value = split[1]
+            };
+        }).ToList();
+    }
 }

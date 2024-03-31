@@ -73,4 +73,17 @@ public class Difficulty : IDifficulty
         SliderMultiplier = 1;
         SliderTickRate = 1;
     }
+    public Difficulty FromData(ref Beatmap beatmap, List<string> section)
+    {
+        return new Difficulty()
+        {
+            HPDrainRate = double.Parse(section[0]),
+            CircleSize = double.Parse(section[1]),
+            OverallDifficulty = double.Parse(section[2]),
+            ApproachRate = double.Parse(section[3]),
+            SliderMultiplier = double.Parse(section[4]),
+            SliderTickRate = double.Parse(section[5])
+        };
+    }
+
 }

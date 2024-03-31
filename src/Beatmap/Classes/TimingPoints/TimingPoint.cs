@@ -55,4 +55,24 @@ public class TimingPoint : ITimingPoint
         Volume = 0;
         Effects = new List<Effect>();
     }
+
+
+    public TimingPoint FromData(ref Beatmap beatmap, List<string> section)
+    {
+        beatmap.TimingPoints = section.Select(x =>
+        {
+            var split = x.Split(',');
+            return new TimingPoint
+            {
+                Offset = double.Parse(split[0]),
+                MillisecondsPerBeat = double.Parse(split[1]),
+                Meter = int.Parse(split[2]),
+                SampleSet = int.Parse(split[3]),
+                SampleIndex = int.Parse(split[4]),
+                Volume = int.Parse(split[5]),
+                Inherited = bool.Parse(split[6]),
+                KiaiMode = bool.Parse(split[7])
+            };
+        }).ToList();
+    }
 }
