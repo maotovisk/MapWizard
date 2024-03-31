@@ -1,3 +1,6 @@
+using Beatmap.Enums;
+
+namespace Beatmap.HitObjects;
 /// <summary>
 ///
 /// </summary>

@@ -1,3 +1,5 @@
+using Beatmap.TimingPoints;
+
 namespace Beatmap.Sections;
 
 /// <summary>

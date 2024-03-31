@@ -1,3 +1,4 @@
+namespace Beatmap.Enums;
 
 /// <summary>
 /// Represents a sample set.

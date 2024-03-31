@@ -1,3 +1,5 @@
+namespace Beatmap.TimingPoints;
+
 /// <summary>
 /// Represents an inherited timing point of the beatmap.
 /// </summary>

@@ -1,5 +1,7 @@
 using System.Numerics;
+using Beatmap.Enums;
 
+namespace Beatmap.HitObjects;
 
 /// <summary>
 /// 

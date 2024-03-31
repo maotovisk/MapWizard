@@ -1,3 +1,5 @@
+using Beatmap.HitObjects;
+
 namespace Beatmap.Sections;
 
 /// <summary>

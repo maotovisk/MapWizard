@@ -1,9 +1,11 @@
+using Beatmap.Events;
+
 namespace Beatmap.Sections;
 
 /// <summary>
 ///
 /// </summary>
-public interface IEvents : IHitObject
+public interface IEvents
 {
     /// <summary>
     /// Represents the list of events in the beatmap.

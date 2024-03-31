@@ -11,7 +11,7 @@ This is a simple tool that copies the hitsounds from one beatmap to another, for
 
 ## Requirements
 
-- .NET SDK 8.0 or higher
+- .NET SDK 8.0
 
 ## Usage
 
