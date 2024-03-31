@@ -1,4 +1,4 @@
-namespace Beatmap.Sections;
+namespace Beatmap;
 
 /// <summary>
 ///  This is a osu file format v14 specification of the General section.
@@ -33,7 +33,7 @@ public interface IGeneral
     /// <summary>
     /// Multiplier for the threshold in time where hit objects placed close together stack (0–1)
     /// </summary>
-    float StackLeniency { get; set; }
+    double StackLeniency { get; set; }
 
     /// <summary>
     /// Game mode (0 = osu!, 1 = Taiko, 2 = CtB, 3 = osu!mania)
@@ -68,7 +68,7 @@ public interface IGeneral
     /// <summary>
     /// Time in beats that the countdown starts before the first hit object
     /// </summary>
-    float CountdownOffset { get; set; }
+    double CountdownOffset { get; set; }
 
     /// <summary>
     /// Whether or not the "N+1" style key layout is used for osu!mania

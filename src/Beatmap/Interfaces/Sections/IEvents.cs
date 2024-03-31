@@ -1,6 +1,4 @@
-using Beatmap.Events;
-
-namespace Beatmap.Sections;
+namespace Beatmap;
 
 /// <summary>
 ///
@@ -10,5 +8,5 @@ public interface IEvents
     /// <summary>
     /// Represents the list of events in the beatmap.
     /// </summary>
-    List<IEvent> Events { get; set; }
+    List<IEvent> EventList { get; set; }
 }

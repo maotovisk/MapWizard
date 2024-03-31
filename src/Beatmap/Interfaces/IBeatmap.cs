@@ -1,16 +1,9 @@
-using Beatmap.Sections;
-
 namespace Beatmap;
 /// <summary>
 /// Represents a beatmap.
 /// </summary>
 public interface IBeatmap
 {
-    /// <summary>
-    /// Gets the file information of the beatmap.
-    /// </summary>
-    FileInfo File { get; }
-
     /// <summary>
     /// Gets or sets the version of the beatmap.
     /// </summary>

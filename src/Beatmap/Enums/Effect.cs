@@ -1,4 +1,4 @@
-namespace Beatmap.Enums;
+namespace Beatmap;
 
 /// <summary>
 /// Represents an effect in a control point.

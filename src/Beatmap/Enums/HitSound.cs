@@ -1,31 +1,27 @@
-namespace Beatmap.Enums;
+namespace Beatmap;
 
 /// <summary>
 /// Represents the hit sounds that a hit object can have.
 /// </summary>
-public enum HitSound
+public enum HitSound : int
 {
-    /// <summary>
-    /// No hit sound.
-    /// </summary>
-    None = 0,
     /// <summary>
     /// Normal hit sound.
     /// </summary>
-    Normal = 1,
+    Normal = 0x0000000F,
 
     /// <summary>
     /// Whistle hit sound.
     /// </summary>
-    Whistle = 2,
+    Whistle = 0x000000F0,
 
     /// <summary>
     /// Finish hit sound.
     /// </summary>
-    Finish = 4,
+    Finish = 0x00000F00,
 
     /// <summary>
     /// Clap hit sound.
     /// </summary>
-    Clap = 8,
+    Clap = 0x0000F000,
 }

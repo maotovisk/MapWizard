@@ -1,4 +1,4 @@
-namespace Beatmap.TimingPoints;
+namespace Beatmap;
 
 /// <summary>
 /// Represents an inherited timing point of the beatmap.
@@ -8,5 +8,5 @@ public interface IInheritedTimingPoint : ITimingPoint
     /// <summary>
     /// Gets or sets the slider velocity of the beatmap.
     /// </summary>
-    float SliderVelocity { get; set; }
+    double SliderVelocity { get; set; }
 }

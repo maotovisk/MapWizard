@@ -1,4 +1,4 @@
-namespace Beatmap.Sections;
+namespace Beatmap;
 
 /// <summary>
 ///  This is a osu file format v14 specification of the Metadata section.

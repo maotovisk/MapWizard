@@ -1,4 +1,4 @@
-namespace Beatmap.Enums;
+namespace Beatmap;
 
 /// <summary>
 /// Represents the type of curve used in a beatmap.

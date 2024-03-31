@@ -1,4 +1,4 @@
-namespace Beatmap.Sections;
+namespace Beatmap;
 
 /// <summary> Represents a editor section</summary>
 public interface IEditor
@@ -7,7 +7,7 @@ public interface IEditor
     List<TimeSpan> Bookmarks { get; set; }
 
     /// <summary> Distance snap multiplier. </summary>
-    float DistanceSpacing { get; set; }
+    double DistanceSpacing { get; set; }
 
     /// <summary>Beat snap divisor.</summary>
     int BeatDivisor { get; set; }
@@ -16,5 +16,5 @@ public interface IEditor
     int GridSize { get; set; }
 
     /// <summary> Scale factor for the object timeline.</summary>
-    float TimelineZoom { get; set; }
+    double TimelineZoom { get; set; }
 }

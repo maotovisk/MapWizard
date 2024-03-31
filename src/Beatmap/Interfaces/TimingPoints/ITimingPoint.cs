@@ -1,6 +1,4 @@
-using Beatmap.Enums;
-
-namespace Beatmap.TimingPoints;
+namespace Beatmap;
 
 /// <summary>
 /// Represents an timing point of the beatmap.

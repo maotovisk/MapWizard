@@ -1,4 +1,4 @@
-namespace Beatmap.Sections;
+namespace Beatmap;
 
 using System.Numerics;
 

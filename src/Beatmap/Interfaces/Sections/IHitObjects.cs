@@ -1,6 +1,4 @@
-using Beatmap.HitObjects;
-
-namespace Beatmap.Sections;
+namespace Beatmap;
 
 /// <summary>
 /// Represents the hit objects section of a beatmap.

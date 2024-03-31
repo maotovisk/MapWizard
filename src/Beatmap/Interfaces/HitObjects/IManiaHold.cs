@@ -1,4 +1,4 @@
-namespace Beatmap.HitObjects;
+namespace Beatmap;
 
 /// <summary>
 ///

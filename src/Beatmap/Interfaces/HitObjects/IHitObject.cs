@@ -1,7 +1,6 @@
 using System.Numerics;
-using Beatmap.Enums;
 
-namespace Beatmap.HitObjects;
+namespace Beatmap;
 
 /// <summary>
 /// 
@@ -25,7 +24,7 @@ public interface IHitObject
     ///  <summary>
     /// 
     /// </summary>
-    public IHitSample HitSample { get; set; }
+    public IHitSample HitSampleData { get; set; }
 
     ///  <summary>
     /// 

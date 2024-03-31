@@ -1,5 +1,6 @@
-
 using System.Numerics;
+
+namespace Beatmap;
 
 /// <summary>
 /// Represents the difficulty section of a beatmap.

@@ -1,3 +1,4 @@
+namespace Beatmap;
 /// <summary>
 /// Represents the type of event in a beatmap.
 /// </summary>

@@ -1,7 +1,6 @@
 using System.Numerics;
-using Beatmap.Enums;
 
-namespace Beatmap.HitObjects;
+namespace Beatmap;
 
 /// <summary>
 ///
@@ -26,12 +25,12 @@ public interface ISlider : IHitObject
     /// <summary>
     ///
     /// </summary>
-    public uint Lenght { get; set; }
+    public uint Length { get; set; }
 
     /// <summary>
     ///
     /// </summary>
-    public HitSound EdgeHitSound { get; set; }
+    public List<HitSound> EdgeHitSound { get; set; }
 
     /// <summary>
     ///
