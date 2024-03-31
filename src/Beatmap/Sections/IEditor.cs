@@ -1,4 +1,7 @@
-public interface IEditorSection
+namespace Beatmap.Sections;
+
+/// <summary> Represents a editor section</summary>
+public interface IEditor
 {
     /// <summary> Time in milliseconds of bookmarks. </summary>
     List<TimeSpan> Bookmarks { get; set; }

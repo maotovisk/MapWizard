@@ -1,13 +1,14 @@
 namespace Beatmap;
+using Sections;
 
 interface IBeatmap
 {
     FileInfo File { get; }
-    IMetadataSection Metadata { get; set; }
-    IGeneralSection General { get; set; }
-    IEditorSection Editor { get; set; }
-    IDifficultySection Difficulty { get; set; }
-    IColoursSection Colours { get; set; }
+    IMetadata Metadata { get; set; }
+    IGeneral General { get; set; }
+    IEditor Editor { get; set; }
+    IDifficulty Difficulty { get; set; }
+    IColours Colours { get; set; }
 
 
 

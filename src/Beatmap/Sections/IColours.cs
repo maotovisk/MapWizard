@@ -1,9 +1,11 @@
+namespace Beatmap.Sections;
+
 using System.Numerics;
 
 /// <summary>
 /// Represents the colours section of a beatmap.
 /// </summary>
-public interface IColoursSection
+public interface IColours
 {
     /// <summary>
     /// Gets or sets the slider border colour of the beatmap.
@@ -18,5 +20,5 @@ public interface IColoursSection
     /// <summary>
     /// Represents the difficulty section of a beatmap.
     /// </summary>
-    List<IColoursSectionCombo> Combos { get; set; }
+    List<IComboColour> Combos { get; set; }
 }

@@ -1,7 +1,9 @@
+namespace Beatmap.Sections;
+
 /// <summary>
 /// Represents the difficulty section of a beatmap.
 /// </summary>
-public interface IDifficultySection
+public interface IDifficulty
 {
     /// <summary>
     /// Gets or sets the hp drain rate of the beatmap.

@@ -1,11 +1,9 @@
-/* 
-    Referenced from: https://osu.ppy.sh/wiki/en/Client/File_formats/osu_%28file_format%29
-*/
+namespace Beatmap.Sections;
 
 /// <summary>
 ///  This is a osu file format v14 specification of the Metadata section.
 /// </summary>
-public interface IMetadataSection
+public interface IMetadata
 {
     /// <summary>
     /// Romanised song title
