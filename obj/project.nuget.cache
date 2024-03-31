@@ -1,0 +1,15 @@
+{
+  "version": 2,
+  "dgSpecHash": "riG6tufUur1eHRGqwNfShhrI81W+Am1ZWD9x9AqT7g68yrbCf/5vXF84f+ymTV/DjgoUSlB1M90RMVHHjCloPA==",
+  "success": true,
+  "projectFilePath": "/home/maot/projects/HitsoundCopier/HitsoundCopier.csproj",
+  "expectedPackageFiles": [
+    "/home/maot/.nuget/packages/microsoft.csharp/4.7.0/microsoft.csharp.4.7.0.nupkg.sha512",
+    "/home/maot/.nuget/packages/system.commandline/2.0.0-beta4.22272.1/system.commandline.2.0.0-beta4.22272.1.nupkg.sha512",
+    "/home/maot/.nuget/packages/system.commandline.dragonfruit/0.4.0-alpha.22272.1/system.commandline.dragonfruit.0.4.0-alpha.22272.1.nupkg.sha512",
+    "/home/maot/.nuget/packages/system.commandline.namingconventionbinder/2.0.0-beta4.22272.1/system.commandline.namingconventionbinder.2.0.0-beta4.22272.1.nupkg.sha512",
+    "/home/maot/.nuget/packages/system.commandline.rendering/0.4.0-alpha.22272.1/system.commandline.rendering.0.4.0-alpha.22272.1.nupkg.sha512",
+    "/home/maot/.nuget/packages/microsoft.aspnetcore.app.ref/8.0.3/microsoft.aspnetcore.app.ref.8.0.3.nupkg.sha512"
+  ],
+  "logs": []
+}
