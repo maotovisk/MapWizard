@@ -30,10 +30,9 @@ public class HitObjects : IHitObjects
     /// <summary>
     /// Converts a list of strings into a <see cref="HitObjects"/> object.
     /// </summary>
-    /// <param name="beatmap"></param>
     /// <param name="lines"></param>
     /// <returns></returns>
-    public static HitObjects FromData(ref Beatmap beatmap, List<string> lines)
+    public static HitObjects FromData(List<string> lines)
     {
         List<IHitObject> result = [];
         foreach (var line in lines)

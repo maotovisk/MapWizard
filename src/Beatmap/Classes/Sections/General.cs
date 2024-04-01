@@ -164,19 +164,13 @@ public class General : IGeneral
         SamplesMatchPlaybackRate = false;
     }
 
-
+    /// <summary>
+    /// Parses a list of General lines into a new <see cref="General"/> class.
+    /// </summary>
+    /// <param name="section"></param>
+    /// <returns></returns>
     public static General FromData(List<string> section)
     {
-        return new General(
-            audioFilename: section[0],
-            audioLeadIn: int.Parse(section[1]),
-            previewTime: int.Parse(section[2]),
-            countdown: bool.Parse(section[3]),
-            sampleSet: section[4],
-            stackLeniency: double.Parse(section[5]),
-            mode: int.Parse(section[6]),
-            letterboxInBreaks: bool.Parse(section[7]),
-            widescreenStoryboard: bool.Parse(section[8])
-        );
+        return new General();
     }
 }

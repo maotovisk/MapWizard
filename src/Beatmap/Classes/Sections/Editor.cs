@@ -41,17 +41,14 @@ public class Editor : IEditor
     {
         Bookmarks = new List<TimeSpan>();
     }
-
+    /// <summary>
+    /// Converts a list of strings to a <see cref="Editor"/> object.
+    /// </summary>
+    /// <param name="section"></param>
+    /// <returns></returns>
     public static Editor FromData(List<string> section)
     {
-        return new Editor()
-        {
-            Bookmarks = section[0].Split(',').Select(double.Parse).Select(TimeSpan.FromMilliseconds).ToList(),
-            DistanceSpacing = double.Parse(section[1]),
-            BeatDivisor = int.Parse(section[2]),
-            GridSize = int.Parse(section[3]),
-            TimelineZoom = double.Parse(section[4])
-        };
+        return new Editor();
     }
 
 }

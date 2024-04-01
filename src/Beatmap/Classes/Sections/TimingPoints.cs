@@ -30,8 +30,12 @@ public class TimingPoints : ITimingPoints
         TimingPointList = new List<ITimingPoint>();
     }
 
-
-    public TimingPoints FromData(ref Beatmap beatmap, List<string> section)
+    /// <summary>
+    /// Parses a list of TimingPoints lines into a new <see cref="TimingPoints"/> class.
+    /// </summary>
+    /// <param name="section"></param>
+    /// <returns></returns>
+    public static TimingPoints FromData(List<string> section)
     {
         List<TimingPoint> timingPoints = section.Select(x =>
         {

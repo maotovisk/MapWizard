@@ -58,14 +58,14 @@ public class BeatmapDecoder
 
         try
         {
-            if (sections.TryGetValue($"Begin", out List<string>? version)) beatmap.HitObjects = Version.FromData(version);
-            if (sections.TryGetValue($"{SectionTypes.General}", out List<string>? general)) beatmap.HitObjects = General.FromData(general);
-            if (sections.TryGetValue($"{SectionTypes.Editor}", out List<string>? editor)) beatmap.HitObjects = Editor.FromData(editor);
-            if (sections.TryGetValue($"{SectionTypes.Metadata}", out List<string>? metadata)) beatmap.HitObjects = Metadata.FromData(metadata);
-            if (sections.TryGetValue($"{SectionTypes.Difficulty}", out List<string>? difficulty)) beatmap.HitObjects = Difficulty.FromData(difficulty);
-            if (sections.TryGetValue($"{SectionTypes.Colours}", out List<string>? colours)) beatmap.HitObjects = Colours.FromData(colours);
-            if (sections.TryGetValue($"{SectionTypes.Events}", out List<string>? events)) beatmap.HitObjects = Events.FromData(events);
-            if (sections.TryGetValue($"{SectionTypes.TimingPoints}", out List<string>? timingPoints)) beatmap.HitObjects = TimingPoints.FromData(timingPoints);
+            if (sections.TryGetValue($"Begin", out List<string>? version)) beatmap.Version = Beatmap.VersionFromData(version);
+            if (sections.TryGetValue($"{SectionTypes.General}", out List<string>? general)) beatmap.General = General.FromData(general);
+            if (sections.TryGetValue($"{SectionTypes.Editor}", out List<string>? editor)) beatmap.Editor = Editor.FromData(editor);
+            if (sections.TryGetValue($"{SectionTypes.Metadata}", out List<string>? metadata)) beatmap.Metadata = Metadata.FromData(metadata);
+            if (sections.TryGetValue($"{SectionTypes.Difficulty}", out List<string>? difficulty)) beatmap.Difficulty = Difficulty.FromData(difficulty);
+            if (sections.TryGetValue($"{SectionTypes.Colours}", out List<string>? colours)) beatmap.Colours = Colours.FromData(colours);
+            if (sections.TryGetValue($"{SectionTypes.Events}", out List<string>? events)) beatmap.Events = Events.FromData(events);
+            if (sections.TryGetValue($"{SectionTypes.TimingPoints}", out List<string>? timingPoints)) beatmap.TimingPoints = TimingPoints.FromData(timingPoints);
             if (sections.TryGetValue($"{SectionTypes.HitObjects}", out List<string>? hitObjects)) beatmap.HitObjects = HitObjects.FromData(hitObjects);
         }
         catch (Exception ex)
@@ -74,22 +74,5 @@ public class BeatmapDecoder
             beatmap = new();
         }
         return beatmap;
-    }
-
-    /// <summary>
-    /// Gets the hit object type from a bitwise.
-    /// </summary>
-    /// <param name="data"></param>
-    /// <returns></returns>
-    public HitObjectType? GetHitObjectType(int data)
-    {
-        List<HitObjectType> types = [];
-        foreach (HitObjectType name in Enum.GetValues(typeof(HitObjectType)))
-        {
-            if ((data & (int)name) != 0x000000000) types.Add(name);
-        }
-        if (types.Count == 1) return types.First();
-
-        return null;
     }
 }

@@ -86,7 +86,7 @@ public class Slider : HitObject, ISlider
     /// Initializes a new instance of the <see cref="Slider"/> class.
     /// </summary>
     /// <param name="baseObject"></param>
-    public Slider(HitObject baseObject) : base(baseObject.Coordinates, baseObject.Time, baseObject.HitSounds, baseObject.HitSample, baseObject.NewCombo, baseObject.ComboColour)
+    public Slider(HitObject baseObject) : base(baseObject.Coordinates, baseObject.Time, baseObject.HitSounds, baseObject.HitSampleData, baseObject.NewCombo, baseObject.ComboColour)
     {
         CurveType = CurveType.Bezier;
         CurvePoints = new List<Vector2>();

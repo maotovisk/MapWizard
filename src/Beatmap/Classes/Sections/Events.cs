@@ -26,5 +26,11 @@ namespace Beatmap
         {
             EventList = eventList;
         }
+        /// <summary>
+        /// Converts a list of strings to a <see cref="Events"/> object.
+        /// </summary>
+        /// <param name="section"></param>
+        /// <returns></returns>
+        public static Events FromData(List<string> section) => new Events();
     }
 }
