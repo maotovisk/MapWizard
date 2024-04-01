@@ -9,6 +9,8 @@ namespace HitsoundCopier
         {
             var beatmap = Beatmap.Decode(input);
 
+            Console.WriteLine(beatmap.Version);
+
             Console.WriteLine("Parsing Beatmap...");
         }
     }

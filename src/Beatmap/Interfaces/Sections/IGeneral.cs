@@ -48,32 +48,32 @@ public interface IGeneral
     /// <summary>
     /// Whether or not the storyboard can use the user's skin images
     /// </summary>
-    bool UseSkinSprites { get; set; }
+    bool? UseSkinSprites { get; set; }
 
     /// <summary>
     /// Draw order of hit circle overlays compared to hit numbers (NoChange = use skin setting, Below = draw overlays under numbers, Above = draw overlays on top of numbers)
     /// </summary>
-    string OverlayPosition { get; set; }
+    string? OverlayPosition { get; set; }
 
     /// <summary>
     /// Preferred skin to use during gameplay
     /// </summary>
-    string SkinPreference { get; set; }
+    string? SkinPreference { get; set; }
 
     /// <summary>
     /// Whether or not a warning about flashing colours should be shown at the beginning of the map
     /// </summary>
-    bool EpilepsyWarning { get; set; }
+    bool? EpilepsyWarning { get; set; }
 
     /// <summary>
     /// Time in beats that the countdown starts before the first hit object
     /// </summary>
-    double CountdownOffset { get; set; }
+    double? CountdownOffset { get; set; }
 
     /// <summary>
     /// Whether or not the "N+1" style key layout is used for osu!mania
     /// </summary>
-    bool SpecialStyle { get; set; }
+    bool? SpecialStyle { get; set; }
 
     /// <summary>
     /// Whether or not the storyboard allows widescreen viewing
@@ -83,5 +83,5 @@ public interface IGeneral
     /// <summary>
     /// Whether or not sound samples will change rate when playing with speed-changing mods
     /// </summary>
-    bool SamplesMatchPlaybackRate { get; set; }
+    bool? SamplesMatchPlaybackRate { get; set; }
 }

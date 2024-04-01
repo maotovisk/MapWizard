@@ -125,8 +125,10 @@ public class Metadata : IMetadata
                 metadata.Add(splittedLine[0].Trim(), string.Join(":", splittedLine.Skip(1)).Trim());
             });
 
-            if (metadata.Count != typeof(IMetadata).GetProperties().Length) throw new Exception("Invalid Metadata section length.");
-
+            if (metadata.Count >= Helpers.CountProperties<IMetadata>() || metadata.Count <= Helpers.CountNonNullableProperties<IMetadata>())
+            {
+                throw new Exception("Invalid Metadata section length.");
+            }
 
             return new Metadata(
                 title: metadata["Title"],

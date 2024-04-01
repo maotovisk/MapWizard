@@ -95,7 +95,9 @@ public class Beatmap : IBeatmap
     {
         try
         {
-            if (sections.Count != typeof(IBeatmap).GetProperties().Length) throw new Exception($"Invalid number of sections.");
+            Console.WriteLine($"Decoding beatmap with {sections.Count} sections.");
+            Console.WriteLine($"Sections: {string.Join(", ", sections.Keys)}");
+            if (sections.Count != typeof(IBeatmap).GetProperties().Length) throw new Exception($"Invalid number of sections. Expected {typeof(IBeatmap).GetProperties().Length} but got {sections.Count}.");
 
             var versionSection = sections[$"Begin"];
             var formatVersion = int.Parse(versionSection[0].Replace("osu file format v", string.Empty));
@@ -133,7 +135,7 @@ public class Beatmap : IBeatmap
     {
         if (!path.Exists) throw new Exception("Beatmap file does not exist.");
 
-        var lines = File.ReadAllLines(path.FullName).ToList();
+        var lines = File.ReadAllLines(path.FullName).Select(line => line.Trim()).Where(line => !string.IsNullOrEmpty(line) && !string.IsNullOrWhiteSpace(line)).ToList();
 
         if (lines.Count == 0) throw new Exception("Beatmap file is empty.");
 
@@ -147,7 +149,7 @@ public class Beatmap : IBeatmap
     /// <returns></returns>
     public static Beatmap Decode(string beatmap)
     {
-        var stringLines = beatmap.Split("\r\n").ToList();
+        var stringLines = beatmap.Split("\r\n").Select(line => line.Trim()).Where(line => !string.IsNullOrEmpty(line) && !string.IsNullOrWhiteSpace(line)).ToList();
 
         if (stringLines.Count == 0) throw new Exception("Beatmap string is empty.");
 
@@ -166,26 +168,24 @@ public class Beatmap : IBeatmap
 
         for (var index = 0; index != lines.Count; ++index)
         {
-            if (string.IsNullOrEmpty(lines[index])) continue;
-
             foreach (SectionTypes name in Enum.GetValues(typeof(SectionTypes)))
             {
-                if (!lines[index].Contains($"[{name}]")) continue;
+                if (!lines[index].StartsWith($"[{name}]")) continue;
+
                 if (first.index == -1)
                 {
                     first = (index, name.ToString());
                     if (index != 0) result.Add("Begin", lines[0..index]);
                     continue;
                 }
-                if (first.index + 1 == index) result.Add(name.ToString(), [lines[index]]);
-                else result.Add(name.ToString(), lines[(first.index + 1)..index]);
+                result.Add(first.name, lines[(first.index + 1)..index]);
 
                 first = (index, name.ToString());
             }
         }
         if (lines.Count - first.index != 0)
         {
-            result.Add(first.name, lines[first.index..lines.Count]);
+            result.Add(first.name, lines[(first.index + 1)..lines.Count]);
         }
         return result;
     }

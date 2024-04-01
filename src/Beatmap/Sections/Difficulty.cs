@@ -98,7 +98,11 @@ public class Difficulty : IDifficulty
 
                 difficulty.Add(splittedLine[0], splittedLine[1]);
             });
-            if (difficulty.Count != typeof(IDifficulty).GetProperties().Length) throw new Exception("Invalid Metadata section length.");
+
+            if (difficulty.Count >= Helpers.CountProperties<IDifficulty>() || difficulty.Count <= Helpers.CountNonNullableProperties<IDifficulty>())
+            {
+                throw new Exception("Invalid Difficulty section lenght.");
+            }
 
             return new Difficulty(
                 hpDrainRate: double.Parse(difficulty["HPDrainRate"]),

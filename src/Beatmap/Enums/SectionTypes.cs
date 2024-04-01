@@ -1,3 +1,5 @@
+namespace BeatmapParser;
+
 /// <summary>
 /// Represents the types of sections in a beatmap file.
 /// </summary>

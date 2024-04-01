@@ -48,32 +48,32 @@ public class General : IGeneral
     /// <summary>
     /// Whether or not the storyboard can use the user's skin images
     /// </summary>
-    public bool UseSkinSprites { get; set; }
+    public bool? UseSkinSprites { get; set; }
 
     /// <summary>
     /// Draw order of hit circle overlays compared to hit numbers (NoChange = use skin setting, Below = draw overlays under numbers, Above = draw overlays on top of numbers)
     /// </summary>
-    public string OverlayPosition { get; set; }
+    public string? OverlayPosition { get; set; }
 
     /// <summary>
     /// Preferred skin to use during gameplay
     /// </summary>
-    public string SkinPreference { get; set; }
+    public string? SkinPreference { get; set; }
 
     /// <summary>
     /// Whether or not a warning about flashing colours should be shown at the beginning of the map
     /// </summary>
-    public bool EpilepsyWarning { get; set; }
+    public bool? EpilepsyWarning { get; set; }
 
     /// <summary>
     /// Time in beats that the countdown starts before the first hit object
     /// </summary>
-    public double CountdownOffset { get; set; }
+    public double? CountdownOffset { get; set; }
 
     /// <summary>
     /// Whether or not the "N+1" style key layout is used for osu!mania
     /// </summary>
-    public bool SpecialStyle { get; set; }
+    public bool? SpecialStyle { get; set; }
 
     /// <summary>
     /// Whether or not the storyboard allows widescreen viewing
@@ -83,7 +83,7 @@ public class General : IGeneral
     /// <summary>
     /// Whether or not sound samples will change rate when playing with speed-changing mods
     /// </summary>
-    public bool SamplesMatchPlaybackRate { get; set; }
+    public bool? SamplesMatchPlaybackRate { get; set; }
 
     /// <summary>
     /// Creates a new <see cref="General"/> section of a <see cref="Beatmap"/> with the provided values.
@@ -113,14 +113,14 @@ public class General : IGeneral
         double stackLeniency,
         int mode,
         bool letterboxInBreaks,
-        bool useSkinSprites,
-        string overlayPosition,
-        string skinPreference,
-        bool epilepsyWarning,
-        double countdownOffset,
-        bool specialStyle,
+        bool? useSkinSprites,
+        string? overlayPosition,
+        string? skinPreference,
+        bool? epilepsyWarning,
+        double? countdownOffset,
+        bool? specialStyle,
         bool widescreenStoryboard,
-        bool samplesMatchPlaybackRate
+        bool? samplesMatchPlaybackRate
     )
     {
         AudioFilename = audioFilename;
@@ -181,7 +181,7 @@ public class General : IGeneral
 
                 if (splittedLine.Length < 2)
                 {
-                    throw new Exception("Invalid Metadata section field.");
+                    throw new Exception($"Invalid General section field: {line}");
                 }
 
                 if (general.ContainsKey(splittedLine[0].Trim()))
@@ -193,25 +193,28 @@ public class General : IGeneral
                 general.Add(splittedLine[0].Trim(), string.Join(":", splittedLine.Skip(1)).Trim());
             });
 
-            if (general.Count != typeof(IGeneral).GetProperties().Length) throw new Exception("Invalid General section length.");
+            if (general.Count > Helpers.CountProperties<IGeneral>() || general.Count < Helpers.CountNonNullableProperties<IGeneral>())
+            {
+                throw new Exception("Invalid General section length. Missing properties: " + string.Join(", ", Helpers.GetMissingPropertiesNames<IGeneral>(general.Keys)) + ".");
+            }
 
             return new General(
                 audioFilename: general["AudioFilename"],
                 audioLeadIn: int.Parse(general["AudioLeadIn"]),
                 previewTime: int.Parse(general["PreviewTime"]),
-                countdown: bool.Parse(general["Countdown"]),
+                countdown: int.Parse(general["Countdown"]) == 1,
                 sampleSet: general["SampleSet"],
                 stackLeniency: double.Parse(general["StackLeniency"]),
                 mode: int.Parse(general["Mode"]),
-                letterboxInBreaks: bool.Parse(general["LetterboxInBreaks"]),
-                useSkinSprites: bool.Parse(general["UseSkinSprites"]),
-                overlayPosition: general["OverlayPosition"],
-                skinPreference: general["SkinPreference"],
-                epilepsyWarning: bool.Parse(general["EpilepsyWarning"]),
-                countdownOffset: double.Parse(general["CountdownOffset"]),
-                specialStyle: bool.Parse(general["SpecialStyle"]),
-                widescreenStoryboard: bool.Parse(general["WidescreenStoryboard"]),
-                samplesMatchPlaybackRate: bool.Parse(general["SamplesMatchPlaybackRate"])
+                letterboxInBreaks: int.Parse(general["LetterboxInBreaks"]) == 1,
+                useSkinSprites: general.ContainsKey("UseSkinSprites") ? int.Parse(general["UseSkinSprites"]) == 1 : null,
+                overlayPosition: general.ContainsKey("OverlayPosition") ? general["OverlayPosition"] : null,
+                skinPreference: general.ContainsKey("SkinPreference") ? general["SkinPreference"] : null,
+                epilepsyWarning: general.ContainsKey("EpilepsyWarning") ? int.Parse(general["EpilepsyWarning"]) == 1 : null,
+                countdownOffset: general.ContainsKey("CountdownOffset") ? double.Parse(general["CountdownOffset"]) : null,
+                specialStyle: general.ContainsKey("SpecialStyle") ? int.Parse(general["SpecialStyle"]) == 1 : null,
+                widescreenStoryboard: int.Parse(general["WidescreenStoryboard"]) == 1,
+                samplesMatchPlaybackRate: general.ContainsKey("SamplesMatchPlaybackRate") ? int.Parse(general["SamplesMatchPlaybackRate"]) == 1 : null
             );
         }
         catch (Exception ex)

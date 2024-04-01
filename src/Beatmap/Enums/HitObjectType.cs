@@ -1,6 +1,4 @@
-
-using osu;
-
+namespace BeatmapParser;
 /// <summary>
 /// Represents the type of a hit object in a beatmap.
 /// </summary>

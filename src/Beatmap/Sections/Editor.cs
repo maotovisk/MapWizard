@@ -66,11 +66,13 @@ public class Editor : IEditor
                 }
 
                 // Account for mutiple ':' in the value
-                editor[splittedLine[0].Trim()] = string.Join(":", splittedLine.Skip(1)).Trim();
+                editor.Add(splittedLine[0].Trim(), string.Join(":", splittedLine.Skip(1)).Trim());
             });
 
-            if (editor.Count != typeof(IEditor).GetProperties().Length) throw new Exception("Invalid editor section length.");
-
+            if (editor.Count > Helpers.CountProperties<IEditor>() || editor.Count < Helpers.CountNonNullableProperties<IEditor>())
+            {
+                throw new Exception("Invalid Editor section length. Missing properties: " + string.Join(", ", Helpers.GetMissingPropertiesNames<IEditor>(editor.Keys)) + ".");
+            }
 
             return new Editor(
                 bookmarks: editor["Bookmarks"].Split(',').Select(x => TimeSpan.FromMilliseconds(double.Parse(x))).ToList(),
