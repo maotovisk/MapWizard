@@ -1,4 +1,4 @@
-namespace Beatmap;
+namespace BeatmapParser;
 
 /// <summary> Represents a editor section</summary>
 public interface IEditor

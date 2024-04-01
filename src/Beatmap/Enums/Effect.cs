@@ -1,4 +1,4 @@
-namespace Beatmap;
+namespace BeatmapParser;
 
 /// <summary>
 /// Represents an effect in a control point.
@@ -8,13 +8,13 @@ public enum Effect
     /// <summary>
     /// No effect.
     /// </summary>
-    None = 0,
+    None = 0x00000000,
     /// <summary>
     /// Kiai effect.
     /// </summary>
-    Kiai = 1,
+    Kiai = 0x0000000F,
     /// <summary>
     /// Omit first bar line effect, used in osu!mania.
     /// </summary>
-    OmitFirstBarLine = 2,
+    OmitFirstBarLine = 0x0000F000,
 }

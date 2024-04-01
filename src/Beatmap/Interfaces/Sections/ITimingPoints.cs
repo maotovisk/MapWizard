@@ -1,4 +1,4 @@
-namespace Beatmap;
+namespace BeatmapParser;
 
 /// <summary>
 /// Represents the timing points section section of a beatmap.

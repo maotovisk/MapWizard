@@ -1,7 +1,7 @@
 using System.Numerics;
 using System.Runtime.InteropServices.Marshalling;
 
-namespace Beatmap;
+namespace BeatmapParser;
 
 /// <summary>
 /// Represents a spinner hit object in a beatmap.

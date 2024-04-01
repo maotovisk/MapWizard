@@ -1,6 +1,6 @@
 using System.Numerics;
 
-namespace Beatmap;
+namespace BeatmapParser;
 
 /// <summary>
 /// Represents the difficulty section of a beatmap.
@@ -15,5 +15,5 @@ public interface IComboColour
     /// <summary>
     /// Gets or sets the colour of the combo colour of the beatmap.
     /// </summary>
-    Vector4 Colour { get; set; }
+    Vector3 Colour { get; set; }
 }

@@ -1,4 +1,4 @@
-namespace Beatmap;
+namespace BeatmapParser;
 /// <summary>
 ///
 /// </summary>
@@ -18,7 +18,7 @@ public interface IGeneralEvent : IEvent
     /// <summary>
     /// 
     /// </summary>
-    public EventType Type { get; set; }
+    public string Type { get; set; }
 
     /// <summary>
     /// 

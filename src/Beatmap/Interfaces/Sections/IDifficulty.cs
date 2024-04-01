@@ -1,4 +1,4 @@
-namespace Beatmap;
+namespace BeatmapParser;
 
 /// <summary>
 /// Represents the difficulty section of a beatmap.

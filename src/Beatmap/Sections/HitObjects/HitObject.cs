@@ -1,6 +1,6 @@
 using System.Numerics;
 
-namespace Beatmap;
+namespace BeatmapParser;
 
 /// <summary>
 /// Represents a hit object in a beatmap.
@@ -73,15 +73,15 @@ public class HitObject : IHitObject
     /// </summary>
     /// <param name="splitData"></param>
     /// <returns></returns>
-    public static HitObject FromData(List<string> splitData)
+    public static HitObject Decode(List<string> splitData)
     {
         try
         {
             return new HitObject(
                 coordinates: new Vector2(float.Parse(splitData[0]), float.Parse(splitData[1])),
                 time: TimeSpan.FromMilliseconds(double.Parse(splitData[2])),
-                hitSounds: HitSoundList.FromData(int.Parse(splitData[3])),
-                hitSample: HitSample.FromData(splitData[5]),
+                hitSounds: EnumConverter.Hitsounds(int.Parse(splitData[3])),
+                hitSample: HitSample.Decode(splitData[5]),
                 newCombo: (int.Parse(splitData[3]) & 0x000000F00) != 0x000000000,
                 comboColour: (uint)((int.Parse(splitData[3]) & 0x00FFF0000) >> 4 * 4)
             );

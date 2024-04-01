@@ -1,4 +1,6 @@
-namespace Beatmap;
+using System.Reflection.Metadata.Ecma335;
+
+namespace BeatmapParser.Sections;
 
 /// <summary>
 ///  This is a osu file format v14 specification of the Metadata section.
@@ -100,8 +102,48 @@ public class Metadata : IMetadata
     /// </summary>
     /// <param name="section"></param>
     /// <returns></returns>
-    public static Metadata FromData(List<string> section)
+    public static Metadata Decode(List<string> section)
     {
-        return new Metadata();
+        Dictionary<string, string> metadata = [];
+        try
+        {
+            section.ForEach(line =>
+            {
+                string[] splittedLine = line.Split(':');
+
+                if (splittedLine.Length < 2)
+                {
+                    throw new Exception("Invalid Metadata section field.");
+                }
+
+                if (metadata.ContainsKey(splittedLine[0].Trim()))
+                {
+                    throw new Exception("Adding same propriety multiple times.");
+                }
+
+                // Account for mutiple ':' in the value
+                metadata.Add(splittedLine[0].Trim(), string.Join(":", splittedLine.Skip(1)).Trim());
+            });
+
+            if (metadata.Count != typeof(IMetadata).GetProperties().Length) throw new Exception("Invalid Metadata section length.");
+
+
+            return new Metadata(
+                title: metadata["Title"],
+                titleUnicode: metadata["TitleUnicode"],
+                artist: metadata["Artist"],
+                artistUnicode: metadata["ArtistUnicode"],
+                creator: metadata["Creator"],
+                version: metadata["Version"],
+                source: metadata["Source"],
+                tags: metadata["Tags"].Split(' ').ToList(),
+                beatmapId: int.Parse(metadata["BeatmapID"]),
+                beatmapSetId: int.Parse(metadata["BeatmapSetID"])
+            );
+        }
+        catch (Exception ex)
+        {
+            throw new Exception($"Failed to parse TimingPoints: {ex.Message}\n{ex.StackTrace}");
+        }
     }
 }

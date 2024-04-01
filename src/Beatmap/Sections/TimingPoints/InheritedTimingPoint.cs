@@ -1,4 +1,4 @@
-namespace Beatmap;
+namespace BeatmapParser;
 
 /// <summary>
 /// Represents an inherited timing point of the beatmap.
@@ -34,7 +34,7 @@ public class InheritedTimingPoint : TimingPoint, IInheritedTimingPoint
         SampleSet = SampleSet.Default;
         SampleIndex = 0;
         Volume = 0;
-        Effects = new List<Effect>();
+        Effects = [];
         SliderVelocity = 1.0;
     }
 }

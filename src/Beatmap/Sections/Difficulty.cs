@@ -1,4 +1,4 @@
-namespace Beatmap;
+namespace BeatmapParser.Sections;
 
 /// <summary>
 /// Represents the difficulty section of a <see cref="Beatmap"/>.
@@ -78,9 +78,41 @@ public class Difficulty : IDifficulty
     /// </summary>
     /// <param name="section"></param>
     /// <returns></returns>
-    public static Difficulty FromData(List<string> section)
+    public static Difficulty Decode(List<string> section)
     {
-        return new Difficulty();
+        Dictionary<string, string> difficulty = [];
+        try
+        {
+            section.ForEach(line =>
+            {
+                string[] splittedLine = line.Split(':');
+
+                if (splittedLine.Length < 2)
+                {
+                    throw new Exception("Invalid difficulty section field.");
+                }
+                if (difficulty.ContainsKey(splittedLine[0].Trim()))
+                {
+                    throw new Exception("Adding same propriety multiple times.");
+                }
+
+                difficulty.Add(splittedLine[0], splittedLine[1]);
+            });
+            if (difficulty.Count != typeof(IDifficulty).GetProperties().Length) throw new Exception("Invalid Metadata section length.");
+
+            return new Difficulty(
+                hpDrainRate: double.Parse(difficulty["HPDrainRate"]),
+                circleSize: double.Parse(difficulty["CircleSize"]),
+                overallDifficulty: double.Parse(difficulty["OverallDifficulty"]),
+                approachRate: double.Parse(difficulty["ApproachRate"]),
+                sliderMultiplier: double.Parse(difficulty["SliderMultiplier"]),
+                sliderTickRate: double.Parse(difficulty["SliderTickRate"])
+            );
+        }
+        catch (Exception ex)
+        {
+            throw new Exception("Failed to parse Difficultty section:\n", ex);
+        }
     }
 
 }

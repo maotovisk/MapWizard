@@ -1,4 +1,4 @@
-namespace Beatmap;
+namespace BeatmapParser.Sections;
 
 /// <summary>
 /// Represents the hit objects section of a beatmap.
@@ -32,36 +32,34 @@ public class HitObjects : IHitObjects
     /// </summary>
     /// <param name="lines"></param>
     /// <returns></returns>
-    public static HitObjects FromData(List<string> lines)
+    public static HitObjects Decode(List<string> lines)
     {
         List<IHitObject> result = [];
-        foreach (var line in lines)
+        try
         {
-            var split = line.Split(',').ToList();
-            try
+            foreach (var line in lines)
             {
-                var type = Beatmap.GetHitObjectType(int.Parse(split[3])) ?? throw new Exception("objectType is invalid");
+                var split = line.Split(',').ToList();
+
+                var type = EnumConverter.HitObjectType(int.Parse(split[3])) ?? throw new Exception("objectType is invalid");
 
                 IHitObject hitObject = type switch
                 {
-                    HitObjectType.Circle => Circle.FromData(split),
-                    HitObjectType.Slider => Slider.ParseFromData(split),
-                    HitObjectType.Spinner => Spinner.FromData(split),
-                    HitObjectType.ManiaHold => ManiaHold.FromData(split),
-                    _ => HitObject.FromData(split),
+                    HitObjectType.Circle => Circle.Decode(split),
+                    HitObjectType.Slider => Slider.Decode(split),
+                    HitObjectType.Spinner => Spinner.Decode(split),
+                    HitObjectType.ManiaHold => ManiaHold.Decode(split),
+                    _ => HitObject.Decode(split),
                 };
 
                 result.Add(hitObject);
             }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Failed to create hit object\n{ex}");
-            }
-        }
 
-        return new HitObjects()
+            return new HitObjects(result);
+        }
+        catch (Exception ex)
         {
-            Objects = result
-        };
+            throw new Exception($"Failed to parse HitObjects section\n{ex}");
+        }
     }
 }

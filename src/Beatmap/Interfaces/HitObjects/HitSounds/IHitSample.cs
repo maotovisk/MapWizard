@@ -1,6 +1,6 @@
 using System.IO.Enumeration;
 
-namespace Beatmap;
+namespace BeatmapParser;
 /// <summary>
 /// Represents a hit sample of a hit object.
 /// </summary>

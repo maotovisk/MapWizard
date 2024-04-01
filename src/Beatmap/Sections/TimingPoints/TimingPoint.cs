@@ -1,4 +1,4 @@
-namespace Beatmap;
+namespace BeatmapParser;
 
 /// <summary>
 /// Represents an timing point of the beatmap.
@@ -56,7 +56,7 @@ public class TimingPoint : ITimingPoint
         SampleSet = SampleSet.Default;
         SampleIndex = 0;
         Volume = 0;
-        Effects = new List<Effect>();
+        Effects = [];
     }
 
 }

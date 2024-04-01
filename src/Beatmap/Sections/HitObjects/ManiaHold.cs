@@ -1,6 +1,6 @@
 using System.Numerics;
 
-namespace Beatmap;
+namespace BeatmapParser;
 
 /// <summary>
 /// Represents a hold object in a mania beatmap.

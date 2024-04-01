@@ -1,4 +1,4 @@
-namespace Beatmap;
+namespace BeatmapParser;
 
 /// <summary>
 ///  This is a osu file format v14 specification of the Metadata section.

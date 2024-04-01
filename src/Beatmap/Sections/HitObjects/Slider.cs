@@ -1,6 +1,6 @@
 using System.Numerics;
 
-namespace Beatmap;
+namespace BeatmapParser;
 
 /// <summary>
 /// Represents a <see cref="Slider"/> hit object.
@@ -101,14 +101,14 @@ public class Slider : HitObject, ISlider
     /// </summary>
     /// <param name="split"></param>
     /// <returns></returns>
-    public static Slider ParseFromData(List<string> split)
+    public static new Slider Decode(List<string> split)
     {
         // x,   y,  time,   type,   hitSound,   curveType|curvePoints,  slides, length, edgeSounds  ,edgeSets   ,hitSample
         // 0    1   2       3       4           5                       6       7       8           9           10
 
         var objectParams = split[5].Split('|');
 
-        var slider = new Slider(HitObject.FromData(split))
+        var slider = new Slider(HitObject.Decode(split))
         {
             CurveType = (CurveType)Enum.Parse(typeof(CurveType), objectParams[0]),
             CurvePoints = objectParams[1..^1].Select(x =>
@@ -118,7 +118,7 @@ public class Slider : HitObject, ISlider
                 }).ToList(),
             Repeats = uint.Parse(split[6]),
             Length = uint.Parse(split[7]),
-            EdgeHitSound = HitSoundList.FromData(int.Parse(split[8])),
+            EdgeHitSound = EnumConverter.Hitsounds(int.Parse(split[8])),
             EdgeSampleSets = (SampleSet)Enum.Parse(typeof(SampleSet), split[9]),
         };
         return slider;

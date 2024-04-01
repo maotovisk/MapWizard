@@ -1,4 +1,4 @@
-namespace Beatmap;
+namespace BeatmapParser.Sections;
 
 /// <summary>
 /// Represents the general section of a <see cref="Beatmap"/> .
@@ -169,8 +169,54 @@ public class General : IGeneral
     /// </summary>
     /// <param name="section"></param>
     /// <returns></returns>
-    public static General FromData(List<string> section)
+    public static General Decode(List<string> section)
     {
-        return new General();
+        Dictionary<string, string> general = [];
+
+        try
+        {
+            section.ForEach(line =>
+            {
+                string[] splittedLine = line.Split(':');
+
+                if (splittedLine.Length < 2)
+                {
+                    throw new Exception("Invalid Metadata section field.");
+                }
+
+                if (general.ContainsKey(splittedLine[0].Trim()))
+                {
+                    throw new Exception("Adding same propriety multiple times.");
+                }
+
+                // Account for mutiple ':' in the value
+                general.Add(splittedLine[0].Trim(), string.Join(":", splittedLine.Skip(1)).Trim());
+            });
+
+            if (general.Count != typeof(IGeneral).GetProperties().Length) throw new Exception("Invalid General section length.");
+
+            return new General(
+                audioFilename: general["AudioFilename"],
+                audioLeadIn: int.Parse(general["AudioLeadIn"]),
+                previewTime: int.Parse(general["PreviewTime"]),
+                countdown: bool.Parse(general["Countdown"]),
+                sampleSet: general["SampleSet"],
+                stackLeniency: double.Parse(general["StackLeniency"]),
+                mode: int.Parse(general["Mode"]),
+                letterboxInBreaks: bool.Parse(general["LetterboxInBreaks"]),
+                useSkinSprites: bool.Parse(general["UseSkinSprites"]),
+                overlayPosition: general["OverlayPosition"],
+                skinPreference: general["SkinPreference"],
+                epilepsyWarning: bool.Parse(general["EpilepsyWarning"]),
+                countdownOffset: double.Parse(general["CountdownOffset"]),
+                specialStyle: bool.Parse(general["SpecialStyle"]),
+                widescreenStoryboard: bool.Parse(general["WidescreenStoryboard"]),
+                samplesMatchPlaybackRate: bool.Parse(general["SamplesMatchPlaybackRate"])
+            );
+        }
+        catch (Exception ex)
+        {
+            throw new Exception($"Error while parsing General section:\n{ex}.");
+        }
     }
 }

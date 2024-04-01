@@ -1,4 +1,6 @@
-
+/// <summary>
+/// Represents the types of sections in a beatmap file.
+/// </summary>
 public enum SectionTypes
 {
     /// <summary>

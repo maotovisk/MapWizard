@@ -1,4 +1,4 @@
-namespace Beatmap;
+namespace BeatmapParser;
 /// <summary>
 /// Event class.
 /// </summary>

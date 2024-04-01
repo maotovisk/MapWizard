@@ -1,6 +1,6 @@
 using System.IO.Enumeration;
 
-namespace Beatmap;
+namespace BeatmapParser;
 /// <summary>
 ///
 /// </summary>
@@ -65,7 +65,7 @@ public class HitSample : IHitSample
     /// </summary>
     /// <param name="data"></param>
     /// <returns><see cref="HitSample"/></returns>
-    public static HitSample FromData(string data)
+    public static HitSample Decode(string data)
     {
         try
         {

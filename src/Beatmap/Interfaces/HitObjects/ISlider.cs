@@ -1,6 +1,6 @@
 using System.Numerics;
 
-namespace Beatmap;
+namespace BeatmapParser;
 
 /// <summary>
 ///

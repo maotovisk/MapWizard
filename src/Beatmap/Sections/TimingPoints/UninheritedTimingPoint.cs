@@ -1,4 +1,4 @@
-namespace Beatmap;
+namespace BeatmapParser;
 
 /// <summary>
 /// Represents an uninherited timing point of the beatmap.
@@ -40,7 +40,7 @@ public class UninheritedTimingPoint : TimingPoint, IUninheritedTimingPoint
         SampleSet = SampleSet.Default;
         SampleIndex = 0;
         Volume = 0;
-        Effects = new List<Effect>();
+        Effects = [];
         BeatLength = TimeSpan.Zero;
         TimeSignature = 4;
     }
