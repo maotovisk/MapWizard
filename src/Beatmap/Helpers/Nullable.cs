@@ -6,7 +6,7 @@ namespace BeatmapParser;
 /// <summary>
 /// Generic helper methods.
 /// </summary>
-public partial class Helpers
+public partial class Helper
 {
     /// <summary>
     /// Determines whether the specified type is nullable.
@@ -34,18 +34,15 @@ public partial class Helpers
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <returns></returns>
-    public static int CountNonNullableProperties<T>()
-    {
-        // Not considering nullable properties
-        return typeof(T).GetProperties().Count(p => !IsNullable(p.PropertyType));
-    }
+    private static int CountNonNullableProperties<T>() => typeof(T).GetProperties().Count(p => !IsNullable(p.PropertyType));
+
 
     /// <summary>
     /// Counts the number of properties in a class.
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <returns></returns>
-    public static int CountProperties<T>() => typeof(T).GetProperties().Length;
+    private static int CountProperties<T>() => typeof(T).GetProperties().Length;
 
     /// <summary>
     /// Gets the missing properties from a list of properties.
@@ -66,16 +63,12 @@ public partial class Helpers
         return missingProperties;
     }
 
-    // static T? GetValueOrNull<FN>(Dictionary<string, T> dictionary, string key, Func<string, FN> parser) where T : struct
-    // {
-    //     if (dictionary.TryGetValue(key, out string value))
-    //     {
-    //         return parser(value);
-    //     }
-    //     else
-    //     {
-    //         return null;
-    //     }
-    // }
+    /// <summary>
+    /// Determines whether the number of properties is within the expected range.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="count"></param>
+    /// <returns></returns>
+    public static bool IsWithinProperitesQuantitity<T>(int count) => count > CountProperties<T>() || count < CountNonNullableProperties<T>();
 
 }

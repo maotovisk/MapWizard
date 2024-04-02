@@ -20,15 +20,15 @@ public interface IHitSample
     /// <summary>
     /// Index of the hit sample.
     /// </summary>
-    public uint Index { get; set; }
+    public uint? Index { get; set; }
 
     /// <summary>
     /// Volume of the hit sample.
     /// </summary>
-    public uint Volume { get; set; }
+    public uint? Volume { get; set; }
 
     /// <summary>
     /// Custom file name of the hit sample.
     /// </summary>
-    public string FileName { get; set; }
+    public string? FileName { get; set; }
 }

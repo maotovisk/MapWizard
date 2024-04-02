@@ -19,17 +19,17 @@ public class HitSample : IHitSample
     /// <summary>
     /// Index of the hit sample.
     /// </summary>
-    public uint Index { get; set; }
+    public uint? Index { get; set; }
 
     /// <summary>
     /// Volume of the hit sample.
     /// </summary>
-    public uint Volume { get; set; }
+    public uint? Volume { get; set; }
 
     /// <summary>
     /// Name of the file of the custom sample.
     /// </summary>
-    public string FileName { get; set; }
+    public string? FileName { get; set; }
 
     ///  <summary>
     /// Initializes a new instance of the <see cref="HitSample"/> class.
@@ -39,7 +39,7 @@ public class HitSample : IHitSample
     /// <param name="index"></param>
     /// <param name="volume"></param>
     /// <param name="fileName"></param>
-    public HitSample(SampleSet normalSet, SampleSet additionSet, uint index, uint volume, string fileName)
+    public HitSample(SampleSet normalSet, SampleSet additionSet, uint? index, uint? volume, string? fileName)
     {
         NormalSet = normalSet;
         AdditionSet = additionSet;
@@ -73,15 +73,14 @@ public class HitSample : IHitSample
             return new HitSample(
                 normalSet: (SampleSet)uint.Parse(split[0]),
                 additionSet: (SampleSet)uint.Parse(split[1]),
-                index: uint.Parse(split[2]),
-                volume: uint.Parse(split[3]),
-                fileName: split[4]
+                index: split.Length > 2 ? uint.Parse(split[2]) : null,
+                volume: split.Length > 3 ? uint.Parse(split[3]) : null,
+                fileName: split.Length > 4 ? split[4] : null
             );
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Failed to parse HitSample {ex}");
-            return new HitSample();
+            throw new Exception($"Failed to parse HitSample {ex}");
         }
     }
 }

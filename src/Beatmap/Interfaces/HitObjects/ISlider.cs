@@ -25,15 +25,24 @@ public interface ISlider : IHitObject
     /// <summary>
     ///
     /// </summary>
-    public uint Length { get; set; }
+    public double Length { get; set; }
+
 
     /// <summary>
-    ///
+    /// Hit sound of the slider track.
     /// </summary>
-    public List<HitSound> EdgeHitSound { get; set; }
+    public (IHitSample SampleData, List<HitSound> Sounds) HeadSounds { get; set; }
 
     /// <summary>
-    ///
+    /// 
     /// </summary>
-    public SampleSet EdgeSampleSets { get; set; }
+    public List<(IHitSample SampleData, List<HitSound> Sounds)>? RepeatSounds { get; set; }
+
+
+    /// <summary>
+    /// Hit sound of the slider track.
+    /// </summary>
+    public (IHitSample SampleData, List<HitSound> Sounds) TailSounds { get; set; }
+
+
 }

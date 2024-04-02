@@ -41,7 +41,7 @@ public class HitObjects : IHitObjects
             {
                 var split = line.Split(',').ToList();
 
-                var type = EnumConverter.HitObjectType(int.Parse(split[3])) ?? throw new Exception("objectType is invalid");
+                var type = Helper.ParseHitObjectType(int.Parse(split[3]));
 
                 IHitObject hitObject = type switch
                 {

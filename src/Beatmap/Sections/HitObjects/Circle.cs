@@ -12,11 +12,11 @@ public class Circle : HitObject, ICircle
     /// </summary>
     /// <param name="coordinates"></param>
     /// <param name="time"></param>
+    /// <param name="type"></param>
     /// <param name="hitSounds"></param>
-    /// <param name="hitSample"></param>
     /// <param name="newCombo"></param>
     /// <param name="comboColour"></param>
-    public Circle(Vector2 coordinates, TimeSpan time, List<HitSound> hitSounds, IHitSample hitSample, bool newCombo, uint comboColour) : base(coordinates, time, hitSounds, hitSample, newCombo, comboColour)
+    public Circle(Vector2 coordinates, TimeSpan time, HitObjectType type, (IHitSample, List<HitSound>) hitSounds, bool newCombo, uint comboColour) : base(coordinates, time, type, hitSounds, newCombo, comboColour)
     { }
     /// <summary>
     /// Initializes a new instance of the Circle class.
@@ -25,8 +25,7 @@ public class Circle : HitObject, ICircle
     {
         Coordinates = new Vector2();
         Time = new TimeSpan();
-        HitSounds = new List<HitSound>();
-        HitSampleData = new HitSample();
+        HitSounds = (new HitSample(), new List<HitSound>());
         NewCombo = false;
         ComboColour = 0;
     }
@@ -35,7 +34,7 @@ public class Circle : HitObject, ICircle
     /// Initializes a new instance of the Circle class.
     /// </summary>
     /// <param name="baseObject"></param>
-    public Circle(HitObject baseObject) : base(baseObject.Coordinates, baseObject.Time, baseObject.HitSounds, baseObject.HitSampleData, baseObject.NewCombo, baseObject.ComboColour)
+    public Circle(HitObject baseObject) : base(baseObject.Coordinates, baseObject.Time, baseObject.Type, baseObject.HitSounds, baseObject.NewCombo, baseObject.ComboColour)
     {
     }
 }

@@ -125,7 +125,7 @@ public class Metadata : IMetadata
                 metadata.Add(splittedLine[0].Trim(), string.Join(":", splittedLine.Skip(1)).Trim());
             });
 
-            if (metadata.Count >= Helpers.CountProperties<IMetadata>() || metadata.Count <= Helpers.CountNonNullableProperties<IMetadata>())
+            if (Helper.IsWithinProperitesQuantitity<IMetadata>(metadata.Count))
             {
                 throw new Exception("Invalid Metadata section length.");
             }
@@ -145,7 +145,7 @@ public class Metadata : IMetadata
         }
         catch (Exception ex)
         {
-            throw new Exception($"Failed to parse TimingPoints: {ex.Message}\n{ex.StackTrace}");
+            throw new Exception($"Failed to parse Metadata: {ex.Message}\n{ex.StackTrace}");
         }
     }
 }

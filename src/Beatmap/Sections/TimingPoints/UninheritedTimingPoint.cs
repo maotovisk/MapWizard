@@ -41,7 +41,7 @@ public class UninheritedTimingPoint : TimingPoint, IUninheritedTimingPoint
         SampleIndex = 0;
         Volume = 0;
         Effects = [];
-        BeatLength = TimeSpan.Zero;
+        BeatLength = TimeSpan.FromMilliseconds(500);
         TimeSignature = 4;
     }
 }

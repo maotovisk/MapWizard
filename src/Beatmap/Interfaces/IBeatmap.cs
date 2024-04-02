@@ -32,7 +32,7 @@ public interface IBeatmap
     /// <summary>
     /// Gets or sets the colours used in the beatmap.
     /// </summary>
-    IColours Colours { get; set; }
+    IColours? Colours { get; set; }
 
     /// <summary>
     /// Gets or sets the events in the beatmap.
@@ -42,7 +42,7 @@ public interface IBeatmap
     /// <summary>
     /// Gets or sets the timing points in the beatmap.
     /// </summary>
-    ITimingPoints TimingPoints { get; set; }
+    ITimingPoints? TimingPoints { get; set; }
 
     /// <summary>
     /// Gets or sets the hit objects in the beatmap.

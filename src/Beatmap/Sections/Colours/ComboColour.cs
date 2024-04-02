@@ -38,7 +38,7 @@ public class ComboColour : IComboColour
         try
         {
             string[] split = line.Split(':');
-            return new ComboColour(uint.Parse(split[0].Replace("Combo", string.Empty)), VectorConverter.ToVector3(split[1]));
+            return new ComboColour(uint.Parse(split[0].Replace("Combo", string.Empty)), Helper.ParseVector3(split[1]));
         }
         catch (Exception ex)
         {

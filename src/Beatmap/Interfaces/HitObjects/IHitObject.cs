@@ -19,12 +19,12 @@ public interface IHitObject
     /// <summary>
     /// 
     /// </summary>
-    public List<HitSound> HitSounds { get; set; }
+    public HitObjectType Type { get; set; }
 
-    ///  <summary>
-    /// 
+    /// <summary>
+    /// Hitsound and sampleset of the hit object.
     /// </summary>
-    public IHitSample HitSampleData { get; set; }
+    public (IHitSample SampleData, List<HitSound> Sounds) HitSounds { get; set; }
 
     ///  <summary>
     /// 

@@ -1,10 +1,12 @@
+using System.Globalization;
+
 namespace BeatmapParser.Sections;
 
 /// <summary> Represents a editor section</summary>
 public class Editor : IEditor
 {
     /// <summary> Time in milliseconds of bookmarks. </summary>
-    public List<TimeSpan> Bookmarks { get; set; }
+    public List<TimeSpan>? Bookmarks { get; set; }
 
     /// <summary> Distance snap multiplier. </summary>
     public double DistanceSpacing { get; set; }
@@ -26,7 +28,7 @@ public class Editor : IEditor
     /// <param name="beatDivisor"></param>
     /// <param name="gridSize"></param>
     /// <param name="timelineZoom"></param>
-    public Editor(List<TimeSpan> bookmarks, double distanceSpacing, int beatDivisor, int gridSize, double timelineZoom)
+    public Editor(List<TimeSpan>? bookmarks, double distanceSpacing, int beatDivisor, int gridSize, double timelineZoom)
     {
         Bookmarks = bookmarks;
         DistanceSpacing = distanceSpacing;
@@ -37,21 +39,19 @@ public class Editor : IEditor
     /// <summary>
     /// Initializes a new instance of the <see cref="Editor"/> class.
     /// </summary>
-    public Editor()
-    {
-        Bookmarks = new List<TimeSpan>();
-    }
+    public Editor() { }
+
     /// <summary>
     /// Converts a list of strings to a <see cref="Editor"/> object.
     /// </summary>
-    /// <param name="section"></param>
+    /// <param name="sections"></param>
     /// <returns></returns>
-    public static Editor Decode(List<string> section)
+    public static Editor Decode(List<string> sections)
     {
         Dictionary<string, string> editor = [];
         try
         {
-            section.ForEach(line =>
+            sections.ForEach(line =>
             {
                 string[] splittedLine = line.Split(':');
 
@@ -69,17 +69,19 @@ public class Editor : IEditor
                 editor.Add(splittedLine[0].Trim(), string.Join(":", splittedLine.Skip(1)).Trim());
             });
 
-            if (editor.Count > Helpers.CountProperties<IEditor>() || editor.Count < Helpers.CountNonNullableProperties<IEditor>())
+            if (Helper.IsWithinProperitesQuantitity<IEditor>(editor.Count))
             {
-                throw new Exception("Invalid Editor section length. Missing properties: " + string.Join(", ", Helpers.GetMissingPropertiesNames<IEditor>(editor.Keys)) + ".");
+                throw new Exception("Invalid Editor section length. Missing properties: " + string.Join(", ", Helper.GetMissingPropertiesNames<IEditor>(editor.Keys)) + ".");
             }
 
+            editor.TryGetValue("Bookmarks", out string? bookmarks);
+
             return new Editor(
-                bookmarks: editor["Bookmarks"].Split(',').Select(x => TimeSpan.FromMilliseconds(double.Parse(x))).ToList(),
-                distanceSpacing: double.Parse(editor["DistanceSpacing"]),
+                bookmarks: bookmarks?.Split(',').Select(x => TimeSpan.FromMilliseconds(double.Parse(x, CultureInfo.InvariantCulture))).ToList(),
+                distanceSpacing: double.Parse(editor["DistanceSpacing"], CultureInfo.InvariantCulture),
                 beatDivisor: int.Parse(editor["BeatDivisor"]),
                 gridSize: int.Parse(editor["GridSize"]),
-                timelineZoom: double.Parse(editor["TimelineZoom"])
+                timelineZoom: double.Parse(editor["TimelineZoom"], CultureInfo.InvariantCulture)
             );
         }
         catch (Exception ex)

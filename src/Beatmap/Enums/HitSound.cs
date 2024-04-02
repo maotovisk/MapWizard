@@ -6,22 +6,27 @@ namespace BeatmapParser;
 public enum HitSound : int
 {
     /// <summary>
+    /// No hit sound.
+    /// </summary>
+    None = 0,
+
+    /// <summary>
     /// Normal hit sound.
     /// </summary>
-    Normal = 0x0000000F,
+    Normal = 1,
 
     /// <summary>
     /// Whistle hit sound.
     /// </summary>
-    Whistle = 0x000000F0,
+    Whistle = 2,
 
     /// <summary>
     /// Finish hit sound.
     /// </summary>
-    Finish = 0x00000F00,
+    Finish = 4,
 
     /// <summary>
     /// Clap hit sound.
     /// </summary>
-    Clap = 0x0000F000,
+    Clap = 8
 }

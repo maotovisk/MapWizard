@@ -31,7 +31,7 @@ public class Beatmap : IBeatmap
     /// <summary>
     /// The colours section of the beatmap.
     /// </summary>
-    public IColours Colours { get; set; }
+    public IColours? Colours { get; set; }
     /// <summary>
     /// The events section of the beatmap.
     /// </summary>
@@ -39,7 +39,7 @@ public class Beatmap : IBeatmap
     /// <summary>
     /// The timing points section of the beatmap.
     /// </summary>
-    public ITimingPoints TimingPoints { get; set; }
+    public ITimingPoints? TimingPoints { get; set; }
     /// <summary>
     /// The hit objects section of the beatmap.
     /// </summary>
@@ -54,9 +54,7 @@ public class Beatmap : IBeatmap
         General = new General();
         Editor = new Editor();
         Difficulty = new Difficulty();
-        Colours = new Colours();
         Events = new Events();
-        TimingPoints = new TimingPoints();
         HitObjects = new HitObjects();
     }
 
@@ -72,7 +70,7 @@ public class Beatmap : IBeatmap
     /// <param name="events"></param>
     /// <param name="timingPoints"></param>
     /// <param name="hitObjects"></param>
-    public Beatmap(int version, IMetadata metadata, IGeneral general, IEditor editor, IDifficulty difficulty, IColours colours, IEvents events, ITimingPoints timingPoints, IHitObjects hitObjects)
+    public Beatmap(int version, IMetadata metadata, IGeneral general, IEditor editor, IDifficulty difficulty, IColours? colours, IEvents events, ITimingPoints? timingPoints, IHitObjects hitObjects)
     {
         Version = version;
         Metadata = metadata;
@@ -95,9 +93,7 @@ public class Beatmap : IBeatmap
     {
         try
         {
-            Console.WriteLine($"Decoding beatmap with {sections.Count} sections.");
-            Console.WriteLine($"Sections: {string.Join(", ", sections.Keys)}");
-            if (sections.Count != typeof(IBeatmap).GetProperties().Length) throw new Exception($"Invalid number of sections. Expected {typeof(IBeatmap).GetProperties().Length} but got {sections.Count}.");
+            if (Helper.IsWithinProperitesQuantitity<IBeatmap>(sections.Count)) throw new Exception($"Invalid number of sections. Expected {typeof(IBeatmap).GetProperties().Length} but got {sections.Count}.");
 
             var versionSection = sections[$"Begin"];
             var formatVersion = int.Parse(versionSection[0].Replace("osu file format v", string.Empty));
@@ -112,9 +108,9 @@ public class Beatmap : IBeatmap
                 editor: Sections.Editor.Decode(sections[$"{SectionTypes.Editor}"]),
                 metadata: Sections.Metadata.Decode(sections[$"{SectionTypes.Metadata}"]),
                 difficulty: Sections.Difficulty.Decode(sections[$"{SectionTypes.Difficulty}"]),
-                colours: Sections.Colours.Decode(sections[$"{SectionTypes.Colours}"]),
+                colours: sections.ContainsKey($"{SectionTypes.Colours}") ? Sections.Colours.Decode(sections[$"{SectionTypes.Colours}"]) : null,
                 events: Sections.Events.Decode(sections[$"{SectionTypes.Events}"]),
-                timingPoints: Sections.TimingPoints.Decode(sections[$"{SectionTypes.TimingPoints}"]),
+                timingPoints: sections.ContainsKey($"{SectionTypes.TimingPoints}") ? Sections.TimingPoints.Decode(sections[$"{SectionTypes.TimingPoints}"]) : null,
                 hitObjects: Sections.HitObjects.Decode(sections[$"{SectionTypes.HitObjects}"])
             );
         }
@@ -131,38 +127,26 @@ public class Beatmap : IBeatmap
     /// <param name="path">Path of tthe beatmap</param>
     /// <returns>Dictionary of sections</returns>
     /// <exception cref="Exception"></exception>
-    public static Beatmap Decode(FileInfo path)
-    {
-        if (!path.Exists) throw new Exception("Beatmap file does not exist.");
-
-        var lines = File.ReadAllLines(path.FullName).Select(line => line.Trim()).Where(line => !string.IsNullOrEmpty(line) && !string.IsNullOrWhiteSpace(line)).ToList();
-
-        if (lines.Count == 0) throw new Exception("Beatmap file is empty.");
-
-        return Decode(SplitSections(lines));
-    }
+    public static Beatmap Decode(FileInfo path) => Decode(SplitSections(File.ReadAllText(path.FullName)));
 
     /// <summary>
     /// Converts a string into a <see cref="Beatmap"/> object.
     /// </summary>
     /// <param name="beatmap"></param>
     /// <returns></returns>
-    public static Beatmap Decode(string beatmap)
-    {
-        var stringLines = beatmap.Split("\r\n").Select(line => line.Trim()).Where(line => !string.IsNullOrEmpty(line) && !string.IsNullOrWhiteSpace(line)).ToList();
-
-        if (stringLines.Count == 0) throw new Exception("Beatmap string is empty.");
-
-        return Decode(SplitSections(stringLines));
-    }
+    public static Beatmap Decode(string beatmap) => Decode(SplitSections(beatmap));
 
     /// <summary>
     /// Splits the sections of a beatmap file into a dictionary containing the section name and the lines of the section.
     /// </summary>
-    /// <param name="lines"></param>
+    /// <param name="beatmap"></param>
     /// <returns></returns>
-    private static Dictionary<string, List<string>> SplitSections(List<string> lines)
+    private static Dictionary<string, List<string>> SplitSections(string beatmap)
     {
+        var lines = beatmap.Split("\r\n").Select(line => line.Trim()).Where(line => !string.IsNullOrEmpty(line) && !string.IsNullOrWhiteSpace(line)).ToList();
+
+        if (lines.Count == 0) throw new Exception("Beatmap is empty.");
+
         Dictionary<string, List<string>> result = [];
         (int index, string name) first = (-1, string.Empty);
 

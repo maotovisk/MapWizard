@@ -4,7 +4,7 @@ namespace BeatmapParser;
 public interface IEditor
 {
     /// <summary> Time in milliseconds of bookmarks. </summary>
-    List<TimeSpan> Bookmarks { get; set; }
+    List<TimeSpan>? Bookmarks { get; set; }
 
     /// <summary> Distance snap multiplier. </summary>
     double DistanceSpacing { get; set; }

@@ -1,3 +1,5 @@
+using System.Globalization;
+
 namespace BeatmapParser.Sections;
 
 /// <summary>
@@ -48,12 +50,12 @@ public class TimingPoints : ITimingPoints
                 if (split[6] == "1")
                 {
                     timingPoints.Add(new UninheritedTimingPoint(
-                        time: TimeSpan.FromMilliseconds(double.Parse(split[0])),
+                        time: TimeSpan.FromMilliseconds(double.Parse(split[0], CultureInfo.InvariantCulture)),
                         sampleSet: (SampleSet)Enum.Parse(typeof(SampleSet), split[3]),
                         sampleIndex: uint.Parse(split[4]),
                         volume: uint.Parse(split[5]),
-                        effects: EnumConverter.Effects(int.Parse(split[6])),
-                        beatLength: TimeSpan.FromMilliseconds(double.Parse(split[1])),
+                        effects: Helper.ParseEffects(int.Parse(split[6])),
+                        beatLength: TimeSpan.FromMilliseconds(double.Parse(split[1], CultureInfo.InvariantCulture)),
                         timeSignature: int.Parse(split[2])
                     ));
                 }
@@ -64,8 +66,8 @@ public class TimingPoints : ITimingPoints
                         sampleSet: (SampleSet)Enum.Parse(typeof(SampleSet), split[3]),
                         sampleIndex: uint.Parse(split[4]),
                         volume: uint.Parse(split[5]),
-                        effects: EnumConverter.Effects(int.Parse(split[6])),
-                        sliderVelocity: -(100 / double.Parse(split[1]))
+                        effects: Helper.ParseEffects(int.Parse(split[6], CultureInfo.InvariantCulture)),
+                        sliderVelocity: -(100 / double.Parse(split[1], CultureInfo.InvariantCulture))
                     ));
                 }
             };

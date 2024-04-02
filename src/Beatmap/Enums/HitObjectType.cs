@@ -5,22 +5,22 @@ namespace BeatmapParser;
 public enum HitObjectType : int
 {
     /// <summary>
-    /// Represents a circle object.
+    /// Represents a circle hit object.
     /// </summary>
-    Circle = 0x000000F,
+    Circle = 1 << 0,
 
     /// <summary>
-    /// Represents a slider object.
+    /// Represents a slider hit object.
     /// </summary>
-    Slider = 0x00000F0,
+    Slider = 1 << 1,
 
     /// <summary>
-    /// Represents a spinner object.
+    /// Represents a spinner hit object.
     /// </summary>
-    Spinner = 0x000F000,
+    Spinner = 1 << 3,
 
     /// <summary>
-    /// Represents a mania hold object.
+    /// Represents a mania hold hit object.
     /// </summary>
-    ManiaHold = 0x0F00000
+    ManiaHold = 1 << 7
 }

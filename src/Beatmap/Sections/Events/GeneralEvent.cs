@@ -1,3 +1,5 @@
+using System.Globalization;
+
 namespace BeatmapParser;
 
 /// <summary>
@@ -48,7 +50,7 @@ public class GeneralEvent : IGeneralEvent
         {
             var split = line.Split(',');
 
-            var time = TimeSpan.FromMilliseconds(double.Parse(split[1]));
+            var time = TimeSpan.FromMilliseconds(double.Parse(split[1], CultureInfo.InvariantCulture));
             var type = split[0];
             var parameters = new List<string>();
 

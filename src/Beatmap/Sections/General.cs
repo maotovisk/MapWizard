@@ -1,3 +1,5 @@
+using System.Globalization;
+
 namespace BeatmapParser.Sections;
 
 /// <summary>
@@ -193,9 +195,9 @@ public class General : IGeneral
                 general.Add(splittedLine[0].Trim(), string.Join(":", splittedLine.Skip(1)).Trim());
             });
 
-            if (general.Count > Helpers.CountProperties<IGeneral>() || general.Count < Helpers.CountNonNullableProperties<IGeneral>())
+            if (Helper.IsWithinProperitesQuantitity<IGeneral>(general.Count))
             {
-                throw new Exception("Invalid General section length. Missing properties: " + string.Join(", ", Helpers.GetMissingPropertiesNames<IGeneral>(general.Keys)) + ".");
+                throw new Exception("Invalid General section length. Missing properties: " + string.Join(", ", Helper.GetMissingPropertiesNames<IGeneral>(general.Keys)) + ".");
             }
 
             return new General(
@@ -204,14 +206,14 @@ public class General : IGeneral
                 previewTime: int.Parse(general["PreviewTime"]),
                 countdown: int.Parse(general["Countdown"]) == 1,
                 sampleSet: general["SampleSet"],
-                stackLeniency: double.Parse(general["StackLeniency"]),
+                stackLeniency: double.Parse(general["StackLeniency"], CultureInfo.InvariantCulture),
                 mode: int.Parse(general["Mode"]),
                 letterboxInBreaks: int.Parse(general["LetterboxInBreaks"]) == 1,
                 useSkinSprites: general.ContainsKey("UseSkinSprites") ? int.Parse(general["UseSkinSprites"]) == 1 : null,
                 overlayPosition: general.ContainsKey("OverlayPosition") ? general["OverlayPosition"] : null,
                 skinPreference: general.ContainsKey("SkinPreference") ? general["SkinPreference"] : null,
                 epilepsyWarning: general.ContainsKey("EpilepsyWarning") ? int.Parse(general["EpilepsyWarning"]) == 1 : null,
-                countdownOffset: general.ContainsKey("CountdownOffset") ? double.Parse(general["CountdownOffset"]) : null,
+                countdownOffset: general.ContainsKey("CountdownOffset") ? double.Parse(general["CountdownOffset"], CultureInfo.InvariantCulture) : null,
                 specialStyle: general.ContainsKey("SpecialStyle") ? int.Parse(general["SpecialStyle"]) == 1 : null,
                 widescreenStoryboard: int.Parse(general["WidescreenStoryboard"]) == 1,
                 samplesMatchPlaybackRate: general.ContainsKey("SamplesMatchPlaybackRate") ? int.Parse(general["SamplesMatchPlaybackRate"]) == 1 : null

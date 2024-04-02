@@ -1,3 +1,5 @@
+using System.Globalization;
+
 namespace BeatmapParser.Sections;
 
 /// <summary>
@@ -99,18 +101,18 @@ public class Difficulty : IDifficulty
                 difficulty.Add(splittedLine[0], splittedLine[1]);
             });
 
-            if (difficulty.Count >= Helpers.CountProperties<IDifficulty>() || difficulty.Count <= Helpers.CountNonNullableProperties<IDifficulty>())
+            if (Helper.IsWithinProperitesQuantitity<IDifficulty>(difficulty.Count))
             {
                 throw new Exception("Invalid Difficulty section lenght.");
             }
 
             return new Difficulty(
-                hpDrainRate: double.Parse(difficulty["HPDrainRate"]),
-                circleSize: double.Parse(difficulty["CircleSize"]),
-                overallDifficulty: double.Parse(difficulty["OverallDifficulty"]),
-                approachRate: double.Parse(difficulty["ApproachRate"]),
-                sliderMultiplier: double.Parse(difficulty["SliderMultiplier"]),
-                sliderTickRate: double.Parse(difficulty["SliderTickRate"])
+                hpDrainRate: double.Parse(difficulty["HPDrainRate"], CultureInfo.InvariantCulture),
+                circleSize: double.Parse(difficulty["CircleSize"], CultureInfo.InvariantCulture),
+                overallDifficulty: double.Parse(difficulty["OverallDifficulty"], CultureInfo.InvariantCulture),
+                approachRate: double.Parse(difficulty["ApproachRate"], CultureInfo.InvariantCulture),
+                sliderMultiplier: double.Parse(difficulty["SliderMultiplier"], CultureInfo.InvariantCulture),
+                sliderTickRate: double.Parse(difficulty["SliderTickRate"], CultureInfo.InvariantCulture)
             );
         }
         catch (Exception ex)

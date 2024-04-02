@@ -55,12 +55,12 @@ public class Colours : IColours
                 if (sectionLine.StartsWith("SliderBorder:"))
                 {
                     string[] split = sectionLine.Split(':');
-                    result.SliderBorder = VectorConverter.ToVector3(split[1]);
+                    result.SliderBorder = Helper.ParseVector3(split[1]);
                 }
                 else if (sectionLine.StartsWith("SliderTrackOverride:"))
                 {
                     string[] split = sectionLine.Split(':');
-                    result.SliderTrackOverride = VectorConverter.ToVector3(split[1]);
+                    result.SliderTrackOverride = Helper.ParseVector3(split[1]);
                 }
                 else if (sectionLine.StartsWith("Combo"))
                 {
