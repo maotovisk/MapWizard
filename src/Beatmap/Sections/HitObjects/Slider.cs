@@ -112,12 +112,21 @@ public class Slider : HitObject, ISlider
         // 0    1   2       3       4           5                       6       7          	      8             9           10
         try
         {
+            if (split.Count > 11) throw new ArgumentException("Invalid slider hit object line.");
+
+            if (split.Count < 8) throw new ArgumentException("Invalid slider hit object line.");
+            List<List<HitSound>> EdgeHitSounds = [];
+            List<IHitSample> EdgeSampleSets = [];
+            List<(IHitSample SampleData, List<HitSound> Sounds)> sliderHitSounds = [];
+
+            if (split.Count > 9)
+            {
+                EdgeHitSounds = split[8].Split("|").Select(sound => Helper.ParseHitSounds(int.Parse(sound))).ToList();
+                EdgeSampleSets = split[9].Split('|').Select(sample => (IHitSample)HitSample.Decode(sample)).ToList();
+                sliderHitSounds = EdgeSampleSets.Zip(EdgeHitSounds, (sample, hitSounds) => (sample, hitSounds)).ToList();
+            }
+
             var objectParams = split[5].Split('|');
-
-            List<List<HitSound>> EdgeHitSounds = split[8].Split("|").Select(sound => Helper.ParseHitSounds(int.Parse(sound))).ToList();
-            List<IHitSample> EdgeSampleSets = split[9].Split('|').Select(sample => (IHitSample)HitSample.Decode(sample)).ToList();
-            List<(IHitSample SampleData, List<HitSound> Sounds)> sliderHitSounds = EdgeSampleSets.Zip(EdgeHitSounds, (sample, hitSounds) => (sample, hitSounds)).ToList();
-
             return new Slider(HitObject.Decode(split))
             {
                 CurveType = Helper.ParseCurveType(char.Parse(objectParams[0])),
@@ -129,9 +138,9 @@ public class Slider : HitObject, ISlider
                 Repeats = uint.Parse(split[6]),
                 Length = double.Parse(split[7]),
 
-                HeadSounds = sliderHitSounds.First(),
+                HeadSounds = sliderHitSounds.Count == 0 ? (new HitSample(), new List<HitSound>()) : sliderHitSounds.First(),
                 RepeatSounds = sliderHitSounds.Count > 2 ? sliderHitSounds[1..^1] : null,
-                TailSounds = sliderHitSounds.Last(),
+                TailSounds = sliderHitSounds.Count == 0 ? (new HitSample(), new List<HitSound>()) : sliderHitSounds.Last(),
             };
         }
         catch (Exception ex)

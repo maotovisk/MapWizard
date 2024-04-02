@@ -79,11 +79,12 @@ public class HitObject : IHitObject
         // 0    1   2       3     4         5            6
         try
         {
+            bool hasHitSample = splitData.Last().Contains(":");
             return new HitObject(
                 coordinates: new Vector2(float.Parse(splitData[0], CultureInfo.InvariantCulture), float.Parse(splitData[1], CultureInfo.InvariantCulture)),
                 time: TimeSpan.FromMilliseconds(double.Parse(splitData[2], CultureInfo.InvariantCulture)),
                 type: Helper.ParseHitObjectType(int.Parse(splitData[3])),
-                hitSounds: (HitSample.Decode(splitData.Last()), Helper.ParseHitSounds(int.Parse(splitData[4]))),
+                hitSounds: !hasHitSample ? (new HitSample(), Helper.ParseHitSounds(int.Parse(splitData[4]))) : (HitSample.Decode(splitData.Last()), Helper.ParseHitSounds(int.Parse(splitData[4]))),
                 newCombo: (int.Parse(splitData[3]) & (1 << 2)) != 0,
                 comboColour: (uint)((int.Parse(splitData[3]) & (1 << 4 | 1 << 5 | 1 << 6)) >> 4)
             );

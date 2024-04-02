@@ -49,12 +49,22 @@ namespace HitsoundCopier
             string[] osuFiles = Directory.GetFiles(folderPath, "*.osu", SearchOption.AllDirectories);
             Console.WriteLine($"we have {osuFiles.Length} files!");
 
+            Console.ReadKey();
             foreach (string osuFile in osuFiles)
             {
                 Console.WriteLine($"Parsing Beatmap {osuFile} ...");
-                Beatmap.Decode(new FileInfo(osuFile));
+                try
+                {
+                    Beatmap.Decode(new FileInfo(osuFile));
+
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine($"Error Parsing Beatmap {osuFile} ...");
+                    Console.WriteLine(e.Message);
+                }
+                Console.WriteLine($"done Parsing Beatmaps");
             }
-            Console.WriteLine($"done Parsing Beatmaps");
         }
     }
 }

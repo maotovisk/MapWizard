@@ -59,7 +59,7 @@ public class GeneralEvent : IGeneralEvent
         }
         catch (Exception ex)
         {
-            throw new Exception($"Failed to GeneralEvent {ex.Message}\n{ex.StackTrace}");
+            throw new Exception($"Failed to GeneralEvent line: '{line}' - {ex.Message}\n{ex.StackTrace}");
         }
     }
 }

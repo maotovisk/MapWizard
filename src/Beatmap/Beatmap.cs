@@ -91,34 +91,27 @@ public class Beatmap : IBeatmap
     /// <returns></returns>
     private static Beatmap Decode(Dictionary<string, List<string>> sections)
     {
-        try
-        {
-            if (Helper.IsWithinProperitesQuantitity<IBeatmap>(sections.Count)) throw new Exception($"Invalid number of sections. Expected {typeof(IBeatmap).GetProperties().Length} but got {sections.Count}.");
+        if (Helper.IsWithinProperitesQuantitity<IBeatmap>(sections.Count)) throw new Exception($"Invalid number of sections. Expected {typeof(IBeatmap).GetProperties().Length} but got {sections.Count}.");
 
-            var versionSection = sections[$"Begin"];
-            var formatVersion = int.Parse(versionSection[0].Replace("osu file format v", string.Empty));
-            if (formatVersion != 14)
-            {
-                throw new Exception($"File format version {formatVersion} is not supported yet.");
-            }
-
-            return new Beatmap(
-                version: formatVersion,
-                general: Sections.General.Decode(sections[$"{SectionTypes.General}"]),
-                editor: Sections.Editor.Decode(sections[$"{SectionTypes.Editor}"]),
-                metadata: Sections.Metadata.Decode(sections[$"{SectionTypes.Metadata}"]),
-                difficulty: Sections.Difficulty.Decode(sections[$"{SectionTypes.Difficulty}"]),
-                colours: sections.ContainsKey($"{SectionTypes.Colours}") ? Sections.Colours.Decode(sections[$"{SectionTypes.Colours}"]) : null,
-                events: Sections.Events.Decode(sections[$"{SectionTypes.Events}"]),
-                timingPoints: sections.ContainsKey($"{SectionTypes.TimingPoints}") ? Sections.TimingPoints.Decode(sections[$"{SectionTypes.TimingPoints}"]) : null,
-                hitObjects: Sections.HitObjects.Decode(sections[$"{SectionTypes.HitObjects}"])
-            );
-        }
-        catch (Exception ex)
+        var versionSection = sections[$"Begin"];
+        var formatVersion = int.Parse(versionSection[0].Replace("osu file format v", string.Empty));
+        if (formatVersion != 14)
         {
-            Console.WriteLine($"Failed to parse beatmap {ex.Message}\n{ex.StackTrace}");
+            throw new Exception($"File format version {formatVersion} is not supported yet.");
         }
-        return new Beatmap();
+
+        return new Beatmap(
+            version: formatVersion,
+            general: Sections.General.Decode(sections[$"{SectionTypes.General}"]),
+            editor: Sections.Editor.Decode(sections[$"{SectionTypes.Editor}"]),
+            metadata: Sections.Metadata.Decode(sections[$"{SectionTypes.Metadata}"]),
+            difficulty: Sections.Difficulty.Decode(sections[$"{SectionTypes.Difficulty}"]),
+            colours: sections.ContainsKey($"{SectionTypes.Colours}") ? Sections.Colours.Decode(sections[$"{SectionTypes.Colours}"]) : null,
+            events: Sections.Events.Decode(sections[$"{SectionTypes.Events}"]),
+            timingPoints: sections.ContainsKey($"{SectionTypes.TimingPoints}") ? Sections.TimingPoints.Decode(sections[$"{SectionTypes.TimingPoints}"]) : null,
+            hitObjects: Sections.HitObjects.Decode(sections[$"{SectionTypes.HitObjects}"])
+        );
+
     }
 
     /// <summary>
