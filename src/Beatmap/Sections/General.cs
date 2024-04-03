@@ -25,7 +25,7 @@ public class General : IGeneral
     /// <summary>
     /// Whether the countdown is enabled
     /// </summary>
-    public bool Countdown { get; set; }
+    public bool? Countdown { get; set; }
 
     /// <summary>
     /// Sample set that will be used if timing points do not override it (Normal, Soft, Drum)
@@ -45,7 +45,7 @@ public class General : IGeneral
     /// <summary>
     /// Whether or not breaks have a letterboxing effect
     /// </summary>
-    public bool LetterboxInBreaks { get; set; }
+    public bool? LetterboxInBreaks { get; set; }
 
     /// <summary>
     /// Whether or not the storyboard can use the user's skin images
@@ -110,11 +110,11 @@ public class General : IGeneral
         string audioFilename,
         int audioLeadIn,
         int previewTime,
-        bool countdown,
+        bool? countdown,
         string sampleSet,
         double stackLeniency,
         int mode,
-        bool letterboxInBreaks,
+        bool? letterboxInBreaks,
         bool? useSkinSprites,
         string? overlayPosition,
         string? skinPreference,
@@ -178,9 +178,9 @@ public class General : IGeneral
         {
             section.ForEach(line =>
             {
-                string[] splittedLine = line.Split(':');
+                string[] splittedLine = line.Split(':', 2);
 
-                if (splittedLine.Length < 2)
+                if (splittedLine.Length < 1)
                 {
                     throw new Exception($"Invalid General section field: {line}");
                 }
@@ -190,7 +190,7 @@ public class General : IGeneral
                     throw new Exception("Adding same propriety multiple times.");
                 }
 
-                general.Add(splittedLine[0].Trim(), string.Join(":", splittedLine.Skip(1)).Trim());
+                general.Add(splittedLine[0].Trim(), splittedLine.Length != 1 ? splittedLine[1].Trim() : string.Empty);
             });
 
             if (Helper.IsWithinProperitesQuantitity<IGeneral>(general.Count))
@@ -200,21 +200,21 @@ public class General : IGeneral
 
             return new General(
                 audioFilename: general["AudioFilename"],
-                audioLeadIn: int.Parse(general["AudioLeadIn"]),
-                previewTime: int.Parse(general["PreviewTime"]),
-                countdown: int.Parse(general["Countdown"]) == 1,
+                audioLeadIn: general.TryGetValue("AudioLeadIn", out var audioLeadIn) ? int.Parse(audioLeadIn) : 0,
+                previewTime: general.TryGetValue("PreviewTime", out var previewTime) ? int.Parse(previewTime) : 0,
+                countdown: general.TryGetValue("Countdown", out var countdown) ? int.Parse(countdown) == 1 : null,
                 sampleSet: general["SampleSet"],
-                stackLeniency: double.Parse(general["StackLeniency"], CultureInfo.InvariantCulture),
-                mode: int.Parse(general["Mode"]),
-                letterboxInBreaks: int.Parse(general["LetterboxInBreaks"]) == 1,
-                useSkinSprites: general.ContainsKey("UseSkinSprites") ? int.Parse(general["UseSkinSprites"]) == 1 : null,
-                overlayPosition: general.ContainsKey("OverlayPosition") ? general["OverlayPosition"] : null,
-                skinPreference: general.ContainsKey("SkinPreference") ? general["SkinPreference"] : null,
-                epilepsyWarning: general.ContainsKey("EpilepsyWarning") ? int.Parse(general["EpilepsyWarning"]) == 1 : null,
-                countdownOffset: general.ContainsKey("CountdownOffset") ? double.Parse(general["CountdownOffset"], CultureInfo.InvariantCulture) : null,
-                specialStyle: general.ContainsKey("SpecialStyle") ? int.Parse(general["SpecialStyle"]) == 1 : null,
-                widescreenStoryboard: general.ContainsKey("WidescreenStoryboard") ? int.Parse(general["WidescreenStoryboard"]) == 1 : null,
-                samplesMatchPlaybackRate: general.ContainsKey("SamplesMatchPlaybackRate") ? int.Parse(general["SamplesMatchPlaybackRate"]) == 1 : null
+                stackLeniency: general.TryGetValue("StackLeniency", out var stackLeniency) ? double.Parse(stackLeniency, CultureInfo.InvariantCulture) : 7,
+                mode: general.TryGetValue("Mode", out var mode) ? int.Parse(mode) : 0,
+                letterboxInBreaks: general.TryGetValue("LetterboxInBreaks", out var letterboxInBreaks) ? int.Parse(letterboxInBreaks) == 1 : null,
+                useSkinSprites: general.TryGetValue("UseSkinSprites", out var skinSprites) ? int.Parse(skinSprites) == 1 : null,
+                overlayPosition: general.TryGetValue("OverlayPosition", out var overlayPos) ? overlayPos : null,
+                skinPreference: general.TryGetValue("SkinPreference", out var skinPref) ? skinPref : null,
+                epilepsyWarning: general.TryGetValue("EpilepsyWarning", out var epilepsyWarn) ? int.Parse(epilepsyWarn) == 1 : null,
+                countdownOffset: general.TryGetValue("CountdownOffset", out var countdownOff) ? double.Parse(countdownOff, CultureInfo.InvariantCulture) : null,
+                specialStyle: general.TryGetValue("SpecialStyle", out var specStyle) ? int.Parse(specStyle) == 1 : null,
+                widescreenStoryboard: general.TryGetValue("WidescreenStoryboard", out var wideStoryboard) ? int.Parse(wideStoryboard) == 1 : null,
+                samplesMatchPlaybackRate: general.TryGetValue("SamplesMatchPlaybackRate", out var samplesMatch) ? int.Parse(samplesMatch) == 1 : null
             );
         }
         catch (Exception ex)

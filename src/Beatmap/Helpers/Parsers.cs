@@ -52,7 +52,7 @@ public partial class Helper
         }
         if (types.Count != 1) throw new Exception("Invalid hit object type.");
 
-        return types.First();
+        return types[0];
     }
 
     /// <summary>

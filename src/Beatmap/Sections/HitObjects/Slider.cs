@@ -138,7 +138,7 @@ public class Slider : HitObject, ISlider
                 Repeats = uint.Parse(split[6]),
                 Length = double.Parse(split[7]),
 
-                HeadSounds = sliderHitSounds.Count == 0 ? (new HitSample(), new List<HitSound>()) : sliderHitSounds.First(),
+                HeadSounds = sliderHitSounds.Count == 0 ? (new HitSample(), new List<HitSound>()) : sliderHitSounds[0],
                 RepeatSounds = sliderHitSounds.Count > 2 ? sliderHitSounds[1..^1] : null,
                 TailSounds = sliderHitSounds.Count == 0 ? (new HitSample(), new List<HitSound>()) : sliderHitSounds.Last(),
             };

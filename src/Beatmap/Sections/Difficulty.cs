@@ -25,7 +25,7 @@ public class Difficulty : IDifficulty
     /// <summary>
     /// The approach rate of the beatmap.
     /// </summary>
-    public double ApproachRate { get; set; }
+    public double? ApproachRate { get; set; }
 
     /// <summary>
     /// The slider velocity multiplier of the beatmap.
@@ -50,7 +50,7 @@ public class Difficulty : IDifficulty
         double hpDrainRate,
         double circleSize,
         double overallDifficulty,
-        double approachRate,
+        double? approachRate,
         double sliderMultiplier,
         double sliderTickRate
     )
@@ -87,9 +87,9 @@ public class Difficulty : IDifficulty
         {
             section.ForEach(line =>
             {
-                string[] splittedLine = line.Split(':');
+                string[] splittedLine = line.Split(':', 2);
 
-                if (splittedLine.Length < 2)
+                if (splittedLine.Length < 1)
                 {
                     throw new Exception("Invalid difficulty section field.");
                 }
@@ -98,26 +98,26 @@ public class Difficulty : IDifficulty
                     throw new Exception("Adding same propriety multiple times.");
                 }
 
-                difficulty.Add(splittedLine[0], splittedLine[1]);
+                difficulty.Add(splittedLine[0], splittedLine.Length != 1 ? splittedLine[1].Trim() : string.Empty);
             });
 
             if (Helper.IsWithinProperitesQuantitity<IDifficulty>(difficulty.Count))
             {
-                throw new Exception("Invalid Difficulty section lenght.");
+                throw new Exception("Invalid Difficulty section length. Missing properties: " + string.Join(", ", Helper.GetMissingPropertiesNames<IDifficulty>(difficulty.Keys)) + ".");
             }
 
             return new Difficulty(
                 hpDrainRate: double.Parse(difficulty["HPDrainRate"], CultureInfo.InvariantCulture),
                 circleSize: double.Parse(difficulty["CircleSize"], CultureInfo.InvariantCulture),
                 overallDifficulty: double.Parse(difficulty["OverallDifficulty"], CultureInfo.InvariantCulture),
-                approachRate: double.Parse(difficulty["ApproachRate"], CultureInfo.InvariantCulture),
+                approachRate: difficulty.TryGetValue("ApproachRate", out var approachRate) ? double.Parse(approachRate, CultureInfo.InvariantCulture) : double.Parse(difficulty["OverallDifficulty"], CultureInfo.InvariantCulture),
                 sliderMultiplier: double.Parse(difficulty["SliderMultiplier"], CultureInfo.InvariantCulture),
                 sliderTickRate: double.Parse(difficulty["SliderTickRate"], CultureInfo.InvariantCulture)
             );
         }
         catch (Exception ex)
         {
-            throw new Exception("Failed to parse Difficultty section:\n", ex);
+            throw new Exception($"Failed to parse Difficultty section:\n {ex.Message}\n{ex.StackTrace}");
         }
     }
 

@@ -23,7 +23,7 @@ public interface IDifficulty
     /// <summary>
     /// Gets or sets the approach rate of the beatmap.
     /// </summary>
-    double ApproachRate { get; set; }
+    double? ApproachRate { get; set; }
 
     /// <summary>
     /// Gets or sets the slider multiplier of the beatmap.

@@ -47,19 +47,19 @@ public class Colours : IColours
     /// <returns></returns>
     public static Colours Decode(List<string> section)
     {
-        Colours result = new Colours();
+        Colours result = new();
         try
         {
             section.ForEach(sectionLine =>
             {
                 if (sectionLine.StartsWith("SliderBorder:"))
                 {
-                    string[] split = sectionLine.Split(':');
+                    string[] split = sectionLine.Split(':', 2);
                     result.SliderBorder = Helper.ParseVector3(split[1]);
                 }
                 else if (sectionLine.StartsWith("SliderTrackOverride:"))
                 {
-                    string[] split = sectionLine.Split(':');
+                    string[] split = sectionLine.Split(':', 2);
                     result.SliderTrackOverride = Helper.ParseVector3(split[1]);
                 }
                 else if (sectionLine.StartsWith("Combo"))

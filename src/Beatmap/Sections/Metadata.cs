@@ -109,9 +109,9 @@ public class Metadata : IMetadata
         {
             section.ForEach(line =>
             {
-                string[] splittedLine = line.Split(':');
+                string[] splittedLine = line.Split(':', 2);
 
-                if (splittedLine.Length < 2)
+                if (splittedLine.Length < 1)
                 {
                     throw new Exception("Invalid Metadata section field.");
                 }
@@ -121,8 +121,7 @@ public class Metadata : IMetadata
                     throw new Exception("Adding same propriety multiple times.");
                 }
 
-                // Account for mutiple ':' in the value
-                metadata.Add(splittedLine[0].Trim(), string.Join(":", splittedLine.Skip(1)).Trim());
+                metadata.Add(splittedLine[0].Trim(), splittedLine.Length != 1 ? splittedLine[1].Trim() : string.Empty);
             });
 
             if (Helper.IsWithinProperitesQuantitity<IMetadata>(metadata.Count))
@@ -132,15 +131,15 @@ public class Metadata : IMetadata
 
             return new Metadata(
                 title: metadata["Title"],
-                titleUnicode: metadata["TitleUnicode"],
+                titleUnicode: metadata.TryGetValue("TitleUnicode", out var titleUnicode) ? titleUnicode : metadata["Title"],
                 artist: metadata["Artist"],
-                artistUnicode: metadata["ArtistUnicode"],
+                artistUnicode: metadata.TryGetValue("ArtistUnicode", out var artistUnicode) ? artistUnicode : metadata["Artist"],
                 creator: metadata["Creator"],
                 version: metadata["Version"],
-                source: metadata["Source"],
-                tags: metadata["Tags"].Split(' ').ToList(),
-                beatmapId: int.Parse(metadata["BeatmapID"]),
-                beatmapSetId: int.Parse(metadata["BeatmapSetID"])
+                source: metadata.TryGetValue("Source", out var source) ? source : string.Empty,
+                tags: metadata.TryGetValue("Tags", out var tags) ? [.. tags.Split(' ')] : [],
+                beatmapId: metadata.TryGetValue("BeatmapID", out var beatmapId) ? int.Parse(beatmapId) : 0,
+                beatmapSetId: metadata.TryGetValue("BeatmapSetID", out var beatmapSetId) ? int.Parse(beatmapSetId) : -1
             );
         }
         catch (Exception ex)

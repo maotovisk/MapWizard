@@ -22,7 +22,7 @@ public interface IBeatmap
     /// <summary>
     /// Gets or sets the editor settings of the beatmap.
     /// </summary>
-    IEditor Editor { get; set; }
+    IEditor? Editor { get; set; }
 
     /// <summary>
     /// Gets or sets the difficulty settings of the beatmap.

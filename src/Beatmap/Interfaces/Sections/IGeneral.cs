@@ -23,7 +23,7 @@ public interface IGeneral
     /// <summary>
     /// Whether the countdown is enabled
     /// </summary>
-    bool Countdown { get; set; }
+    bool? Countdown { get; set; }
 
     /// <summary>
     /// Sample set that will be used if timing points do not override it (Normal, Soft, Drum)
@@ -43,7 +43,7 @@ public interface IGeneral
     /// <summary>
     /// Whether or not breaks have a letterboxing effect
     /// </summary>
-    bool LetterboxInBreaks { get; set; }
+    bool? LetterboxInBreaks { get; set; }
 
     /// <summary>
     /// Whether or not the storyboard can use the user's skin images

@@ -47,29 +47,44 @@ public class TimingPoints : ITimingPoints
             foreach (var line in section)
             {
                 var split = line.Split(',');
-                if (split[6] == "1")
+
+                var time = double.Parse(split[0], CultureInfo.InvariantCulture);
+                var beatLength = double.Parse(split[1], CultureInfo.InvariantCulture);
+                var timeSignature = split.Length >= 3 ? int.Parse(split[2]) : 4;
+                var sampleSet = split.Length >= 4 ? (SampleSet)Enum.Parse(typeof(SampleSet), split[3]) : SampleSet.Normal;
+                var sampleIndex = split.Length >= 5 ? uint.Parse(split[4]) : 0;
+                var volume = split.Length >= 6 ? uint.Parse(split[5]) : 100;
+                var effects = split.Length >= 7 ? Helper.ParseEffects(int.Parse(split[6])) : new List<Effect>();
+                var timingChange = split.Length >= 8 && int.Parse(split[7]) == 1;
+
+                ITimingPoint timingPoint;
+
+                if (timingChange)
                 {
-                    timingPoints.Add(new UninheritedTimingPoint(
-                        time: TimeSpan.FromMilliseconds(double.Parse(split[0], CultureInfo.InvariantCulture)),
-                        sampleSet: (SampleSet)Enum.Parse(typeof(SampleSet), split[3]),
-                        sampleIndex: uint.Parse(split[4]),
-                        volume: uint.Parse(split[5]),
-                        effects: Helper.ParseEffects(int.Parse(split[6])),
-                        beatLength: TimeSpan.FromMilliseconds(double.Parse(split[1], CultureInfo.InvariantCulture)),
-                        timeSignature: int.Parse(split[2])
-                    ));
+                    timingPoint = new UninheritedTimingPoint(
+                        time: Helper.ClampTimeSpan(time),
+                        beatLength: Helper.ClampTimeSpan(beatLength),
+                        timeSignature: timeSignature,
+                        sampleSet: sampleSet,
+                        sampleIndex: sampleIndex,
+                        volume: volume,
+                        effects: effects
+                    );
                 }
                 else
                 {
-                    timingPoints.Add(new InheritedTimingPoint(
-                        time: TimeSpan.FromMilliseconds(double.Parse(split[0])),
-                        sampleSet: (SampleSet)Enum.Parse(typeof(SampleSet), split[3]),
-                        sampleIndex: uint.Parse(split[4]),
-                        volume: uint.Parse(split[5]),
-                        effects: Helper.ParseEffects(int.Parse(split[6], CultureInfo.InvariantCulture)),
-                        sliderVelocity: -(100 / double.Parse(split[1], CultureInfo.InvariantCulture))
-                    ));
+                    var sliderVelocity = beatLength < 0 ? 100.0 / -beatLength : 1;
+                    timingPoint = new InheritedTimingPoint(
+                        time: Helper.ClampTimeSpan(time),
+                        sampleSet: sampleSet,
+                        sampleIndex: sampleIndex,
+                        volume: volume,
+                        effects: effects,
+                        sliderVelocity: sliderVelocity
+                    );
                 }
+
+                timingPoints.Add(timingPoint);
             };
 
             return new TimingPoints(timingPoints);

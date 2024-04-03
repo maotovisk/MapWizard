@@ -18,7 +18,7 @@ public class Editor : IEditor
     public int GridSize { get; set; }
 
     /// <summary> Scale factor for the object timeline.</summary>
-    public double TimelineZoom { get; set; }
+    public double? TimelineZoom { get; set; }
 
     /// <summary>
     /// Contructs a new instance of the <see cref="Editor"/> class.
@@ -28,7 +28,7 @@ public class Editor : IEditor
     /// <param name="beatDivisor"></param>
     /// <param name="gridSize"></param>
     /// <param name="timelineZoom"></param>
-    public Editor(List<TimeSpan>? bookmarks, double distanceSpacing, int beatDivisor, int gridSize, double timelineZoom)
+    public Editor(List<TimeSpan>? bookmarks, double distanceSpacing, int beatDivisor, int gridSize, double? timelineZoom)
     {
         Bookmarks = bookmarks;
         DistanceSpacing = distanceSpacing;
@@ -53,9 +53,9 @@ public class Editor : IEditor
         {
             sections.ForEach(line =>
             {
-                string[] splittedLine = line.Split(':');
+                string[] splittedLine = line.Split(':', 2);
 
-                if (splittedLine.Length < 2)
+                if (splittedLine.Length < 1)
                 {
                     throw new Exception("Invalid editor section field.");
                 }
@@ -66,7 +66,7 @@ public class Editor : IEditor
                 }
 
                 // Account for mutiple ':' in the value
-                editor.Add(splittedLine[0].Trim(), string.Join(":", splittedLine.Skip(1)).Trim());
+                editor.Add(splittedLine[0].Trim(), splittedLine.Length != 1 ? splittedLine[1].Trim() : string.Empty);
             });
 
             if (Helper.IsWithinProperitesQuantitity<IEditor>(editor.Count))
@@ -77,11 +77,12 @@ public class Editor : IEditor
             editor.TryGetValue("Bookmarks", out string? bookmarks);
 
             return new Editor(
-                bookmarks: bookmarks?.Split(',').Select(x => TimeSpan.FromMilliseconds(double.Parse(x, CultureInfo.InvariantCulture))).ToList(),
-                distanceSpacing: double.Parse(editor["DistanceSpacing"], CultureInfo.InvariantCulture),
+                bookmarks: bookmarks?.Split(',').Where(x => !string.IsNullOrEmpty(x)).Select(
+                    x => TimeSpan.FromMilliseconds(double.Parse(x, CultureInfo.InvariantCulture))).ToList(),
+                distanceSpacing: editor.Keys.Contains("DistanceSpacing") ? double.Parse(editor["DistanceSpacing"], CultureInfo.InvariantCulture) : 1.0,
                 beatDivisor: int.Parse(editor["BeatDivisor"]),
                 gridSize: int.Parse(editor["GridSize"]),
-                timelineZoom: double.Parse(editor["TimelineZoom"], CultureInfo.InvariantCulture)
+                timelineZoom: editor.TryGetValue("TimelineZoom", out var timelineZoom) ? double.Parse(timelineZoom, CultureInfo.InvariantCulture) : null
             );
         }
         catch (Exception ex)

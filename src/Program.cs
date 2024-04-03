@@ -32,7 +32,7 @@ namespace HitsoundCopier
             //                 if (obj.Type == HitObjectType.Spinner) { ++spinnerCount; continue; }
             //             }
 
-            //             var firstRedLine = (UninheritedTimingPoint?)beatmap.TimingPoints?.TimingPointList.First() ?? new UninheritedTimingPoint();
+            //             var firstRedLine = (UninheritedTimingPoint?)beatmap.TimingPoints?.TimingPointList[0] ?? new UninheritedTimingPoint();
             //             var bpm = 60 / firstRedLine.BeatLength.TotalSeconds;
             //             Console.WriteLine($"this beatmap bpm is: {bpm}");
             //             Console.WriteLine($"this beatmap have:");
@@ -79,16 +79,18 @@ namespace HitsoundCopier
                     }
                 }
 
-            Console.WriteLine($"Parsing completed with {parsingErrors.Count} errors");
+            Console.WriteLine($"Parsing completed with {parsingErrors.Count - parsingErrors.Count(e =>
+                e.Exception.Message.Contains("is not supported yet.") || e.Exception.Message.Contains("Invalid beatmap file") || e.Exception.Message.Contains("Beatmap is empty"))} errors");
             Console.WriteLine($"Parsed {parsedBeatmaps.Count}/{osuFiles.Length} beatmaps successfully");
-            Console.WriteLine($"Total maps ignored (format version not supported): {parsingErrors.Count(e => e.Exception.Message.Contains("is not supported yet."))}");
+            Console.WriteLine($"Total maps ignored: {parsingErrors.Count(e =>
+                e.Exception.Message.Contains("is not supported yet.") || e.Exception.Message.Contains("Invalid beatmap file") || e.Exception.Message.Contains("Beatmap is empty"))}");
 
             Console.WriteLine("Press any key to write the errors file...");
             Console.ReadKey();
 
             if (parsingErrors.Count > 0)
             {
-                File.WriteAllLines("parsing_errors.txt", parsingErrors.Where(e => !e.Exception.Message.Contains("is not supported yet.")).Select(e => $"{e.File}: {e.Exception.Message}\n{e.Exception.StackTrace}\n"));
+                File.WriteAllLines("parsing_errors.log", parsingErrors.Where(e => !e.Exception.Message.Contains("is not supported yet.") && !e.Exception.Message.Contains("Invalid beatmap file") && !e.Exception.Message.Contains("Beatmap is empty")).Select(e => $"{e.File}: {e.Exception.Message}\n{e.Exception.StackTrace}\n"));
                 Console.WriteLine("Errors file written");
             }
         }

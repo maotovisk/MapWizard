@@ -16,5 +16,5 @@ public interface IEditor
     int GridSize { get; set; }
 
     /// <summary> Scale factor for the object timeline.</summary>
-    double TimelineZoom { get; set; }
+    double? TimelineZoom { get; set; }
 }
