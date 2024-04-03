@@ -18,23 +18,21 @@ public class GeneralEvent : IGeneralEvent
     /// </summary>
     public List<string> Params { get; set; }
 
-
     /// <summary>
-    /// The time at which the event occurs.
+    /// The time at which the event occurs, if applicable.
     /// </summary>
-    public TimeSpan Time { get; set; }
+    public TimeSpan? Time { get; set; }
+
 
     /// <summary>
     /// Initializes a new instance of the <see cref="GeneralEvent"/> class.
     /// </summary>
     /// <param name="type"></param>
     /// <param name="eventParams"></param>
-    /// <param name="time"></param>
-    public GeneralEvent(string type, List<string> eventParams, TimeSpan time)
+    public GeneralEvent(string type, List<string> eventParams)
     {
         Params = eventParams;
         Type = type;
-        Time = time;
     }
 
     /// <summary>
@@ -50,12 +48,11 @@ public class GeneralEvent : IGeneralEvent
         {
             var split = line.Split(',');
 
-            var time = TimeSpan.FromMilliseconds(double.Parse(split[1], CultureInfo.InvariantCulture));
             var type = split[0];
             var parameters = new List<string>();
 
-            parameters.AddRange(split[2..]);
-            return new GeneralEvent(type, parameters, time);
+            parameters.AddRange(split[1..]);
+            return new GeneralEvent(type, parameters);
         }
         catch (Exception ex)
         {

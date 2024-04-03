@@ -7,7 +7,7 @@ public interface IEvent
     /// <summary>
     /// 
     /// </summary>
-    TimeSpan Time { get; set; }
+    TimeSpan? Time { get; set; }
 }
 
 /// <summary>

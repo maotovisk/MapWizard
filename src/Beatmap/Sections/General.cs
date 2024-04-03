@@ -80,7 +80,7 @@ public class General : IGeneral
     /// <summary>
     /// Whether or not the storyboard allows widescreen viewing
     /// </summary>
-    public bool WidescreenStoryboard { get; set; }
+    public bool? WidescreenStoryboard { get; set; }
 
     /// <summary>
     /// Whether or not sound samples will change rate when playing with speed-changing mods
@@ -121,7 +121,7 @@ public class General : IGeneral
         bool? epilepsyWarning,
         double? countdownOffset,
         bool? specialStyle,
-        bool widescreenStoryboard,
+        bool? widescreenStoryboard,
         bool? samplesMatchPlaybackRate
     )
     {
@@ -162,7 +162,6 @@ public class General : IGeneral
         EpilepsyWarning = false;
         CountdownOffset = 0;
         SpecialStyle = false;
-        WidescreenStoryboard = false;
         SamplesMatchPlaybackRate = false;
     }
 
@@ -191,7 +190,6 @@ public class General : IGeneral
                     throw new Exception("Adding same propriety multiple times.");
                 }
 
-                // Account for mutiple ':' in the value
                 general.Add(splittedLine[0].Trim(), string.Join(":", splittedLine.Skip(1)).Trim());
             });
 
@@ -215,7 +213,7 @@ public class General : IGeneral
                 epilepsyWarning: general.ContainsKey("EpilepsyWarning") ? int.Parse(general["EpilepsyWarning"]) == 1 : null,
                 countdownOffset: general.ContainsKey("CountdownOffset") ? double.Parse(general["CountdownOffset"], CultureInfo.InvariantCulture) : null,
                 specialStyle: general.ContainsKey("SpecialStyle") ? int.Parse(general["SpecialStyle"]) == 1 : null,
-                widescreenStoryboard: int.Parse(general["WidescreenStoryboard"]) == 1,
+                widescreenStoryboard: general.ContainsKey("WidescreenStoryboard") ? int.Parse(general["WidescreenStoryboard"]) == 1 : null,
                 samplesMatchPlaybackRate: general.ContainsKey("SamplesMatchPlaybackRate") ? int.Parse(general["SamplesMatchPlaybackRate"]) == 1 : null
             );
         }

@@ -1,0 +1,588 @@
+D:\osu\Songs\1050104 Yorushika - Dakara Boku wa Ongaku wo Yameta\Yorushika - Dakara Boku wa Ongaku wo Yameta (renzthegreat) [Insane].osu: Beatmap is empty.
+   at BeatmapParser.Beatmap.SplitSections(String beatmap) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 146
+   at BeatmapParser.Beatmap.Decode(FileInfo path) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 123
+   at HitsoundCopier.Program.DecodeBOMBA() in C:\Users\Maot\projects\HitsoundCopier\src\Program.cs:line 74
+
+D:\osu\Songs\1050533 MISATO - Necro Fantasia\MISATO - Necro Fantasia (Imakuri) [Interverted Reality].osu: Beatmap is empty.
+   at BeatmapParser.Beatmap.SplitSections(String beatmap) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 146
+   at BeatmapParser.Beatmap.Decode(FileInfo path) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 123
+   at HitsoundCopier.Program.DecodeBOMBA() in C:\Users\Maot\projects\HitsoundCopier\src\Program.cs:line 74
+
+D:\osu\Songs\1061614 Sumireko Hanabusa (CV Miho Arakawa) - Inochi no Karakuri\Sumireko Hanabusa (CV Miho Arakawa) - Inochi no Karakuri (Talulah) [The Queen].osu: Beatmap is empty.
+   at BeatmapParser.Beatmap.SplitSections(String beatmap) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 146
+   at BeatmapParser.Beatmap.Decode(FileInfo path) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 123
+   at HitsoundCopier.Program.DecodeBOMBA() in C:\Users\Maot\projects\HitsoundCopier\src\Program.cs:line 74
+
+D:\osu\Songs\1106810 Wakeshima Kanon - killy killy JOKER\Wakeshima Kanon - killy killy JOKER (Alexsander) [OPEN].osu: Beatmap is empty.
+   at BeatmapParser.Beatmap.SplitSections(String beatmap) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 146
+   at BeatmapParser.Beatmap.Decode(FileInfo path) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 123
+   at HitsoundCopier.Program.DecodeBOMBA() in C:\Users\Maot\projects\HitsoundCopier\src\Program.cs:line 74
+
+D:\osu\Songs\1119169 Yorushika - Itte\Yorushika - Itte. (Xen) [Kowari's Expert].osu: Beatmap is empty.
+   at BeatmapParser.Beatmap.SplitSections(String beatmap) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 146
+   at BeatmapParser.Beatmap.Decode(FileInfo path) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 123
+   at HitsoundCopier.Program.DecodeBOMBA() in C:\Users\Maot\projects\HitsoundCopier\src\Program.cs:line 74
+
+D:\osu\Songs\1121435 AliA - joker\AliA - joker (Nelliel) [Eli's Hitsounds & Volume].osu: Beatmap is empty.
+   at BeatmapParser.Beatmap.SplitSections(String beatmap) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 146
+   at BeatmapParser.Beatmap.Decode(FileInfo path) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 123
+   at HitsoundCopier.Program.DecodeBOMBA() in C:\Users\Maot\projects\HitsoundCopier\src\Program.cs:line 74
+
+D:\osu\Songs\1121435 AliA - joker\AliA - joker (Nelliel) [Extreme].osu: Beatmap is empty.
+   at BeatmapParser.Beatmap.SplitSections(String beatmap) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 146
+   at BeatmapParser.Beatmap.Decode(FileInfo path) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 123
+   at HitsoundCopier.Program.DecodeBOMBA() in C:\Users\Maot\projects\HitsoundCopier\src\Program.cs:line 74
+
+D:\osu\Songs\1129083 Corona - Virus\Corona - Virus (wenect) [Ksardas' VIP PuLi_Ot_deadULi].osu: Beatmap is empty.
+   at BeatmapParser.Beatmap.SplitSections(String beatmap) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 146
+   at BeatmapParser.Beatmap.Decode(FileInfo path) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 123
+   at HitsoundCopier.Program.DecodeBOMBA() in C:\Users\Maot\projects\HitsoundCopier\src\Program.cs:line 74
+
+D:\osu\Songs\1171544 BUMP OF CHICKEN - Gekkou (TV Size)\BUMP OF CHICKEN - Gekkou (TV Size) (SpeedDzn) [hs].osu: Beatmap is empty.
+   at BeatmapParser.Beatmap.SplitSections(String beatmap) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 146
+   at BeatmapParser.Beatmap.Decode(FileInfo path) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 123
+   at HitsoundCopier.Program.DecodeBOMBA() in C:\Users\Maot\projects\HitsoundCopier\src\Program.cs:line 74
+
+D:\osu\Songs\1192746 Nogizaka46 - Tsuki no Ookisa (TV Size)\Nogizaka46 - Tsuki no Ookisa (TV Size) (Sharpay) [Kuroame's Extra].osu: Beatmap is empty.
+   at BeatmapParser.Beatmap.SplitSections(String beatmap) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 146
+   at BeatmapParser.Beatmap.Decode(FileInfo path) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 123
+   at HitsoundCopier.Program.DecodeBOMBA() in C:\Users\Maot\projects\HitsoundCopier\src\Program.cs:line 74
+
+D:\osu\Songs\1197597 Toromaru - Shounen wa Sora o Tadoru Prog Piano Remix\Toromaru - Shounen wa Sora o Tadoru Prog Piano Remix (ObamaCube) [Yusomi's Ultra].osu: Beatmap is empty.
+   at BeatmapParser.Beatmap.SplitSections(String beatmap) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 146
+   at BeatmapParser.Beatmap.Decode(FileInfo path) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 123
+   at HitsoundCopier.Program.DecodeBOMBA() in C:\Users\Maot\projects\HitsoundCopier\src\Program.cs:line 74
+
+D:\osu\Songs\1435750 SawanoHiroyuki[nZk]mizuki - Avid (TV Size)\SawanoHiroyuki[nZk]mizuki - Avid (TV Size) (Maot) [Moete's Hard].osu: Error while parsing Editor section:
+System.FormatException: The input string '' was not in a correct format.
+   at System.Number.ThrowFormatException[TChar](ReadOnlySpan`1 value)
+   at System.Double.Parse(String s, IFormatProvider provider)
+   at BeatmapParser.Sections.Editor.<>c.<Decode>b__22_1(String x) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Sections\Editor.cs:line 80
+   at System.Linq.Enumerable.ToList[TSource](IEnumerable`1 source)
+   at BeatmapParser.Sections.Editor.Decode(List`1 sections) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Sections\Editor.cs:line 79.
+   at BeatmapParser.Sections.Editor.Decode(List`1 sections) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Sections\Editor.cs:line 89
+   at BeatmapParser.Beatmap.Decode(Dictionary`2 sections) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 103
+   at BeatmapParser.Beatmap.Decode(FileInfo path) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 123
+   at HitsoundCopier.Program.DecodeBOMBA() in C:\Users\Maot\projects\HitsoundCopier\src\Program.cs:line 74
+
+D:\osu\Songs\1435750 SawanoHiroyuki[nZk]mizuki - Avid (TV Size)\SawanoHiroyuki[nZk]mizuki - Avid (TV Size) (Maot) [Normal].osu: Error while parsing Editor section:
+System.FormatException: The input string '' was not in a correct format.
+   at System.Number.ThrowFormatException[TChar](ReadOnlySpan`1 value)
+   at System.Double.Parse(String s, IFormatProvider provider)
+   at BeatmapParser.Sections.Editor.<>c.<Decode>b__22_1(String x) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Sections\Editor.cs:line 80
+   at System.Linq.Enumerable.ToList[TSource](IEnumerable`1 source)
+   at BeatmapParser.Sections.Editor.Decode(List`1 sections) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Sections\Editor.cs:line 79.
+   at BeatmapParser.Sections.Editor.Decode(List`1 sections) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Sections\Editor.cs:line 89
+   at BeatmapParser.Beatmap.Decode(Dictionary`2 sections) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 103
+   at BeatmapParser.Beatmap.Decode(FileInfo path) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 123
+   at HitsoundCopier.Program.DecodeBOMBA() in C:\Users\Maot\projects\HitsoundCopier\src\Program.cs:line 74
+
+D:\osu\Songs\1451503 Roselia - FIRE BIRD\wkrpysc_Roselia - FIRE BIRD (Kowari) [CONFLAGRATION].osu: Failed to parse Metadata: The given key 'BeatmapID' was not present in the dictionary.
+   at System.Collections.Generic.Dictionary`2.get_Item(TKey key)
+   at BeatmapParser.Sections.Metadata.Decode(List`1 section) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Sections\Metadata.cs:line 133
+   at BeatmapParser.Sections.Metadata.Decode(List`1 section) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Sections\Metadata.cs:line 148
+   at BeatmapParser.Beatmap.Decode(Dictionary`2 sections) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 103
+   at BeatmapParser.Beatmap.Decode(FileInfo path) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 123
+   at HitsoundCopier.Program.DecodeBOMBA() in C:\Users\Maot\projects\HitsoundCopier\src\Program.cs:line 74
+
+D:\osu\Songs\1521845 Bring Me The Horizon - Can You Feel My Heart (Cut Ver)\Bring Me The Horizon - Can You Feel My Heart (Cut Ver.) (AskApenas) [Feelings].osu: Beatmap is empty.
+   at BeatmapParser.Beatmap.SplitSections(String beatmap) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 146
+   at BeatmapParser.Beatmap.Decode(FileInfo path) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 123
+   at HitsoundCopier.Program.DecodeBOMBA() in C:\Users\Maot\projects\HitsoundCopier\src\Program.cs:line 74
+
+D:\osu\Songs\1669247 KISIDA KYODAN & THE AKEBOSI ROCKETS - Jiyuu e no Sanka\KISIDA KYODAN & THE AKEBOSI ROCKETS - Jiyuu e no Sanka (Sharpay) [Illusion].osu: Beatmap is empty.
+   at BeatmapParser.Beatmap.SplitSections(String beatmap) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 146
+   at BeatmapParser.Beatmap.Decode(FileInfo path) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 123
+   at HitsoundCopier.Program.DecodeBOMBA() in C:\Users\Maot\projects\HitsoundCopier\src\Program.cs:line 74
+
+D:\osu\Songs\1719693 Hana - Sakura no Uta\Hana - Sakura no Uta (Cami) [Resolve].osu: Beatmap is empty.
+   at BeatmapParser.Beatmap.SplitSections(String beatmap) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 146
+   at BeatmapParser.Beatmap.Decode(FileInfo path) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 123
+   at HitsoundCopier.Program.DecodeBOMBA() in C:\Users\Maot\projects\HitsoundCopier\src\Program.cs:line 74
+
+D:\osu\Songs\1873786 DeviceHigh - Innocent Blue\DeviceHigh - Innocent Blue (dasdwqdf) [Reiji Maigo's Hyper].osu: Beatmap is empty.
+   at BeatmapParser.Beatmap.SplitSections(String beatmap) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 146
+   at BeatmapParser.Beatmap.Decode(FileInfo path) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 123
+   at HitsoundCopier.Program.DecodeBOMBA() in C:\Users\Maot\projects\HitsoundCopier\src\Program.cs:line 74
+
+D:\osu\Songs\1986577 HO-KAGO TEA TIME - Singing!(1)\HO-KAGO TEA TIME - Singing! (- Ex -) [hs].osu: Beatmap is empty.
+   at BeatmapParser.Beatmap.SplitSections(String beatmap) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 146
+   at BeatmapParser.Beatmap.Decode(FileInfo path) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 123
+   at HitsoundCopier.Program.DecodeBOMBA() in C:\Users\Maot\projects\HitsoundCopier\src\Program.cs:line 74
+
+D:\osu\Songs\2037451 Tsuzuri - NAME\Tsuzuri - NAME (KayINeo) [hs].osu: Beatmap is empty.
+   at BeatmapParser.Beatmap.SplitSections(String beatmap) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 146
+   at BeatmapParser.Beatmap.Decode(FileInfo path) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 123
+   at HitsoundCopier.Program.DecodeBOMBA() in C:\Users\Maot\projects\HitsoundCopier\src\Program.cs:line 74
+
+D:\osu\Songs\347064 The Price is Right - Losing Horn\The Price is Right - Losing Horn (Spaghetti) [Blind's Easy Loss].osu: The given key 'Begin' was not present in the dictionary.
+   at System.Collections.Generic.Dictionary`2.get_Item(TKey key)
+   at BeatmapParser.Beatmap.Decode(Dictionary`2 sections) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 96
+   at BeatmapParser.Beatmap.Decode(FileInfo path) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 123
+   at HitsoundCopier.Program.DecodeBOMBA() in C:\Users\Maot\projects\HitsoundCopier\src\Program.cs:line 74
+
+D:\osu\Songs\365584 Amane - MDx2v3\cYsmix - MDx2v3 (Hydria) [Dovregubben's Hall].osu: Failed to parse TimingPoints: TimeSpan overflowed because the duration is too long.
+   at System.TimeSpan.IntervalFromDoubleTicks(Double ticks)
+   at BeatmapParser.Sections.TimingPoints.Decode(List`1 section) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Sections\TimingPoints.cs:line 52
+   at BeatmapParser.Sections.TimingPoints.Decode(List`1 section) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Sections\TimingPoints.cs:line 79
+   at BeatmapParser.Beatmap.Decode(Dictionary`2 sections) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 103
+   at BeatmapParser.Beatmap.Decode(FileInfo path) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 123
+   at HitsoundCopier.Program.DecodeBOMBA() in C:\Users\Maot\projects\HitsoundCopier\src\Program.cs:line 74
+
+D:\osu\Songs\37563 IOSYS - Usatei 2011\IOSYS - Usatei 2011 (Saten) [Ozzy's Extra 1.18x (225bpm)].osu: Error while parsing Editor section:
+System.Collections.Generic.KeyNotFoundException: The given key 'TimelineZoom' was not present in the dictionary.
+   at System.Collections.Generic.Dictionary`2.get_Item(TKey key)
+   at BeatmapParser.Sections.Editor.Decode(List`1 sections) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Sections\Editor.cs:line 79.
+   at BeatmapParser.Sections.Editor.Decode(List`1 sections) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Sections\Editor.cs:line 89
+   at BeatmapParser.Beatmap.Decode(Dictionary`2 sections) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 103
+   at BeatmapParser.Beatmap.Decode(FileInfo path) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 123
+   at HitsoundCopier.Program.DecodeBOMBA() in C:\Users\Maot\projects\HitsoundCopier\src\Program.cs:line 74
+
+D:\osu\Songs\478093 sky_delta - Grenade\sky_delta - Grenade (MinG3012) [Negative Infinity Fragmentation].osu: Failed to parse TimingPoints: Value was either too large or too small for a UInt32.
+   at System.Number.ThrowOverflowException[TInteger]()
+   at System.UInt32.Parse(String s)
+   at BeatmapParser.Sections.TimingPoints.Decode(List`1 section) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Sections\TimingPoints.cs:line 52
+   at BeatmapParser.Sections.TimingPoints.Decode(List`1 section) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Sections\TimingPoints.cs:line 79
+   at BeatmapParser.Beatmap.Decode(Dictionary`2 sections) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 103
+   at BeatmapParser.Beatmap.Decode(FileInfo path) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 123
+   at HitsoundCopier.Program.DecodeBOMBA() in C:\Users\Maot\projects\HitsoundCopier\src\Program.cs:line 74
+
+D:\osu\Songs\496199 Kurokotei - Scattered Faith\Kurokotei - Scattered Faith (MinG3012) [Taboo].osu: The given key 'Editor' was not present in the dictionary.
+   at System.Collections.Generic.Dictionary`2.get_Item(TKey key)
+   at BeatmapParser.Beatmap.Decode(Dictionary`2 sections) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 103
+   at BeatmapParser.Beatmap.Decode(FileInfo path) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 123
+   at HitsoundCopier.Program.DecodeBOMBA() in C:\Users\Maot\projects\HitsoundCopier\src\Program.cs:line 74
+
+D:\osu\Songs\50462 Lon - Yuru Fuwa Jukai Girl\Lon - Yuru Fuwa Jukai Girl (phonic) [Normal].osu: The given key '' was not present in the dictionary.
+   at System.Collections.Generic.Dictionary`2.get_Item(TKey key)
+   at BeatmapParser.Beatmap.SplitSections(String beatmap) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 164
+   at BeatmapParser.Beatmap.Decode(FileInfo path) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 123
+   at HitsoundCopier.Program.DecodeBOMBA() in C:\Users\Maot\projects\HitsoundCopier\src\Program.cs:line 74
+
+D:\osu\Songs\524516 O2i3 - Ooi [BL4CK R3M1X!1]\O2i3 - Ooi [BL4CK R3M1X!1] (Babo-ya) [3B].osu: Failed to parse TimingPoints: TimeSpan overflowed because the duration is too long.
+   at System.TimeSpan.IntervalFromDoubleTicks(Double ticks)
+   at BeatmapParser.Sections.TimingPoints.Decode(List`1 section) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Sections\TimingPoints.cs:line 64
+   at BeatmapParser.Sections.TimingPoints.Decode(List`1 section) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Sections\TimingPoints.cs:line 79
+   at BeatmapParser.Beatmap.Decode(Dictionary`2 sections) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 103
+   at BeatmapParser.Beatmap.Decode(FileInfo path) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 123
+   at HitsoundCopier.Program.DecodeBOMBA() in C:\Users\Maot\projects\HitsoundCopier\src\Program.cs:line 74
+
+D:\osu\Songs\524516 O2i3 - Ooi [BL4CK R3M1X!1]\O2i3 - Ooi [BL4CK R3M1X!1] (Babo-ya) [Arles].osu: Failed to parse TimingPoints: TimeSpan overflowed because the duration is too long.
+   at System.TimeSpan.IntervalFromDoubleTicks(Double ticks)
+   at BeatmapParser.Sections.TimingPoints.Decode(List`1 section) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Sections\TimingPoints.cs:line 64
+   at BeatmapParser.Sections.TimingPoints.Decode(List`1 section) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Sections\TimingPoints.cs:line 79
+   at BeatmapParser.Beatmap.Decode(Dictionary`2 sections) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 103
+   at BeatmapParser.Beatmap.Decode(FileInfo path) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 123
+   at HitsoundCopier.Program.DecodeBOMBA() in C:\Users\Maot\projects\HitsoundCopier\src\Program.cs:line 74
+
+D:\osu\Songs\524516 O2i3 - Ooi [BL4CK R3M1X!1]\O2i3 - Ooi [BL4CK R3M1X!1] (Babo-ya) [BICKU BLACKU YES].osu: Failed to parse TimingPoints: TimeSpan overflowed because the duration is too long.
+   at System.TimeSpan.IntervalFromDoubleTicks(Double ticks)
+   at BeatmapParser.Sections.TimingPoints.Decode(List`1 section) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Sections\TimingPoints.cs:line 64
+   at BeatmapParser.Sections.TimingPoints.Decode(List`1 section) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Sections\TimingPoints.cs:line 79
+   at BeatmapParser.Beatmap.Decode(Dictionary`2 sections) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 103
+   at BeatmapParser.Beatmap.Decode(FileInfo path) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 123
+   at HitsoundCopier.Program.DecodeBOMBA() in C:\Users\Maot\projects\HitsoundCopier\src\Program.cs:line 74
+
+D:\osu\Songs\524516 O2i3 - Ooi [BL4CK R3M1X!1]\O2i3 - Ooi [BL4CK R3M1X!1] (Babo-ya) [blindsight].osu: Failed to parse TimingPoints: TimeSpan overflowed because the duration is too long.
+   at System.TimeSpan.IntervalFromDoubleTicks(Double ticks)
+   at BeatmapParser.Sections.TimingPoints.Decode(List`1 section) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Sections\TimingPoints.cs:line 64
+   at BeatmapParser.Sections.TimingPoints.Decode(List`1 section) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Sections\TimingPoints.cs:line 79
+   at BeatmapParser.Beatmap.Decode(Dictionary`2 sections) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 103
+   at BeatmapParser.Beatmap.Decode(FileInfo path) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 123
+   at HitsoundCopier.Program.DecodeBOMBA() in C:\Users\Maot\projects\HitsoundCopier\src\Program.cs:line 74
+
+D:\osu\Songs\524516 O2i3 - Ooi [BL4CK R3M1X!1]\O2i3 - Ooi [BL4CK R3M1X!1] (Babo-ya) [eZ].osu: Failed to parse TimingPoints: TimeSpan overflowed because the duration is too long.
+   at System.TimeSpan.IntervalFromDoubleTicks(Double ticks)
+   at BeatmapParser.Sections.TimingPoints.Decode(List`1 section) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Sections\TimingPoints.cs:line 64
+   at BeatmapParser.Sections.TimingPoints.Decode(List`1 section) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Sections\TimingPoints.cs:line 79
+   at BeatmapParser.Beatmap.Decode(Dictionary`2 sections) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 103
+   at BeatmapParser.Beatmap.Decode(FileInfo path) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 123
+   at HitsoundCopier.Program.DecodeBOMBA() in C:\Users\Maot\projects\HitsoundCopier\src\Program.cs:line 74
+
+D:\osu\Songs\524516 O2i3 - Ooi [BL4CK R3M1X!1]\O2i3 - Ooi [BL4CK R3M1X!1] (Babo-ya) [FOUR DIMENSIONS].osu: Failed to parse TimingPoints: TimeSpan overflowed because the duration is too long.
+   at System.TimeSpan.IntervalFromDoubleTicks(Double ticks)
+   at BeatmapParser.Sections.TimingPoints.Decode(List`1 section) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Sections\TimingPoints.cs:line 64
+   at BeatmapParser.Sections.TimingPoints.Decode(List`1 section) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Sections\TimingPoints.cs:line 79
+   at BeatmapParser.Beatmap.Decode(Dictionary`2 sections) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 103
+   at BeatmapParser.Beatmap.Decode(FileInfo path) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 123
+   at HitsoundCopier.Program.DecodeBOMBA() in C:\Users\Maot\projects\HitsoundCopier\src\Program.cs:line 74
+
+D:\osu\Songs\524516 O2i3 - Ooi [BL4CK R3M1X!1]\O2i3 - Ooi [BL4CK R3M1X!1] (Babo-ya) [MAZZERIN].osu: Failed to parse TimingPoints: TimeSpan overflowed because the duration is too long.
+   at System.TimeSpan.IntervalFromDoubleTicks(Double ticks)
+   at BeatmapParser.Sections.TimingPoints.Decode(List`1 section) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Sections\TimingPoints.cs:line 64
+   at BeatmapParser.Sections.TimingPoints.Decode(List`1 section) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Sections\TimingPoints.cs:line 79
+   at BeatmapParser.Beatmap.Decode(Dictionary`2 sections) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 103
+   at BeatmapParser.Beatmap.Decode(FileInfo path) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 123
+   at HitsoundCopier.Program.DecodeBOMBA() in C:\Users\Maot\projects\HitsoundCopier\src\Program.cs:line 74
+
+D:\osu\Songs\524516 O2i3 - Ooi [BL4CK R3M1X!1]\O2i3 - Ooi [BL4CK R3M1X!1] (Babo-ya) [MONSTRATA].osu: Failed to parse TimingPoints: TimeSpan overflowed because the duration is too long.
+   at System.TimeSpan.IntervalFromDoubleTicks(Double ticks)
+   at BeatmapParser.Sections.TimingPoints.Decode(List`1 section) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Sections\TimingPoints.cs:line 64
+   at BeatmapParser.Sections.TimingPoints.Decode(List`1 section) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Sections\TimingPoints.cs:line 79
+   at BeatmapParser.Beatmap.Decode(Dictionary`2 sections) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 103
+   at BeatmapParser.Beatmap.Decode(FileInfo path) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 123
+   at HitsoundCopier.Program.DecodeBOMBA() in C:\Users\Maot\projects\HitsoundCopier\src\Program.cs:line 74
+
+D:\osu\Songs\524516 O2i3 - Ooi [BL4CK R3M1X!1]\O2i3 - Ooi [BL4CK R3M1X!1] (Babo-ya) [NERFED MAZZERIN [RIP]].osu: Failed to parse TimingPoints: TimeSpan overflowed because the duration is too long.
+   at System.TimeSpan.IntervalFromDoubleTicks(Double ticks)
+   at BeatmapParser.Sections.TimingPoints.Decode(List`1 section) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Sections\TimingPoints.cs:line 64
+   at BeatmapParser.Sections.TimingPoints.Decode(List`1 section) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Sections\TimingPoints.cs:line 79
+   at BeatmapParser.Beatmap.Decode(Dictionary`2 sections) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 103
+   at BeatmapParser.Beatmap.Decode(FileInfo path) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 123
+   at HitsoundCopier.Program.DecodeBOMBA() in C:\Users\Maot\projects\HitsoundCopier\src\Program.cs:line 74
+
+D:\osu\Songs\524516 O2i3 - Ooi [BL4CK R3M1X!1]\O2i3 - Ooi [BL4CK R3M1X!1] (Babo-ya) [NOGARD].osu: Failed to parse TimingPoints: TimeSpan overflowed because the duration is too long.
+   at System.TimeSpan.IntervalFromDoubleTicks(Double ticks)
+   at BeatmapParser.Sections.TimingPoints.Decode(List`1 section) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Sections\TimingPoints.cs:line 64
+   at BeatmapParser.Sections.TimingPoints.Decode(List`1 section) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Sections\TimingPoints.cs:line 79
+   at BeatmapParser.Beatmap.Decode(Dictionary`2 sections) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 103
+   at BeatmapParser.Beatmap.Decode(FileInfo path) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 123
+   at HitsoundCopier.Program.DecodeBOMBA() in C:\Users\Maot\projects\HitsoundCopier\src\Program.cs:line 74
+
+D:\osu\Songs\524516 O2i3 - Ooi [BL4CK R3M1X!1]\O2i3 - Ooi [BL4CK R3M1X!1] (Babo-ya) [NOTCH HELL].osu: Failed to parse TimingPoints: TimeSpan overflowed because the duration is too long.
+   at System.TimeSpan.IntervalFromDoubleTicks(Double ticks)
+   at BeatmapParser.Sections.TimingPoints.Decode(List`1 section) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Sections\TimingPoints.cs:line 64
+   at BeatmapParser.Sections.TimingPoints.Decode(List`1 section) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Sections\TimingPoints.cs:line 79
+   at BeatmapParser.Beatmap.Decode(Dictionary`2 sections) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 103
+   at BeatmapParser.Beatmap.Decode(FileInfo path) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 123
+   at HitsoundCopier.Program.DecodeBOMBA() in C:\Users\Maot\projects\HitsoundCopier\src\Program.cs:line 74
+
+D:\osu\Songs\524516 O2i3 - Ooi [BL4CK R3M1X!1]\O2i3 - Ooi [BL4CK R3M1X!1] (Babo-ya) [santzi can ss this].osu: Failed to parse TimingPoints: TimeSpan overflowed because the duration is too long.
+   at System.TimeSpan.IntervalFromDoubleTicks(Double ticks)
+   at BeatmapParser.Sections.TimingPoints.Decode(List`1 section) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Sections\TimingPoints.cs:line 64
+   at BeatmapParser.Sections.TimingPoints.Decode(List`1 section) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Sections\TimingPoints.cs:line 79
+   at BeatmapParser.Beatmap.Decode(Dictionary`2 sections) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 103
+   at BeatmapParser.Beatmap.Decode(FileInfo path) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 123
+   at HitsoundCopier.Program.DecodeBOMBA() in C:\Users\Maot\projects\HitsoundCopier\src\Program.cs:line 74
+
+D:\osu\Songs\524516 O2i3 - Ooi [BL4CK R3M1X!1]\O2i3 - Ooi [BL4CK R3M1X!1] (Babo-ya) [VERY fast blackboi memeing at incredibly hihg spped].osu: Failed to parse TimingPoints: TimeSpan overflowed because the duration is too long.
+   at System.TimeSpan.IntervalFromDoubleTicks(Double ticks)
+   at BeatmapParser.Sections.TimingPoints.Decode(List`1 section) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Sections\TimingPoints.cs:line 64
+   at BeatmapParser.Sections.TimingPoints.Decode(List`1 section) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Sections\TimingPoints.cs:line 79
+   at BeatmapParser.Beatmap.Decode(Dictionary`2 sections) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 103
+   at BeatmapParser.Beatmap.Decode(FileInfo path) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 123
+   at HitsoundCopier.Program.DecodeBOMBA() in C:\Users\Maot\projects\HitsoundCopier\src\Program.cs:line 74
+
+D:\osu\Songs\529724 kalon - Juubaku\kalon. - Juubaku (Meg) [Garden's Hard].osu: Failed to parse Metadata: The given key 'BeatmapID' was not present in the dictionary.
+   at System.Collections.Generic.Dictionary`2.get_Item(TKey key)
+   at BeatmapParser.Sections.Metadata.Decode(List`1 section) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Sections\Metadata.cs:line 133
+   at BeatmapParser.Sections.Metadata.Decode(List`1 section) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Sections\Metadata.cs:line 148
+   at BeatmapParser.Beatmap.Decode(Dictionary`2 sections) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 103
+   at BeatmapParser.Beatmap.Decode(FileInfo path) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 123
+   at HitsoundCopier.Program.DecodeBOMBA() in C:\Users\Maot\projects\HitsoundCopier\src\Program.cs:line 74
+
+D:\osu\Songs\539221 Camellia - crystallized\Camellia - crystallized (-ckopoctb-) [Girl's C11H15NO2].osu: Failed to parse TimingPoints: TimeSpan overflowed because the duration is too long.
+   at System.TimeSpan.IntervalFromDoubleTicks(Double ticks)
+   at BeatmapParser.Sections.TimingPoints.Decode(List`1 section) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Sections\TimingPoints.cs:line 52
+   at BeatmapParser.Sections.TimingPoints.Decode(List`1 section) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Sections\TimingPoints.cs:line 79
+   at BeatmapParser.Beatmap.Decode(Dictionary`2 sections) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 103
+   at BeatmapParser.Beatmap.Decode(FileInfo path) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 123
+   at HitsoundCopier.Program.DecodeBOMBA() in C:\Users\Maot\projects\HitsoundCopier\src\Program.cs:line 74
+
+D:\osu\Songs\549370 O2i3 - TSLove\O2i3 - TSLove ([_Chichinya_]) [DDM's ChaoticLove 3].osu: Failed to parse TimingPoints: TimeSpan overflowed because the duration is too long.
+   at System.TimeSpan.IntervalFromDoubleTicks(Double ticks)
+   at BeatmapParser.Sections.TimingPoints.Decode(List`1 section) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Sections\TimingPoints.cs:line 52
+   at BeatmapParser.Sections.TimingPoints.Decode(List`1 section) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Sections\TimingPoints.cs:line 79
+   at BeatmapParser.Beatmap.Decode(Dictionary`2 sections) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 103
+   at BeatmapParser.Beatmap.Decode(FileInfo path) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 123
+   at HitsoundCopier.Program.DecodeBOMBA() in C:\Users\Maot\projects\HitsoundCopier\src\Program.cs:line 74
+
+D:\osu\Songs\549370 O2i3 - TSLove\O2i3 - TSLove ([_Chichinya_]) [kqrthLove].osu: Failed to parse TimingPoints: TimeSpan overflowed because the duration is too long.
+   at System.TimeSpan.IntervalFromDoubleTicks(Double ticks)
+   at BeatmapParser.Sections.TimingPoints.Decode(List`1 section) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Sections\TimingPoints.cs:line 52
+   at BeatmapParser.Sections.TimingPoints.Decode(List`1 section) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Sections\TimingPoints.cs:line 79
+   at BeatmapParser.Beatmap.Decode(Dictionary`2 sections) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 103
+   at BeatmapParser.Beatmap.Decode(FileInfo path) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 123
+   at HitsoundCopier.Program.DecodeBOMBA() in C:\Users\Maot\projects\HitsoundCopier\src\Program.cs:line 74
+
+D:\osu\Songs\594828 Helblinde - The Solace of Oblivion\Helblinde - The Solace of Oblivion (MinG3012) [Aspire].osu: Failed to parse TimingPoints: Value was either too large or too small for a UInt32.
+   at System.Number.ThrowOverflowException[TInteger]()
+   at System.Enum.TryParseByValueOrName[TUnderlying,TStorage](RuntimeType enumType, ReadOnlySpan`1 value, Boolean ignoreCase, Boolean throwOnFailure, TUnderlying& result)
+   at System.Enum.TryParse(Type enumType, ReadOnlySpan`1 value, Boolean ignoreCase, Boolean throwOnFailure, Object& result)
+   at System.Enum.Parse(Type enumType, String value)
+   at BeatmapParser.Sections.TimingPoints.Decode(List`1 section) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Sections\TimingPoints.cs:line 52
+   at BeatmapParser.Sections.TimingPoints.Decode(List`1 section) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Sections\TimingPoints.cs:line 79
+   at BeatmapParser.Beatmap.Decode(Dictionary`2 sections) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 103
+   at BeatmapParser.Beatmap.Decode(FileInfo path) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 123
+   at HitsoundCopier.Program.DecodeBOMBA() in C:\Users\Maot\projects\HitsoundCopier\src\Program.cs:line 74
+
+D:\osu\Songs\59515 ARM feat miko - Hysteric Soda\ARM feat. miko - Hysteric Soda (Silynn) [CXu].osu: Error while parsing Editor section:
+System.Collections.Generic.KeyNotFoundException: The given key 'TimelineZoom' was not present in the dictionary.
+   at System.Collections.Generic.Dictionary`2.get_Item(TKey key)
+   at BeatmapParser.Sections.Editor.Decode(List`1 sections) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Sections\Editor.cs:line 79.
+   at BeatmapParser.Sections.Editor.Decode(List`1 sections) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Sections\Editor.cs:line 89
+   at BeatmapParser.Beatmap.Decode(Dictionary`2 sections) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 103
+   at BeatmapParser.Beatmap.Decode(FileInfo path) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 123
+   at HitsoundCopier.Program.DecodeBOMBA() in C:\Users\Maot\projects\HitsoundCopier\src\Program.cs:line 74
+
+D:\osu\Songs\59515 ARM feat miko - Hysteric Soda\ARM feat. miko - Hysteric Soda (Silynn) [Easy].osu: Error while parsing Editor section:
+System.Exception: Invalid Editor section length. Missing properties: TimelineZoom.
+   at BeatmapParser.Sections.Editor.Decode(List`1 sections) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Sections\Editor.cs:line 74.
+   at BeatmapParser.Sections.Editor.Decode(List`1 sections) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Sections\Editor.cs:line 89
+   at BeatmapParser.Beatmap.Decode(Dictionary`2 sections) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 103
+   at BeatmapParser.Beatmap.Decode(FileInfo path) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 123
+   at HitsoundCopier.Program.DecodeBOMBA() in C:\Users\Maot\projects\HitsoundCopier\src\Program.cs:line 74
+
+D:\osu\Songs\59515 ARM feat miko - Hysteric Soda\ARM feat. miko - Hysteric Soda (Silynn) [f e a r's Hysteria].osu: Error while parsing Editor section:
+System.Collections.Generic.KeyNotFoundException: The given key 'TimelineZoom' was not present in the dictionary.
+   at System.Collections.Generic.Dictionary`2.get_Item(TKey key)
+   at BeatmapParser.Sections.Editor.Decode(List`1 sections) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Sections\Editor.cs:line 79.
+   at BeatmapParser.Sections.Editor.Decode(List`1 sections) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Sections\Editor.cs:line 89
+   at BeatmapParser.Beatmap.Decode(Dictionary`2 sections) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 103
+   at BeatmapParser.Beatmap.Decode(FileInfo path) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 123
+   at HitsoundCopier.Program.DecodeBOMBA() in C:\Users\Maot\projects\HitsoundCopier\src\Program.cs:line 74
+
+D:\osu\Songs\59515 ARM feat miko - Hysteric Soda\ARM feat. miko - Hysteric Soda (Silynn) [Hard].osu: Error while parsing Editor section:
+System.Exception: Invalid Editor section length. Missing properties: TimelineZoom.
+   at BeatmapParser.Sections.Editor.Decode(List`1 sections) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Sections\Editor.cs:line 74.
+   at BeatmapParser.Sections.Editor.Decode(List`1 sections) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Sections\Editor.cs:line 89
+   at BeatmapParser.Beatmap.Decode(Dictionary`2 sections) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 103
+   at BeatmapParser.Beatmap.Decode(FileInfo path) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 123
+   at HitsoundCopier.Program.DecodeBOMBA() in C:\Users\Maot\projects\HitsoundCopier\src\Program.cs:line 74
+
+D:\osu\Songs\59515 ARM feat miko - Hysteric Soda\ARM feat. miko - Hysteric Soda (SIlynn) [Horo's Taiksoda].osu: Error while parsing Editor section:
+System.Collections.Generic.KeyNotFoundException: The given key 'TimelineZoom' was not present in the dictionary.
+   at System.Collections.Generic.Dictionary`2.get_Item(TKey key)
+   at BeatmapParser.Sections.Editor.Decode(List`1 sections) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Sections\Editor.cs:line 79.
+   at BeatmapParser.Sections.Editor.Decode(List`1 sections) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Sections\Editor.cs:line 89
+   at BeatmapParser.Beatmap.Decode(Dictionary`2 sections) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 103
+   at BeatmapParser.Beatmap.Decode(FileInfo path) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 123
+   at HitsoundCopier.Program.DecodeBOMBA() in C:\Users\Maot\projects\HitsoundCopier\src\Program.cs:line 74
+
+D:\osu\Songs\59515 ARM feat miko - Hysteric Soda\ARM feat. miko - Hysteric Soda (Silynn) [Hysteric].osu: Error while parsing Editor section:
+System.Exception: Invalid Editor section length. Missing properties: TimelineZoom.
+   at BeatmapParser.Sections.Editor.Decode(List`1 sections) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Sections\Editor.cs:line 74.
+   at BeatmapParser.Sections.Editor.Decode(List`1 sections) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Sections\Editor.cs:line 89
+   at BeatmapParser.Beatmap.Decode(Dictionary`2 sections) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 103
+   at BeatmapParser.Beatmap.Decode(FileInfo path) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 123
+   at HitsoundCopier.Program.DecodeBOMBA() in C:\Users\Maot\projects\HitsoundCopier\src\Program.cs:line 74
+
+D:\osu\Songs\59515 ARM feat miko - Hysteric Soda\ARM feat. miko - Hysteric Soda (Silynn) [o.o].osu: Error while parsing Editor section:
+System.Exception: Invalid Editor section length. Missing properties: TimelineZoom.
+   at BeatmapParser.Sections.Editor.Decode(List`1 sections) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Sections\Editor.cs:line 74.
+   at BeatmapParser.Sections.Editor.Decode(List`1 sections) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Sections\Editor.cs:line 89
+   at BeatmapParser.Beatmap.Decode(Dictionary`2 sections) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 103
+   at BeatmapParser.Beatmap.Decode(FileInfo path) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 123
+   at HitsoundCopier.Program.DecodeBOMBA() in C:\Users\Maot\projects\HitsoundCopier\src\Program.cs:line 74
+
+D:\osu\Songs\632870 Busdriver - Imaginary Places\Busdriver - Imaginary Places (Moreon) [tem's christian].osu: Failed to parse TimingPoints: TimeSpan overflowed because the duration is too long.
+   at System.TimeSpan.IntervalFromDoubleTicks(Double ticks)
+   at BeatmapParser.Sections.TimingPoints.Decode(List`1 section) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Sections\TimingPoints.cs:line 52
+   at BeatmapParser.Sections.TimingPoints.Decode(List`1 section) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Sections\TimingPoints.cs:line 79
+   at BeatmapParser.Beatmap.Decode(Dictionary`2 sections) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 103
+   at BeatmapParser.Beatmap.Decode(FileInfo path) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 123
+   at HitsoundCopier.Program.DecodeBOMBA() in C:\Users\Maot\projects\HitsoundCopier\src\Program.cs:line 74
+
+D:\osu\Songs\654452 Nanahoshi Kangengakudan - anoko dokonoko\Nanahoshi Kangengakudan - anoko dokonoko (kwk) [Hard].osu: Failed to parse Metadata: Invalid Metadata section field.
+   at BeatmapParser.Sections.Metadata.<>c__DisplayClass42_0.<Decode>b__0(String line) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Sections\Metadata.cs:line 116
+   at System.Collections.Generic.List`1.ForEach(Action`1 action)
+   at BeatmapParser.Sections.Metadata.Decode(List`1 section) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Sections\Metadata.cs:line 110
+   at BeatmapParser.Sections.Metadata.Decode(List`1 section) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Sections\Metadata.cs:line 148
+   at BeatmapParser.Beatmap.Decode(Dictionary`2 sections) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 103
+   at BeatmapParser.Beatmap.Decode(FileInfo path) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 123
+   at HitsoundCopier.Program.DecodeBOMBA() in C:\Users\Maot\projects\HitsoundCopier\src\Program.cs:line 74
+
+D:\osu\Songs\665530 Camellia - GHOST\Camellia - GHOST (fanzhen0019) [FourSeasonsHotel].osu: Failed to parse TimingPoints: TimeSpan overflowed because the duration is too long.
+   at System.TimeSpan.IntervalFromDoubleTicks(Double ticks)
+   at BeatmapParser.Sections.TimingPoints.Decode(List`1 section) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Sections\TimingPoints.cs:line 52
+   at BeatmapParser.Sections.TimingPoints.Decode(List`1 section) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Sections\TimingPoints.cs:line 79
+   at BeatmapParser.Beatmap.Decode(Dictionary`2 sections) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 103
+   at BeatmapParser.Beatmap.Decode(FileInfo path) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 123
+   at HitsoundCopier.Program.DecodeBOMBA() in C:\Users\Maot\projects\HitsoundCopier\src\Program.cs:line 74
+
+D:\osu\Songs\791900 LeaF - Aleph-0\LeaF - Aleph-0 (Pikaquim) [Hitsounds and modding (temporary)].osu: Failed to parse TimingPoints: TimeSpan overflowed because the duration is too long.
+   at System.TimeSpan.IntervalFromDoubleTicks(Double ticks)
+   at BeatmapParser.Sections.TimingPoints.Decode(List`1 section) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Sections\TimingPoints.cs:line 52
+   at BeatmapParser.Sections.TimingPoints.Decode(List`1 section) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Sections\TimingPoints.cs:line 79
+   at BeatmapParser.Beatmap.Decode(Dictionary`2 sections) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 103
+   at BeatmapParser.Beatmap.Decode(FileInfo path) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 123
+   at HitsoundCopier.Program.DecodeBOMBA() in C:\Users\Maot\projects\HitsoundCopier\src\Program.cs:line 74
+
+D:\osu\Songs\791900 LeaF - Aleph-0\LeaF - Aleph-0 (Pikaquim) [Old (ignorethis)].osu: Failed to parse TimingPoints: TimeSpan overflowed because the duration is too long.
+   at System.TimeSpan.IntervalFromDoubleTicks(Double ticks)
+   at BeatmapParser.Sections.TimingPoints.Decode(List`1 section) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Sections\TimingPoints.cs:line 52
+   at BeatmapParser.Sections.TimingPoints.Decode(List`1 section) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Sections\TimingPoints.cs:line 79
+   at BeatmapParser.Beatmap.Decode(Dictionary`2 sections) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 103
+   at BeatmapParser.Beatmap.Decode(FileInfo path) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 123
+   at HitsoundCopier.Program.DecodeBOMBA() in C:\Users\Maot\projects\HitsoundCopier\src\Program.cs:line 74
+
+D:\osu\Songs\791900 LeaF - Aleph-0\LeaF - Aleph-0 (Pikaquim) [Omega].osu: Failed to parse TimingPoints: TimeSpan overflowed because the duration is too long.
+   at System.TimeSpan.IntervalFromDoubleTicks(Double ticks)
+   at BeatmapParser.Sections.TimingPoints.Decode(List`1 section) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Sections\TimingPoints.cs:line 52
+   at BeatmapParser.Sections.TimingPoints.Decode(List`1 section) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Sections\TimingPoints.cs:line 79
+   at BeatmapParser.Beatmap.Decode(Dictionary`2 sections) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 103
+   at BeatmapParser.Beatmap.Decode(FileInfo path) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 123
+   at HitsoundCopier.Program.DecodeBOMBA() in C:\Users\Maot\projects\HitsoundCopier\src\Program.cs:line 74
+
+D:\osu\Songs\820192 ELEMENTAS _ VoNana Takahashi - Drive my life\ELEMENTAS  Vo.Nana Takahashi - Drive my life (Yales) [Ynsane].osu: Beatmap is empty.
+   at BeatmapParser.Beatmap.SplitSections(String beatmap) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 146
+   at BeatmapParser.Beatmap.Decode(FileInfo path) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 123
+   at HitsoundCopier.Program.DecodeBOMBA() in C:\Users\Maot\projects\HitsoundCopier\src\Program.cs:line 74
+
+D:\osu\Songs\829123 Amatsuki - Caramel Heaven\yuikonnu - Caramel Heaven (zhu) [- Aeril's Hard -].osu: Failed to parse Metadata: Adding same propriety multiple times.
+   at BeatmapParser.Sections.Metadata.<>c__DisplayClass42_0.<Decode>b__0(String line) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Sections\Metadata.cs:line 121
+   at System.Collections.Generic.List`1.ForEach(Action`1 action)
+   at BeatmapParser.Sections.Metadata.Decode(List`1 section) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Sections\Metadata.cs:line 110
+   at BeatmapParser.Sections.Metadata.Decode(List`1 section) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Sections\Metadata.cs:line 148
+   at BeatmapParser.Beatmap.Decode(Dictionary`2 sections) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 103
+   at BeatmapParser.Beatmap.Decode(FileInfo path) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 123
+   at HitsoundCopier.Program.DecodeBOMBA() in C:\Users\Maot\projects\HitsoundCopier\src\Program.cs:line 74
+
+D:\osu\Songs\884669 LeaF - Aleph-0\LeaF - Aleph-0 (Mr HeliX) [Jack of all Trades].osu: Failed to parse TimingPoints: TimeSpan overflowed because the duration is too long.
+   at System.TimeSpan.IntervalFromDoubleTicks(Double ticks)
+   at BeatmapParser.Sections.TimingPoints.Decode(List`1 section) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Sections\TimingPoints.cs:line 52
+   at BeatmapParser.Sections.TimingPoints.Decode(List`1 section) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Sections\TimingPoints.cs:line 79
+   at BeatmapParser.Beatmap.Decode(Dictionary`2 sections) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 103
+   at BeatmapParser.Beatmap.Decode(FileInfo path) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 123
+   at HitsoundCopier.Program.DecodeBOMBA() in C:\Users\Maot\projects\HitsoundCopier\src\Program.cs:line 74
+
+D:\osu\Songs\884669 LeaF - Aleph-0\LeaF - Aleph-0 (Mr HeliX) [Master of all Trades].osu: Failed to parse TimingPoints: TimeSpan overflowed because the duration is too long.
+   at System.TimeSpan.IntervalFromDoubleTicks(Double ticks)
+   at BeatmapParser.Sections.TimingPoints.Decode(List`1 section) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Sections\TimingPoints.cs:line 52
+   at BeatmapParser.Sections.TimingPoints.Decode(List`1 section) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Sections\TimingPoints.cs:line 79
+   at BeatmapParser.Beatmap.Decode(Dictionary`2 sections) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 103
+   at BeatmapParser.Beatmap.Decode(FileInfo path) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 123
+   at HitsoundCopier.Program.DecodeBOMBA() in C:\Users\Maot\projects\HitsoundCopier\src\Program.cs:line 74
+
+D:\osu\Songs\902250 Himeringo - Idola no Circus\Himeringo - Idola no Circus (Nevo) [Salvation].osu: Error while parsing Editor section:
+System.FormatException: The input string '' was not in a correct format.
+   at System.Number.ThrowFormatException[TChar](ReadOnlySpan`1 value)
+   at System.Double.Parse(String s, IFormatProvider provider)
+   at BeatmapParser.Sections.Editor.<>c.<Decode>b__22_1(String x) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Sections\Editor.cs:line 80
+   at System.Linq.Enumerable.ToList[TSource](IEnumerable`1 source)
+   at BeatmapParser.Sections.Editor.Decode(List`1 sections) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Sections\Editor.cs:line 79.
+   at BeatmapParser.Sections.Editor.Decode(List`1 sections) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Sections\Editor.cs:line 89
+   at BeatmapParser.Beatmap.Decode(Dictionary`2 sections) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 103
+   at BeatmapParser.Beatmap.Decode(FileInfo path) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 123
+   at HitsoundCopier.Program.DecodeBOMBA() in C:\Users\Maot\projects\HitsoundCopier\src\Program.cs:line 74
+
+D:\osu\Songs\920466 nano - Rock on\nano - Rock on. (Nevo) [Keitaro's Insane].osu: Error while parsing Editor section:
+System.FormatException: The input string '' was not in a correct format.
+   at System.Number.ThrowFormatException[TChar](ReadOnlySpan`1 value)
+   at System.Double.Parse(String s, IFormatProvider provider)
+   at BeatmapParser.Sections.Editor.<>c.<Decode>b__22_1(String x) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Sections\Editor.cs:line 80
+   at System.Linq.Enumerable.ToList[TSource](IEnumerable`1 source)
+   at BeatmapParser.Sections.Editor.Decode(List`1 sections) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Sections\Editor.cs:line 79.
+   at BeatmapParser.Sections.Editor.Decode(List`1 sections) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Sections\Editor.cs:line 89
+   at BeatmapParser.Beatmap.Decode(Dictionary`2 sections) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 103
+   at BeatmapParser.Beatmap.Decode(FileInfo path) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 123
+   at HitsoundCopier.Program.DecodeBOMBA() in C:\Users\Maot\projects\HitsoundCopier\src\Program.cs:line 74
+
+D:\osu\Songs\920466 nano - Rock on\nano - Rock on. (Nevo) [Mordred's Extra].osu: Error while parsing Editor section:
+System.FormatException: The input string '' was not in a correct format.
+   at System.Number.ThrowFormatException[TChar](ReadOnlySpan`1 value)
+   at System.Double.Parse(String s, IFormatProvider provider)
+   at BeatmapParser.Sections.Editor.<>c.<Decode>b__22_1(String x) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Sections\Editor.cs:line 80
+   at System.Linq.Enumerable.ToList[TSource](IEnumerable`1 source)
+   at BeatmapParser.Sections.Editor.Decode(List`1 sections) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Sections\Editor.cs:line 79.
+   at BeatmapParser.Sections.Editor.Decode(List`1 sections) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Sections\Editor.cs:line 89
+   at BeatmapParser.Beatmap.Decode(Dictionary`2 sections) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 103
+   at BeatmapParser.Beatmap.Decode(FileInfo path) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 123
+   at HitsoundCopier.Program.DecodeBOMBA() in C:\Users\Maot\projects\HitsoundCopier\src\Program.cs:line 74
+
+D:\osu\Songs\940601 seiya-murai feat ALT - Sumidagawa Karenka\seiya-murai feat. ALT - Sumidagawa Karenka (Nevo) [zhu's Extra].osu: Error while parsing Editor section:
+System.FormatException: The input string '' was not in a correct format.
+   at System.Number.ThrowFormatException[TChar](ReadOnlySpan`1 value)
+   at System.Double.Parse(String s, IFormatProvider provider)
+   at BeatmapParser.Sections.Editor.<>c.<Decode>b__22_1(String x) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Sections\Editor.cs:line 80
+   at System.Linq.Enumerable.ToList[TSource](IEnumerable`1 source)
+   at BeatmapParser.Sections.Editor.Decode(List`1 sections) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Sections\Editor.cs:line 79.
+   at BeatmapParser.Sections.Editor.Decode(List`1 sections) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Sections\Editor.cs:line 89
+   at BeatmapParser.Beatmap.Decode(Dictionary`2 sections) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 103
+   at BeatmapParser.Beatmap.Decode(FileInfo path) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 123
+   at HitsoundCopier.Program.DecodeBOMBA() in C:\Users\Maot\projects\HitsoundCopier\src\Program.cs:line 74
+
+D:\osu\Songs\997827 Culprate - Acid Rain\Culprate - Acid Rain (seselis1) [Aspire].osu: Failed to parse TimingPoints: TimeSpan overflowed because the duration is too long.
+   at System.TimeSpan.IntervalFromDoubleTicks(Double ticks)
+   at BeatmapParser.Sections.TimingPoints.Decode(List`1 section) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Sections\TimingPoints.cs:line 52
+   at BeatmapParser.Sections.TimingPoints.Decode(List`1 section) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Sections\TimingPoints.cs:line 79
+   at BeatmapParser.Beatmap.Decode(Dictionary`2 sections) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 103
+   at BeatmapParser.Beatmap.Decode(FileInfo path) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 123
+   at HitsoundCopier.Program.DecodeBOMBA() in C:\Users\Maot\projects\HitsoundCopier\src\Program.cs:line 74
+
+D:\osu\Songs\beatmap-638020037022142311-zutomayo\beatmap-638020037022142311-zutomayo.osu: Beatmap is empty.
+   at BeatmapParser.Beatmap.SplitSections(String beatmap) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 146
+   at BeatmapParser.Beatmap.Decode(FileInfo path) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 123
+   at HitsoundCopier.Program.DecodeBOMBA() in C:\Users\Maot\projects\HitsoundCopier\src\Program.cs:line 74
+
+D:\osu\Songs\Culprate - Acid Rain (Heroic Opossum)\Culprate - Acid Rain (Heroic Opossum) [Aspire].osu: Failed to parse TimingPoints: TimeSpan overflowed because the duration is too long.
+   at System.TimeSpan.IntervalFromDoubleTicks(Double ticks)
+   at BeatmapParser.Sections.TimingPoints.Decode(List`1 section) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Sections\TimingPoints.cs:line 52
+   at BeatmapParser.Sections.TimingPoints.Decode(List`1 section) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Sections\TimingPoints.cs:line 79
+   at BeatmapParser.Beatmap.Decode(Dictionary`2 sections) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 103
+   at BeatmapParser.Beatmap.Decode(FileInfo path) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 123
+   at HitsoundCopier.Program.DecodeBOMBA() in C:\Users\Maot\projects\HitsoundCopier\src\Program.cs:line 74
+
+D:\osu\Songs\Helblinde - The Solace of Oblivion [Astonished Cormorant]\Helblinde - The Solace of Oblivion (Various Creators) [Astonished Cormorant].osu: Failed to parse TimingPoints: TimeSpan overflowed because the duration is too long.
+   at System.TimeSpan.IntervalFromDoubleTicks(Double ticks)
+   at BeatmapParser.Sections.TimingPoints.Decode(List`1 section) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Sections\TimingPoints.cs:line 52
+   at BeatmapParser.Sections.TimingPoints.Decode(List`1 section) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Sections\TimingPoints.cs:line 79
+   at BeatmapParser.Beatmap.Decode(Dictionary`2 sections) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 103
+   at BeatmapParser.Beatmap.Decode(FileInfo path) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 123
+   at HitsoundCopier.Program.DecodeBOMBA() in C:\Users\Maot\projects\HitsoundCopier\src\Program.cs:line 74
+
+D:\osu\Songs\Helblinde - The Solace of Oblivion [Versatile Mallard]\Helblinde - The Solace of Oblivion (Various Creators) [Versatile Mallard].osu: Failed to parse TimingPoints: Value was either too large or too small for a UInt32.
+   at System.Number.ThrowOverflowException[TInteger]()
+   at System.Enum.TryParseByValueOrName[TUnderlying,TStorage](RuntimeType enumType, ReadOnlySpan`1 value, Boolean ignoreCase, Boolean throwOnFailure, TUnderlying& result)
+   at System.Enum.TryParse(Type enumType, ReadOnlySpan`1 value, Boolean ignoreCase, Boolean throwOnFailure, Object& result)
+   at System.Enum.Parse(Type enumType, String value)
+   at BeatmapParser.Sections.TimingPoints.Decode(List`1 section) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Sections\TimingPoints.cs:line 52
+   at BeatmapParser.Sections.TimingPoints.Decode(List`1 section) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Sections\TimingPoints.cs:line 79
+   at BeatmapParser.Beatmap.Decode(Dictionary`2 sections) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 103
+   at BeatmapParser.Beatmap.Decode(FileInfo path) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 123
+   at HitsoundCopier.Program.DecodeBOMBA() in C:\Users\Maot\projects\HitsoundCopier\src\Program.cs:line 74
+
+D:\osu\Songs\LiSA_-_Gurenge_TV_Size\LiSA - Gurenge (TV Size) (Net0) [Trynna's Extra].osu: Beatmap is empty.
+   at BeatmapParser.Beatmap.SplitSections(String beatmap) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 146
+   at BeatmapParser.Beatmap.Decode(FileInfo path) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 123
+   at HitsoundCopier.Program.DecodeBOMBA() in C:\Users\Maot\projects\HitsoundCopier\src\Program.cs:line 74
+
+D:\osu\Songs\nxzero - entre razoes e emocoes a saida (Maot)\nxzero - entre razoes e valer (Maot) [a pena].osu: Failed to parse Metadata: The given key 'Source' was not present in the dictionary.
+   at System.Collections.Generic.Dictionary`2.get_Item(TKey key)
+   at BeatmapParser.Sections.Metadata.Decode(List`1 section) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Sections\Metadata.cs:line 133
+   at BeatmapParser.Sections.Metadata.Decode(List`1 section) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Sections\Metadata.cs:line 148
+   at BeatmapParser.Beatmap.Decode(Dictionary`2 sections) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 103
+   at BeatmapParser.Beatmap.Decode(FileInfo path) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 123
+   at HitsoundCopier.Program.DecodeBOMBA() in C:\Users\Maot\projects\HitsoundCopier\src\Program.cs:line 74
+
+D:\osu\Songs\O2i3 - Ping (GrouchyGorilla)\O2i3 - Ping (GrouchyGorilla) [Aspire].osu: Failed to parse HitObjects section
+System.Exception: Failed to parse HitObject line '81,223,186,70,0,D|I|C|K|S|B|82:226|82:226|83:229|83:229|84:232|84:232|83:230|84:232|84:232|84:233|84:233|85:236|85:236|86:238|86:238|85:236|86:238|86:238|87:241|87:241|88:244|88:244|87:242|88:244|88:244|89:246|89:246|88:244|89:246|89:246|90:249|90:249|91:251|91:251|90:249|91:251|91:251|92:253|92:253|91:251|92:253|92:253|93:255|93:255|92:253|93:255|93:255|94:258|94:258|93:256|94:258|94:258|95:259|95:259|96:261|96:261|95:259|96:261|96:261|97:263|97:263|96:261|97:263|97:263|98:265|98:265|97:263|98:265|98:265|99:267|99:267|98:265|99:267|99:267|100:269|100:269|99:267|100:269|100:269|99:267|100:269|100:269|102:272|102:272|101:270|102:272|102:272|103:274|103:274|102:272|103:274|103:274|104:275|104:275|103:273|104:275|104:275|103:273|104:275|104:275|105:277|105:277|104:275|105:277|105:277|107:280|107:280|108:282|107:280|107:280|106:278|107:280|107:280|106:278|107:280|107:280|109:283|109:283|108:281|109:283|109:283|110:284|110:284|109:282|110:284|110:284|109:282|110:284|110:284|111:286|111:286|110:284|111:286|111:286|112:287|112:287|111:285|112:287|112:287|111:285|112:287|112:287|114:290|114:290|115:292|114:290|114:290|113:288|114:290|114:290|115:291|115:291|114:289|115:291|115:291|114:289|115:291|115:291|116:292|116:292|115:290|116:292|116:292|115:290|116:292|116:292|118:295|118:295|119:297|118:295|118:295|117:293|118:295|118:295|119:296|119:296|118:294|119:296|119:296|118:294|119:296|119:296|120:297|120:297|119:295|120:297|120:297|121:298|121:298|120:296|121:298|121:298|120:296|121:298|121:298|122:300|122:300|123:301|122:300|122:300|123:301|122:300|122:300|123:301|122:300|122:300|121:299|122:300|122:300|121:299|122:300|122:300|124:302|124:302|125:303|124:302|124:302|125:303|124:302|124:302|125:303|124:302|124:302|123:301|124:302|124:302|123:301|124:302|124:302|126:304|126:304|127:305|126:304|126:304|125:303|126:304|126:304|125:303|126:304|126:304|125:303|126:304|126:304|127:305|127:305|126:304|127:305|127:305|126:304|127:305|127:305|126:304|127:305|127:305|128:306|128:306|127:305|128:306|128:306|127:305|128:306|128:306|127:305|128:306|128:306|129:307|129:307|128:306|129:307|129:307|128:306|129:307|129:307|128:306|129:307|129:307|130:308|130:308|129:307|130:308|130:308|129:307|130:308|130:308|129:307|130:308|130:308|131:309|131:309|130:308|131:309|131:309|130:308|131:309|131:309|130:308|131:309|131:309|132:310|132:310|131:309|132:310|132:310|131:309|132:310|132:310|131:309|132:310|132:310|133:311|133:311|132:310|133:311|133:311|132:310|133:311|133:311|132:310|133:311|133:311|134:312|134:312|133:311|134:312|134:312|133:311|134:312|134:312|133:311|134:312|134:312|135:313|135:313|136:314|135:313|135:313|136:314|135:313|135:313|134:312|135:313|135:313|134:312|135:313|135:313|137:315|137:315|138:316|137:315|137:315|138:316|137:315|137:315|136:314|137:315|137:315|136:314|137:315|137:315|136:314|137:315|137:315|138:316|138:316|139:317|138:316|138:316|139:317|138:316|138:316|139:317|138:316|138:316|140:317|140:317|138:316|140:317|140:317|138:316|140:317|140:317|138:316|140:317|140:317|141:318|141:318|139:317|141:318|141:318|139:317|141:318|141:318|142:319|142:319|140:318|142:319|142:319|140:318|142:319|142:319|143:320|143:320|145:321|143:320|143:320|144:321|144:321|146:322|144:321|144:321|146:322|144:321|144:321|146:322|144:321|144:321|146:322|146:322|144:321|146:322|146:322|144:321|146:322|146:322|147:323|147:323|145:322|147:323|147:323|145:322|147:323|147:323|148:324|148:324|146:323|148:324|148:324|146:323|148:324|148:324|149:325|149:325|151:326|149:325|149:325|150:325|150:325|148:324|150:325|150:325|151:326|151:326|149:325|151:326|151:326|149:325|151:326|151:326|152:327|152:327|154:328|152:327|152:327|154:328|152:327|152:327|154:328|154:328|152:327|154:328|154:328|152:327|154:328|154:328|155:329|155:329|153:328|155:329|155:329|153:328|155:329|155:329|156:330|156:330|158:331|156:330|156:330|158:331|156:330|156:330|158:331|158:331|156:330|158:331|158:331|156:330|158:331|158:331|156:330|158:331|158:331|159:332|159:332|161:333|159:332|159:332|160:332|160:332|158:331|160:332|160:332|161:333|161:333|159:332|161:333|161:333|159:332|161:333|161:333|163:334|163:334|165:335|163:334|163:334|161:333|163:334|163:334|164:335|164:335|162:334|164:335|164:335|162:334|164:335|164:335|166:336|166:336|164:335|166:336|166:336|164:335|166:336|166:336|164:335|166:336|166:336|167:337|167:337|169:338|167:337|167:337|168:337|168:337|166:336|168:337|168:337|169:338|169:338|167:337|169:338|169:338|167:337|169:338|169:338|171:339|171:339|169:338|171:339|171:339|169:338|171:339|171:339|173:340|173:340|171:339|173:340|173:340|171:339|173:340|173:340|171:339|173:340|173:340|175:341|175:341|177:342|175:341|175:341|173:340|175:341|175:341|173:340|175:341|175:341|177:342|177:342|175:341|177:342|177:342|175:341|177:342|177:342|179:343|179:343|181:344|179:343|179:343|177:342|179:343|179:343|177:342|179:343|179:343|181:344|181:344|179:343|181:344|181:344|179:343|181:344|181:344|183:345|183:345|181:344|183:345|183:345|181:344|183:345|183:345|185:346|185:346|187:347|185:346|185:346|183:345|185:346|185:346|187:347|187:347|185:346|187:347|187:347|185:346|187:347|187:347|189:348|189:348|187:347|189:348|189:348|187:347|189:348|189:348|187:347|189:348|189:348|191:349|191:349|193:350|191:349|191:349|193:350|191:349|191:349|192:349|192:349|190:348|192:349|192:349|194:350|194:350|192:349|194:350|194:350|195:350|195:350|193:349|195:350|195:350|193:349|195:350|195:350|197:351|197:351|195:350|197:351|197:351|195:350|197:351|197:351|200:352|200:352|202:353|200:352|200:352|198:351|200:352|200:352|202:353|202:353|200:352|202:353|202:353|200:352|202:353|202:353|203:353|203:353|201:352|203:353|203:353|205:354|205:354|203:353|205:354|205:354|203:353|205:354|205:354|206:354|206:354|204:353|206:354|206:354|204:353|206:354|206:354|209:355|209:355|211:356|209:355|209:355|207:354|209:355|209:355|207:354|209:355|209:355|212:356|212:356|210:355|212:356|212:356|213:356|213:356|211:355|213:356|213:356|211:355|213:356|213:356|216:357|216:357|218:357|216:357|216:357|214:357|216:357|216:357|217:357|217:357|215:357|217:357|217:357|215:357|217:357|217:357|220:358|220:358|218:358|220:358|220:358|221:358|221:358|219:358|221:358|221:358|219:358|221:358|221:358|224:359|224:359|226:359|224:359|224:359|222:359|224:359|224:359|225:359|225:359|223:359|225:359|225:359|223:359|225:359|225:359|229:360|229:360|231:360|229:360|229:360|227:360|229:360|229:360|230:360|230:360|228:360|230:360|230:360|231:360|231:360|229:360|231:360|231:360|229:360|231:360|231:360|235:361|235:361|237:361|235:361|235:361|233:361|235:361|235:361|236:361|236:361|234:361|236:361|236:361|237:361|237:361|235:361|237:361|237:361|235:361|237:361|237:361|235:361|237:361|237:361|243:362|243:362|245:362|243:362|243:362|241:362|243:362|243:362|244:362|244:362|242:362|244:362|244:362|245:362|245:362|243:362|245:362|245:362|246:362|246:362|244:362|246:362|246:362|244:362|246:362|246:362|244:362|246:362|246:362|253:363|253:363|255:363|253:363|253:363|255:363|253:363|253:363|251:363|253:363|253:363|257:363|257:363|259:363|257:363|257:363|255:363|257:363|257:363|258:363|258:363|256:363|258:363|258:363|259:363|259:363|260:363|260:363|258:363|260:363|260:363|261:363|261:363|259:363|261:363|261:363|262:363|262:363|263:363|263:363|261:363|263:363|263:363|264:363|264:363|262:363|264:363|264:363|265:363|265:363|266:363|266:363|264:363|266:363|266:363|267:363|267:363|265:363|267:363|267:363|268:363|268:363|269:363|269:363|267:363|269:363|269:363|267:363|269:363|269:363|267:363|269:363|269:363|267:363|269:363|269:363|274:363|279:362|279:362|277:362|279:362|279:362|277:362|279:362|279:362|277:362|279:362|279:362|280:362|280:362|281:362|281:362|279:362|281:362|281:362|282:362|282:362|283:362|283:362|281:362|283:362|283:362|281:362|283:362|283:362|281:362|283:362|283:362|289:361|289:361|287:361|289:361|289:361|290:361|290:361|288:361|290:361|290:361|291:361|291:361|289:361|291:361|291:361|295:360|295:360|293:360|295:360|295:360|296:360|296:360|294:360|296:360|296:360|297:360|297:360|295:360|297:360|297:360|301:359|301:359|299:359|301:359|301:359|302:359|302:359|300:359|302:359|302:359|305:358|305:358|303:358|305:358|305:358|306:358|306:358|304:358|306:358|306:358|309:357|309:357|307:357|309:357|309:357|310:357|310:357|308:357|310:357|310:357|313:356|313:356|311:357|313:356|313:356|314:356|314:356|312:357|314:356|314:356|316:355|316:355|317:355|317:355|315:356|317:355|317:355|320:354|320:354|318:355|320:354|320:354|323:353|323:353|321:354|323:353|323:353|326:352|326:352|324:353|326:352|326:352|329:351|329:351|327:352|329:351|329:351|327:352|329:351|329:351|331:350|331:350|334:349|334:349|332:350|334:349|334:349|336:348|336:348|334:349|336:348|336:348|338:347|338:347|336:348|338:347|338:347|339:347|339:347|341:346|341:346|339:347|341:346|341:346|343:345|343:345|341:346|343:345|343:345|345:344|345:344|347:343|347:343|345:344|347:343|347:343|349:342|349:342|347:343|349:342|349:342|351:341|351:341|353:340|353:340|351:341|353:340|353:340|355:339|355:339|353:340|355:339|355:339|358:337|358:337|356:338|358:337|358:337|360:336|360:336|361:335|361:335|359:336|361:335|361:335|363:334|363:334|365:333|365:333|366:332|366:332|364:333|366:332|366:332|368:331|368:331|369:330|369:330|367:331|369:330|369:330|372:328|372:328|370:329|372:328|372:328|373:327|373:327|375:326|375:326|377:325|375:326|375:326|376:325|376:325|379:323|379:323|377:324|379:323|379:323|380:322|380:322|381:321|381:321|379:322|381:321|381:321|385:318|385:318|386:317|386:317|384:318|386:317|386:317|387:316|387:316|388:315|388:315|389:314|389:314|388:315|389:314|389:314|388:315|389:314|389:314|395:309|395:309|394:310|395:309|395:309|394:310|395:309|395:309|399:305|402:301|402:301|403:300|402:301|402:301|403:300|403:300|402:301|403:300|403:300|404:299|404:299|405:298|405:298|404:300|405:298|405:298|408:294|408:294|409:293|409:293|410:292|410:292|409:294|410:292|410:292|413:288|413:288|412:290|413:288|413:288|415:285|415:285|416:284|416:284|418:281|418:281|420:278|420:278|422:275|422:275|421:277|422:275|422:275|423:273|423:273|425:270|425:270|424:272|425:270|425:270|426:268|426:268|429:263|429:263|430:261|430:261|431:259|431:259|430:261|431:259|431:259|432:257|432:257|433:255|433:255|435:250|435:250|436:248|436:248|437:246|437:246|436:248|437:246|437:246|438:243|438:243|439:240|439:240|440:238|440:238|441:235|441:235|442:232|442:232|443:228|443:228|442:230|443:228|443:228|444:225|444:225|445:221|445:221|446:217|446:217|447:213|447:213|447:212|447:212|448:208|448:208|448:207|448:207|448:206|448:206|449:201|449:201|449:200|449:200|449:202|449:200|449:200|450:193|450:193|450:192|450:192|450:191|450:191|450:190|450:190|451:183|451:175|451:175|451:167|450:160|450:160|450:159|450:159|450:158|450:158|450:157|450:157|449:150|449:150|449:149|449:149|448:144|448:144|448:143|448:143|448:142|448:142|447:138|447:138|447:137|447:137|446:133|446:133|445:129|445:129|444:125|444:125|443:122|443:122|442:118|442:118|441:115|441:115|440:112|440:112|439:110|439:110|438:107|438:107|437:104|437:104|436:102|436:102|435:100|435:100|433:95|433:95|432:93|432:93|431:91|431:91|430:89|430:89|429:87|429:87|426:82|426:82|425:80|425:80|423:77|423:77|422:75|422:75|420:72|420:72|418:69|418:69|416:66|416:66|415:65|415:65|413:62|413:62|410:58|410:58|409:57|409:57|408:56|408:56|405:52|405:52|404:51|404:51|403:50|403:50|402:49|402:49|403:50|402:49|402:49|396:42|389:36|389:36|388:35|388:35|387:34|387:34|386:33|386:33|385:32|385:32|381:29|381:29|380:28|380:28|376:25|376:25|373:23|373:23|372:22|372:22|369:20|369:20|366:18|366:18|363:16|363:16|361:15|361:15|360:14|360:14|358:13|358:13|353:10|353:10|351:9|351:9|349:8|349:8|347:7|347:7|345:6|345:6|343:5|343:5|341:4|341:4|338:3|338:3|336:2|336:2|334:1|334:1|331:0|331:0|329:-1|329:-1|326:-2|326:-2|323:-3|323:-3|320:-4|320:-4|317:-5|317:-5|316:-5|316:-5|313:-6|313:-6|310:-7|310:-7|309:-7|309:-7|306:-8|306:-8|305:-8|305:-8|301:-9|301:-9|296:-10|296:-10|295:-10|295:-10|290:-11|290:-11|289:-11|289:-11|282:-12|282:-12|281:-12|281:-12|280:-12|280:-12|279:-12|279:-12|273:-13|266:-13|266:-13|265:-13|265:-13|264:-13|264:-13|263:-13|263:-13|262:-13|262:-13|261:-13|261:-13|260:-13|260:-13|259:-13|259:-13|252:-13|246:-12|246:-12|245:-12|245:-12|244:-12|244:-12|237:-11|237:-11|236:-11|236:-11|231:-10|231:-10|230:-10|230:-10|225:-9|225:-9|224:-9|224:-9|221:-8|221:-8|220:-8|220:-8|217:-7|217:-7|216:-7|216:-7|213:-6|213:-6|212:-6|212:-6|209:-5|209:-5|206:-4|206:-4|203:-3|203:-3|200:-2|200:-2|197:-1|197:-1|195:0|195:0|192:1|192:1|187:3|187:3|185:4|185:4|183:5|183:5|181:6|181:6|179:7|179:7|177:8|177:8|175:9|175:9|173:10|173:10|171:11|171:11|168:13|168:13|166:14|166:14|163:16|163:16|161:17|161:17|160:18|160:18|158:19|158:19|155:21|155:21|154:22|154:22|151:24|151:24|150:25|150:25|147:27|147:27|146:28|146:28|142:31|142:31|141:32|141:32|140:33|140:33|136:36|132:40|132:40|133:39|132:40|132:40|131:41|131:41|130:42|130:42|129:43|129:43|128:44|128:44|129:43|128:44|128:44|124:48|121:52|121:52|120:53|120:53|119:54|119:54|116:58|116:58|117:56|116:58|116:58|115:59|115:59|112:63|112:63|113:61|112:63|112:63|110:66|110:66|109:67|109:67|107:70|107:70|105:73|105:73|106:71|105:73|105:73|104:75|104:75|102:78|102:78|100:81|100:81|101:79|100:81|100:81|99:83|99:83|100:81|99:83|99:83|98:85|98:85|97:87|97:87|98:85|97:87|97:87|96:89|96:89|95:91|95:91|96:89|95:91|95:91|93:95|93:95|94:93|93:95|93:95|92:97|92:97|91:99|91:99|92:97|91:99|91:99|90:101|90:101|91:99|90:101|90:101|89:104|89:104|90:102|89:104|89:104|88:106|88:106|89:104|88:106|88:106|87:109|87:109|88:107|87:109|87:109|86:111|86:111|87:109|86:111|86:111|86:112|86:112|87:110|86:112|86:112|85:114|85:114|86:112|85:114|85:114|84:117|84:117|83:119|84:117|84:117|84:118|84:118|85:116|84:118|84:118|83:120|83:120|84:118|83:120|83:120|83:121|83:121|84:119|83:121|83:121|84:119|83:121|83:121|82:124|82:124|81:126|82:124|82:124|81:126|82:124|82:124|83:122|82:124|82:124|83:122|82:124|82:124|81:126|81:126|82:124|81:126|81:126|82:124|81:126|81:126|81:127|81:127|82:125|81:127|81:127|81:127|81:127|80:129|81:127,1,1745.09257055308,2|0,0:2|2:0,0:0:0:0:' 
+System.FormatException: The input string 'I' was not in a correct format.
+   at System.Number.ThrowFormatException[TChar](ReadOnlySpan`1 value)
+   at System.Single.Parse(String s)
+   at BeatmapParser.Slider.<>c.<Decode>b__31_3(String x) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Sections\HitObjects\Slider.cs:line 136
+   at System.Linq.Enumerable.ToList[TSource](IEnumerable`1 source)
+   at BeatmapParser.Slider.Decode(List`1 split) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Sections\HitObjects\Slider.cs:line 130
+   at BeatmapParser.Slider.Decode(List`1 split) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Sections\HitObjects\Slider.cs:line 148
+   at BeatmapParser.Sections.HitObjects.Decode(List`1 lines) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Sections\HitObjects.cs:line 49
+   at BeatmapParser.Sections.HitObjects.Decode(List`1 lines) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Sections\HitObjects.cs:line 62
+   at BeatmapParser.Beatmap.Decode(Dictionary`2 sections) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 103
+   at BeatmapParser.Beatmap.Decode(FileInfo path) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 123
+   at HitsoundCopier.Program.DecodeBOMBA() in C:\Users\Maot\projects\HitsoundCopier\src\Program.cs:line 74
+
+D:\osu\Songs\RiraN - Unshakable (FreeAlligator)\RiraN - Unshakable (FreeAlligator) [Aspire].osu: Failed to parse TimingPoints: Value was either too large or too small for a UInt32.
+   at System.Number.ThrowOverflowException[TInteger]()
+   at System.UInt32.Parse(String s)
+   at BeatmapParser.Sections.TimingPoints.Decode(List`1 section) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Sections\TimingPoints.cs:line 64
+   at BeatmapParser.Sections.TimingPoints.Decode(List`1 section) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Sections\TimingPoints.cs:line 79
+   at BeatmapParser.Beatmap.Decode(Dictionary`2 sections) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 103
+   at BeatmapParser.Beatmap.Decode(FileInfo path) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 123
+   at HitsoundCopier.Program.DecodeBOMBA() in C:\Users\Maot\projects\HitsoundCopier\src\Program.cs:line 74
+
+D:\osu\Songs\Teminite & MDK - Space Invaders (LovableChickadee)\Teminite & MDK - Space Invaders (LovableChickadee) [[Start]].osu: Error while parsing Editor section:
+System.FormatException: The input string '' was not in a correct format.
+   at System.Number.ThrowFormatException[TChar](ReadOnlySpan`1 value)
+   at System.Double.Parse(String s, IFormatProvider provider)
+   at BeatmapParser.Sections.Editor.<>c.<Decode>b__22_1(String x) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Sections\Editor.cs:line 80
+   at System.Linq.Enumerable.ToList[TSource](IEnumerable`1 source)
+   at BeatmapParser.Sections.Editor.Decode(List`1 sections) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Sections\Editor.cs:line 79.
+   at BeatmapParser.Sections.Editor.Decode(List`1 sections) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Sections\Editor.cs:line 89
+   at BeatmapParser.Beatmap.Decode(Dictionary`2 sections) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 103
+   at BeatmapParser.Beatmap.Decode(FileInfo path) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 123
+   at HitsoundCopier.Program.DecodeBOMBA() in C:\Users\Maot\projects\HitsoundCopier\src\Program.cs:line 74
+
+D:\osu\Songs\Utsu-P - Corona\Utsu-P - Corona (Net0) [OTO's The Greatest Destruction].osu: Beatmap is empty.
+   at BeatmapParser.Beatmap.SplitSections(String beatmap) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 146
+   at BeatmapParser.Beatmap.Decode(FileInfo path) in C:\Users\Maot\projects\HitsoundCopier\src\Beatmap\Beatmap.cs:line 123
+   at HitsoundCopier.Program.DecodeBOMBA() in C:\Users\Maot\projects\HitsoundCopier\src\Program.cs:line 74
+

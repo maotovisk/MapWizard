@@ -93,12 +93,12 @@ public class Beatmap : IBeatmap
     {
         if (Helper.IsWithinProperitesQuantitity<IBeatmap>(sections.Count)) throw new Exception($"Invalid number of sections. Expected {typeof(IBeatmap).GetProperties().Length} but got {sections.Count}.");
 
+        if (!sections.ContainsKey("Begin")) throw new Exception("Invalid beatmap file. Missing version section.");
+
         var versionSection = sections[$"Begin"];
         var formatVersion = int.Parse(versionSection[0].Replace("osu file format v", string.Empty));
-        if (formatVersion != 14)
-        {
-            throw new Exception($"File format version {formatVersion} is not supported yet.");
-        }
+
+        if (formatVersion != 14) throw new Exception($"File format version {formatVersion} is not supported yet.");
 
         return new Beatmap(
             version: formatVersion,
@@ -111,7 +111,6 @@ public class Beatmap : IBeatmap
             timingPoints: sections.ContainsKey($"{SectionTypes.TimingPoints}") ? Sections.TimingPoints.Decode(sections[$"{SectionTypes.TimingPoints}"]) : null,
             hitObjects: Sections.HitObjects.Decode(sections[$"{SectionTypes.HitObjects}"])
         );
-
     }
 
     /// <summary>
@@ -136,34 +135,35 @@ public class Beatmap : IBeatmap
     /// <returns></returns>
     private static Dictionary<string, List<string>> SplitSections(string beatmap)
     {
-        var lines = beatmap.Split("\r\n").Select(line => line.Trim()).Where(line => !string.IsNullOrEmpty(line) && !string.IsNullOrWhiteSpace(line)).ToList();
+        // consider both windows and linux line endings
+
+        var lines = beatmap.Split(new[] { "\r\n", "\n" }, StringSplitOptions.None)
+                           .Select(line => line.Trim())
+                           .Where(line => !string.IsNullOrEmpty(line) || !string.IsNullOrWhiteSpace(line))
+                           .ToList();
 
         if (lines.Count == 0) throw new Exception("Beatmap is empty.");
 
-        Dictionary<string, List<string>> result = [];
-        (int index, string name) first = (-1, string.Empty);
+        var result = new Dictionary<string, List<string>>();
+        var currentSection = string.Empty;
 
-        for (var index = 0; index != lines.Count; ++index)
+        foreach (var line in lines)
         {
-            foreach (SectionTypes name in Enum.GetValues(typeof(SectionTypes)))
+            if (line.StartsWith("[") && line.EndsWith("]"))
             {
-                if (!lines[index].StartsWith($"[{name}]")) continue;
-
-                if (first.index == -1)
-                {
-                    first = (index, name.ToString());
-                    if (index != 0) result.Add("Begin", lines[0..index]);
-                    continue;
-                }
-                result.Add(first.name, lines[(first.index + 1)..index]);
-
-                first = (index, name.ToString());
+                currentSection = line.Trim('[', ']');
+                result[currentSection] = new List<string>();
+            }
+            else if (line.StartsWith("osu file format"))
+            {
+                result["Begin"] = new List<string> { line };
+            }
+            else
+            {
+                result[currentSection].Add(line);
             }
         }
-        if (lines.Count - first.index != 0)
-        {
-            result.Add(first.name, lines[(first.index + 1)..lines.Count]);
-        }
+
         return result;
     }
 }

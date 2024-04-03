@@ -78,7 +78,7 @@ public interface IGeneral
     /// <summary>
     /// Whether or not the storyboard allows widescreen viewing
     /// </summary>
-    bool WidescreenStoryboard { get; set; }
+    bool? WidescreenStoryboard { get; set; }
 
     /// <summary>
     /// Whether or not sound samples will change rate when playing with speed-changing mods

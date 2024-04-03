@@ -1,5 +1,6 @@
 using System.IO;
 using BeatmapParser;
+using ShellProgressBar;
 
 namespace HitsoundCopier
 {
@@ -47,23 +48,48 @@ namespace HitsoundCopier
             string folderPath = @"D:\osu\Songs";
 
             string[] osuFiles = Directory.GetFiles(folderPath, "*.osu", SearchOption.AllDirectories);
-            Console.WriteLine($"we have {osuFiles.Length} files!");
+            Console.WriteLine($"{osuFiles.Length} files detected, press any key to start parsing ...");
 
             Console.ReadKey();
-            foreach (string osuFile in osuFiles)
-            {
-                Console.WriteLine($"Parsing Beatmap {osuFile} ...");
-                try
-                {
-                    Beatmap.Decode(new FileInfo(osuFile));
 
-                }
-                catch (Exception e)
+
+            var options = new ProgressBarOptions
+            {
+                BackgroundCharacter = '\u2593',
+                ForegroundColor = ConsoleColor.DarkGreen,
+                BackgroundColor = ConsoleColor.Gray,
+                ProgressBarOnBottom = true
+            };
+
+            List<(string File, Exception Exception)> parsingErrors = [];
+
+            List<Beatmap> parsedBeatmaps = [];
+
+            using (var pbar = new ProgressBar(osuFiles.Length, "Initial message", options))
+                foreach (string osuFile in osuFiles)
                 {
-                    Console.WriteLine($"Error Parsing Beatmap {osuFile} ...");
-                    Console.WriteLine(e.Message);
+                    try
+                    {
+                        pbar.Tick($"Parsing Beatmap {osuFile}");
+                        parsedBeatmaps.Add(Beatmap.Decode(new FileInfo(osuFile)));
+                    }
+                    catch (Exception e)
+                    {
+                        parsingErrors.Add((osuFile, e));
+                    }
                 }
-                Console.WriteLine($"done Parsing Beatmaps");
+
+            Console.WriteLine($"Parsing completed with {parsingErrors.Count} errors");
+            Console.WriteLine($"Parsed {parsedBeatmaps.Count}/{osuFiles.Length} beatmaps successfully");
+            Console.WriteLine($"Total maps ignored (format version not supported): {parsingErrors.Count(e => e.Exception.Message.Contains("is not supported yet."))}");
+
+            Console.WriteLine("Press any key to write the errors file...");
+            Console.ReadKey();
+
+            if (parsingErrors.Count > 0)
+            {
+                File.WriteAllLines("parsing_errors.txt", parsingErrors.Where(e => !e.Exception.Message.Contains("is not supported yet.")).Select(e => $"{e.File}: {e.Exception.Message}\n{e.Exception.StackTrace}\n"));
+                Console.WriteLine("Errors file written");
             }
         }
     }
