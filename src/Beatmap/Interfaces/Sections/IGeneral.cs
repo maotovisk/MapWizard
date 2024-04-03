@@ -13,12 +13,12 @@ public interface IGeneral
     /// <summary>
     /// Milliseconds of silence before the audio starts playing
     /// </summary>
-    int AudioLeadIn { get; set; }
+    int? AudioLeadIn { get; set; }
 
     /// <summary>
     /// Time in milliseconds when the audio preview should start
     /// </summary>
-    int PreviewTime { get; set; }
+    int? PreviewTime { get; set; }
 
     /// <summary>
     /// Whether the countdown is enabled
@@ -28,17 +28,17 @@ public interface IGeneral
     /// <summary>
     /// Sample set that will be used if timing points do not override it (Normal, Soft, Drum)
     /// </summary>
-    string SampleSet { get; set; }
+    string? SampleSet { get; set; }
 
     /// <summary>
     /// Multiplier for the threshold in time where hit objects placed close together stack (0–1)
     /// </summary>
-    double StackLeniency { get; set; }
+    double? StackLeniency { get; set; }
 
     /// <summary>
     /// Game mode (0 = osu!, 1 = Taiko, 2 = CtB, 3 = osu!mania)
     /// </summary>
-    int Mode { get; set; }
+    int? Mode { get; set; }
 
     /// <summary>
     /// Whether or not breaks have a letterboxing effect

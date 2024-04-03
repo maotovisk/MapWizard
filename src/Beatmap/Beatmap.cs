@@ -101,11 +101,9 @@ public class Beatmap : IBeatmap
         var currentSection = string.Empty;
         int formatVersion = -1;
 
-        if (!lines[0].StartsWith("osu file format")) throw new Exception("Invalid file format.");
+        if (!lines[0].Contains("file format")) throw new Exception("Invalid file format.");
 
-        formatVersion = int.Parse(lines[0].Replace("osu file format v", string.Empty));
-
-        if (formatVersion == 14) throw new Exception($"File format version {formatVersion} is not supported yet.");
+        formatVersion = int.Parse(lines[0].Split("v")[1].Trim());
 
         foreach (var line in lines[1..])
         {

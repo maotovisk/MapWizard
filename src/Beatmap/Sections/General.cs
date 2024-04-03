@@ -15,12 +15,12 @@ public class General : IGeneral
     /// <summary>
     /// Milliseconds of silence before the audio starts playing
     /// </summary>
-    public int AudioLeadIn { get; set; }
+    public int? AudioLeadIn { get; set; }
 
     /// <summary>
     /// Time in milliseconds when the audio preview should start
     /// </summary>
-    public int PreviewTime { get; set; }
+    public int? PreviewTime { get; set; }
 
     /// <summary>
     /// Whether the countdown is enabled
@@ -30,17 +30,17 @@ public class General : IGeneral
     /// <summary>
     /// Sample set that will be used if timing points do not override it (Normal, Soft, Drum)
     /// </summary>
-    public string SampleSet { get; set; }
+    public string? SampleSet { get; set; }
 
     /// <summary>
     /// Multiplier for the threshold in time where hit objects placed close together stack (0–1)
     /// </summary>
-    public double StackLeniency { get; set; }
+    public double? StackLeniency { get; set; }
 
     /// <summary>
     /// Game mode (0 = osu!, 1 = Taiko, 2 = CtB, 3 = osu!mania)
     /// </summary>
-    public int Mode { get; set; }
+    public int? Mode { get; set; }
 
     /// <summary>
     /// Whether or not breaks have a letterboxing effect
@@ -108,12 +108,12 @@ public class General : IGeneral
     /// <param name="samplesMatchPlaybackRate"></param>
     public General(
         string audioFilename,
-        int audioLeadIn,
-        int previewTime,
+        int? audioLeadIn,
+        int? previewTime,
         bool? countdown,
-        string sampleSet,
-        double stackLeniency,
-        int mode,
+        string? sampleSet,
+        double? stackLeniency,
+        int? mode,
         bool? letterboxInBreaks,
         bool? useSkinSprites,
         string? overlayPosition,
@@ -152,7 +152,7 @@ public class General : IGeneral
         AudioLeadIn = 0;
         PreviewTime = 0;
         Countdown = false;
-        SampleSet = string.Empty;
+        SampleSet = "Normal";
         StackLeniency = 0;
         Mode = 0;
         LetterboxInBreaks = false;
@@ -203,7 +203,7 @@ public class General : IGeneral
                 audioLeadIn: general.TryGetValue("AudioLeadIn", out var audioLeadIn) ? int.Parse(audioLeadIn) : 0,
                 previewTime: general.TryGetValue("PreviewTime", out var previewTime) ? int.Parse(previewTime) : 0,
                 countdown: general.TryGetValue("Countdown", out var countdown) ? int.Parse(countdown) == 1 : null,
-                sampleSet: general["SampleSet"],
+                sampleSet: general.TryGetValue("SampleSet", out var sampleSet) ? sampleSet : "Normal",
                 stackLeniency: general.TryGetValue("StackLeniency", out var stackLeniency) ? double.Parse(stackLeniency, CultureInfo.InvariantCulture) : 7,
                 mode: general.TryGetValue("Mode", out var mode) ? int.Parse(mode) : 0,
                 letterboxInBreaks: general.TryGetValue("LetterboxInBreaks", out var letterboxInBreaks) ? int.Parse(letterboxInBreaks) == 1 : null,
