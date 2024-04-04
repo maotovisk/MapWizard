@@ -1,3 +1,5 @@
+using System.Globalization;
+
 namespace BeatmapParser;
 
 /// <summary>
@@ -8,7 +10,7 @@ public class UninheritedTimingPoint : TimingPoint, IUninheritedTimingPoint
     /// <summary>
     /// Gets or sets the duration of a beats of the beatmap.
     /// </summary>
-    public TimeSpan BeatLength { get; set; }
+    public double BeatLength { get; set; }
 
     /// <summary>
     /// Gets or sets Amount of beats in a measure of the beatmap.
@@ -25,7 +27,7 @@ public class UninheritedTimingPoint : TimingPoint, IUninheritedTimingPoint
     /// <param name="effects"></param>
     /// <param name="beatLength"></param>
     /// <param name="timeSignature"></param>
-    public UninheritedTimingPoint(TimeSpan time, SampleSet sampleSet, uint sampleIndex, uint volume, List<Effect> effects, TimeSpan beatLength, int timeSignature) : base(time, sampleSet, sampleIndex, volume, effects)
+    public UninheritedTimingPoint(TimeSpan time, SampleSet sampleSet, uint sampleIndex, uint volume, List<Effect> effects, double beatLength, int timeSignature) : base(time, sampleSet, sampleIndex, volume, effects)
     {
         BeatLength = beatLength;
         TimeSignature = timeSignature;
@@ -41,7 +43,7 @@ public class UninheritedTimingPoint : TimingPoint, IUninheritedTimingPoint
         SampleIndex = 0;
         Volume = 0;
         Effects = [];
-        BeatLength = TimeSpan.FromMilliseconds(500);
+        BeatLength = 500;
         TimeSignature = 4;
     }
 
@@ -51,6 +53,6 @@ public class UninheritedTimingPoint : TimingPoint, IUninheritedTimingPoint
     /// <returns></returns>
     public string Encode()
     {
-        return $"{Time.TotalMilliseconds},{BeatLength},{(int)SampleSet},{SampleIndex},{Volume},{0},{Helper.EncodeEffects(Effects)}";
+        return $"{Time.TotalMilliseconds.ToString(CultureInfo.InvariantCulture)},{BeatLength.ToString("G", CultureInfo.InvariantCulture)},{TimeSignature},{(int)SampleSet},{SampleIndex},{Volume},{1},{Helper.EncodeEffects(Effects)}";
     }
 }

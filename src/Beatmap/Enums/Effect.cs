@@ -8,13 +8,15 @@ public enum Effect
     /// <summary>
     /// No effect.
     /// </summary>
-    None = 0x00000000,
+    None = 0,
+
     /// <summary>
-    /// Kiai effect.
+    /// Kiai time effect.
     /// </summary>
-    Kiai = 0x0000000F,
+    Kiai = 1,
+
     /// <summary>
-    /// Omit first bar line effect, used in osu!mania.
+    /// Omit first bar line effect.
     /// </summary>
-    OmitFirstBarLine = 0x0000F000,
+    OmitFirstBarLine = 8
 }

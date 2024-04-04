@@ -15,11 +15,14 @@ public partial class Helper
     /// <returns></returns>
     public static List<HitSound> ParseHitSounds(int data)
     {
+        if (data == 0) return [HitSound.None];
         List<HitSound> hitSounds = [];
+
         foreach (HitSound name in Enum.GetValues(typeof(HitSound)))
         {
-            if ((data & (int)name) != 00000000) hitSounds.Add(name);
+            if ((data & (int)name) != 0) hitSounds.Add(name);
         }
+
         return hitSounds;
     }
 

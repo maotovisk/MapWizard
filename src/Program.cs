@@ -33,7 +33,7 @@ namespace HitsoundCopier
             }
 
             var firstRedLine = (UninheritedTimingPoint?)beatmap.TimingPoints?.TimingPointList.Where(tp => tp is UninheritedTimingPoint).FirstOrDefault();
-            var bpm = 60 / firstRedLine?.BeatLength.TotalSeconds ?? 120;
+            var bpm = 60 / (firstRedLine?.BeatLength / 1000) ?? 120;
             Console.WriteLine($"this beatmap bpm is: {bpm}");
             Console.WriteLine($"this beatmap have:");
             Console.WriteLine($"Circles: {circleCount}");
@@ -47,6 +47,8 @@ namespace HitsoundCopier
             string encodedOsu = beatmap.Encode();
             Console.WriteLine("Beatmap Encoded");
             Console.WriteLine(encodedOsu);
+
+            File.WriteAllText("output.osu", encodedOsu);
         }
 
         public static void DecodeBOMBA()
@@ -101,4 +103,11 @@ namespace HitsoundCopier
             }
         }
     }
+
+
+    public void DecodeBOMBA()
+    {
+
+    }
+
 }

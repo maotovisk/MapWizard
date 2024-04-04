@@ -8,7 +8,7 @@ public interface IUninheritedTimingPoint : ITimingPoint
     /// <summary>
     /// Gets or sets the duration of a beats of the beatmap.
     /// </summary>
-    TimeSpan BeatLength { get; set; }
+    double BeatLength { get; set; }
 
     /// <summary>
     /// Gets or sets Amount of beats in a measure of the beatmap.

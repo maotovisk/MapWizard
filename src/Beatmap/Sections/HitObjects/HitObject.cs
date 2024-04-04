@@ -106,7 +106,7 @@ public class HitObject : IHitObject
         StringBuilder builder = new();
 
         builder.Append($"{Coordinates.X},{Coordinates.Y},");
-        builder.Append($"{Time.TotalMilliseconds},");
+        builder.Append($"{Time.TotalMilliseconds.ToString(CultureInfo.InvariantCulture)},");
 
         int type = (int)Type;
 

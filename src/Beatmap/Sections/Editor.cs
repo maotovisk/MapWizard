@@ -104,8 +104,6 @@ public class Editor : IEditor
         {
             if (prop.GetValue(this) is null) continue;
 
-            builder.AppendLine($"{prop.Name}: {prop.GetValue(this)}");
-
             if (prop.GetValue(this) is bool boolValue)
             {
                 builder.AppendLine($"{prop.Name}: {(boolValue ? 1 : 0)}");
@@ -117,6 +115,14 @@ public class Editor : IEditor
                 builder.AppendLine($"{prop.Name}: {doubleValue.ToString(CultureInfo.InvariantCulture)}");
                 continue;
             }
+
+            if (prop.GetValue(this) is List<TimeSpan> bookmarks)
+            {
+                builder.AppendLine($"{prop.Name}: {string.Join(',', bookmarks.Select(x => x.TotalMilliseconds.ToString(CultureInfo.InvariantCulture)))}");
+                continue;
+            }
+
+            builder.AppendLine($"{prop.Name}: {prop.GetValue(this)}");
         }
 
         return builder.ToString();

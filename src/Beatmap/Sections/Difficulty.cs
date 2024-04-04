@@ -135,7 +135,6 @@ public class Difficulty : IDifficulty
         foreach (PropertyInfo property in typeof(Difficulty).GetProperties())
         {
             if (property.GetValue(this) is null) continue;
-            builder.AppendLine($"{property.Name}:{property.GetValue(this)}");
 
             if (property.GetValue(this) is bool boolValue)
             {
@@ -148,6 +147,8 @@ public class Difficulty : IDifficulty
                 builder.AppendLine($"{property.Name}: {doubleValue.ToString(CultureInfo.InvariantCulture)}");
                 continue;
             }
+
+            builder.AppendLine($"{property.Name}:{property.GetValue(this)}");
         }
 
         return builder.ToString();

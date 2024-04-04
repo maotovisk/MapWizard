@@ -1,3 +1,6 @@
+using System.Globalization;
+using BeatmapParser.Sections;
+
 namespace BeatmapParser;
 
 /// <summary>
@@ -41,8 +44,8 @@ public class InheritedTimingPoint : TimingPoint, IInheritedTimingPoint
     /// Parses a timing point line into a new <see cref="TimingPoint"/> class.
     /// </summary>
     /// <returns></returns>
-    public string Encode()
+    public string Encode(TimingPoints section)
     {
-        return $"{Time.TotalMilliseconds},{SliderVelocity},{(int)SampleSet},{SampleIndex},{Volume},{1},{Helper.EncodeEffects(Effects)}";
+        return $"{Time.TotalMilliseconds.ToString(CultureInfo.InvariantCulture)},{Math.Round(-100.0 / SliderVelocity, 13).ToString(CultureInfo.InvariantCulture)},{section.GetUninheritedTimingPointAt(Time.TotalMilliseconds)?.TimeSignature ?? 4},{(int)SampleSet},{SampleIndex},{Volume},{0},{Helper.EncodeEffects(Effects)}";
     }
 }

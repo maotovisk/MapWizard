@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Numerics;
 using System.Text;
 
@@ -137,7 +138,7 @@ public class Slider : HitObject, ISlider
                         return new Vector2(float.Parse(split[0]), float.Parse(split[1]));
                     }).ToList(),
                 Repeats = uint.Parse(split[6]),
-                Length = double.Parse(split[7]),
+                Length = double.Parse(split[7], CultureInfo.InvariantCulture),
 
                 HeadSounds = sliderHitSounds.Count == 0 ? (new HitSample(), new List<HitSound>()) : sliderHitSounds[0],
                 RepeatSounds = sliderHitSounds.Count > 2 ? sliderHitSounds[1..^1] : null,
@@ -161,7 +162,7 @@ public class Slider : HitObject, ISlider
         StringBuilder builder = new();
 
         builder.Append($"{Coordinates.X},{Coordinates.Y},");
-        builder.Append($"{Time.TotalMilliseconds},");
+        builder.Append($"{Time.TotalMilliseconds.ToString(CultureInfo.InvariantCulture)},");
 
         int type = (int)Type | (NewCombo ? 1 << 2 : 0) | ((int)ComboColour << 4);
 
@@ -172,7 +173,7 @@ public class Slider : HitObject, ISlider
 
         builder.Append($"{Repeats},");
 
-        builder.Append($"{Length},");
+        builder.Append($"{Length.ToString(CultureInfo.InvariantCulture)},");
 
         List<int> edgeSounds = [];
 

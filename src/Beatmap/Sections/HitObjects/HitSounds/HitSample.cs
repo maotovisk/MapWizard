@@ -110,6 +110,8 @@ public class HitSample : IHitSample
             builder.Append($":{FileName}");
         }
 
+        builder.Append(":");
+
         return builder.ToString();
     }
 
