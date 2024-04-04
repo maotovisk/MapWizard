@@ -1,5 +1,6 @@
 using System.Numerics;
 using System.Runtime.InteropServices.Marshalling;
+using System.Text;
 
 namespace BeatmapParser;
 
@@ -46,5 +47,17 @@ public class Spinner : HitObject, ISpinner
     public Spinner(HitObject baseObject) : base(baseObject.Coordinates, baseObject.Time, baseObject.Type, baseObject.HitSounds, baseObject.NewCombo, baseObject.ComboColour)
     {
         End = new TimeSpan();
+    }
+
+    /// <summary>
+    /// Encodes the spinner hit object into a string.
+    /// </summary>
+    /// <returns></returns>
+    public new string Encode()
+    {
+        StringBuilder builder = new StringBuilder();
+        builder.Append(base.Encode());
+        builder.Append($",{End.TotalMilliseconds}");
+        return builder.ToString();
     }
 }

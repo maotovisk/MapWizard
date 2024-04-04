@@ -76,6 +76,7 @@ public class HitObjects : IHitObjects
 
         foreach (var obj in Objects)
         {
+
             if (obj is Circle circle)
                 builder.AppendLine(circle.Encode());
             else if (obj is Slider slider)

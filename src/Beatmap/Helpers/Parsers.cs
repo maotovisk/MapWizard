@@ -24,6 +24,21 @@ public partial class Helper
     }
 
     /// <summary>
+    /// Encodes a list of hit sounds into a bitwise.
+    /// </summary>
+    /// <param name="hitSounds"></param>
+    /// <returns></returns>
+    public static int EncodeHitSounds(List<HitSound> hitSounds)
+    {
+        int result = 0;
+        foreach (HitSound hitSound in hitSounds.Distinct())
+        {
+            result |= (int)hitSound;
+        }
+        return result;
+    }
+
+    /// <summary>
     /// Get the a list of effects from a bitwise.
     /// </summary>
     /// <param name="data"></param>
@@ -81,6 +96,19 @@ public partial class Helper
         'B' => CurveType.Bezier,
         'L' => CurveType.Linear,
         _ => CurveType.PerfectCurve
+    };
+    /// <summary>
+    /// Encodes a <see cref="CurveType"/> into a string.
+    /// </summary>
+    /// <param name="curveType"></param>
+    /// <returns></returns>
+
+    public static string EncodeCurveType(CurveType curveType) => curveType switch
+    {
+        CurveType.Catmull => "C",
+        CurveType.Bezier => "B",
+        CurveType.Linear => "L",
+        _ => "P"
     };
 
     /// <summary>

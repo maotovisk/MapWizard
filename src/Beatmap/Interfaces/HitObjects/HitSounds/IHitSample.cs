@@ -4,7 +4,7 @@ namespace BeatmapParser;
 /// <summary>
 /// Represents a hit sample of a hit object.
 /// </summary>
-public interface IHitSample
+public interface IHitSample : IEncodable
 {
 
     /// <summary>

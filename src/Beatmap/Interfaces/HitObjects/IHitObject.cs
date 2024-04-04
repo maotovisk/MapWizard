@@ -19,7 +19,7 @@ public interface IHitObject : IEncodable
     /// <summary>
     /// 
     /// </summary>
-    public HitObjectType Type { get; set; }
+    public HitObjectType Type { get; }
 
     /// <summary>
     /// Hitsound and sampleset of the hit object.

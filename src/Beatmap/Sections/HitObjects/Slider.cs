@@ -1,4 +1,5 @@
 using System.Numerics;
+using System.Text;
 
 namespace BeatmapParser;
 
@@ -147,5 +148,73 @@ public class Slider : HitObject, ISlider
         {
             throw new Exception($"Failed to parse HitObject line '{string.Join(",", split)}' \n{ex}");
         }
+    }
+
+    /// <summary>
+    /// Encodes the hit object into a string.
+    /// </summary>
+    /// <returns></returns>
+    public new string Encode()
+    {
+        // x,   y,  time,   type,   hitSound,   curveType|curvePoints,  slides, length, edgeSounds,     ,edgeSets   ,hitSample
+        // 0    1   2       3       4           5                       6       7          	      8             9           10
+        StringBuilder builder = new();
+
+        builder.Append($"{Coordinates.X},{Coordinates.Y},");
+        builder.Append($"{Time.TotalMilliseconds},");
+
+        int type = (int)Type | (NewCombo ? 1 << 2 : 0) | ((int)ComboColour << 4);
+
+        builder.Append($"{type},");
+        builder.Append($"{Helper.EncodeHitSounds(HitSounds.Sounds)},");
+
+        builder.Append($"{Helper.EncodeCurveType(CurveType)}|{string.Join("|", CurvePoints.Select(x => $"{x.X}:{x.Y}"))},");
+
+        builder.Append($"{Repeats},");
+
+        builder.Append($"{Length},");
+
+        List<int> edgeSounds = [];
+
+        if (HeadSounds.Sounds.Count > 0)
+        {
+            edgeSounds.Add(Helper.EncodeHitSounds(HeadSounds.Sounds));
+        }
+
+        if (RepeatSounds != null)
+        {
+            edgeSounds.AddRange(RepeatSounds.Select(x => Helper.EncodeHitSounds(x.Sounds)));
+        }
+
+        if (TailSounds.Sounds.Count > 0)
+        {
+            edgeSounds.Add(Helper.EncodeHitSounds(TailSounds.Sounds));
+        }
+
+        builder.Append($"{string.Join("|", edgeSounds)},");
+
+        List<string> edgeSets = [];
+
+        if (HeadSounds.SampleData.FileName != string.Empty)
+        {
+            edgeSets.Add(HeadSounds.SampleData.Encode());
+        }
+
+        if (RepeatSounds != null)
+        {
+            edgeSets.AddRange(RepeatSounds.Select(x => x.SampleData.Encode()));
+        }
+
+        if (TailSounds.SampleData.FileName != string.Empty)
+        {
+            edgeSets.Add(TailSounds.SampleData.Encode());
+        }
+
+        builder.Append($"{string.Join("|", edgeSets)},");
+
+
+        builder.Append($"{HitSounds.SampleData.Encode()}");
+
+        return builder.ToString();
     }
 }

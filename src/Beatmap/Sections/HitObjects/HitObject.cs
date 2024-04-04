@@ -1,3 +1,4 @@
+using System;
 using System.Globalization;
 using System.Numerics;
 using System.Text;
@@ -20,7 +21,7 @@ public class HitObject : IHitObject
     /// <summary>
     /// Gets or sets the type of the hit object.
     /// </summary>
-    public HitObjectType Type { get; set; }
+    public HitObjectType Type { get; }
 
     /// <summary>
     /// Gets or sets the hit sample and its hitsounds associated with the hit object.
@@ -97,57 +98,30 @@ public class HitObject : IHitObject
     }
 
     /// <summary>
-    /// 
+    /// Encodes the hit object into a string.
     /// </summary>
     /// <returns></returns>
     public string Encode()
     {
-        // x,   y,  time,   type, hitSound, objectParams, hitSample
-        // 0    1   2       3     4         5            6
-
         StringBuilder builder = new();
-
 
         builder.Append($"{Coordinates.X},{Coordinates.Y},");
         builder.Append($"{Time.TotalMilliseconds},");
 
-        int type = (int)Type | (NewCombo ? 1 << 2 : 0) | (int)ComboColour << 4;
-        builder.Append($"{type},");
+        int type = (int)Type;
 
-        builder.Append($"{HitSounds.Sounds},");
-        builder.Append($",,");
-        builder.Append($"{HitSounds.SampleData},");
+        if (NewCombo)
+        {
+            type |= 1 << 2;
+        }
+
+        type |= (int)ComboColour << 4;
+
+        builder.Append($"{type},");
+        builder.Append($"{Helper.EncodeHitSounds(HitSounds.Sounds)},");
+
+        builder.Append($"{HitSounds.SampleData.Encode()}");
 
         return builder.ToString();
     }
-
-
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="obj"></param>
-    /// <returns></returns>
-    public static bool IsCircle<T>(T obj) => obj != null && obj.GetType().GetInterfaces().Contains(typeof(ICircle));
-
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="obj"></param>
-    /// <returns></returns>
-    public static bool IsManiaHold<T>(T obj) => obj != null && obj.GetType().GetInterfaces().Contains(typeof(IManiaHold));
-
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="obj"></param>
-    /// <returns></returns>
-    public static bool IsSlider<T>(T obj) => obj != null && obj.GetType().GetInterfaces().Contains(typeof(ISlider));
-
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="obj"></param>
-    /// <returns></returns>
-    public static bool IsSpinner<T>(T obj) => obj != null && obj.GetType().GetInterfaces().Contains(typeof(ISpinner));
-
 }
