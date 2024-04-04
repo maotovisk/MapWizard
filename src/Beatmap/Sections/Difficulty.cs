@@ -136,6 +136,18 @@ public class Difficulty : IDifficulty
         {
             if (property.GetValue(this) is null) continue;
             builder.AppendLine($"{property.Name}:{property.GetValue(this)}");
+
+            if (property.GetValue(this) is bool boolValue)
+            {
+                builder.AppendLine($"{property.Name}: {(boolValue ? 1 : 0)}");
+                continue;
+            }
+
+            if (property.GetValue(this) is double doubleValue)
+            {
+                builder.AppendLine($"{property.Name}: {doubleValue.ToString(CultureInfo.InvariantCulture)}");
+                continue;
+            }
         }
 
         return builder.ToString();

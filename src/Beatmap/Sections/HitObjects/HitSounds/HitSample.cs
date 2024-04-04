@@ -74,9 +74,9 @@ public class HitSample : IHitSample
             return new HitSample(
                 normalSet: (SampleSet)uint.Parse(split[0]),
                 additionSet: (SampleSet)uint.Parse(split[1]),
-                index: split.Length >= 2 ? uint.Parse(split[2]) : null,
-                volume: split.Length >= 3 ? uint.Parse(split[3]) : null,
-                fileName: split.Length >= 4 ? split[4] : null
+                index: split.Length > 2 ? uint.Parse(split[2]) : null,
+                volume: split.Length > 3 ? uint.Parse(split[3]) : null,
+                fileName: split.Length > 4 ? split[4] : null
             );
         }
         catch (Exception ex)

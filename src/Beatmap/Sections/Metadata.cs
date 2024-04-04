@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Reflection.Metadata.Ecma335;
 using System.Text;
 
@@ -164,6 +165,18 @@ public class Metadata : IMetadata
             if (prop.Name == "Tags")
             {
                 builder.AppendLine($"{prop.Name}:{string.Join(' ', Tags)}");
+                continue;
+            }
+
+            if (prop.GetValue(this) is bool boolValue)
+            {
+                builder.AppendLine($"{prop.Name}:{(boolValue ? 1 : 0)}");
+                continue;
+            }
+
+            if (prop.GetValue(this) is double doubleValue)
+            {
+                builder.AppendLine($"{prop.Name}:{doubleValue.ToString(CultureInfo.InvariantCulture)}");
                 continue;
             }
 

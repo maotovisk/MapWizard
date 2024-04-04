@@ -8,39 +8,45 @@ namespace HitsoundCopier
     {
         static void Main(FileInfo input, FileInfo output)
         {
-            DecodeBOMBA();
+            //DecodeBOMBA();
 
-            //             // debug a specific beatmap if debug
+            // debug a specific beatmap if debug
 
-            // #if DEBUG
-            //             input = new FileInfo("test4.osu");
-            // #endif
-            //             Console.WriteLine($"Parsing Beatmap {input.Name} ...");
-            //             var beatmap = Beatmap.Decode(input);
-            //             Console.WriteLine($"Beatmap Parsed");
+#if DEBUG
+            input = new FileInfo("test4.osu");
+#endif
+            Console.WriteLine($"Parsing Beatmap {input.Name} ...");
+            var beatmap = Beatmap.Decode(input);
+            Console.WriteLine($"Beatmap Parsed");
 
-            //             Console.WriteLine(beatmap.Version);
+            Console.WriteLine(beatmap.Version);
 
-            //             var circleCount = 0;
-            //             var sliderCount = 0;
-            //             var spinnerCount = 0;
+            var circleCount = 0;
+            var sliderCount = 0;
+            var spinnerCount = 0;
 
-            //             foreach (var obj in beatmap.HitObjects.Objects)
-            //             {
-            //                 if (obj.Type == HitObjectType.Circle) { ++circleCount; continue; }
-            //                 if (obj.Type == HitObjectType.Slider) { ++sliderCount; continue; }
-            //                 if (obj.Type == HitObjectType.Spinner) { ++spinnerCount; continue; }
-            //             }
+            foreach (var obj in beatmap.HitObjects.Objects)
+            {
+                if (obj.Type == HitObjectType.Circle) { ++circleCount; continue; }
+                if (obj.Type == HitObjectType.Slider) { ++sliderCount; continue; }
+                if (obj.Type == HitObjectType.Spinner) { ++spinnerCount; continue; }
+            }
 
-            //             var firstRedLine = (UninheritedTimingPoint?)beatmap.TimingPoints?.TimingPointList[0] ?? new UninheritedTimingPoint();
-            //             var bpm = 60 / firstRedLine.BeatLength.TotalSeconds;
-            //             Console.WriteLine($"this beatmap bpm is: {bpm}");
-            //             Console.WriteLine($"this beatmap have:");
-            //             Console.WriteLine($"Circles: {circleCount}");
-            //             Console.WriteLine($"Sliders: {sliderCount}");
-            //             Console.WriteLine($"Spinners: {spinnerCount}");
+            var firstRedLine = (UninheritedTimingPoint?)beatmap.TimingPoints?.TimingPointList.Where(tp => tp is UninheritedTimingPoint).FirstOrDefault();
+            var bpm = 60 / firstRedLine?.BeatLength.TotalSeconds ?? 120;
+            Console.WriteLine($"this beatmap bpm is: {bpm}");
+            Console.WriteLine($"this beatmap have:");
+            Console.WriteLine($"Circles: {circleCount}");
+            Console.WriteLine($"Sliders: {sliderCount}");
+            Console.WriteLine($"Spinners: {spinnerCount}");
 
+            Console.WriteLine("Press any key to encode the beatmap back ...");
 
+            Console.ReadKey();
+
+            string encodedOsu = beatmap.Encode();
+            Console.WriteLine("Beatmap Encoded");
+            Console.WriteLine(encodedOsu);
         }
 
         public static void DecodeBOMBA()

@@ -105,6 +105,18 @@ public class Editor : IEditor
             if (prop.GetValue(this) is null) continue;
 
             builder.AppendLine($"{prop.Name}: {prop.GetValue(this)}");
+
+            if (prop.GetValue(this) is bool boolValue)
+            {
+                builder.AppendLine($"{prop.Name}: {(boolValue ? 1 : 0)}");
+                continue;
+            }
+
+            if (prop.GetValue(this) is double doubleValue)
+            {
+                builder.AppendLine($"{prop.Name}: {doubleValue.ToString(CultureInfo.InvariantCulture)}");
+                continue;
+            }
         }
 
         return builder.ToString();
