@@ -118,11 +118,6 @@ public class Metadata : IMetadata
                     throw new Exception("Invalid Metadata section field.");
                 }
 
-                if (metadata.ContainsKey(splittedLine[0].Trim()))
-                {
-                    throw new Exception("Adding same propriety multiple times.");
-                }
-
                 metadata.Add(splittedLine[0].Trim(), splittedLine.Length != 1 ? splittedLine[1].Trim() : string.Empty);
             });
 

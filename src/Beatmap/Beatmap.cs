@@ -93,7 +93,7 @@ public class Beatmap : IBeatmap
     public static Beatmap Decode(string beatmapString)
     {
         var lines = beatmapString.Split(["\r\n", "\n"], StringSplitOptions.None)
-                           .Where(line => !string.IsNullOrEmpty(line) || !string.IsNullOrWhiteSpace(line))
+                           .Where(line => !string.IsNullOrEmpty(line.Trim()) || !string.IsNullOrWhiteSpace(line.Trim()))
                            .ToList();
 
         if (lines.Count == 0) throw new Exception("Beatmap is empty.");

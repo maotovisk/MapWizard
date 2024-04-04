@@ -96,10 +96,6 @@ public class Difficulty : IDifficulty
                 {
                     throw new Exception("Invalid difficulty section field.");
                 }
-                if (difficulty.ContainsKey(splittedLine[0].Trim()))
-                {
-                    throw new Exception("Adding same propriety multiple times.");
-                }
 
                 difficulty.Add(splittedLine[0], splittedLine.Length != 1 ? splittedLine[1].Trim() : string.Empty);
             });

@@ -115,7 +115,7 @@ class Program
         Console.WriteLine($"{osuFiles.Length} files detected, press any key to start BOMBA ...");
         Console.ReadKey();
 
-        List<string> differences = new();
+        List<string> differences = [];
         var options = new ProgressBarOptions
         {
             BackgroundCharacter = '\u2593',
@@ -152,9 +152,8 @@ class Program
 
                     if (originaLines[index1] == parsedLines[index2]) continue;
 
-                    builder.AppendLine(@$"{index1 + 1}:");
-                    builder.AppendLine($"-: {originaLines[index1]}");
-                    builder.AppendLine($"+: {parsedLines[index2]}");
+                    builder.AppendLine($"{index1 + 1}-: {originaLines[index1]}");
+                    builder.AppendLine($"{index1 + 1}+: {parsedLines[index2]}");
                     builder.AppendLine();
                 }
 

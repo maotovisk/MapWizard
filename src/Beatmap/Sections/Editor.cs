@@ -61,11 +61,6 @@ public class Editor : IEditor
                     throw new Exception("Invalid editor section field.");
                 }
 
-                if (editor.ContainsKey(splittedLine[0].Trim()))
-                {
-                    throw new Exception("Adding same propriety multiple times.");
-                }
-
                 // Account for mutiple ':' in the value
                 editor.Add(splittedLine[0].Trim(), splittedLine.Length != 1 ? splittedLine[1].Trim() : string.Empty);
             });
