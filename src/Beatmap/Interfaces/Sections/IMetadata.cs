@@ -3,7 +3,7 @@ namespace BeatmapParser;
 /// <summary>
 ///  This is a osu file format v14 specification of the Metadata section.
 /// </summary>
-public interface IMetadata
+public interface IMetadata : IEncodable
 {
     /// <summary>
     /// Romanised song title

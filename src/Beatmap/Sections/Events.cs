@@ -1,3 +1,4 @@
+using System.Text;
 using System.Text.Json.Serialization;
 
 namespace BeatmapParser.Sections;
@@ -52,5 +53,22 @@ public class Events : IEvents
         {
             throw new Exception($"Error while parsing events\n{ex}");
         }
+    }
+
+    /// <summary>
+    /// Encodes the <see cref="Events"/> section to a string.
+    /// </summary>
+    /// <returns></returns>
+    public string Encode()
+    {
+        StringBuilder sb = new();
+
+        foreach (var ev in EventList)
+        {
+            if (ev is GeneralEvent)
+                sb.AppendLine($"{((GeneralEvent)ev).Type},{string.Join(",", ((GeneralEvent)ev).Params)}");
+        }
+
+        return sb.ToString();
     }
 }

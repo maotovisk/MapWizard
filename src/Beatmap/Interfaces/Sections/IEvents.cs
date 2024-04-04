@@ -3,7 +3,7 @@ namespace BeatmapParser;
 /// <summary>
 ///
 /// </summary>
-public interface IEvents
+public interface IEvents : IEncodable
 {
     /// <summary>
     /// Represents the list of events in the beatmap.

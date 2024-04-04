@@ -39,6 +39,21 @@ public partial class Helper
     }
 
     /// <summary>
+    /// Encodes a list of effects into a bitwise.
+    /// </summary>
+    /// <param name="effects"></param>
+    /// <returns></returns>
+    public static int EncodeEffects(List<Effect> effects)
+    {
+        int result = 0;
+        foreach (Effect effect in effects)
+        {
+            result |= (int)effect;
+        }
+        return result;
+    }
+
+    /// <summary>
     /// Gets the hit object type from a bitwise.
     /// </summary>
     /// <param name="data"></param>

@@ -1,3 +1,5 @@
+using System.Reflection;
+using System.Text;
 using BeatmapParser.Sections;
 
 namespace BeatmapParser;
@@ -141,4 +143,61 @@ public class Beatmap : IBeatmap
     /// <exception cref="Exception"></exception>
     public static Beatmap Decode(FileInfo path) => Decode(File.ReadAllText(path.FullName));
 
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <returns></returns>
+    public string Encode()
+    {
+        StringBuilder builder = new();
+
+        builder.AppendLine($"osu file format v14"); // we are only supporting v14
+        builder.AppendLine();
+
+        builder.AppendLine($"[{SectionTypes.General}]");
+        builder.AppendLine(General.Encode());
+        builder.AppendLine();
+
+        if (Editor != null)
+        {
+            builder.AppendLine($"[{SectionTypes.Editor}]");
+            builder.AppendLine(Editor.Encode());
+            builder.AppendLine();
+        }
+
+        builder.AppendLine($"[{SectionTypes.Metadata}]");
+        builder.AppendLine(Metadata.Encode());
+        builder.AppendLine();
+
+        builder.AppendLine($"[{SectionTypes.Difficulty}]");
+        builder.AppendLine(Difficulty.Encode());
+        builder.AppendLine();
+
+        builder.AppendLine($"[{SectionTypes.Events}]");
+        if (Events.EventList.Count > 0)
+            builder.AppendLine(Events.Encode());
+        builder.AppendLine();
+
+        if (TimingPoints != null)
+        {
+            builder.AppendLine($"[{SectionTypes.TimingPoints}]");
+            if (TimingPoints.TimingPointList.Count > 0)
+                builder.AppendLine(TimingPoints.Encode());
+            builder.AppendLine();
+        }
+
+        if (Colours != null)
+        {
+            builder.AppendLine($"[{SectionTypes.Colours}]");
+            builder.AppendLine(Colours.Encode());
+            builder.AppendLine();
+        }
+
+        builder.AppendLine($"[{SectionTypes.HitObjects}]");
+        builder.AppendLine(HitObjects.Encode());
+        builder.AppendLine();
+
+        return builder.ToString();
+    }
 }

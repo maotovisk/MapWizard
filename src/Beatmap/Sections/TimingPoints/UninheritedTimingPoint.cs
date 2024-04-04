@@ -44,4 +44,13 @@ public class UninheritedTimingPoint : TimingPoint, IUninheritedTimingPoint
         BeatLength = TimeSpan.FromMilliseconds(500);
         TimeSignature = 4;
     }
+
+    /// <summary>
+    /// Parses a timing point line into a new <see cref="TimingPoint"/> class.
+    /// </summary>
+    /// <returns></returns>
+    public string Encode()
+    {
+        return $"{Time.TotalMilliseconds},{BeatLength},{(int)SampleSet},{SampleIndex},{Volume},{0},{Helper.EncodeEffects(Effects)}";
+    }
 }

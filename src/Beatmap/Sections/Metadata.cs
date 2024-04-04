@@ -1,4 +1,5 @@
 using System.Reflection.Metadata.Ecma335;
+using System.Text;
 
 namespace BeatmapParser.Sections;
 
@@ -146,5 +147,29 @@ public class Metadata : IMetadata
         {
             throw new Exception($"Failed to parse Metadata: {ex.Message}\n{ex.StackTrace}");
         }
+    }
+
+    /// <summary>
+    /// Encodes the <see cref="General"/> class into a string.
+    /// </summary>
+    /// <returns></returns>
+    public string Encode()
+    {
+        StringBuilder builder = new();
+
+        foreach (var prop in typeof(IMetadata).GetProperties())
+        {
+            if (prop.GetValue(this) is null) continue;
+
+            if (prop.Name == "Tags")
+            {
+                builder.AppendLine($"{prop.Name}:{string.Join(' ', Tags)}");
+                continue;
+            }
+
+            builder.AppendLine($"{prop.Name}:{prop.GetValue(this)}");
+        }
+
+        return builder.ToString();
     }
 }

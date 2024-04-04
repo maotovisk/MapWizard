@@ -3,7 +3,7 @@ namespace BeatmapParser;
 /// <summary>
 /// Represents the difficulty section of a beatmap.
 /// </summary>
-public interface IDifficulty
+public interface IDifficulty : IEncodable
 {
     /// <summary>
     /// Gets or sets the hp drain rate of the beatmap.

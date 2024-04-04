@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.Numerics;
+using System.Text;
 
 namespace BeatmapParser;
 
@@ -94,6 +95,32 @@ public class HitObject : IHitObject
             throw new Exception($"Failed to parse HitObject {ex}");
         }
     }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <returns></returns>
+    public string Encode()
+    {
+        // x,   y,  time,   type, hitSound, objectParams, hitSample
+        // 0    1   2       3     4         5            6
+
+        StringBuilder builder = new();
+
+
+        builder.Append($"{Coordinates.X},{Coordinates.Y},");
+        builder.Append($"{Time.TotalMilliseconds},");
+
+        int type = (int)Type | (NewCombo ? 1 << 2 : 0) | (int)ComboColour << 4;
+        builder.Append($"{type},");
+
+        builder.Append($"{HitSounds.Sounds},");
+        builder.Append($",,");
+        builder.Append($"{HitSounds.SampleData},");
+
+        return builder.ToString();
+    }
+
 
     /// <summary>
     /// 

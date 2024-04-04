@@ -1,4 +1,5 @@
 using System.IO.Enumeration;
+using System.Text;
 
 namespace BeatmapParser;
 /// <summary>
@@ -73,9 +74,9 @@ public class HitSample : IHitSample
             return new HitSample(
                 normalSet: (SampleSet)uint.Parse(split[0]),
                 additionSet: (SampleSet)uint.Parse(split[1]),
-                index: split.Length > 2 ? uint.Parse(split[2]) : null,
-                volume: split.Length > 3 ? uint.Parse(split[3]) : null,
-                fileName: split.Length > 4 ? split[4] : null
+                index: split.Length >= 2 ? uint.Parse(split[2]) : null,
+                volume: split.Length >= 3 ? uint.Parse(split[3]) : null,
+                fileName: split.Length >= 4 ? split[4] : null
             );
         }
         catch (Exception ex)
@@ -83,4 +84,34 @@ public class HitSample : IHitSample
             throw new Exception($"Failed to parse HitSample {ex}");
         }
     }
+
+    /// <summary>
+    /// Encodes the hit sample into a string.
+    /// </summary>
+    /// <returns></returns>
+    public string Encode()
+    {
+        StringBuilder builder = new();
+
+        builder.Append($"{(uint)NormalSet}:{(uint)AdditionSet}");
+
+        if (Index.HasValue)
+        {
+            builder.Append($":{Index}");
+        }
+
+        if (Volume.HasValue)
+        {
+            builder.Append($":{Volume}");
+        }
+
+        if (!string.IsNullOrEmpty(FileName))
+        {
+            builder.Append($":{FileName}");
+        }
+
+        return builder.ToString();
+    }
+
+
 }

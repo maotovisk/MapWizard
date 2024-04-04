@@ -1,7 +1,7 @@
 namespace BeatmapParser;
 
 /// <summary> Represents a editor section</summary>
-public interface IEditor
+public interface IEditor : IEncodable
 {
     /// <summary> Time in milliseconds of bookmarks. </summary>
     List<TimeSpan>? Bookmarks { get; set; }

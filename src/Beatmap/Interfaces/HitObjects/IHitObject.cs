@@ -5,7 +5,7 @@ namespace BeatmapParser;
 /// <summary>
 /// 
 /// </summary>
-public interface IHitObject
+public interface IHitObject : IEncodable
 {
     /// <summary>
     /// 

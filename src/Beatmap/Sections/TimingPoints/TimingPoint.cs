@@ -58,5 +58,4 @@ public class TimingPoint : ITimingPoint
         Volume = 0;
         Effects = [];
     }
-
 }

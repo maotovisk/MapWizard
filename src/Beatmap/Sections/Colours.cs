@@ -1,4 +1,5 @@
 using System.Numerics;
+using System.Text;
 
 namespace BeatmapParser.Sections;
 
@@ -37,7 +38,7 @@ public class Colours : IColours
     /// </summary>
     public Colours()
     {
-        Combos = new List<IComboColour>();
+        Combos = [];
     }
 
     /// <summary>
@@ -75,4 +76,30 @@ public class Colours : IColours
             throw new Exception("Failed to parse Colours section.", ex);
         }
     }
+
+    /// <summary>
+    /// Encodes the <see cref="General"/> class into a string.
+    /// </summary>
+    /// <returns></returns>
+    public string Encode()
+    {
+        StringBuilder builder = new();
+
+        if (SliderBorder.HasValue)
+        {
+            builder.AppendLine($"SliderBorder: {SliderBorder.Value.X}, {SliderBorder.Value.Y}, {SliderBorder.Value.Z}");
+        }
+        if (SliderTrackOverride.HasValue)
+        {
+            builder.AppendLine($"SliderTrackOverride: {SliderTrackOverride.Value.X}, {SliderTrackOverride.Value.Y}, {SliderTrackOverride.Value.Z}");
+        }
+
+        Combos.ForEach(combo =>
+        {
+            builder.AppendLine($"Combo{Combos.IndexOf(combo)} : {combo.Colour.X}, {combo.Colour.Y}, {combo.Colour.Z}");
+        });
+
+        return builder.ToString();
+    }
+
 }

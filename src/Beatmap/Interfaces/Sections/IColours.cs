@@ -5,7 +5,7 @@ using System.Numerics;
 /// <summary>
 /// Represents the colours section of a beatmap.
 /// </summary>
-public interface IColours
+public interface IColours : IEncodable
 {
     /// <summary>
     /// Gets or sets the slider border colour of the beatmap.

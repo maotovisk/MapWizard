@@ -24,7 +24,6 @@ public class InheritedTimingPoint : TimingPoint, IInheritedTimingPoint
         SliderVelocity = sliderVelocity;
     }
 
-
     /// <summary>
     /// Initializes a new instance of the <see cref="InheritedTimingPoint"/> class.
     /// </summary>
@@ -36,5 +35,14 @@ public class InheritedTimingPoint : TimingPoint, IInheritedTimingPoint
         Volume = 0;
         Effects = [];
         SliderVelocity = 1.0;
+    }
+
+    /// <summary>
+    /// Parses a timing point line into a new <see cref="TimingPoint"/> class.
+    /// </summary>
+    /// <returns></returns>
+    public string Encode()
+    {
+        return $"{Time.TotalMilliseconds},{SliderVelocity},{(int)SampleSet},{SampleIndex},{Volume},{1},{Helper.EncodeEffects(Effects)}";
     }
 }

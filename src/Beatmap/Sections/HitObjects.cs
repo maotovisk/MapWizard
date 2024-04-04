@@ -1,3 +1,5 @@
+using System.Text;
+
 namespace BeatmapParser.Sections;
 
 /// <summary>
@@ -24,7 +26,7 @@ public class HitObjects : IHitObjects
     /// </summary>
     public HitObjects()
     {
-        Objects = new List<IHitObject>();
+        Objects = [];
     }
 
     /// <summary>
@@ -61,5 +63,30 @@ public class HitObjects : IHitObjects
         {
             throw new Exception($"Failed to parse HitObjects section\n{ex}");
         }
+    }
+
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <returns></returns>
+    public string Encode()
+    {
+        StringBuilder builder = new();
+
+        foreach (var obj in Objects)
+        {
+            if (obj is Circle circle)
+                builder.AppendLine(circle.Encode());
+            else if (obj is Slider slider)
+                builder.AppendLine(slider.Encode());
+            else if (obj is Spinner spinner)
+                builder.AppendLine(spinner.Encode());
+            else if (obj is ManiaHold hold)
+                builder.AppendLine(hold.Encode());
+            else
+                builder.AppendLine(((HitObject)obj).Encode());
+        }
+        return builder.ToString();
     }
 }

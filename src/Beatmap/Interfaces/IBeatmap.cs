@@ -2,7 +2,7 @@ namespace BeatmapParser;
 /// <summary>
 /// Represents a beatmap.
 /// </summary>
-public interface IBeatmap
+public interface IBeatmap : IEncodable
 {
     /// <summary>
     /// Gets or sets the version of the beatmap.

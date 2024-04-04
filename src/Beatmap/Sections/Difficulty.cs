@@ -1,4 +1,7 @@
 using System.Globalization;
+using System.Reflection;
+using System.Reflection.Metadata.Ecma335;
+using System.Text;
 
 namespace BeatmapParser.Sections;
 
@@ -119,6 +122,23 @@ public class Difficulty : IDifficulty
         {
             throw new Exception($"Failed to parse Difficultty section:\n {ex.Message}\n{ex.StackTrace}");
         }
+    }
+
+    /// <summary>
+    /// Encodes the <see cref="Difficulty"/> section into a string.
+    /// </summary>
+    /// <returns></returns>
+    public string Encode()
+    {
+        StringBuilder builder = new();
+
+        foreach (PropertyInfo property in typeof(Difficulty).GetProperties())
+        {
+            if (property.GetValue(this) is null) continue;
+            builder.AppendLine($"{property.Name}:{property.GetValue(this)}");
+        }
+
+        return builder.ToString();
     }
 
 }

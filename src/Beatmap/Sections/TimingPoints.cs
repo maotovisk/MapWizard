@@ -1,4 +1,5 @@
 using System.Globalization;
+using System.Text;
 
 namespace BeatmapParser.Sections;
 
@@ -36,7 +37,6 @@ public class TimingPoints : ITimingPoints
     /// <returns></returns>
     public static TimingPoints Decode(List<string> section)
     {
-
         // Timing point structure:
         // time beatLength  meter   sampleSet   sampleIndex     volume  uninherited     effects
         // 0    1           2       3           4               5       6               7
@@ -54,7 +54,7 @@ public class TimingPoints : ITimingPoints
                 var sampleSet = split.Length >= 4 ? (SampleSet)Enum.Parse(typeof(SampleSet), split[3]) : SampleSet.Normal;
                 var sampleIndex = split.Length >= 5 ? uint.Parse(split[4]) : 0;
                 var volume = split.Length >= 6 ? uint.Parse(split[5]) : 100;
-                var effects = split.Length >= 7 ? Helper.ParseEffects(int.Parse(split[6])) : new List<Effect>();
+                var effects = split.Length >= 7 ? Helper.ParseEffects(int.Parse(split[6])) : [];
                 var timingChange = split.Length >= 8 && int.Parse(split[7]) == 1;
 
                 ITimingPoint timingPoint;
@@ -93,5 +93,28 @@ public class TimingPoints : ITimingPoints
         {
             throw new Exception($"Failed to parse TimingPoints: {ex.Message}\n{ex.StackTrace}");
         }
+    }
+
+    /// <summary>
+    /// Encodes the <see cref="TimingPoints"/> class into a string.
+    /// </summary>
+    /// <returns></returns>
+    public string Encode()
+    {
+        StringBuilder builder = new();
+
+        foreach (var timingPoint in TimingPointList)
+        {
+            if (timingPoint is UninheritedTimingPoint uninheritedTimingPoint)
+            {
+                builder.AppendLine(uninheritedTimingPoint?.Encode());
+            }
+            else if (timingPoint is InheritedTimingPoint inheritedTimingPoint)
+            {
+                builder.AppendLine(inheritedTimingPoint?.Encode());
+            }
+        }
+
+        return builder.ToString();
     }
 }

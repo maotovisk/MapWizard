@@ -1,4 +1,5 @@
 using System.Globalization;
+using System.Text;
 
 namespace BeatmapParser.Sections;
 
@@ -79,7 +80,7 @@ public class Editor : IEditor
             return new Editor(
                 bookmarks: bookmarks?.Split(',').Where(x => !string.IsNullOrEmpty(x)).Select(
                     x => TimeSpan.FromMilliseconds(double.Parse(x, CultureInfo.InvariantCulture))).ToList(),
-                distanceSpacing: editor.Keys.Contains("DistanceSpacing") ? double.Parse(editor["DistanceSpacing"], CultureInfo.InvariantCulture) : 1.0,
+                distanceSpacing: editor.TryGetValue("DistanceSpacing", out string? value) ? double.Parse(value, CultureInfo.InvariantCulture) : 1.0,
                 beatDivisor: int.Parse(editor["BeatDivisor"]),
                 gridSize: int.Parse(editor["GridSize"]),
                 timelineZoom: editor.TryGetValue("TimelineZoom", out var timelineZoom) ? double.Parse(timelineZoom, CultureInfo.InvariantCulture) : null
@@ -89,6 +90,24 @@ public class Editor : IEditor
         {
             throw new Exception($"Error while parsing Editor section:\n{ex}.");
         }
+    }
+
+    /// <summary>
+    /// Encodes the <see cref="Editor"/> section into a string.
+    /// </summary>
+    /// <returns></returns>
+    public string Encode()
+    {
+        StringBuilder builder = new();
+
+        foreach (var prop in typeof(IEditor).GetProperties())
+        {
+            if (prop.GetValue(this) is null) continue;
+
+            builder.AppendLine($"{prop.Name}: {prop.GetValue(this)}");
+        }
+
+        return builder.ToString();
     }
 
 }

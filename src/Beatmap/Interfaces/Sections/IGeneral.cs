@@ -3,7 +3,7 @@ namespace BeatmapParser;
 /// <summary>
 ///  This is a osu file format v14 specification of the General section.
 /// </summary>
-public interface IGeneral
+public interface IGeneral : IEncodable
 {
     /// <summary>
     /// Location of the audio file relative to the current folder
