@@ -93,7 +93,6 @@ public class Beatmap : IBeatmap
     public static Beatmap Decode(string beatmapString)
     {
         var lines = beatmapString.Split(["\r\n", "\n"], StringSplitOptions.None)
-                           .Select(line => line.Trim())
                            .Where(line => !string.IsNullOrEmpty(line) || !string.IsNullOrWhiteSpace(line))
                            .ToList();
 
@@ -116,7 +115,7 @@ public class Beatmap : IBeatmap
             }
             else
             {
-                sections[currentSection].Add(line);
+                sections[currentSection].Add(currentSection == "Events" ? line : line.Trim());
             }
         }
 
@@ -157,26 +156,22 @@ public class Beatmap : IBeatmap
 
         builder.AppendLine($"[{SectionTypes.General}]");
         builder.AppendLine(General.Encode());
-        builder.AppendLine();
 
         if (Editor != null)
         {
             builder.AppendLine($"[{SectionTypes.Editor}]");
             builder.AppendLine(Editor.Encode());
-            builder.AppendLine();
         }
 
         builder.AppendLine($"[{SectionTypes.Metadata}]");
         builder.AppendLine(Metadata.Encode());
-        builder.AppendLine();
 
         builder.AppendLine($"[{SectionTypes.Difficulty}]");
         builder.AppendLine(Difficulty.Encode());
-        builder.AppendLine();
 
         builder.AppendLine($"[{SectionTypes.Events}]");
         if (Events.EventList.Count > 0)
-            builder.AppendLine(Events.Encode());
+            builder.Append(Events.Encode());
         builder.AppendLine();
 
         if (TimingPoints != null)
@@ -191,7 +186,6 @@ public class Beatmap : IBeatmap
         {
             builder.AppendLine($"[{SectionTypes.Colours}]");
             builder.AppendLine(Colours.Encode());
-            builder.AppendLine();
         }
 
         builder.AppendLine($"[{SectionTypes.HitObjects}]");

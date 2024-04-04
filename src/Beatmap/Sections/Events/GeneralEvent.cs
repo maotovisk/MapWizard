@@ -46,13 +46,11 @@ public class GeneralEvent : IGeneralEvent
     {
         try
         {
-            var split = line.Split(',');
+            var split = line.Split(',', 2);
 
             var type = split[0];
-            var parameters = new List<string>();
 
-            parameters.AddRange(split[1..]);
-            return new GeneralEvent(type, parameters);
+            return new GeneralEvent(type, split.Length > 1 ? [.. split[1].Split(',')] : []);
         }
         catch (Exception ex)
         {

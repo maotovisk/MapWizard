@@ -87,16 +87,16 @@ public class Colours : IColours
 
         if (SliderBorder.HasValue)
         {
-            builder.AppendLine($"SliderBorder: {SliderBorder.Value.X}, {SliderBorder.Value.Y}, {SliderBorder.Value.Z}");
+            builder.AppendLine($"SliderBorder: {SliderBorder.Value.X},{SliderBorder.Value.Y},{SliderBorder.Value.Z}");
         }
         if (SliderTrackOverride.HasValue)
         {
-            builder.AppendLine($"SliderTrackOverride: {SliderTrackOverride.Value.X}, {SliderTrackOverride.Value.Y}, {SliderTrackOverride.Value.Z}");
+            builder.AppendLine($"SliderTrackOverride: {SliderTrackOverride.Value.X},{SliderTrackOverride.Value.Y},{SliderTrackOverride.Value.Z}");
         }
 
         Combos.ForEach(combo =>
         {
-            builder.AppendLine($"Combo{Combos.IndexOf(combo)} : {combo.Colour.X}, {combo.Colour.Y}, {combo.Colour.Z}");
+            builder.AppendLine($"Combo{combo.Number} : {combo.Colour.X},{combo.Colour.Y},{combo.Colour.Z}");
         });
 
         return builder.ToString();

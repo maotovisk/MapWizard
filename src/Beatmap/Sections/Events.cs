@@ -65,8 +65,8 @@ public class Events : IEvents
 
         foreach (var ev in EventList)
         {
-            if (ev is GeneralEvent)
-                sb.AppendLine($"{((GeneralEvent)ev).Type},{string.Join(",", ((GeneralEvent)ev).Params)}");
+            if (ev is GeneralEvent @event)
+                sb.AppendLine($"{@event.Type},{string.Join(",", @event.Params)}");
         }
 
         return sb.ToString();

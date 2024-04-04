@@ -102,15 +102,13 @@ public class HitSample : IHitSample
 
         if (Volume.HasValue)
         {
-            builder.Append($":{Volume}");
+            builder.Append($":{Volume}:");
         }
 
         if (!string.IsNullOrEmpty(FileName))
         {
-            builder.Append($":{FileName}");
+            builder.Append($"{FileName}");
         }
-
-        builder.Append(":");
 
         return builder.ToString();
     }

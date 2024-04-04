@@ -138,13 +138,13 @@ public class Difficulty : IDifficulty
 
             if (property.GetValue(this) is bool boolValue)
             {
-                builder.AppendLine($"{property.Name}: {(boolValue ? 1 : 0)}");
+                builder.AppendLine($"{property.Name}:{(boolValue ? 1 : 0)}");
                 continue;
             }
 
             if (property.GetValue(this) is double doubleValue)
             {
-                builder.AppendLine($"{property.Name}: {doubleValue.ToString(CultureInfo.InvariantCulture)}");
+                builder.AppendLine($"{property.Name}:{doubleValue.ToString(CultureInfo.InvariantCulture)}");
                 continue;
             }
 

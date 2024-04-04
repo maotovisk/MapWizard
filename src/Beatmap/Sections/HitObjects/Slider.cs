@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.Numerics;
+using System.Runtime.Serialization;
 using System.Text;
 
 namespace BeatmapParser;
@@ -173,7 +174,7 @@ public class Slider : HitObject, ISlider
 
         builder.Append($"{Repeats},");
 
-        builder.Append($"{Length.ToString(CultureInfo.InvariantCulture)},");
+        builder.Append($"{Length.ToString(CultureInfo.InvariantCulture)}");
 
         List<int> edgeSounds = [];
 
@@ -191,8 +192,8 @@ public class Slider : HitObject, ISlider
         {
             edgeSounds.Add(Helper.EncodeHitSounds(TailSounds.Sounds));
         }
-
-        builder.Append($"{string.Join("|", edgeSounds)},");
+        if (edgeSounds.Count > 0)
+            builder.Append($",{string.Join("|", edgeSounds)}");
 
         List<string> edgeSets = [];
 
@@ -211,10 +212,11 @@ public class Slider : HitObject, ISlider
             edgeSets.Add(TailSounds.SampleData.Encode());
         }
 
-        builder.Append($"{string.Join("|", edgeSets)},");
+        if (edgeSets.Count > 0)
+            builder.Append($",{string.Join("|", edgeSets)}");
 
-
-        builder.Append($"{HitSounds.SampleData.Encode()}");
+        if (edgeSets.Count > 0 && edgeSounds.Count > 0)
+            builder.Append($",{HitSounds.SampleData.Encode()}");
 
         return builder.ToString();
     }

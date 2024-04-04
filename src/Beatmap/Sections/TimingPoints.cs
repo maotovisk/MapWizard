@@ -54,8 +54,8 @@ public class TimingPoints : ITimingPoints
                 var sampleSet = split.Length >= 4 ? (SampleSet)Enum.Parse(typeof(SampleSet), split[3]) : SampleSet.Normal;
                 var sampleIndex = split.Length >= 5 ? uint.Parse(split[4]) : 0;
                 var volume = split.Length >= 6 ? uint.Parse(split[5]) : 100;
-                var timingChange = split.Length >= 8 && int.Parse(split[6]) == 1;
-                var effects = split.Length >= 7 ? Helper.ParseEffects(int.Parse(split[7])) : [];
+                var timingChange = split.Length >= 7 && int.Parse(split[6]) == 1;
+                var effects = split.Length >= 8 ? Helper.ParseEffects(int.Parse(split[7])) : [];
 
                 ITimingPoint timingPoint;
 
@@ -122,9 +122,14 @@ public class TimingPoints : ITimingPoints
     /// Gets the timing point at the specified time.
     /// </summary>
     /// <param name="time"></param>
+    /// <param name="lenience"></param>
     /// <returns></returns>
-    public UninheritedTimingPoint? GetUninheritedTimingPointAt(double time)
+    public UninheritedTimingPoint? GetUninheritedTimingPointAt(double time, int lenience = 2)
     {
-        return TimingPointList.OfType<UninheritedTimingPoint>().Last(x => time >= x.Time.TotalMilliseconds);
+        if (TimingPointList.Count == 0) return null;
+
+        if (TimingPointList.OfType<UninheritedTimingPoint>().ToList().Count == 0) return null;
+
+        return TimingPointList.OfType<UninheritedTimingPoint>().ToList().Where(x => time + 2 >= x.Time.TotalMilliseconds).Last() ?? null;
     }
 }
