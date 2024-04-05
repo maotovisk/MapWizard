@@ -4,7 +4,7 @@ A tool that aims to replicate the hitsounds of a beatmap difficulty to other dif
 
 <br/>
 
-<p align="right"><b>Current Status</b>: Developing a new beatmap (.osu file) parser</p>
+<p align="right"><b>Current Status</b>: Starting work on the first tool (HitsoundCopier)</p>
 
 ## Project Goals
 
@@ -40,11 +40,11 @@ dotnet run
 
 ## References
 
-- [Mapping Tools](https://github.com/olibomby/mapping_tools) by [OliBomby](https://github.com/olibomby) for the whole idea of the project (even in the v1)
-- [Map Wizard v1](https://github.com/maotovisk/map-wizard) by [me](https://github.com/maotovisk) for the first implementation of the hitsound copier and metadata management stuff
-- [OsuParsers](https://github.com/mrflashstudio/OsuParsers) by [mrflashstudio](https://github.com/mrflashstudio) for being a very complete .osu file parser and very good reference for the new parser
-- [osu! File Formats](https://osu.ppy.sh/help/wiki/osu!_File_Formats) for the .osu file format documentation'
-- [osu! lazer project](https://github.com/ppy/osu) for the osu! lazer project, which is a great reference for the new parser
+- [Mapping Tools](https://github.com/olibomby/mapping_tools) by [OliBomby](https://github.com/olibomby) for the whole idea of the project and such a great toolset for mapping.
+- [Map Wizard](https://github.com/maotovisk/map-wizard) by [me](https://github.com/maotovisk) for the first implementation of the hitsound copier and metadata management stuff.
+- [OsuParsers](https://github.com/mrflashstudio/OsuParsers) by [mrflashstudio](https://github.com/mrflashstudio) for being a very complete .osu file parser and very good reference for the new parser.
+- [osu! File Formats](https://osu.ppy.sh/help/wiki/osu!_File_Formats) for the .osu file format documentation.
+- [osu!](https://github.com/ppy/osu) for the osu! lazer project, which is a great reference for the new parser.
 
 ## Contributing
 
