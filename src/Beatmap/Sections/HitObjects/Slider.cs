@@ -135,9 +135,9 @@ public class Slider : HitObject, ISlider
 
             if (split.Count > 9)
             {
-                EdgeHitSounds = split[8].Split("|").Select(sound => Helper.ParseHitSounds(int.Parse(sound))).ToList();
+                EdgeHitSounds = split[8].Split("|").Select(sound => Helper.ParseHitSounds(int.Parse(sound)).Distinct().ToList()).ToList();
                 EdgeSampleSets = split[9].Split('|').Select(sample => (IHitSample)HitSample.Decode(sample)).ToList();
-                sliderHitSounds = EdgeSampleSets.Zip(EdgeHitSounds, (sample, hitSounds) => (sample, hitSounds)).ToList();
+                sliderHitSounds = EdgeHitSounds.Zip(EdgeSampleSets, (hitSound, sampleSet) => (sampleSet, hitSound)).ToList();
             }
 
             var objectParams = split[5].Split('|');
@@ -152,7 +152,7 @@ public class Slider : HitObject, ISlider
                 Repeats = uint.Parse(split[6] == "NaN" ? "1" : split[6]),
                 Length = double.Parse(split[7] == "NaN" ? "0" : split[7], CultureInfo.InvariantCulture),
                 EndTime = Helper.CalculateEndTime(
-                    sliderVelocity: difficulty.SliderMultiplier * timingPoints.GetSliderVelocityAt(double.Parse(split[2], CultureInfo.InvariantCulture)),
+                    sliderMultiplier: difficulty.SliderMultiplier * timingPoints.GetSliderVelocityAt(double.Parse(split[2], CultureInfo.InvariantCulture)),
                     beatLength: timingPoints.GetUninheritedTimingPointAt(double.Parse(split[2], CultureInfo.InvariantCulture))?.BeatLength ?? 500,
                     startTime: TimeSpan.FromMilliseconds(double.Parse(split[2], CultureInfo.InvariantCulture)),
                     pixelLength: double.Parse(split[7] == "NaN" ? "0" : split[7], CultureInfo.InvariantCulture),

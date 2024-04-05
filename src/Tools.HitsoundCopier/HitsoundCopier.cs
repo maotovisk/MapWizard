@@ -83,7 +83,7 @@ namespace Tools.HitsoundCopier
                         for (var i = 0; i < slider.Repeats - 1; i++)
                         {
                             var repeatSound = slider.RepeatSounds[i];
-                            var repeatSoundTime = (slider.EndTime - slider.Time) / (slider.Repeats - 1) * (i + 1) + slider.Time;
+                            var repeatSoundTime = slider.Time + (((slider.EndTime - slider.Time) / slider.Repeats) * (i + 1));
 
                             var currentRepeatSound = hitsoundTimeline.GetSoundAtTime(repeatSoundTime);
 
@@ -155,9 +155,12 @@ namespace Tools.HitsoundCopier
                 }
                 else
                 {
-                    currentSampleSet.Sample = timingPoint.SampleSet;
-                    currentSampleSet.Index = (int)timingPoint.SampleIndex;
-                    currentSampleSet.Volume = timingPoint.Volume;
+                    if (timingPoint is InheritedTimingPoint)
+                    {
+                        currentSampleSet.Sample = timingPoint.SampleSet;
+                        currentSampleSet.Index = (int)timingPoint.SampleIndex;
+                        currentSampleSet.Volume = timingPoint.Volume;
+                    }
                 }
             }
 

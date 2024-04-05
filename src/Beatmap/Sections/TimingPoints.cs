@@ -123,13 +123,13 @@ public class TimingPoints : ITimingPoints
     /// Gets the timing point at the specified time.
     /// </summary>
     /// <param name="time"></param>
-    /// <param name="lenience"></param>
+    /// <param name="leniency"></param>
     /// <returns></returns>
-    public UninheritedTimingPoint? GetUninheritedTimingPointAt(double time, int lenience = 2)
+    public UninheritedTimingPoint? GetUninheritedTimingPointAt(double time, int leniency = 2)
     {
         if (TimingPointList.Count == 0) return null;
 
-        var matchingTimingPoints = TimingPointList.OfType<UninheritedTimingPoint>().ToList().Where(x => time + lenience >= x.Time.TotalMilliseconds || time - lenience >= x.Time.TotalMilliseconds).ToList();
+        var matchingTimingPoints = TimingPointList.OfType<UninheritedTimingPoint>().ToList().Where(x => Math.Abs(time - x.Time.TotalMilliseconds) <= leniency).ToList();
         if (matchingTimingPoints.Count == 0) return null;
 
         return matchingTimingPoints.Last();
@@ -139,13 +139,13 @@ public class TimingPoints : ITimingPoints
     /// Gets the timing point at the specified time.
     /// </summary>
     /// <param name="time"></param>
-    /// <param name="lenience"></param>
+    /// <param name="leniency"></param>
     /// <returns></returns>
-    public InheritedTimingPoint? GetInheritedTimingPointAt(double time, int lenience = 2)
+    public InheritedTimingPoint? GetInheritedTimingPointAt(double time, int leniency = 2)
     {
         if (TimingPointList.Count == 0) return null;
 
-        var matchingTimingPoints = TimingPointList.OfType<InheritedTimingPoint>().ToList().Where(x => time + lenience >= x.Time.TotalMilliseconds || time - lenience >= x.Time.TotalMilliseconds).ToList();
+        var matchingTimingPoints = TimingPointList.OfType<InheritedTimingPoint>().ToList().Where(x => Math.Abs(time - x.Time.TotalMilliseconds) <= leniency).ToList();
         if (matchingTimingPoints.Count == 0) return null;
 
         return matchingTimingPoints.Last();
@@ -155,11 +155,11 @@ public class TimingPoints : ITimingPoints
     /// Returns the volume at the specified time.
     /// </summary>
     /// <param name="time"></param>
-    /// <param name="lenience"></param>
+    /// <param name="leniency"></param>
     /// <returns></returns>
-    public uint GetVolumeAt(double time, int lenience = 2)
+    public uint GetVolumeAt(double time, int leniency = 2)
     {
-        var timingPoint = TimingPointList.Where(x => x.Time.TotalMilliseconds <= time).LastOrDefault();
+        var timingPoint = TimingPointList.Where(x => Math.Abs(time - x.Time.TotalMilliseconds) <= leniency).LastOrDefault();
         return timingPoint?.Volume ?? 100; ;
     }
 
@@ -168,11 +168,11 @@ public class TimingPoints : ITimingPoints
     /// Defaults to 120 BPM if no timing point is found.
     /// </summary>
     /// <param name="time"></param>
-    /// <param name="lenience"></param>
+    /// <param name="leniency"></param>
     /// <returns></returns>
-    public double GetBpmAt(double time, int lenience = 2)
+    public double GetBpmAt(double time, int leniency = 2)
     {
-        var timingPoint = GetUninheritedTimingPointAt(time, lenience);
+        var timingPoint = GetUninheritedTimingPointAt(time, leniency);
         return 60000 / (timingPoint?.BeatLength ?? 500); ;
     }
 
@@ -180,11 +180,11 @@ public class TimingPoints : ITimingPoints
     /// Returns the slider velocity at the specified time.
     /// </summary>
     /// <param name="time"></param>
-    /// <param name="lenience"></param>
+    /// <param name="leniency"></param>
     /// <returns></returns>
-    public double GetSliderVelocityAt(double time, int lenience = 2)
+    public double GetSliderVelocityAt(double time, int leniency = 2)
     {
-        var timingPoint = GetInheritedTimingPointAt(time, lenience);
+        var timingPoint = GetInheritedTimingPointAt(time, leniency);
         return timingPoint?.SliderVelocity ?? 1;
     }
 }
