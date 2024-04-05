@@ -1,19 +1,10 @@
 namespace Tools.HitsoundCopier
 {
+    /// <summary>
+    /// Class to copy hitsounds from one beatmap to others.
+    /// </summary>
     public class HitsoundCopier
     {
-        private readonly string _sourcePath;
-        private readonly string _destinationPath;
 
-        public HitsoundCopier(string sourcePath, string destinationPath)
-        {
-            _sourcePath = sourcePath;
-            _destinationPath = destinationPath;
-        }
-
-        public void CopyHitsounds()
-        {
-            // Copy hitsounds from source to destination
-        }
     }
 }
