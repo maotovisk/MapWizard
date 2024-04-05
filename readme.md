@@ -1,10 +1,10 @@
-# Hitsound Copier
+# MapWizard 2
 
-A tool that aims to replicate the hitsounds of a beatmap difficulty to other difficulties on the set. It is useful to avoid the inconvenience of having to redo the same hitsound logic for many difficulties across the set.
+A tool that aims to allow mappers replicate the hitsounds of a beatmap difficulty to other difficulties on the set, manage metadata and more. This is a rewrite of the original [Map Wizard](https://github.com/maotovisk/map-wizard), previously made in Tauri and Svelte, now being rewritten in .NET 8 and Avalonia.
 
 <br/>
 
-<p align="right"><b>Current Status</b>: Starting work on the first tool (HitsoundCopier)</p>
+<p align="right"><b>Current Status</b>: Starting work on the HitsoundCopier</p>
 
 ## Project Goals
 
