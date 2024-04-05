@@ -202,15 +202,14 @@ public class Beatmap : IBeatmap
     /// Gets the uninherited timing point at the specified time.
     /// </summary>
     /// <param name="time"></param>
-    /// <param name="leniency"></param>
     /// <returns></returns>
-    public UninheritedTimingPoint? GetUninheritedTimingPointAt(double time, int leniency = 2)
+    public UninheritedTimingPoint? GetUninheritedTimingPointAt(double time)
     {
         if (TimingPoints == null) return null;
 
         if (TimingPoints is TimingPoints section)
         {
-            return section.GetUninheritedTimingPointAt(time, leniency);
+            return section.GetUninheritedTimingPointAt(time);
         }
         return null;
     }
@@ -219,15 +218,14 @@ public class Beatmap : IBeatmap
     /// Gets the inherited timing point at the specified time.
     /// </summary>
     /// <param name="time"></param>
-    /// <param name="leniency"></param>
     /// <returns></returns>
-    public InheritedTimingPoint? GetInheritedTimingPointAt(double time, int leniency = 2)
+    public InheritedTimingPoint? GetInheritedTimingPointAt(double time)
     {
         if (TimingPoints == null) return null;
 
         if (TimingPoints is TimingPoints section)
         {
-            return section.GetInheritedTimingPointAt(time, leniency);
+            return section.GetInheritedTimingPointAt(time);
         }
         return null;
     }
@@ -236,15 +234,14 @@ public class Beatmap : IBeatmap
     /// Returns the volume at the specified time.
     /// </summary>
     /// <param name="time"></param>
-    /// <param name="leniency"></param>
     /// <returns></returns>
-    public uint GetVolumeAt(double time, int leniency = 2)
+    public uint GetVolumeAt(double time)
     {
         if (TimingPoints == null) return 100;
 
         if (TimingPoints is TimingPoints section)
         {
-            return section.GetVolumeAt(time, leniency);
+            return section.GetVolumeAt(time);
         }
         return 100;
     }
@@ -253,15 +250,14 @@ public class Beatmap : IBeatmap
     /// Returns the BPM at the specified time.
     /// </summary>
     /// <param name="time"></param>
-    /// <param name="leniency"></param>
     /// <returns></returns>
-    public double GetBpmAt(double time, int leniency = 2)
+    public double GetBpmAt(double time)
     {
         if (TimingPoints == null) return 120;
 
         if (TimingPoints is TimingPoints section)
         {
-            return section.GetBpmAt(time, leniency);
+            return section.GetBpmAt(time);
         }
         return 120;
     }
@@ -409,17 +405,47 @@ public class Beatmap : IBeatmap
 
         if (TimingPoints is TimingPoints section)
         {
-            foreach (var timingPoint in section.TimingPointList)
-            {
-                var sampleSet = timeline.GetSampleAtTime(timingPoint.Time.TotalMilliseconds, leniency);
 
-                if (sampleSet != null)
+            var newTimingPoints = new List<ITimingPoint>();
+            foreach (var sampleSetEvent in timeline.HitSamples)
+            {
+                var timingPoint = section.GetTimingPointAt(sampleSetEvent.Time);
+
+                if (timingPoint != null)
                 {
-                    timingPoint.SampleSet = sampleSet.Sample;
-                    timingPoint.SampleIndex = (uint)sampleSet.Index;
-                    timingPoint.Volume = (uint)sampleSet.Volume;
+                    var currentSliderVelocity = section.GetSliderVelocityAt(sampleSetEvent.Time);
+                    if (timingPoint.Time.TotalMilliseconds < sampleSetEvent.Time)
+                    {
+                        var inheritedTimingPoint = new InheritedTimingPoint(TimeSpan.FromMilliseconds(sampleSetEvent.Time), sampleSetEvent.Sample, (uint)sampleSetEvent.Index, (uint)sampleSetEvent.Volume, timingPoint.Effects, currentSliderVelocity);
+                        newTimingPoints.Add(inheritedTimingPoint);
+                    }
+                    else
+                    {
+                        timingPoint.SampleSet = sampleSetEvent.Sample;
+                        timingPoint.SampleIndex = (uint)sampleSetEvent.Index;
+                        timingPoint.Volume = (uint)sampleSetEvent.Volume;
+
+                        newTimingPoints.Add(timingPoint);
+                    }
                 }
             }
+
+            foreach (var timingPoint in section.TimingPointList)
+            {
+
+                var sampleSet = timeline.GetSampleAtTime(timingPoint.Time.TotalMilliseconds, leniency);
+
+                var timingPointCopy = newTimingPoints.FirstOrDefault(x => x.Time.TotalMilliseconds == timingPoint.Time.TotalMilliseconds);
+
+                if (sampleSet != null && timingPointCopy != null)
+                {
+                    timingPointCopy.SampleSet = sampleSet.Sample;
+                    timingPointCopy.SampleIndex = (uint)sampleSet.Index;
+                    timingPointCopy.Volume = (uint)sampleSet.Volume;
+                }
+            }
+
+            TimingPoints.TimingPointList = [.. newTimingPoints.OrderBy(x => x.Time.TotalMilliseconds)];
         }
     }
 }
