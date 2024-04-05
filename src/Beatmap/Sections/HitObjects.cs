@@ -92,4 +92,44 @@ public class HitObjects : IHitObjects
         }
         return builder.ToString();
     }
+
+    /// <summary>
+    /// Gets the hit object at a specific time.
+    /// </summary>
+    /// <param name="time"></param>
+    /// <param name="leniency"></param>
+    /// <returns></returns>
+    public IHitObject? GetHitObjectAt(double time, int leniency = 2)
+    {
+        if (Objects == null) return null;
+
+        if (Objects.Count == 0) return null;
+
+        // We need to account if the object is a slider or Spinner, as they have a End time.
+        foreach (var obj in Objects)
+        {
+            if (obj is Circle circle && Math.Abs(circle.Time.TotalMilliseconds - time) <= leniency)
+                return circle;
+
+            // we need to check if the time is in the repeat sounds too (need to calculate the time of the repeats based on the number of repeats and the difference between the end time and the start time of the slider)
+            if (obj is Slider slider)
+            {
+                if (Math.Abs(slider.Time.TotalMilliseconds - time) <= leniency || Math.Abs(slider.EndTime.TotalMilliseconds - time) <= leniency)
+                    return slider;
+
+                if (slider.Repeats > 1 && slider.RepeatSounds != null && slider.RepeatSounds.Count == (slider.Repeats - 1))
+                    for (int i = 1; i < slider.Repeats - 1; i++)
+                    {
+                        var repeatTime = (slider.EndTime - slider.Time) / (slider.Repeats - 1) * i + slider.Time;
+                        if (Math.Abs(repeatTime.TotalMilliseconds - time) <= leniency)
+                            return slider;
+                    }
+            }
+
+            if (obj is Spinner spinner && Math.Abs(spinner.End.TotalMilliseconds - time) <= leniency)
+                return spinner;
+        }
+
+        return null;
+    }
 }
