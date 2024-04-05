@@ -17,4 +17,14 @@ public partial class Helper
 
         return TimeSpan.FromMilliseconds(value);
     }
+
+
+    /// <summary>
+    /// Gets the end time of the slider.
+    /// </summary>
+    /// <returns></returns>
+    public static TimeSpan CalculateEndTime(double sliderVelocity, double beatLength, TimeSpan startTime, double pixelLength, int repeats)
+    {
+        return TimeSpan.FromMilliseconds(startTime.TotalMilliseconds + (pixelLength / (repeats * 100 * sliderVelocity) * beatLength));
+    }
 }

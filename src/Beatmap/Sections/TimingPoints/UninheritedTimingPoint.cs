@@ -55,4 +55,13 @@ public class UninheritedTimingPoint : TimingPoint, IUninheritedTimingPoint
     {
         return $"{Time.TotalMilliseconds.ToString(CultureInfo.InvariantCulture)},{BeatLength.ToString("G", CultureInfo.InvariantCulture)},{TimeSignature},{(int)SampleSet},{SampleIndex},{Volume},{1},{Helper.EncodeEffects(Effects)}";
     }
+
+    /// <summary>
+    /// Gets the BPM of the timing point.
+    /// </summary>
+    /// <returns></returns>
+    public double GetBpm()
+    {
+        return 60000 / BeatLength;
+    }
 }

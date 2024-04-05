@@ -19,6 +19,31 @@ namespace Tools.HitsoundCopier
 
             if (source == null || target == null) return;
 
+            SoundTimeline hitsoundTimeline = new();
+
+            foreach (var hitObject in source.HitObjects.Objects)
+            {
+                if (hitObject is Circle circle)
+                {
+                    var currentSound = hitsoundTimeline.GetSoundAtTime(circle.Time);
+
+                    if (currentSound == null)
+                    {
+                        currentSound = new SoundEvent(circle.Time, circle.HitSounds.Sounds, circle.HitSounds.SampleData.NormalSet, circle.HitSounds.SampleData.AdditionSet, source.GetVolumeAt(circle.Time.TotalMilliseconds));
+                    }
+                    else
+                    {
+                        currentSound.HitSounds.AddRange(circle.HitSounds.Sounds);
+                        currentSound.HitSounds = currentSound.HitSounds.Distinct().ToList();
+                    }
+
+                    hitsoundTimeline.SoundEvents.Add(currentSound);
+                }
+                else if (hitObject is Slider slider)
+                {
+
+                }
+            }
 
 
         }

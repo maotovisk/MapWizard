@@ -27,9 +27,9 @@ public class SoundTimeline()
     /// </summary>
     /// <param name="time"></param>
     /// <returns></returns>
-    public SoundEvent GetSoundAtTime(TimeSpan time)
+    public SoundEvent? GetSoundAtTime(TimeSpan time)
     {
-        return SoundEvents.FirstOrDefault(x => x.Time == time, new SoundEvent());
+        return SoundEvents.FirstOrDefault(x => x.Time == time);
     }
 
 

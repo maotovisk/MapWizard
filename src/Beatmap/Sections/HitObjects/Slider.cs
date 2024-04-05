@@ -2,6 +2,7 @@ using System.Globalization;
 using System.Numerics;
 using System.Runtime.Serialization;
 using System.Text;
+using BeatmapParser.Sections;
 
 namespace BeatmapParser;
 
@@ -29,6 +30,11 @@ public class Slider : HitObject, ISlider
     /// Length of the slider.
     /// </summary>
     public double Length { get; set; }
+    /// <summary>
+    /// End time of the slider.
+    /// This is a calculated property.
+    /// </summary>
+    public TimeSpan EndTime { get; set; }
     /// <summary>
     /// Hit sound of the slider track.
     /// </summary>
@@ -58,14 +64,16 @@ public class Slider : HitObject, ISlider
     /// <param name="curvePoints"></param>
     /// <param name="repeats"></param>
     /// <param name="length"></param>
+    /// <param name="endTime"></param>
     /// <param name="headSounds"></param>
     /// <param name="repeatSounds"></param>
     /// <param name="tailSounds"></param>
-    public Slider(Vector2 coordinates, TimeSpan time, HitObjectType type, (IHitSample, List<HitSound>) hitSounds, bool newCombo, uint comboColour, CurveType curveType, List<Vector2> curvePoints, uint repeats, double length, (IHitSample SampleData, List<HitSound> Sounds) headSounds, List<(IHitSample SampleData, List<HitSound> Sounds)>? repeatSounds, (IHitSample SampleData, List<HitSound> Sounds) tailSounds) :
+    public Slider(Vector2 coordinates, TimeSpan time, HitObjectType type, (IHitSample, List<HitSound>) hitSounds, bool newCombo, uint comboColour, CurveType curveType, List<Vector2> curvePoints, uint repeats, double length, TimeSpan endTime, (IHitSample SampleData, List<HitSound> Sounds) headSounds, List<(IHitSample SampleData, List<HitSound> Sounds)>? repeatSounds, (IHitSample SampleData, List<HitSound> Sounds) tailSounds) :
         base(coordinates, time, type, hitSounds, newCombo, comboColour)
     {
         CurveType = curveType;
         CurvePoints = curvePoints;
+        EndTime = endTime;
         Repeats = repeats;
         Length = length;
         HeadSounds = headSounds;
@@ -82,6 +90,7 @@ public class Slider : HitObject, ISlider
         CurvePoints = [];
         Repeats = 1;
         Length = 0;
+        EndTime = TimeSpan.FromSeconds(0);
         HeadSounds = (new HitSample(), new List<HitSound>());
         RepeatSounds = [];
         TailSounds = (new HitSample(), new List<HitSound>());
@@ -101,15 +110,17 @@ public class Slider : HitObject, ISlider
         CurvePoints = [];
         Repeats = 1;
         Length = 0;
-
+        EndTime = Time;
     }
 
     /// <summary>
     /// Parses a slider hit object from a splitted hitObject line.
     /// </summary>
     /// <param name="split"></param>
+    /// <param name="timingPoints"></param>
+    /// <param name="difficulty"></param>
     /// <returns></returns>
-    public static new Slider Decode(List<string> split)
+    public static Slider Decode(List<string> split, TimingPoints timingPoints, Difficulty difficulty)
     {
         // x,   y,  time,   type,   hitSound,   curveType|curvePoints,  slides, length, edgeSounds,     ,edgeSets   ,hitSample
         // 0    1   2       3       4           5                       6       7          	      8             9           10
@@ -140,7 +151,13 @@ public class Slider : HitObject, ISlider
                     }).ToList(),
                 Repeats = uint.Parse(split[6]),
                 Length = double.Parse(split[7], CultureInfo.InvariantCulture),
-
+                EndTime = Helper.CalculateEndTime(
+                    sliderVelocity: difficulty.SliderMultiplier * timingPoints.GetSliderVelocityAt(double.Parse(split[2], CultureInfo.InvariantCulture)),
+                    beatLength: timingPoints.GetUninheritedTimingPointAt(double.Parse(split[2], CultureInfo.InvariantCulture))?.BeatLength ?? 500,
+                    startTime: TimeSpan.FromMilliseconds(double.Parse(split[2], CultureInfo.InvariantCulture)),
+                    pixelLength: double.Parse(split[7], CultureInfo.InvariantCulture),
+                    repeats: int.Parse(split[6])
+                ),
                 HeadSounds = sliderHitSounds.Count == 0 ? (new HitSample(), new List<HitSound>()) : sliderHitSounds[0],
                 RepeatSounds = sliderHitSounds.Count > 2 ? sliderHitSounds[1..^1] : null,
                 TailSounds = sliderHitSounds.Count == 0 ? (new HitSample(), new List<HitSound>()) : sliderHitSounds.Last(),

@@ -27,6 +27,10 @@ public interface ISlider : IHitObject
     /// </summary>
     public double Length { get; set; }
 
+    /// <summary>
+    /// End time of the slider.
+    /// </summary>
+    public TimeSpan EndTime { get; set; }
 
     /// <summary>
     /// Hit sound of the slider track.
@@ -43,6 +47,4 @@ public interface ISlider : IHitObject
     /// Hit sound of the slider track.
     /// </summary>
     public (IHitSample SampleData, List<HitSound> Sounds) TailSounds { get; set; }
-
-
 }

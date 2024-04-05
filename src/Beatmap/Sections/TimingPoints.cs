@@ -118,6 +118,7 @@ public class TimingPoints : ITimingPoints
         return builder.ToString();
     }
 
+
     /// <summary>
     /// Gets the timing point at the specified time.
     /// </summary>
@@ -132,4 +133,56 @@ public class TimingPoints : ITimingPoints
 
         return TimingPointList.OfType<UninheritedTimingPoint>().ToList().Where(x => time + 2 >= x.Time.TotalMilliseconds).Last() ?? null;
     }
+
+    /// <summary>
+    /// Gets the timing point at the specified time.
+    /// </summary>
+    /// <param name="time"></param>
+    /// <param name="lenience"></param>
+    /// <returns></returns>
+    public InheritedTimingPoint? GetInheritedTimingPointAt(double time, int lenience = 2)
+    {
+        if (TimingPointList.Count == 0) return null;
+
+        if (TimingPointList.OfType<InheritedTimingPoint>().ToList().Count == 0) return null;
+
+        return TimingPointList.OfType<InheritedTimingPoint>().ToList().Where(x => time + 2 >= x.Time.TotalMilliseconds).Last() ?? null;
+    }
+    /// <summary>
+    /// Returns the volume at the specified time.
+    /// </summary>
+    /// <param name="time"></param>
+    /// <param name="lenience"></param>
+    /// <returns></returns>
+    public uint GetVolumeAt(double time, int lenience = 2)
+    {
+        var timingPoint = TimingPointList.Where(x => x.Time.TotalMilliseconds <= time).LastOrDefault();
+        return timingPoint?.Volume ?? 100; ;
+    }
+
+    /// <summary>
+    /// Returns the BPM at the specified time.
+    /// Defaults to 120 BPM if no timing point is found.
+    /// </summary>
+    /// <param name="time"></param>
+    /// <param name="lenience"></param>
+    /// <returns></returns>
+    public double GetBpmAt(double time, int lenience = 2)
+    {
+        var timingPoint = GetUninheritedTimingPointAt(time, lenience);
+        return 60000 / (timingPoint?.BeatLength ?? 500); ;
+    }
+
+    /// <summary>
+    /// Returns the slider velocity at the specified time.
+    /// </summary>
+    /// <param name="time"></param>
+    /// <param name="lenience"></param>
+    /// <returns></returns>
+    public double GetSliderVelocityAt(double time, int lenience = 2)
+    {
+        var timingPoint = GetInheritedTimingPointAt(time, lenience);
+        return timingPoint?.SliderVelocity ?? 1;
+    }
+
 }

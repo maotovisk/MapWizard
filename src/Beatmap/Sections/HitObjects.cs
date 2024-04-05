@@ -33,8 +33,10 @@ public class HitObjects : IHitObjects
     /// Converts a list of strings into a <see cref="HitObjects"/> object.
     /// </summary>
     /// <param name="lines"></param>
+    /// <param name="timingPoints"></param>
+    /// <param name="difficulty"></param>
     /// <returns></returns>
-    public static HitObjects Decode(List<string> lines)
+    public static HitObjects Decode(List<string> lines, TimingPoints timingPoints, Difficulty difficulty)
     {
         List<IHitObject> result = [];
         try
@@ -48,7 +50,7 @@ public class HitObjects : IHitObjects
                 IHitObject hitObject = type switch
                 {
                     HitObjectType.Circle => Circle.Decode(split),
-                    HitObjectType.Slider => Slider.Decode(split),
+                    HitObjectType.Slider => Slider.Decode(split, timingPoints, difficulty),
                     HitObjectType.Spinner => Spinner.Decode(split),
                     HitObjectType.ManiaHold => ManiaHold.Decode(split),
                     _ => HitObject.Decode(split),

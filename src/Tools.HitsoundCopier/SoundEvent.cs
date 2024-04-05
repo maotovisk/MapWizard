@@ -30,7 +30,7 @@ public class SoundEvent()
     /// <summary>
     /// Gets or sets the volume of the sound event.
     /// </summary>
-    public int Volume { get; set; }
+    public uint Volume { get; set; }
 
     /// <summary>
     /// Initializes a new instance of the SoundEvent class.
@@ -40,7 +40,7 @@ public class SoundEvent()
     /// <param name="normalSample">The normal sample set for the sound event.</param>
     /// <param name="additionSample">The addition sample set for the sound event.</param>
     /// <param name="volume">The volume of the sound event.</param>
-    public SoundEvent(TimeSpan time, List<HitSound> hitSounds, SampleSet normalSample, SampleSet additionSample, int volume)
+    public SoundEvent(TimeSpan time, List<HitSound> hitSounds, SampleSet normalSample, SampleSet additionSample, uint volume)
         : this()
     {
         Time = time;
