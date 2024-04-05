@@ -149,14 +149,14 @@ public class Slider : HitObject, ISlider
                         var split = x.Split(':');
                         return new Vector2(float.Parse(split[0]), float.Parse(split[1]));
                     }).ToList(),
-                Repeats = uint.Parse(split[6]),
-                Length = double.Parse(split[7], CultureInfo.InvariantCulture),
+                Repeats = uint.Parse(split[6] == "NaN" ? "1" : split[6]),
+                Length = double.Parse(split[7] == "NaN" ? "0" : split[7], CultureInfo.InvariantCulture),
                 EndTime = Helper.CalculateEndTime(
                     sliderVelocity: difficulty.SliderMultiplier * timingPoints.GetSliderVelocityAt(double.Parse(split[2], CultureInfo.InvariantCulture)),
                     beatLength: timingPoints.GetUninheritedTimingPointAt(double.Parse(split[2], CultureInfo.InvariantCulture))?.BeatLength ?? 500,
                     startTime: TimeSpan.FromMilliseconds(double.Parse(split[2], CultureInfo.InvariantCulture)),
-                    pixelLength: double.Parse(split[7], CultureInfo.InvariantCulture),
-                    repeats: int.Parse(split[6])
+                    pixelLength: double.Parse(split[7] == "NaN" ? "0" : split[7], CultureInfo.InvariantCulture),
+                    repeats: int.Parse(split[6] == "NaN" ? "1" : split[6])
                 ),
                 HeadSounds = sliderHitSounds.Count == 0 ? (new HitSample(), new List<HitSound>()) : sliderHitSounds[0],
                 RepeatSounds = sliderHitSounds.Count > 2 ? sliderHitSounds[1..^1] : null,

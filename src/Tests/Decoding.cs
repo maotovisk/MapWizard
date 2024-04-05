@@ -20,7 +20,6 @@ public class Decoding
 
         Console.ReadKey();
 
-
         var options = new ProgressBarOptions
         {
             BackgroundCharacter = '\u2593',

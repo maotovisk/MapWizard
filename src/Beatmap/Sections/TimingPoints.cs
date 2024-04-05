@@ -54,7 +54,7 @@ public class TimingPoints : ITimingPoints
                 var sampleSet = split.Length >= 4 ? (SampleSet)Enum.Parse(typeof(SampleSet), split[3]) : SampleSet.Normal;
                 var sampleIndex = split.Length >= 5 ? uint.Parse(split[4]) : 0;
                 var volume = split.Length >= 6 ? uint.Parse(split[5]) : 100;
-                var timingChange = split.Length >= 7 && int.Parse(split[6]) == 1;
+                var timingChange = split.Length >= 7 && int.Parse(split[6]) == 1 || split.Length < 7 && beatLength >= 0;
                 var effects = split.Length >= 8 ? Helper.ParseEffects(int.Parse(split[7])) : [];
 
                 ITimingPoint timingPoint;
@@ -129,9 +129,10 @@ public class TimingPoints : ITimingPoints
     {
         if (TimingPointList.Count == 0) return null;
 
-        if (TimingPointList.OfType<UninheritedTimingPoint>().ToList().Count == 0) return null;
+        var matchingTimingPoints = TimingPointList.OfType<UninheritedTimingPoint>().ToList().Where(x => time + lenience >= x.Time.TotalMilliseconds || time - lenience >= x.Time.TotalMilliseconds).ToList();
+        if (matchingTimingPoints.Count == 0) return null;
 
-        return TimingPointList.OfType<UninheritedTimingPoint>().ToList().Where(x => time + 2 >= x.Time.TotalMilliseconds).Last() ?? null;
+        return matchingTimingPoints.Last();
     }
 
     /// <summary>
@@ -144,10 +145,12 @@ public class TimingPoints : ITimingPoints
     {
         if (TimingPointList.Count == 0) return null;
 
-        if (TimingPointList.OfType<InheritedTimingPoint>().ToList().Count == 0) return null;
+        var matchingTimingPoints = TimingPointList.OfType<InheritedTimingPoint>().ToList().Where(x => time + lenience >= x.Time.TotalMilliseconds || time - lenience >= x.Time.TotalMilliseconds).ToList();
+        if (matchingTimingPoints.Count == 0) return null;
 
-        return TimingPointList.OfType<InheritedTimingPoint>().ToList().Where(x => time + 2 >= x.Time.TotalMilliseconds).Last() ?? null;
+        return matchingTimingPoints.Last();
     }
+
     /// <summary>
     /// Returns the volume at the specified time.
     /// </summary>
@@ -184,5 +187,4 @@ public class TimingPoints : ITimingPoints
         var timingPoint = GetInheritedTimingPointAt(time, lenience);
         return timingPoint?.SliderVelocity ?? 1;
     }
-
 }
