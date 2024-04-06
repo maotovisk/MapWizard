@@ -276,120 +276,127 @@ public class Beatmap : IBeatmap
     /// <summary>
     /// Applies a hitsound to hitobjects at the specified time.
     /// </summary>
-    /// <param name="time"></param>
-    /// <param name="hitSound"></param>
+    /// <param name="hitSoundTimeline"></param>
     /// <param name="leniency"></param>
-    public void ApplyNonDraggableHitsoundAt(double time, SoundEvent hitSound, int leniency = 2)
+    public void ApplyNonDraggableHitsounds(SoundTimeline hitSoundTimeline, int leniency = 2)
     {
         if (HitObjects == null) return;
         if (TimingPoints == null) return;
 
         if (HitObjects is Sections.HitObjects section)
         {
-            var hitObject = section.GetHitObjectAt(time);
-            if (hitObject == null) return;
-
-            if (hitObject is Circle circle)
+            foreach (var hitObject in HitObjects.Objects)
             {
-                // We want to change the hitsound of the circle
-                circle.HitSounds = (new HitSample(
-                    normalSet: hitSound.NormalSample,
-                    additionSet: hitSound.AdditionSample,
-                    circle.HitSounds.SampleData.Index,
-                    circle.HitSounds.SampleData.Volume,
-                    circle.HitSounds.SampleData.FileName
-                ), hitSound.HitSounds);
+                if (hitObject is Circle circle)
+                {
+                    var currentSound = hitSoundTimeline.GetSoundAtTime(circle.Time);
 
-                HitObjects.Objects[HitObjects.Objects.IndexOf(hitObject)] = circle;
-            }
-            else if (hitObject is Slider slider)
-            {
-                // Since we are not changing the hitsound of the slider, we will change the hitsound of the head
-                if (Math.Abs(time - slider.Time.TotalMilliseconds) <= leniency)
-                {
-                    slider.HitSounds = (new HitSample(
-                        normalSet: hitSound.NormalSample,
-                        additionSet: hitSound.AdditionSample,
-                        slider.HeadSounds.SampleData.Index,
-                        slider.HeadSounds.SampleData.Volume,
-                        slider.HeadSounds.SampleData.FileName
-                    ), hitSound.HitSounds);
-                }
-                else
-                {
-                    // We want to change the hitsound of the repeats, so we need to calculate the time of the repeats based on the number of repeats and the difference between the end time and the start time of the slider
-                    for (int i = 1; i < slider.Repeats; i++)
+                    if (currentSound != null && (Math.Abs(circle.Time.TotalMilliseconds - currentSound.Time.TotalMilliseconds) <= leniency))
                     {
-                        var repeatTime = (slider.EndTime - slider.Time) / slider.Repeats * i + slider.Time;
-                        if (Math.Abs(repeatTime.TotalMilliseconds - time) <= leniency && slider.RepeatSounds != null && slider.RepeatSounds.Count == slider.Repeats)
-                        {
-                            var oldSounds = slider.RepeatSounds;
-                            oldSounds[i] = (new HitSample(
-                                normalSet: hitSound.NormalSample,
-                                additionSet: hitSound.AdditionSample,
-                                index: oldSounds[i].SampleData.Index,
-                                volume: oldSounds[i].SampleData.Volume,
-                                fileName: oldSounds[i].SampleData.FileName
-                            ), hitSound.HitSounds);
+                        circle.HitSounds = (new HitSample(
+                            normalSet: currentSound.NormalSample,
+                            additionSet: currentSound.AdditionSample,
+                            0,
+                            0,
+                            circle.HitSounds.SampleData.FileName
+                        ), currentSound.HitSounds);
+                    }
+                }
+                else if (hitObject is Slider slider)
+                {
+                    var currentHeadSound = hitSoundTimeline.GetSoundAtTime(slider.Time);
 
-                            slider.RepeatSounds = oldSounds;
+                    if (currentHeadSound != null && (Math.Abs(slider.Time.TotalMilliseconds - currentHeadSound.Time.TotalMilliseconds) <= leniency))
+                    {
+                        slider.HeadSounds = (new HitSample(
+                            normalSet: currentHeadSound.NormalSample,
+                            additionSet: currentHeadSound.AdditionSample,
+                            0,
+                            0,
+                            slider.HeadSounds.SampleData.FileName
+                        ), currentHeadSound.HitSounds);
+                    }
+
+                    // Update the repeats sounds
+                    if (slider.Repeats > 1 && slider.RepeatSounds != null && slider.RepeatSounds.Count == (slider.Repeats - 1))
+                    {
+                        for (var i = 0; i < slider.Repeats - 1; i++)
+                        {
+                            var repeatSound = hitSoundTimeline.GetSoundAtTime(TimeSpan.FromMilliseconds(Math.Round(slider.Time.TotalMilliseconds + (slider.EndTime.TotalMilliseconds - slider.Time.TotalMilliseconds) / slider.Repeats * (i + 1))));
+
+                            if (repeatSound != null)
+                            {
+                                slider.RepeatSounds[i] = (new HitSample(
+                                    normalSet: repeatSound.NormalSample,
+                                    additionSet: repeatSound.AdditionSample,
+                                    0,
+                                    0,
+                                    slider.RepeatSounds[i].SampleData.FileName
+                                ), repeatSound.HitSounds);
+                            }
                         }
                     }
 
-                    if (Math.Abs(time - slider.EndTime.TotalMilliseconds) <= leniency)
+                    // Update the tail sound
+                    var currentEndSound = hitSoundTimeline.GetSoundAtTime(slider.EndTime);
+
+                    if (currentEndSound != null && (Math.Abs(slider.EndTime.TotalMilliseconds - currentEndSound.Time.TotalMilliseconds) <= leniency))
                     {
                         slider.TailSounds = (new HitSample(
-                            normalSet: hitSound.NormalSample,
-                            additionSet: hitSound.AdditionSample,
-                            slider.TailSounds.SampleData.Index,
-                            slider.TailSounds.SampleData.Volume,
+                            normalSet: currentEndSound.NormalSample,
+                            additionSet: currentEndSound.AdditionSample,
+                            0,
+                            0,
                             slider.TailSounds.SampleData.FileName
-                        ), hitSound.HitSounds);
+                        ), currentEndSound.HitSounds);
                     }
                 }
+                else if (hitObject is Spinner spinner)
+                {
+                    var currentSound = hitSoundTimeline.GetSoundAtTime(spinner.End);
 
-                HitObjects.Objects[HitObjects.Objects.IndexOf(hitObject)] = slider;
-            }
-            else if (hitObject is Spinner spinner)
-            {
-                spinner.HitSounds = (new HitSample(
-                            normalSet: hitSound.NormalSample,
-                            additionSet: hitSound.AdditionSample,
-                            spinner.HitSounds.SampleData.Index,
-                            spinner.HitSounds.SampleData.Volume,
+                    if (currentSound != null && (Math.Abs(spinner.End.TotalMilliseconds - currentSound.Time.TotalMilliseconds) <= leniency))
+                    {
+                        spinner.HitSounds = (new HitSample(
+                            normalSet: currentSound.NormalSample,
+                            additionSet: currentSound.AdditionSample,
+                            0,
+                            0,
                             spinner.HitSounds.SampleData.FileName
-                        ), hitSound.HitSounds);
-                HitObjects.Objects[HitObjects.Objects.IndexOf(hitObject)] = spinner;
+                        ), currentSound.HitSounds);
+                    }
+                }
             }
-
         }
     }
 
     /// <summary>
     /// Applies a hitsound to draggable hitobjects (Sliders) at the specified time.
     /// </summary>
-    /// <param name="time"></param>
-    /// <param name="hitSound"></param>
+    /// <param name="bodyTimeline"></param>
     /// <param name="leniency"></param>
-    public void ApplyDraggableHitsoundAt(double time, SoundEvent hitSound, int leniency = 2)
+    public void ApplyDraggableHitsounds(SoundTimeline bodyTimeline, int leniency = 2)
     {
         if (HitObjects == null) return;
 
         if (HitObjects is Sections.HitObjects section)
         {
-            var hitObject = section.GetHitObjectAt(time);
-
-            if (hitObject is Slider slider && (Math.Abs(slider.Time.TotalMilliseconds - time) <= leniency))
+            foreach (var hitObject in HitObjects.Objects)
             {
-                slider.HitSounds = (new HitSample(
-                    normalSet: hitSound.NormalSample,
-                    additionSet: hitSound.AdditionSample,
-                    slider.HitSounds.SampleData.Index,
-                    slider.HitSounds.SampleData.Volume,
-                    slider.HitSounds.SampleData.FileName
-                ), hitSound.HitSounds);
-
-                HitObjects.Objects[HitObjects.Objects.IndexOf(hitObject)] = slider;
+                if (hitObject is Slider slider)
+                {
+                    var currentBodySound = bodyTimeline.GetSoundAtTime(slider.Time);
+                    if (currentBodySound != null && (Math.Abs(slider.Time.TotalMilliseconds - currentBodySound.Time.TotalMilliseconds) <= leniency))
+                    {
+                        slider.HitSounds = (new HitSample(
+                                normalSet: currentBodySound.NormalSample,
+                                additionSet: currentBodySound.AdditionSample,
+                                0,
+                                0,
+                                slider.TailSounds.SampleData.FileName
+                            ), currentBodySound.HitSounds);
+                    }
+                }
             }
         }
     }
@@ -405,47 +412,37 @@ public class Beatmap : IBeatmap
 
         if (TimingPoints is TimingPoints section)
         {
-
-            var newTimingPoints = new List<ITimingPoint>();
-            foreach (var sampleSetEvent in timeline.HitSamples)
-            {
-                var timingPoint = section.GetTimingPointAt(sampleSetEvent.Time);
-
-                if (timingPoint != null)
-                {
-                    var currentSliderVelocity = section.GetSliderVelocityAt(sampleSetEvent.Time);
-                    if (timingPoint.Time.TotalMilliseconds < sampleSetEvent.Time)
-                    {
-                        var inheritedTimingPoint = new InheritedTimingPoint(TimeSpan.FromMilliseconds(sampleSetEvent.Time), sampleSetEvent.Sample, (uint)sampleSetEvent.Index, (uint)sampleSetEvent.Volume, timingPoint.Effects, currentSliderVelocity);
-                        newTimingPoints.Add(inheritedTimingPoint);
-                    }
-                    else
-                    {
-                        timingPoint.SampleSet = sampleSetEvent.Sample;
-                        timingPoint.SampleIndex = (uint)sampleSetEvent.Index;
-                        timingPoint.Volume = (uint)sampleSetEvent.Volume;
-
-                        newTimingPoints.Add(timingPoint);
-                    }
-                }
-            }
-
             foreach (var timingPoint in section.TimingPointList)
             {
+                var sampleSet = timeline.GetSampleAtTime(timingPoint.Time.TotalMilliseconds);
 
-                var sampleSet = timeline.GetSampleAtTime(timingPoint.Time.TotalMilliseconds, leniency);
+                if (sampleSet == null) continue;
 
-                var timingPointCopy = newTimingPoints.FirstOrDefault(x => x.Time.TotalMilliseconds == timingPoint.Time.TotalMilliseconds);
-
-                if (sampleSet != null && timingPointCopy != null)
-                {
-                    timingPointCopy.SampleSet = sampleSet.Sample;
-                    timingPointCopy.SampleIndex = (uint)sampleSet.Index;
-                    timingPointCopy.Volume = (uint)sampleSet.Volume;
-                }
+                timingPoint.SampleSet = sampleSet.Sample;
+                timingPoint.SampleIndex = (uint)sampleSet.Index;
+                timingPoint.Volume = (uint)sampleSet.Volume;
             }
 
-            TimingPoints.TimingPointList = [.. newTimingPoints.OrderBy(x => x.Time.TotalMilliseconds)];
+            // Add the missing timing points 
+            foreach (var sound in timeline.HitSamples)
+            {
+                var currentUninherited = section.GetUninheritedTimingPointAt(sound.Time);
+                var currentInherited = section.GetInheritedTimingPointAt(sound.Time);
+
+                if (currentUninherited == null) continue;
+
+                if (currentInherited == null)
+                {
+                    section.TimingPointList.Add(new InheritedTimingPoint(
+                        time: TimeSpan.FromMilliseconds(sound.Time),
+                        sampleSet: sound.Sample,
+                        sampleIndex: (uint)sound.Index,
+                        volume: (uint)sound.Volume,
+                        effects: currentUninherited.Effects,
+                        sliderVelocity: section.GetSliderVelocityAt(sound.Time)
+                    ));
+                }
+            }
         }
     }
 }

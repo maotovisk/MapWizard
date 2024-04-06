@@ -29,6 +29,6 @@ public class SoundTimeline()
     /// <returns></returns>
     public SoundEvent? GetSoundAtTime(TimeSpan time)
     {
-        return SoundEvents.FirstOrDefault(x => x.Time == time);
+        return SoundEvents.FirstOrDefault(x => Math.Abs((x.Time - time).TotalMilliseconds) <= 1);
     }
 }

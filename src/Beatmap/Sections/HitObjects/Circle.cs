@@ -37,4 +37,14 @@ public class Circle : HitObject, ICircle
     public Circle(HitObject baseObject) : base(baseObject.Coordinates, baseObject.Time, baseObject.Type, baseObject.HitSounds, baseObject.NewCombo, baseObject.ComboColour)
     {
     }
+
+    /// <summary>
+    /// Parses a hit object from a string.
+    /// </summary>
+    /// <param name="splitData"></param>
+    /// <returns></returns>
+    public new static Circle Decode(List<string> splitData)
+    {
+        return new Circle(HitObject.Decode(splitData));
+    }
 }

@@ -162,7 +162,7 @@ public class TimingPoints : ITimingPoints
             return closestInheritedTimingPoint;
         }
 
-        return closestInheritedTimingPoint.Time > closestUninheritedTimingPoint.Time ? closestInheritedTimingPoint : null;
+        return closestInheritedTimingPoint.Time >= closestUninheritedTimingPoint.Time ? closestInheritedTimingPoint : null;
     }
 
     /// <summary>
@@ -204,15 +204,15 @@ public class TimingPoints : ITimingPoints
     /// </summary>
     /// <param name="time"></param>
     /// <returns></returns>
-    public ITimingPoint? GetTimingPointAt(double time)
+    public List<ITimingPoint> GetTimingPointsAt(double time)
     {
         var matchingTimingPoints = TimingPointList.Where(x => x.Time.TotalMilliseconds <= time)
         .OrderByDescending(x => x is InheritedTimingPoint)
         .ThenBy(x => x.Time)
         .ToList();
 
-        if (matchingTimingPoints.Count == 0) return null;
+        if (matchingTimingPoints.Count == 0) return [];
 
-        return matchingTimingPoints.Last();
+        return matchingTimingPoints;
     }
 }

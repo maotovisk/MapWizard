@@ -25,6 +25,6 @@ public partial class Helper
     /// <returns></returns>
     public static TimeSpan CalculateEndTime(double sliderMultiplier, double beatLength, TimeSpan startTime, double pixelLength, int repeats)
     {
-        return TimeSpan.FromMilliseconds(startTime.TotalMilliseconds + pixelLength / (100 * sliderMultiplier) * beatLength * repeats);
+        return TimeSpan.FromMilliseconds(Math.Round(startTime.TotalMilliseconds + pixelLength / (100d * sliderMultiplier) * beatLength * repeats, MidpointRounding.ToEven));
     }
 }
