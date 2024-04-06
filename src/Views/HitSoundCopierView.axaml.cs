@@ -5,15 +5,12 @@ using Material.Dialog;
 
 namespace MapWizard.Views;
 
-public partial class MainWindow : Window
+public partial class HitSoundCopierView : Window
 {
-    public UserControl HitSoundCopierView { get; } = new UserControl();
-
-    public MainWindow()
+    public HitSoundCopierView()
     {
         InitializeComponent();
     }
-
 
     private void InitializeComponent()
     {

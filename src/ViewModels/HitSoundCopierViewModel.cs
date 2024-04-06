@@ -1,12 +1,10 @@
+using Avalonia.Controls;
 using Material.Dialog;
-using ReactiveUI;
 
 namespace MapWizard.ViewModels;
 
-public class MainWindowViewModel : ViewModelBase
+public class HitSoundCopierViewModel : ViewModelBase
 {
-    public string Greeting => "Welcome to Avalonia!";
-
     public void ShowDialog()
     {
         var dialog = DialogHelper.CreateAlertDialog(new AlertDialogBuilderParams()
