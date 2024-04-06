@@ -1,11 +1,12 @@
 namespace BeatmapParser;
+
 /// <summary>
-///
+/// 
 /// </summary>
-public interface IEvent : IEncodable
+public interface ICommand : IEncodable
 {
     /// <summary>
     /// 
     /// </summary>
-    public EventType Type { get; init; }
+    public CommandTypes Type { get; init; }
 }

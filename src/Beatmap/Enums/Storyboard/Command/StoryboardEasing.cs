@@ -2,7 +2,7 @@ namespace BeatmapParser;
 /// <summary>
 /// Represents the easing functions used in a storyboard.
 /// </summary>
-public enum StoryboardEasing
+public enum Easing
 {
     /// <summary>
     /// Linear: no easing

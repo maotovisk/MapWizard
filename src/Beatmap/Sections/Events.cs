@@ -1,5 +1,4 @@
 using System.Text;
-using System.Text.Json.Serialization;
 
 namespace BeatmapParser.Sections;
 
@@ -36,18 +35,55 @@ public class Events : IEvents
     /// <returns></returns>
     public static Events Decode(List<string> section)
     {
-        List<IEvent> result = [];
+        List<IEvent> events = [];
         try
         {
-            section.ForEach(sectionLine =>
+            for (var index = 0; index != section.Count; ++index)
             {
-                if (sectionLine.StartsWith("//"))
-                    return;
+                if (section[index].StartsWith("//")) continue;
 
-                result.Add(GeneralEvent.Decode(sectionLine));
-            });
+                var eventSplit = section[index].Split(',', 2);
+                if(eventSplit.Length != 2) throw new Exception("invalid event length");
+                var eventIndentification = (EventTypes)Enum.Parse(typeof(EventTypes), eventSplit[1].Trim());
 
-            return new Events(result);
+                Type eventType = eventIndentification switch
+                {
+                    EventTypes.Background => typeof(Background),
+                    EventTypes.Video => typeof(Video),
+                    EventTypes.Break => typeof(Break),
+                    _ => throw new Exception($"Unhandled event with indentification \'{eventIndentification}\'."),
+                };
+
+                var decodeFunction = eventType.GetType().GetMethod("Decode") ?? throw new Exception($"{eventType.Name} is missing \'Decode\' method.");
+
+                // Some events dont have commands and need to be parsed diferently
+                if (!eventType.GetInterfaces().Contains(typeof(ICommand)))
+                {
+                    var normalEvent = decodeFunction.Invoke(null, [eventSplit]) ?? throw new Exception($"Failed to \'Decode()\' event with type \'{eventType.Name}\'.");
+                    events.Add((IEvent)normalEvent);
+                    continue;
+                }
+
+                List<string> commands = [];
+                while (index != section.Count)
+                {
+                    var commandSplit = eventSplit[1].Split(',', 2);
+                    if(commandSplit.Length != 2) throw new Exception("invalid command length");
+                    var commandIndentification = (int)commandSplit[0].Trim().Last();
+
+                    bool isCommand = false;
+                    
+                    if(!isCommand) break;
+                    
+                    commands.Add(section[index]);
+                    ++index;
+                }
+
+                var eventObj = decodeFunction.Invoke(null, [eventSplit, commands]) ?? throw new Exception($"Failed to \'Decode\' event with type \'{eventType.Name}\'");
+                events.Add((IEvent)eventObj);
+            }
+
+            return new Events(events);
         }
         catch (Exception ex)
         {
@@ -61,14 +97,14 @@ public class Events : IEvents
     /// <returns></returns>
     public string Encode()
     {
-        StringBuilder sb = new();
+        StringBuilder builder = new();
 
-        foreach (var ev in EventList)
+        foreach (var _event in EventList)
         {
-            if (ev is GeneralEvent @event)
-                sb.AppendLine($"{@event.Type},{string.Join(",", @event.Params)}");
+            var EncodeInfo = _event.GetType().GetMethod("Encode") ?? throw new Exception($"{_event} do not have method \'Encode\'.");
+            var EncodeResult = EncodeInfo.Invoke(null, null) ?? throw new Exception($"Failed to \'Encode\' event at \'{_event}\'");
+            builder.AppendLine((string)EncodeResult);
         }
-
-        return sb.ToString();
+        return builder.ToString();
     }
 }
