@@ -1,5 +1,5 @@
 using System.Text;
-using BeatmapParser;
+using MapWizard.BeatmapParser;
 using ShellProgressBar;
 
 namespace MapWizard.Tests;

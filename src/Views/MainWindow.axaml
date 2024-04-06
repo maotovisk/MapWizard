@@ -14,16 +14,4 @@
              to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
         <vm:MainWindowViewModel />
     </Design.DataContext>
-
-    <TabControl>
-        <TabControl.Items>
-            <TabItem Header="Item 1">
-                <TextBlock Classes="Centered" Text="Page 1" />
-            </TabItem>
-            <TabItem Header="Item 3">
-                <TextBlock Classes="Centered" Text="Page 3" />
-            </TabItem>
-        </TabControl.Items>
-    </TabControl>
-
 </Window>
