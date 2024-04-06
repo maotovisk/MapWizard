@@ -1,7 +1,6 @@
-using System;
 using System.Numerics;
 
-namespace BeatmapParser;
+namespace MapWizard.BeatmapParser;
 
 /// <summary>
 /// 

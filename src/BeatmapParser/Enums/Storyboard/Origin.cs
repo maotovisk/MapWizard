@@ -1,4 +1,4 @@
-namespace BeatmapParser;
+namespace MapWizard.BeatmapParser;
 
 /// <summary>
 /// 

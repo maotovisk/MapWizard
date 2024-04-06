@@ -1,7 +1,6 @@
-using System.Globalization;
 using System.Text;
 
-namespace BeatmapParser;
+namespace MapWizard.BeatmapParser;
 
 /// <summary>
 /// 

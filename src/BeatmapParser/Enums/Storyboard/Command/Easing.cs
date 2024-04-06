@@ -1,4 +1,5 @@
 namespace MapWizard.BeatmapParser;
+
 /// <summary>
 /// Represents the easing functions used in a storyboard.
 /// </summary>
