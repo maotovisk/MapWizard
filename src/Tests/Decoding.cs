@@ -1,4 +1,4 @@
-using BeatmapParser;
+using MapWizard.BeatmapParser;
 using ShellProgressBar;
 
 namespace MapWizard.Tests;
@@ -19,7 +19,6 @@ public class Decoding
         Console.WriteLine($"{osuFiles.Length} files detected, press any key to start parsing ...");
 
         Console.ReadKey();
-
 
         var options = new ProgressBarOptions
         {

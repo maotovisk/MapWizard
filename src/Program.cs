@@ -1,15 +1,20 @@
-using System.IO;
-using System.Text;
-using BeatmapParser;
-using ShellProgressBar;
+using Avalonia;
 
 namespace MapWizard;
 
 class Program
 {
-    static void Main(FileInfo input, FileInfo output)
-    {
+    // Initialization code. Don't use any Avalonia, third-party APIs or any
+    // SynchronizationContext-reliant code before AppMain is called: things aren't initialized
+    // yet and stuff might break.
+    [STAThread]
+    public static void Main(string[] args) => BuildAvaloniaApp()
+        .StartWithClassicDesktopLifetime(args);
 
-
-    }
+    // Avalonia configuration, don't remove; also used by visual designer.
+    public static AppBuilder BuildAvaloniaApp()
+        => AppBuilder.Configure<App>()
+            .UsePlatformDetect()
+            .WithInterFont()
+            .LogToTrace();
 }

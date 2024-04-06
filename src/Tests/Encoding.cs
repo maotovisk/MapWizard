@@ -1,5 +1,5 @@
 using System.Text;
-using BeatmapParser;
+using MapWizard.BeatmapParser;
 using ShellProgressBar;
 
 namespace MapWizard.Tests;
@@ -14,7 +14,7 @@ public class Encoding
     /// Decode all beatmaps in the specified a specified path into a <see cref="Beatmap"/>
     /// , encodes it back and log the differences.
     /// </summary>
-    public static void EncodeAllBeatmaps(string folderPath)
+    public static void EncodeAllMapsFrom(string folderPath)
     {
         string[] osuFiles = Directory.GetFiles(folderPath, "*.osu", SearchOption.AllDirectories);
         Console.WriteLine($"{osuFiles.Length} files detected, press any key to start BOMBA ...");
