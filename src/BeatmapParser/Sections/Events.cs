@@ -28,6 +28,7 @@ public class Events : IEvents
     {
         EventList = eventList;
     }
+
     /// <summary>
     /// Converts a list of strings to a <see cref="Events"/> object.
     /// </summary>
@@ -43,7 +44,7 @@ public class Events : IEvents
                 if (section[index].StartsWith("//")) continue;
 
                 var eventSplit = section[index].Split(',', 2);
-                if(eventSplit.Length != 2) throw new Exception("invalid event length");
+                if (eventSplit.Length != 2) throw new Exception("invalid event length");
                 var eventIdentity = (EventTypes)Enum.Parse(typeof(EventTypes), eventSplit[1].Trim());
 
                 var eventType = eventIdentity switch
@@ -71,13 +72,13 @@ public class Events : IEvents
                 while (index != section.Count)
                 {
                     var commandSplit = eventSplit[1].Split(',', 2);
-                    if(commandSplit.Length != 2) throw new Exception("invalid command length");
+                    if (commandSplit.Length != 2) throw new Exception("invalid command length");
                     var commandIndentification = (int)commandSplit[0].Trim().Last();
 
                     bool isCommand = false;
-                    
-                    if(!isCommand) break;
-                    
+
+                    if (!isCommand) break;
+
                     commands.Add(section[index]);
                     ++index;
                 }
