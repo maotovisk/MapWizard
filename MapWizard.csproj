@@ -27,6 +27,7 @@
     <PackageReference Include="Material.Avalonia" Version="3.5.0" />
     <PackageReference Include="Material.Avalonia.DataGrid" Version="3.5.0" />
     <PackageReference Include="Material.Avalonia.Dialogs" Version="3.5.0" />
+    <PackageReference Include="Material.Icons.Avalonia" Version="2.1.0" />
     <PackageReference Include="ShellProgressBar" Version="5.2.0" />
   </ItemGroup>
 

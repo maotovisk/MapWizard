@@ -5,9 +5,9 @@ using Material.Dialog;
 
 namespace MapWizard.Views;
 
-public partial class HitSoundCopierView : Window
+public partial class HitSoundCopier : Window
 {
-    public HitSoundCopierView()
+    public HitSoundCopier()
     {
         InitializeComponent();
     }

@@ -44,14 +44,17 @@ public class Events : IEvents
 
                 var eventSplit = section[index].Split(',', 2);
                 if(eventSplit.Length != 2) throw new Exception("invalid event length");
-                var eventIndentification = (EventTypes)Enum.Parse(typeof(EventTypes), eventSplit[1].Trim());
+                var eventIdentity = (EventTypes)Enum.Parse(typeof(EventTypes), eventSplit[1].Trim());
 
-                Type eventType = eventIndentification switch
+                var eventType = eventIdentity switch
                 {
                     EventTypes.Background => typeof(Background),
                     EventTypes.Video => typeof(Video),
                     EventTypes.Break => typeof(Break),
-                    _ => throw new Exception($"Unhandled event with indentification \'{eventIndentification}\'."),
+                    EventTypes.Sample => typeof(Sample),
+                    EventTypes.Sprite => typeof(Sprite),
+                    EventTypes.Animation => typeof(Animation),
+                    _ => throw new Exception($"Unhandled event with indentification \'{eventIdentity}\'."),
                 };
 
                 var decodeFunction = eventType.GetType().GetMethod("Decode") ?? throw new Exception($"{eventType.Name} is missing \'Decode\' method.");
@@ -99,11 +102,11 @@ public class Events : IEvents
     {
         StringBuilder builder = new();
 
-        foreach (var _event in EventList)
+        foreach (var eventItem in EventList)
         {
-            var EncodeInfo = _event.GetType().GetMethod("Encode") ?? throw new Exception($"{_event} do not have method \'Encode\'.");
-            var EncodeResult = EncodeInfo.Invoke(null, null) ?? throw new Exception($"Failed to \'Encode\' event at \'{_event}\'");
-            builder.AppendLine((string)EncodeResult);
+            var encodeInfo = eventItem.GetType().GetMethod("Encode") ?? throw new Exception($"{eventItem} do not have method \'Encode\'.");
+            var encodeResult = encodeInfo.Invoke(null, null) ?? throw new Exception($"Failed to \'Encode\' event at \'{eventItem}\'");
+            builder.AppendLine((string)encodeResult);
         }
         return builder.ToString();
     }
