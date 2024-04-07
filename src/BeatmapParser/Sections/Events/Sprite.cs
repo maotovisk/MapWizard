@@ -68,7 +68,7 @@ public class Sprite : IEvent, ICommands
         Layer = Layer.Background;
         Origin = Origin.TopLeft;
         FilePath = string.Empty;
-        Position = new();
+        Position = new Vector2();
         Commands = [];
     }
 
@@ -105,10 +105,10 @@ public class Sprite : IEvent, ICommands
         List<ICommand> parsedCommands = [];
         foreach (var command in commands)
         {
-            var commandSplited = command.Trim().Split(',');
-            CommandTypes? indentification = (CommandTypes)Enum.Parse(typeof(CommandTypes), commandSplited[0]); // TODO FIX
+            var commandSplit = command.Trim().Split(',');
+            CommandTypes? identity = (CommandTypes)Enum.Parse(typeof(CommandTypes), commandSplit[0]); // TODO FIX
 
-            ICommand commandDecoded = indentification switch
+            ICommand commandDecoded = identity switch
             {
                 CommandTypes.Fade => Fade.Decode(result, parsedCommands, command),
                 CommandTypes.Move => Move.Decode(result, parsedCommands, command),
@@ -116,7 +116,7 @@ public class Sprite : IEvent, ICommands
                 CommandTypes.Rotate => Rotate.Decode(result, parsedCommands, command),
                 CommandTypes.Colour => Colour.Decode(result, parsedCommands, command),
                 CommandTypes.Parameter => Parameter.Decode(result, parsedCommands, command),
-                _ => throw new Exception($"Unhandled command type \'{indentification}\'"),
+                _ => throw new Exception($"Unhandled command type \'{identity}\'"),
             };
             parsedCommands.Add(commandDecoded);
         }

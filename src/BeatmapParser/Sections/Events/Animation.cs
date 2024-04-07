@@ -77,26 +77,26 @@ public class Animation : Sprite
         // Animation,(layer),(origin),"(filepath)",(x),(y),
         // (frameCount),(frameDelay),(looptype)
 
-        var lineSplited = line.Trim().Split(',');
+        var lineSplit = line.Trim().Split(',');
 
         var result = new Animation
         (
-            layer: (Layer)Enum.Parse(typeof(Layer), lineSplited[0]),
-            origin: (Origin)Enum.Parse(typeof(Origin), lineSplited[1]),
-            filePath: lineSplited[2],
-            position: new Vector2(int.Parse(lineSplited[3]), int.Parse(lineSplited[4])),
-            frameCount: uint.Parse(lineSplited[5]),
-            frameDelay: TimeSpan.FromMilliseconds(int.Parse(lineSplited[6])),
-            looptype: (LoopType)Enum.Parse(typeof(LoopType), lineSplited[7].Skip(4).ToString() ?? throw new Exception("Invalid looptype"))
+            layer: (Layer)Enum.Parse(typeof(Layer), lineSplit[0]),
+            origin: (Origin)Enum.Parse(typeof(Origin), lineSplit[1]),
+            filePath: lineSplit[2],
+            position: new Vector2(int.Parse(lineSplit[3]), int.Parse(lineSplit[4])),
+            frameCount: uint.Parse(lineSplit[5]),
+            frameDelay: TimeSpan.FromMilliseconds(int.Parse(lineSplit[6])),
+            looptype: (LoopType)Enum.Parse(typeof(LoopType), lineSplit[7].Skip(4).ToString() ?? throw new Exception("Invalid looptype"))
         );
 
         List<ICommand> parsedCommands = [];
         foreach (var command in commands)
         {
-            var commandSplited = command.Trim().Split(',');
-            CommandTypes? indentification = (CommandTypes)Enum.Parse(typeof(CommandTypes), commandSplited[0]); // TODO FIX
+            var commandSplit = command.Trim().Split(',');
+            CommandTypes? identity = (CommandTypes)Enum.Parse(typeof(CommandTypes), commandSplit[0]); // TODO FIX
 
-            ICommand commandDecoded = indentification switch
+            ICommand commandDecoded = identity switch
             {
                 CommandTypes.Fade => Fade.Decode(result, parsedCommands, command),
                 CommandTypes.Move => Move.Decode(result, parsedCommands, command),
@@ -104,7 +104,7 @@ public class Animation : Sprite
                 CommandTypes.Rotate => Rotate.Decode(result, parsedCommands, command),
                 CommandTypes.Colour => Colour.Decode(result, parsedCommands, command),
                 CommandTypes.Parameter => Parameter.Decode(result, parsedCommands, command),
-                _ => throw new Exception($"Unhandled command type \'{indentification}\'"),
+                _ => throw new Exception($"Unhandled command type \'{identity}\'"),
             };
             parsedCommands.Add(commandDecoded);
         }
