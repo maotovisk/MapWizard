@@ -67,11 +67,11 @@ public class Colour : ICommand
     /// <param name="parsedCommands"></param>
     /// <param name="command"></param>
     /// <returns></returns>
-    public static Colour Decode(IEvent result, List<ICommand> parsedCommands, string command)
+    public static Colour Decode(List<ICommand> parsedCommands, List<string> commands, int commandindex)
     {
-        // _C,(easing),(starttime),(endtime),(start_r),(start_g),(start_b),(end_r),(end_g),(end_b
+        // _C,(easing),(starttime),(endtime),(start_r),(start_g),(start_b),(end_r),(end_g),(end_b)
 
-        var commandSplit = command.Trim().Split(',');
+        var commandSplit = commands[commandindex].Trim().Split(',');
         return new Colour
         (
             easing: (Easing)Enum.Parse(typeof(Easing), commandSplit[0]),

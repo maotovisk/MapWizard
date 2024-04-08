@@ -24,4 +24,11 @@ public enum Layer : int
     /// 
     /// </summary>
     Foreground = 3,
+
+    /// <summary>
+    /// 
+    /// </summary>
+    Video = 4,
+
+    Overlay = int.MinValue
 }

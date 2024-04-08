@@ -5,7 +5,7 @@ namespace MapWizard.BeatmapParser;
 /// <summary>
 /// 
 /// </summary>
-public class Trigger : ICommand
+public class Trigger : ICommand, ICommands
 {
     /// <summary>
     /// 
@@ -15,7 +15,7 @@ public class Trigger : ICommand
     /// <summary>
     /// 
     /// </summary>
-    public object? TriggerType { get; set; }
+    public string TriggerType { get; set; }
 
     /// <summary>
     /// 
@@ -39,7 +39,7 @@ public class Trigger : ICommand
     /// <param name="startTime"></param>
     /// <param name="endTime"></param>
     /// <param name="commands"></param>
-    private Trigger(object? triggerType, TimeSpan startTime, TimeSpan endTime,List<ICommand> commands)
+    private Trigger(string triggerType, TimeSpan startTime, TimeSpan endTime, List<ICommand> commands)
     {
         TriggerType = triggerType;
         StartTime = startTime;
@@ -52,19 +52,35 @@ public class Trigger : ICommand
     /// </summary>
     /// <param name="result"></param>
     /// <param name="parsedCommands"></param>
-    /// <param name="command"></param>
+    /// <param name="commandline"></param>
     /// <returns></returns>
-    public static Trigger Decode(IEvent result, List<ICommand> parsedCommands, string command)
+    public static Trigger Decode(List<ICommand> parsedCommands, List<string> commands, int startindex)
     {
         // _T,(triggerType),(starttime),(endtime)
 
-        var commandSplit = command.Trim().Split(',');
+        var eventStartIndex = startindex + 1;
+        var eventEndIndex = 0;
+
+        List<ICommand> eventParsedCommands = [];
+
+        for (var index = eventStartIndex; index != commands.Count; ++index)
+        {
+            if (!commands[index].StartsWith("  ") || !commands[index].StartsWith("  ")) break;
+
+            eventParsedCommands.Add(Helper.ParseCommand(parsedCommands, commands, index));
+            eventEndIndex = index;
+        }
+
+        // this is done to avoid the sub commands to be parsed again
+        commands.RemoveRange(eventStartIndex, eventEndIndex);
+
+        var commandSplit = commands[startindex].Split(',');
         return new Trigger
         (
-            triggerType: null, // TODO
+            triggerType: commandSplit[1],
             startTime: TimeSpan.FromMilliseconds(int.Parse(commandSplit[2])),
             endTime: TimeSpan.FromMilliseconds(int.Parse(commandSplit[3])),
-            commands: [] // TODO
+            commands: eventParsedCommands
         );
     }
 

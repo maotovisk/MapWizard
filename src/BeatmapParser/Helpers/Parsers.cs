@@ -122,6 +122,83 @@ public partial class Helper
     public static Vector3 ParseVector3(string vectorString)
     {
         string[] split = vectorString.Split(',');
-        return new Vector3(float.Parse(split[0], CultureInfo.InvariantCulture), float.Parse(split[1], CultureInfo.InvariantCulture), float.Parse(split[2], CultureInfo.InvariantCulture));
+        return new Vector3(float.Parse(split[0], CultureInfo.InvariantCulture),
+            float.Parse(split[1], CultureInfo.InvariantCulture), float.Parse(split[2], CultureInfo.InvariantCulture));
+    }
+
+    /// <summary>
+    /// Parses a Event type from a string array.
+    /// </summary>
+    /// <param name="eventLine"></param>
+    /// <returns></returns>
+    /// <exception cref="Exception"></exception>
+    public static EventTypes ParseEventType(string[] eventLine)
+    {
+
+        string eventType = eventLine[0].Trim();
+
+        foreach (EventTypes type in Enum.GetValues(typeof(EventType)))
+        {
+            if (type.ToString().Equals(eventType, StringComparison.CurrentCultureIgnoreCase) ||
+                ((int)type).ToString().Equals(eventType, StringComparison.CurrentCultureIgnoreCase))
+                return type;
+        }
+
+        throw new Exception($"Invalid event type: {eventType}");
+    }
+
+    /// <summary>
+    /// Returns the <see cref="Type"/> of an event.
+    /// </summary>
+    /// <param name="eventIdentity"></param>
+    /// <returns></returns>
+    /// <exception cref="Exception"></exception>
+
+    public static Type GetEventType(EventTypes eventIdentity)
+    {
+        return eventIdentity switch
+        {
+            EventTypes.Background => typeof(Background),
+            EventTypes.Video => typeof(Video),
+            EventTypes.Break => typeof(Break),
+            EventTypes.Sample => typeof(Sample),
+            EventTypes.Sprite => typeof(Sprite),
+            EventTypes.Animation => typeof(Animation),
+            _ => throw new Exception($"Unhandled event with identification '{eventIdentity}'."),
+        };
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="commandLine"></param>
+    /// <returns></returns>
+    /// <exception cref="Exception"></exception>
+    public static CommandTypes ParseCommandType(string commandLine)
+    {
+        var commandType = (int)commandLine.Trim().Last();
+
+        foreach (CommandTypes type in Enum.GetValues(typeof(CommandTypes)))
+        {
+            if ((int)type == commandType) return type;
+        }
+        throw new Exception($"Invalid command type: {commandType}");
+    }
+
+
+    public static ICommand ParseCommand(List<ICommand> parsedCommands, List<string> commands, int commandindex)
+    {
+        CommandTypes identity = ParseCommandType(commands[commandindex]);
+        ICommand commandDecoded = identity switch
+        {
+            CommandTypes.Fade => Fade.Decode(parsedCommands, commands, commandindex),
+            CommandTypes.Move => Move.Decode(parsedCommands, commands, commandindex),
+            CommandTypes.Scale => Scale.Decode(parsedCommands, commands, commandindex),
+            CommandTypes.Rotate => Rotate.Decode(parsedCommands, commands, commandindex),
+            CommandTypes.Colour => Colour.Decode(parsedCommands, commands, commandindex),
+            CommandTypes.Parameter => Parameter.Decode(parsedCommands, commands, commandindex),
+            _ => throw new Exception($"Unhandled command type \'{identity}\'"),
+        };
+        return commandDecoded;
     }
 }

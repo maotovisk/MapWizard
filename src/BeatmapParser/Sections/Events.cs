@@ -39,51 +39,34 @@ public class Events : IEvents
         List<IEvent> events = [];
         try
         {
-            for (var index = 0; index != section.Count; ++index)
+            for (var index = 0; index < section.Count; index++)
             {
                 if (section[index].StartsWith("//")) continue;
 
                 var eventSplit = section[index].Split(',', 2);
-                if (eventSplit.Length != 2) throw new Exception("invalid event length");
-                var eventIdentity = (EventTypes)Enum.Parse(typeof(EventTypes), eventSplit[1].Trim());
+                if (eventSplit.Length != 2) throw new Exception("Invalid event length");
 
-                var eventType = eventIdentity switch
+                var eventIdentity = Helper.ParseEventType(eventSplit);
+                var eventType = Helper.GetEventType(eventIdentity);
+
+                var decodeFunction = eventType.GetMethod("Decode") ?? throw new Exception($"{eventType.Name} is missing 'Decode' method.");
+
+                if (!eventType.GetInterfaces().Contains(typeof(ICommands)))
                 {
-                    EventTypes.Background => typeof(Background),
-                    EventTypes.Video => typeof(Video),
-                    EventTypes.Break => typeof(Break),
-                    EventTypes.Sample => typeof(Sample),
-                    EventTypes.Sprite => typeof(Sprite),
-                    EventTypes.Animation => typeof(Animation),
-                    _ => throw new Exception($"Unhandled event with indentification \'{eventIdentity}\'."),
-                };
-
-                var decodeFunction = eventType.GetType().GetMethod("Decode") ?? throw new Exception($"{eventType.Name} is missing \'Decode\' method.");
-
-                // Some events dont have commands and need to be parsed diferently
-                if (!eventType.GetInterfaces().Contains(typeof(ICommand)))
-                {
-                    var normalEvent = decodeFunction.Invoke(null, [eventSplit]) ?? throw new Exception($"Failed to \'Decode()\' event with type \'{eventType.Name}\'.");
+                    var normalEvent = decodeFunction.Invoke(null, [section[index]]) ?? throw new Exception($"Failed to 'Decode()' event with type '{eventType.Name}'.");
                     events.Add((IEvent)normalEvent);
                     continue;
                 }
 
                 List<string> commands = [];
-                while (index != section.Count)
+                while (index < section.Count)
                 {
-                    var commandSplit = eventSplit[1].Split(',', 2);
-                    if (commandSplit.Length != 2) throw new Exception("invalid command length");
-                    var commandIndentification = (int)commandSplit[0].Trim().Last();
-
-                    bool isCommand = false;
-
-                    if (!isCommand) break;
-
+                    if (!section[index].StartsWith(' ') || !section[index].StartsWith('_')) break;
                     commands.Add(section[index]);
-                    ++index;
+                    index++;
                 }
 
-                var eventObj = decodeFunction.Invoke(null, [eventSplit, commands]) ?? throw new Exception($"Failed to \'Decode\' event with type \'{eventType.Name}\'");
+                var eventObj = decodeFunction.Invoke(null, [section[index], commands]) ?? throw new Exception($"Failed to 'Decode' event with type '{eventType.Name}'");
                 events.Add((IEvent)eventObj);
             }
 

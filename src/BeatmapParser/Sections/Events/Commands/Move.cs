@@ -16,12 +16,12 @@ public class Move : ICommand
     /// 
     /// </summary>
     public Easing Easing { get; set; }
-    
+
     /// <summary>
     /// 
     /// </summary>
     public TimeSpan StartTime { get; set; }
-    
+
     /// <summary>
     /// 
     /// </summary>
@@ -31,7 +31,7 @@ public class Move : ICommand
     /// 
     /// </summary>
     public Vector2 StartPosition { get; set; }
-    
+
     /// <summary>
     /// 
     /// </summary>
@@ -67,11 +67,11 @@ public class Move : ICommand
     /// <param name="parsedCommands"></param>
     /// <param name="command"></param>
     /// <returns></returns>
-    public static Move Decode(IEvent result, List<ICommand> parsedCommands, string command)
+    public static Move Decode(List<ICommand> parsedCommands, List<string> commands, int commandindex)
     {
         //M,(easing),(starttime),(endtime),(start_x),(start_y),(end_x),(end_y)
-        
-        var commandSplit = command.Trim().Split(',');
+
+        var commandSplit = commands[commandindex].Trim().Split(',');
         return new Move
         (
             easing: (Easing)Enum.Parse(typeof(Easing), commandSplit[0]),

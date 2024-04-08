@@ -93,20 +93,7 @@ public class Animation : Sprite
         List<ICommand> parsedCommands = [];
         foreach (var command in commands)
         {
-            var commandSplit = command.Trim().Split(',');
-            CommandTypes? identity = (CommandTypes)Enum.Parse(typeof(CommandTypes), commandSplit[0]); // TODO FIX
-
-            ICommand commandDecoded = identity switch
-            {
-                CommandTypes.Fade => Fade.Decode(result, parsedCommands, command),
-                CommandTypes.Move => Move.Decode(result, parsedCommands, command),
-                CommandTypes.Scale => Scale.Decode(result, parsedCommands, command),
-                CommandTypes.Rotate => Rotate.Decode(result, parsedCommands, command),
-                CommandTypes.Colour => Colour.Decode(result, parsedCommands, command),
-                CommandTypes.Parameter => Parameter.Decode(result, parsedCommands, command),
-                _ => throw new Exception($"Unhandled command type \'{identity}\'"),
-            };
-            parsedCommands.Add(commandDecoded);
+            parsedCommands.Add(Helper.ParseCommand(parsedCommands, commands, commands.IndexOf(command)));
         }
 
         result.Commands = parsedCommands;

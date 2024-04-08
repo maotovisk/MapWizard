@@ -16,12 +16,12 @@ public class Scale : ICommand
     /// 
     /// </summary>
     public Easing Easing { get; set; }
-    
+
     /// <summary>
     /// 
     /// </summary>
     public TimeSpan StartTime { get; set; }
-    
+
     /// <summary>
     /// 
     /// </summary>
@@ -36,7 +36,7 @@ public class Scale : ICommand
     /// 
     /// </summary>
     public double EndScale { get; set; }
-    
+
     /// <summary>
     /// 
     /// </summary>
@@ -67,18 +67,18 @@ public class Scale : ICommand
     /// <param name="parsedCommands"></param>
     /// <param name="command"></param>
     /// <returns></returns>
-    public static Scale Decode(IEvent result, List<ICommand> parsedCommands, string command)
+    public static Scale Decode(List<ICommand> parsedCommands, List<string> commands, int commandindex)
     {
         // _R,<easing>,<starttime>,<endtime>,<start_Scale>,<end_Scale>
-        
-        var commandSplit = command.Trim().Split(',');
+
+        var commandSplit = commands[commandindex].Trim().Split(',');
         return new Scale
         (
             easing: (Easing)Enum.Parse(typeof(Easing), commandSplit[0]),
             startTime: TimeSpan.FromMilliseconds(int.Parse(commandSplit[1])),
             endTime: TimeSpan.FromMilliseconds(int.Parse(commandSplit[2])),
-            startScale: double.Parse(commandSplit[3],CultureInfo.InvariantCulture),
-            endScale: double.Parse(commandSplit[4],CultureInfo.InvariantCulture)
+            startScale: double.Parse(commandSplit[3], CultureInfo.InvariantCulture),
+            endScale: double.Parse(commandSplit[4], CultureInfo.InvariantCulture)
         );
     }
 

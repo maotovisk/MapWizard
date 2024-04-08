@@ -16,12 +16,12 @@ public class Rotate : ICommand
     /// 
     /// </summary>
     public Easing Easing { get; set; }
-    
+
     /// <summary>
     /// 
     /// </summary>
     public TimeSpan StartTime { get; set; }
-    
+
     /// <summary>
     /// 
     /// </summary>
@@ -36,7 +36,7 @@ public class Rotate : ICommand
     /// 
     /// </summary>
     public double EndRotate { get; set; }
-    
+
     /// <summary>
     /// 
     /// </summary>
@@ -67,18 +67,18 @@ public class Rotate : ICommand
     /// <param name="parsedCommands"></param>
     /// <param name="command"></param>
     /// <returns></returns>
-    public static Rotate Decode(IEvent result, List<ICommand> parsedCommands, string command)
+    public static Rotate Decode(List<ICommand> parsedCommands, List<string> commands, int commandindex)
     {
         // _R,<easing>,<starttime>,<endtime>,<start_rotate>,<end_rotate>
-        
-        var commandSplit = command.Trim().Split(',');
+
+        var commandSplit = commands[commandindex].Trim().Split(',');
         return new Rotate
         (
             easing: (Easing)Enum.Parse(typeof(Easing), commandSplit[0]),
             startTime: TimeSpan.FromMilliseconds(int.Parse(commandSplit[1])),
             endTime: TimeSpan.FromMilliseconds(int.Parse(commandSplit[2])),
-            startRotate: double.Parse(commandSplit[3],CultureInfo.InvariantCulture),
-            endRotate: double.Parse(commandSplit[4],CultureInfo.InvariantCulture)
+            startRotate: double.Parse(commandSplit[3], CultureInfo.InvariantCulture),
+            endRotate: double.Parse(commandSplit[4], CultureInfo.InvariantCulture)
         );
     }
 

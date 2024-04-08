@@ -16,22 +16,22 @@ public class Fade : ICommand
     /// 
     /// </summary>
     public Easing Easing { get; set; }
-    
+
     /// <summary>
     /// 
     /// </summary>
     public TimeSpan StartTime { get; set; }
-    
+
     /// <summary>
     /// 
     /// </summary>
     public TimeSpan EndTime { get; set; }
-    
+
     /// <summary>
     /// 
     /// </summary>
     public double StartOpacity { get; set; }
-    
+
     /// <summary>
     /// 
     /// </summary>
@@ -67,11 +67,11 @@ public class Fade : ICommand
     /// <param name="parsedCommands"></param>
     /// <param name="command"></param>
     /// <returns></returns>
-    public static Fade Decode(IEvent result, List<ICommand> parsedCommands, string command)
+    public static Fade Decode(List<ICommand> parsedCommands, List<string> commands, int commandindex)
     {
         // _F,(easing),(starttime),(endtime),(start_opacity),(end_opacity)
 
-        var commandSplit = command.Trim().Split(',');
+        var commandSplit = commands[commandindex].Trim().Split(',');
         return new Fade
         (
             easing: (Easing)Enum.Parse(typeof(Easing), commandSplit[0]),

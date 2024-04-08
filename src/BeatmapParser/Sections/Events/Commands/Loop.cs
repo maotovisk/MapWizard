@@ -47,16 +47,32 @@ public class Loop : ICommand
     /// <param name="parsedCommands"></param>
     /// <param name="command"></param>
     /// <returns></returns>
-    public static Loop Decode(IEvent result, List<ICommand> parsedCommands, string command)
+    public static Loop Decode(List<ICommand> parsedCommands, List<string> commands, int startindex)
     {
         // _L,(starttime),(loopcount)
 
-        var commandSplit = command.Trim().Split(',');
+        var eventStartIndex = startindex + 1;
+        var eventEndIndex = 0;
+
+        List<ICommand> eventParsedCommands = [];
+
+        for (var index = eventStartIndex; index != commands.Count; ++index)
+        {
+            if (!commands[index].StartsWith("  ") || !commands[index].StartsWith("  ")) break;
+
+            eventParsedCommands.Add(Helper.ParseCommand(parsedCommands, commands, index));
+            eventEndIndex = index;
+        }
+
+        // this is done to avoid the sub commands to be parsed again
+        commands.RemoveRange(eventStartIndex, eventEndIndex);
+
+        var commandSplit = commands[startindex].Trim().Split(',');
         return new Loop
         (
             startTime: TimeSpan.FromMilliseconds(int.Parse(commandSplit[1])),
             count: uint.Parse(commandSplit[4]),
-            commands: [] // TODO
+            commands: eventParsedCommands
         );
     }
 
