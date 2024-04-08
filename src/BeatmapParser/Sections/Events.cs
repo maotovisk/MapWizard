@@ -112,10 +112,9 @@ public class Events : IEvents
                 tempindex = AddCommands((ICommands)currentEvent.Commands.Last(), sectionRaw, tempindex, currentdepth);
                 continue;
             }
-            if (currentdepth < depth)
-            {
-                break;
-            }
+
+            if (currentdepth < depth) break;
+
             if (currentdepth == depth)
             {
                 currentEvent.Commands.Add(Helper.ParseCommand(sectionRaw[tempindex]));
