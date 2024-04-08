@@ -1,3 +1,6 @@
+using System.Globalization;
+using System.Text;
+
 namespace MapWizard.BeatmapParser;
 
 /// <summary>
@@ -18,12 +21,12 @@ public class Parameter : ICommand
     /// <summary>
     /// 
     /// </summary>
-    public TimeSpan StartTime { get; set; }
+    public TimeSpan? StartTime { get; set; }
 
     /// <summary>
     /// 
     /// </summary>
-    public TimeSpan EndTime { get; set; }
+    public TimeSpan? EndTime { get; set; }
 
     /// <summary>
     /// 
@@ -39,8 +42,8 @@ public class Parameter : ICommand
     /// <param name="parameterName"></param>
     private Parameter(
         Easing easing,
-        TimeSpan startTime,
-        TimeSpan endTime,
+        TimeSpan? startTime,
+        TimeSpan? endTime,
         ParameterName parameterName
     )
     {
@@ -57,18 +60,25 @@ public class Parameter : ICommand
     /// <param name="parsedCommands"></param>
     /// <param name="command"></param>
     /// <returns></returns>
-    public static Parameter Decode(List<ICommand> parsedCommands, List<string> commands, int commandindex)
+    public static Parameter Decode(string line)
     {
         // _F,(easing),(starttime),(endtime),(start_opacity),(end_opacity)
 
-        var commandSplit = commands[commandindex].Trim().Split(',');
-        return new Parameter
-        (
-            easing: (Easing)Enum.Parse(typeof(Easing), commandSplit[0]),
-            startTime: TimeSpan.FromMilliseconds(int.Parse(commandSplit[1])),
-            endTime: TimeSpan.FromMilliseconds(int.Parse(commandSplit[2])),
-            parameterName: (ParameterName)Enum.Parse(typeof(ParameterName), commandSplit[3])
-        );
+        var commandSplit = line.Trim().Split(',');
+
+        Easing easing = commandSplit.Length > 1 ? (Easing)Enum.Parse(typeof(Easing), commandSplit[1]) : Easing.Linear;
+        TimeSpan? startTime = commandSplit.Length > 2 && !string.IsNullOrEmpty(commandSplit[2]) ? TimeSpan.FromMilliseconds(int.Parse(commandSplit[2])) : null;
+        TimeSpan? endTime = commandSplit.Length > 3 && !string.IsNullOrEmpty(commandSplit[3]) ? TimeSpan.FromMilliseconds(int.Parse(commandSplit[3])) : null;
+        ParameterName parameterName = commandSplit[4].Last() switch
+        {
+            'A' => ParameterName.AdditiveBlending,
+            'H' => ParameterName.FlipHorizontal,
+            'V' => ParameterName.FlipVertical,
+            _ => throw new Exception($"Invalid parameter name {commandSplit[4]} in line {line}")
+        };
+
+
+        return new Parameter(easing, startTime, endTime, parameterName);
     }
 
     /// <summary>
@@ -77,6 +87,15 @@ public class Parameter : ICommand
     /// <returns></returns>
     public string Encode()
     {
-        return $"P,{Easing},{StartTime},{EndTime},{(char)(int)ParameterName}";
+        StringBuilder sb = new();
+        sb.Append("P,");
+        sb.Append((int)Easing);
+        sb.Append(',');
+        sb.Append(StartTime?.TotalMilliseconds.ToString(CultureInfo.InvariantCulture) ?? string.Empty);
+        sb.Append(',');
+        sb.Append(EndTime?.TotalMilliseconds.ToString(CultureInfo.InvariantCulture) ?? string.Empty);
+        sb.Append(',');
+        sb.Append((char)(int)ParameterName);
+        return sb.ToString();
     }
 }

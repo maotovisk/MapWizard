@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text;
 
 namespace MapWizard.BeatmapParser;
@@ -5,7 +6,7 @@ namespace MapWizard.BeatmapParser;
 /// <summary>
 /// 
 /// </summary>
-public class Loop : ICommand
+public class Loop : ICommand, ICommands
 {
     /// <summary>
     /// 
@@ -25,7 +26,7 @@ public class Loop : ICommand
     /// <summary>
     /// 
     /// </summary>
-    public List<ICommand> Commands { get; set; }
+    public List<ICommand> Commands { get; set; } = [];
 
     /// <summary>
     /// 
@@ -47,32 +48,17 @@ public class Loop : ICommand
     /// <param name="parsedCommands"></param>
     /// <param name="command"></param>
     /// <returns></returns>
-    public static Loop Decode(List<ICommand> parsedCommands, List<string> commands, int startindex)
+    public static Loop Decode(string line)
     {
         // _L,(starttime),(loopcount)
 
-        var eventStartIndex = startindex + 1;
-        var eventEndIndex = 0;
+        var commandSplit = line.Trim().Split(',');
 
-        List<ICommand> eventParsedCommands = [];
-
-        for (var index = eventStartIndex; index != commands.Count; ++index)
-        {
-            if (!commands[index].StartsWith("  ") || !commands[index].StartsWith("  ")) break;
-
-            eventParsedCommands.Add(Helper.ParseCommand(parsedCommands, commands, index));
-            eventEndIndex = index;
-        }
-
-        // this is done to avoid the sub commands to be parsed again
-        commands.RemoveRange(eventStartIndex, eventEndIndex);
-
-        var commandSplit = commands[startindex].Trim().Split(',');
         return new Loop
         (
             startTime: TimeSpan.FromMilliseconds(int.Parse(commandSplit[1])),
-            count: uint.Parse(commandSplit[4]),
-            commands: eventParsedCommands
+            count: uint.Parse(commandSplit[2]),
+            commands: []
         );
     }
 
@@ -83,12 +69,17 @@ public class Loop : ICommand
     public string Encode()
     {
         StringBuilder builder = new();
-        builder.AppendLine($"L,{StartTime},{Count}");
+        builder.AppendLine($"L,{StartTime.TotalMilliseconds.ToString(CultureInfo.InvariantCulture)},{Count}");
 
-        foreach (var command in Commands)
+        foreach (var command in Commands[..^1])
         {
-            builder.AppendLine(command.Encode());
+            builder.AppendLine(string.Join(Environment.NewLine, command.Encode().Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries).Select(line => " " + line)));
         }
+        builder.Append(string.Join(Environment.NewLine, Commands.Last().Encode().Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries).Select(line => " " + line)));
         return builder.ToString();
     }
 }
+
+
+
+

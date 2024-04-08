@@ -1,4 +1,6 @@
+using System.Globalization;
 using System.Numerics;
+using System.Text;
 
 namespace MapWizard.BeatmapParser;
 
@@ -20,22 +22,22 @@ public class Colour : ICommand
     /// <summary>
     /// 
     /// </summary>
-    public TimeSpan StartTime { get; set; }
+    public TimeSpan? StartTime { get; set; }
 
     /// <summary>
     /// 
     /// </summary>
-    public TimeSpan EndTime { get; set; }
+    public TimeSpan? EndTime { get; set; }
 
     /// <summary>
     /// 
     /// </summary>
-    public Vector3 StartColour { get; set; }
+    public Vector3? StartColour { get; set; }
 
     /// <summary>
     /// 
     /// </summary>
-    public Vector3 EndColour { get; set; }
+    public Vector3? EndColour { get; set; }
 
     /// <summary>
     /// 
@@ -47,10 +49,10 @@ public class Colour : ICommand
     /// <param name="endColour"></param>
     private Colour(
         Easing easing,
-        TimeSpan startTime,
-        TimeSpan endTime,
-        Vector3 startColour,
-        Vector3 endColour
+        TimeSpan? startTime,
+        TimeSpan? endTime,
+        Vector3? startColour,
+        Vector3? endColour
     )
     {
         Easing = easing;
@@ -67,19 +69,19 @@ public class Colour : ICommand
     /// <param name="parsedCommands"></param>
     /// <param name="command"></param>
     /// <returns></returns>
-    public static Colour Decode(List<ICommand> parsedCommands, List<string> commands, int commandindex)
+    public static Colour Decode(string line)
     {
         // _C,(easing),(starttime),(endtime),(start_r),(start_g),(start_b),(end_r),(end_g),(end_b)
 
-        var commandSplit = commands[commandindex].Trim().Split(',');
-        return new Colour
-        (
-            easing: (Easing)Enum.Parse(typeof(Easing), commandSplit[0]),
-            startTime: TimeSpan.FromMilliseconds(int.Parse(commandSplit[1])),
-            endTime: TimeSpan.FromMilliseconds(int.Parse(commandSplit[2])),
-            startColour: new Vector3(int.Parse(commandSplit[3]), int.Parse(commandSplit[4]), int.Parse(commandSplit[5])),
-            endColour: new Vector3(int.Parse(commandSplit[6]), int.Parse(commandSplit[7]), int.Parse(commandSplit[8]))
-        );
+        var commandSplit = line.Trim().Split(',');
+
+        Easing easing = commandSplit.Length > 1 ? (Easing)Enum.Parse(typeof(Easing), commandSplit[1]) : Easing.Linear;
+        TimeSpan? startTime = commandSplit.Length > 2 && !string.IsNullOrEmpty(commandSplit[2]) ? TimeSpan.FromMilliseconds(int.Parse(commandSplit[2])) : null;
+        TimeSpan? endTime = commandSplit.Length > 3 && !string.IsNullOrEmpty(commandSplit[3]) ? TimeSpan.FromMilliseconds(int.Parse(commandSplit[3])) : null;
+        Vector3? startColour = commandSplit.Length > 4 && !string.IsNullOrEmpty(commandSplit[4]) ? Helper.ParseVector3FromUnknownString(string.Join(',', [commandSplit[4], commandSplit[5], commandSplit[6]])) : null;
+        Vector3? endColour = commandSplit.Length > 7 && !string.IsNullOrEmpty(commandSplit[7]) ? Helper.ParseVector3FromUnknownString(string.Join(',', [commandSplit[7], commandSplit[8], commandSplit[9]])) : null;
+
+        return new Colour(easing, startTime, endTime, startColour, endColour);
     }
 
     /// <summary>
@@ -88,6 +90,15 @@ public class Colour : ICommand
     /// <returns></returns>
     public string Encode()
     {
-        return $"C,{Easing},{StartTime},{EndTime},{StartColour.X},{StartColour.Y},{StartColour.Z},{EndColour.X},{EndColour.Y},{EndColour.Z}";
+        StringBuilder sb = new();
+        sb.Append($"C,{(int)Easing},{StartTime?.TotalMilliseconds.ToString(CultureInfo.InvariantCulture) ?? string.Empty},{EndTime?.TotalMilliseconds.ToString(CultureInfo.InvariantCulture) ?? string.Empty}");
+
+        if (StartColour != null) sb.Append($",{StartColour?.X},{StartColour?.Y},{StartColour?.Z}");
+        else sb.Append(",,,");
+
+        if (EndColour != null) sb.Append($",{EndColour?.X},{EndColour?.Y},{EndColour?.Z}");
+
+        return sb.ToString();
+
     }
 }

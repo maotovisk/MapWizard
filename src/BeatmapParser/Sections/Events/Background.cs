@@ -1,5 +1,6 @@
 
 using System.Numerics;
+using System.Text;
 
 namespace MapWizard.BeatmapParser;
 
@@ -68,8 +69,13 @@ public class Background : IEvent
     /// <returns></returns>
     public string Encode()
     {
-        if (Offset == null) return $"0,0,{Filename}";
-        return $"{(int)EventTypes.Background},{StartTime},{Filename},{Offset?.X},{Offset?.Y}";
+        StringBuilder sb = new();
+
+        sb.Append($"{(int)Type},{StartTime.TotalMilliseconds},{Filename}");
+
+        if (Offset != null) sb.Append($",{Offset?.X},{Offset?.Y}");
+
+        return sb.ToString();
     }
 
     /// <summary>
@@ -88,7 +94,7 @@ public class Background : IEvent
             (
                 filename: args[2],
                 time: TimeSpan.FromMilliseconds(int.Parse(args[1])),
-                offset: args.Length == 4 ? new Vector2(int.Parse(args[3]), int.Parse(args[4])) : null
+                offset: args.Length >= 4 ? new Vector2(int.Parse(args[3]), int.Parse(args[4])) : null
             );
         }
         catch (Exception ex)

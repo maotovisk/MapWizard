@@ -6,13 +6,14 @@ class Program
 {
     static void Main(string[] args)
     {
-        var inputFile = "C:/Users/Maot/projects/HitsoundCopier/test5.osu";
+        var inputFile = "/home/maot/projects/HitsoundCopier/test4.osu";
 
         var fileToParse = File.ReadAllText(inputFile);
 
         var beatmap = Beatmap.Decode(fileToParse);
 
-        Console.WriteLine(beatmap.Encode());
-    }
+        var beatmapString = beatmap.Encode();
 
+        File.WriteAllText("test4-parsed.osu", beatmapString);
+    }
 }

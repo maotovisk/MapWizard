@@ -1,3 +1,5 @@
+using System.Globalization;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 
 namespace MapWizard.BeatmapParser;
@@ -54,33 +56,18 @@ public class Trigger : ICommand, ICommands
     /// <param name="parsedCommands"></param>
     /// <param name="commandline"></param>
     /// <returns></returns>
-    public static Trigger Decode(List<ICommand> parsedCommands, List<string> commands, int startindex)
+    public static Trigger Decode(string line)
     {
         // _T,(triggerType),(starttime),(endtime)
 
-        var eventStartIndex = startindex + 1;
-        var eventEndIndex = 0;
+        var commandSplit = line.Trim().Split(',');
 
-        List<ICommand> eventParsedCommands = [];
-
-        for (var index = eventStartIndex; index != commands.Count; ++index)
-        {
-            if (!commands[index].StartsWith("  ") || !commands[index].StartsWith("  ")) break;
-
-            eventParsedCommands.Add(Helper.ParseCommand(parsedCommands, commands, index));
-            eventEndIndex = index;
-        }
-
-        // this is done to avoid the sub commands to be parsed again
-        commands.RemoveRange(eventStartIndex, eventEndIndex);
-
-        var commandSplit = commands[startindex].Split(',');
         return new Trigger
         (
             triggerType: commandSplit[1],
             startTime: TimeSpan.FromMilliseconds(int.Parse(commandSplit[2])),
             endTime: TimeSpan.FromMilliseconds(int.Parse(commandSplit[3])),
-            commands: eventParsedCommands
+            commands: []
         );
     }
 
@@ -91,12 +78,13 @@ public class Trigger : ICommand, ICommands
     public string Encode()
     {
         StringBuilder builder = new();
-        builder.AppendLine($"T,{TriggerType},{StartTime},{EndTime}");
-
-        foreach (var command in Commands)
+        builder.AppendLine($"T,{TriggerType},{StartTime.Milliseconds.ToString(CultureInfo.InvariantCulture)},{EndTime.Milliseconds.ToString(CultureInfo.InvariantCulture)}");
+        foreach (var command in Commands[..^1])
         {
-            builder.AppendLine(command.Encode());
+            builder.AppendLine(string.Join(Environment.NewLine, command.Encode().Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries).Select(line => " " + line)));
         }
+        builder.Append(string.Join(Environment.NewLine, Commands.Last().Encode().Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries).Select(line => " " + line)));
+
         return builder.ToString();
     }
 }

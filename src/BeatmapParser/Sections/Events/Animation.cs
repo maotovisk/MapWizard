@@ -1,4 +1,6 @@
 using System.Numerics;
+using System.Globalization;
+using System.Text;
 
 namespace MapWizard.BeatmapParser;
 
@@ -65,14 +67,22 @@ public class Animation : Sprite
     /// <returns></returns>
     public new string Encode()
     {
-        return $"{EventType.Animation},{(int)Layer},{(int)Origin},{FilePath},{Position.X},{Position.Y},{FrameCount},{FrameDelay},{Looptype}";
+        StringBuilder builder = new();
+        builder.AppendLine($"{EventType.Animation},{(int)Layer},{(int)Origin},{FilePath},{Position.X},{Position.Y},{FrameCount},{FrameDelay},{Looptype}");
+        foreach (var command in Commands[..^1])
+        {
+            builder.AppendLine(string.Join(Environment.NewLine, command.Encode().Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries).Select(line => " " + line)));
+        }
+        builder.Append(string.Join(Environment.NewLine, Commands.Last().Encode().Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries).Select(line => " " + line)));
+
+        return builder.ToString();
     }
 
     /// <summary>
     /// 
     /// </summary>
     /// <returns></returns>
-    public new static Animation Decode(string line, List<string> commands)
+    public new static Animation Decode(string line)
     {
         // Animation,(layer),(origin),"(filepath)",(x),(y),
         // (frameCount),(frameDelay),(looptype)
@@ -90,13 +100,6 @@ public class Animation : Sprite
             looptype: (LoopType)Enum.Parse(typeof(LoopType), lineSplit[7].Skip(4).ToString() ?? throw new Exception("Invalid looptype"))
         );
 
-        List<ICommand> parsedCommands = [];
-        foreach (var command in commands)
-        {
-            parsedCommands.Add(Helper.ParseCommand(parsedCommands, commands, commands.IndexOf(command)));
-        }
-
-        result.Commands = parsedCommands;
         return result;
     }
 }

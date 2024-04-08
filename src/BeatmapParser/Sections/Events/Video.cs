@@ -1,5 +1,6 @@
 
 using System.Numerics;
+using System.Text;
 
 namespace MapWizard.BeatmapParser;
 
@@ -69,8 +70,17 @@ public class Video : IEvent
     /// <returns></returns>
     public string Encode()
     {
-        if (Offset == null) return $"0,0,{FilePath}";
-        return $"{(int)EventTypes.Video},{StartTime},{FilePath},{Offset?.X},{Offset?.Y}";
+        StringBuilder sb = new();
+        sb.Append($"{(int)Type},{StartTime.TotalMilliseconds},{FilePath}");
+        if (Offset != null)
+        {
+            sb.Append(',');
+            sb.Append(Offset.Value.X);
+            sb.Append(',');
+            sb.Append(Offset.Value.Y);
+            sb.Append(',');
+        }
+        return sb.ToString();
     }
 
     /// <summary>

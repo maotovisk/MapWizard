@@ -1,3 +1,6 @@
+using System.Globalization;
+using System.Text;
+
 namespace MapWizard.BeatmapParser;
 
 /// <summary>
@@ -66,7 +69,17 @@ public class Sample : IEvent
     /// <returns></returns>
     public string Encode()
     {
-        return $"{(int)EventTypes.Sample},{StartTime},{Layer},{FilePath},{Volume}";
+        StringBuilder sb = new StringBuilder();
+        sb.Append($"{(int)EventTypes.Sample}");
+        sb.Append(',');
+        sb.Append(StartTime.TotalMilliseconds.ToString(CultureInfo.InvariantCulture));
+        sb.Append(',');
+        sb.Append(Layer);
+        sb.Append(',');
+        sb.Append(FilePath);
+        sb.Append(',');
+        sb.Append(Volume);
+        return sb.ToString();
     }
 
     /// <summary>

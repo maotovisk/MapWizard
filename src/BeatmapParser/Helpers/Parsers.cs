@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.Numerics;
+using System.Text.RegularExpressions;
 
 namespace MapWizard.BeatmapParser;
 
@@ -127,6 +128,58 @@ public partial class Helper
     }
 
     /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="vectorString"></param>
+    /// <returns></returns>
+    public static Vector3 ParseVector3Hex(string vectorString)
+    {
+        string[] split = vectorString.Split(',');
+        return new Vector3(int.Parse(split[0], NumberStyles.HexNumber),
+            int.Parse(split[1], NumberStyles.HexNumber), int.Parse(split[2], NumberStyles.HexNumber));
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="input"></param>
+    /// <returns></returns>
+    /// <exception cref="Exception"></exception>
+    public static Vector3 ParseVector3FromUnknownString(string input)
+    {
+        string[] split = input.Split(',', 3);
+
+        if (split.Length != 3) throw new Exception("Not a valid vector3 string.");
+
+        var X = IsNumeric(split[0]) ? int.Parse(split[0]) : int.Parse(split[0], NumberStyles.HexNumber);
+        var Y = IsNumeric(split[1]) ? int.Parse(split[1]) : int.Parse(split[1], NumberStyles.HexNumber);
+        var Z = IsNumeric(split[2]) ? int.Parse(split[2]) : int.Parse(split[2], NumberStyles.HexNumber);
+
+        return new Vector3(X, Y, Z);
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="input"></param>
+    /// <returns></returns>
+    public static bool IsNumeric(string input) => int.TryParse(input, out _);
+
+    public static void TryParseVector3(string vectorString, out Vector3 vector)
+    {
+        string[] split = vectorString.Split(',');
+
+        //check if it's using hex or decimal values
+        if (IsNumeric(split[0]))
+        {
+            vector = ParseVector3(vectorString);
+            return;
+        }
+        vector = ParseVector3Hex(vectorString);
+        return;
+    }
+
+    /// <summary>
     /// Parses a Event type from a string array.
     /// </summary>
     /// <param name="eventLine"></param>
@@ -137,7 +190,7 @@ public partial class Helper
 
         string eventType = eventLine[0].Trim();
 
-        foreach (EventTypes type in Enum.GetValues(typeof(EventType)))
+        foreach (EventTypes type in Enum.GetValues(typeof(EventTypes)))
         {
             if (type.ToString().Equals(eventType, StringComparison.CurrentCultureIgnoreCase) ||
                 ((int)type).ToString().Equals(eventType, StringComparison.CurrentCultureIgnoreCase))
@@ -171,34 +224,63 @@ public partial class Helper
     /// <summary>
     /// 
     /// </summary>
-    /// <param name="commandLine"></param>
+    /// <param name="commandType"></param>
     /// <returns></returns>
     /// <exception cref="Exception"></exception>
-    public static CommandTypes ParseCommandType(string commandLine)
+    public static CommandTypes ParseCommandType(string commandline)
     {
-        var commandType = (int)commandLine.Trim().Last();
+        var commandType = commandline.Split(',')[0];
 
-        foreach (CommandTypes type in Enum.GetValues(typeof(CommandTypes)))
+        while (commandType.StartsWith(" ") || commandType.StartsWith("_"))
         {
-            if ((int)type == commandType) return type;
+            commandType = commandType.Substring(1);
         }
-        throw new Exception($"Invalid command type: {commandType}");
+
+        commandType = commandType.Trim();
+
+        return commandType switch
+        {
+            "F" => CommandTypes.Fade,
+            "M" => CommandTypes.Move,
+            "MY" => CommandTypes.MoveY,
+            "MX" => CommandTypes.MoveX,
+            "S" => CommandTypes.Scale,
+            "V" => CommandTypes.VectorScale,
+            "R" => CommandTypes.Rotate,
+            "C" => CommandTypes.Colour,
+            "P" => CommandTypes.Parameter,
+            "L" => CommandTypes.Loop,
+            "T" => CommandTypes.Trigger,
+            _ => throw new Exception($"Invalid command type: {commandType}"),
+        };
     }
 
 
-    public static ICommand ParseCommand(List<ICommand> parsedCommands, List<string> commands, int commandindex)
+    public static ICommand ParseCommand(string line)
     {
-        CommandTypes identity = ParseCommandType(commands[commandindex]);
-        ICommand commandDecoded = identity switch
+        try
         {
-            CommandTypes.Fade => Fade.Decode(parsedCommands, commands, commandindex),
-            CommandTypes.Move => Move.Decode(parsedCommands, commands, commandindex),
-            CommandTypes.Scale => Scale.Decode(parsedCommands, commands, commandindex),
-            CommandTypes.Rotate => Rotate.Decode(parsedCommands, commands, commandindex),
-            CommandTypes.Colour => Colour.Decode(parsedCommands, commands, commandindex),
-            CommandTypes.Parameter => Parameter.Decode(parsedCommands, commands, commandindex),
-            _ => throw new Exception($"Unhandled command type \'{identity}\'"),
-        };
-        return commandDecoded;
+            CommandTypes identity = ParseCommandType(line);
+            ICommand commandDecoded = identity switch
+            {
+                CommandTypes.Fade => Fade.Decode(line),
+                CommandTypes.Move => Move.Decode(line),
+                CommandTypes.MoveY => MoveY.Decode(line),
+                CommandTypes.MoveX => MoveX.Decode(line),
+                CommandTypes.Scale => Scale.Decode(line),
+                CommandTypes.Loop => Loop.Decode(line),
+                CommandTypes.Trigger => Trigger.Decode(line),
+                CommandTypes.VectorScale => VectorScale.Decode(line),
+                CommandTypes.Rotate => Rotate.Decode(line),
+                CommandTypes.Colour => Colour.Decode(line),
+                CommandTypes.Parameter => Parameter.Decode(line),
+                _ => throw new Exception($"Unhandled command type \'{identity}\'"),
+            };
+            return commandDecoded;
+        }
+        catch (Exception ex)
+        {
+            throw new Exception($"Error while parsing command's ('{line}'): {ex}");
+        }
     }
 }

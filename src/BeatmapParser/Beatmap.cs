@@ -171,7 +171,8 @@ public class Beatmap : IBeatmap
 
         builder.AppendLine($"[{SectionTypes.Events}]");
         if (Events.EventList.Count > 0)
-            builder.Append(Events.Encode());
+            builder.AppendLine(Events.Encode());
+
         builder.AppendLine();
 
         if (TimingPoints != null)
@@ -189,8 +190,7 @@ public class Beatmap : IBeatmap
         }
 
         builder.AppendLine($"[{SectionTypes.HitObjects}]");
-        builder.AppendLine(HitObjects.Encode());
-        builder.AppendLine();
+        builder.Append(HitObjects.Encode());
 
         return builder.ToString();
     }
@@ -277,73 +277,73 @@ public class Beatmap : IBeatmap
             switch (hitObject)
             {
                 case Circle circle:
-                {
-                    var currentSound = hitSoundTimeline.GetSoundAtTime(circle.Time);
-                    if (currentSound != null && (Math.Abs(circle.Time.TotalMilliseconds - currentSound.Time.TotalMilliseconds) <= leniency))
                     {
-                        circle.HitSounds = (new HitSample(
-                            normalSet: currentSound.NormalSample,
-                            additionSet: currentSound.AdditionSample,
-                            circle.HitSounds.SampleData.FileName
-                        ), currentSound.HitSounds);
-                    }
-                    break;
-                }
-                case Slider slider:
-                {
-                    var currentHeadSound = hitSoundTimeline.GetSoundAtTime(slider.Time);
-
-                    if (currentHeadSound != null && (Math.Abs(slider.Time.TotalMilliseconds - currentHeadSound.Time.TotalMilliseconds) <= leniency))
-                    {
-                        slider.HeadSounds = (new HitSample(
-                            normalSet: currentHeadSound.NormalSample,
-                            additionSet: currentHeadSound.AdditionSample,
-                            slider.HeadSounds.SampleData.FileName
-                        ), currentHeadSound.HitSounds);
-                    }
-
-                    // Update the repeats sounds
-                    if (slider is { Repeats: > 1, RepeatSounds: not null } && slider.RepeatSounds.Count == (slider.Repeats - 1))
-                    {
-                        for (var i = 0; i < slider.Repeats - 1; i++)
+                        var currentSound = hitSoundTimeline.GetSoundAtTime(circle.Time);
+                        if (currentSound != null && (Math.Abs(circle.Time.TotalMilliseconds - currentSound.Time.TotalMilliseconds) <= leniency))
                         {
-                            var repeatSound = hitSoundTimeline.GetSoundAtTime(TimeSpan.FromMilliseconds(Math.Round(slider.Time.TotalMilliseconds + (slider.EndTime.TotalMilliseconds - slider.Time.TotalMilliseconds) / slider.Repeats * (i + 1))));
+                            circle.HitSounds = (new HitSample(
+                                normalSet: currentSound.NormalSample,
+                                additionSet: currentSound.AdditionSample,
+                                circle.HitSounds.SampleData.FileName
+                            ), currentSound.HitSounds);
+                        }
+                        break;
+                    }
+                case Slider slider:
+                    {
+                        var currentHeadSound = hitSoundTimeline.GetSoundAtTime(slider.Time);
 
-                            if (repeatSound != null)
+                        if (currentHeadSound != null && (Math.Abs(slider.Time.TotalMilliseconds - currentHeadSound.Time.TotalMilliseconds) <= leniency))
+                        {
+                            slider.HeadSounds = (new HitSample(
+                                normalSet: currentHeadSound.NormalSample,
+                                additionSet: currentHeadSound.AdditionSample,
+                                slider.HeadSounds.SampleData.FileName
+                            ), currentHeadSound.HitSounds);
+                        }
+
+                        // Update the repeats sounds
+                        if (slider is { Repeats: > 1, RepeatSounds: not null } && slider.RepeatSounds.Count == (slider.Repeats - 1))
+                        {
+                            for (var i = 0; i < slider.Repeats - 1; i++)
                             {
-                                slider.RepeatSounds[i] = (new HitSample(
-                                   repeatSound.NormalSample,
-                                   repeatSound.AdditionSample,
-                                   slider.RepeatSounds[i].SampleData.FileName
-                                ), repeatSound.HitSounds);
+                                var repeatSound = hitSoundTimeline.GetSoundAtTime(TimeSpan.FromMilliseconds(Math.Round(slider.Time.TotalMilliseconds + (slider.EndTime.TotalMilliseconds - slider.Time.TotalMilliseconds) / slider.Repeats * (i + 1))));
+
+                                if (repeatSound != null)
+                                {
+                                    slider.RepeatSounds[i] = (new HitSample(
+                                       repeatSound.NormalSample,
+                                       repeatSound.AdditionSample,
+                                       slider.RepeatSounds[i].SampleData.FileName
+                                    ), repeatSound.HitSounds);
+                                }
                             }
                         }
-                    }
-                    var currentEndSound = hitSoundTimeline.GetSoundAtTime(slider.EndTime);
-                    if (currentEndSound != null && (Math.Abs(slider.EndTime.TotalMilliseconds - currentEndSound.Time.TotalMilliseconds) <= leniency))
-                    {
-                        slider.TailSounds = (new HitSample(
-                            currentEndSound.NormalSample,
-                            currentEndSound.AdditionSample,
-                            slider.TailSounds.SampleData.FileName
-                        ), currentEndSound.HitSounds);
-                    }
+                        var currentEndSound = hitSoundTimeline.GetSoundAtTime(slider.EndTime);
+                        if (currentEndSound != null && (Math.Abs(slider.EndTime.TotalMilliseconds - currentEndSound.Time.TotalMilliseconds) <= leniency))
+                        {
+                            slider.TailSounds = (new HitSample(
+                                currentEndSound.NormalSample,
+                                currentEndSound.AdditionSample,
+                                slider.TailSounds.SampleData.FileName
+                            ), currentEndSound.HitSounds);
+                        }
 
-                    break;
-                }
-                case Spinner spinner:
-                {
-                    var currentSound = hitSoundTimeline.GetSoundAtTime(spinner.End);
-                    if (currentSound != null && (Math.Abs(spinner.End.TotalMilliseconds - currentSound.Time.TotalMilliseconds) <= leniency))
-                    {
-                        spinner.HitSounds = (new HitSample(
-                           currentSound.NormalSample,
-                           currentSound.AdditionSample,
-                           spinner.HitSounds.SampleData.FileName
-                        ), currentSound.HitSounds);
+                        break;
                     }
-                    break;
-                }
+                case Spinner spinner:
+                    {
+                        var currentSound = hitSoundTimeline.GetSoundAtTime(spinner.End);
+                        if (currentSound != null && (Math.Abs(spinner.End.TotalMilliseconds - currentSound.Time.TotalMilliseconds) <= leniency))
+                        {
+                            spinner.HitSounds = (new HitSample(
+                               currentSound.NormalSample,
+                               currentSound.AdditionSample,
+                               spinner.HitSounds.SampleData.FileName
+                            ), currentSound.HitSounds);
+                        }
+                        break;
+                    }
             }
         }
     }
@@ -383,40 +383,40 @@ public class Beatmap : IBeatmap
             case null:
                 return;
             case TimingPoints section:
-            {
-                foreach (var timingPoint in section.TimingPointList)
                 {
-                    var sampleSet = timeline.GetSampleAtTime(timingPoint.Time.TotalMilliseconds);
-
-                    if (sampleSet == null) continue;
-
-                    timingPoint.SampleSet = sampleSet.Sample;
-                    timingPoint.SampleIndex = (uint)sampleSet.Index;
-                    timingPoint.Volume = (uint)sampleSet.Volume;
-                }
-
-                // Add the missing timing points 
-                foreach (var sound in timeline.HitSamples)
-                {
-                    var currentUninherited = section.GetUninheritedTimingPointAt(sound.Time);
-                    var currentInherited = section.GetInheritedTimingPointAt(sound.Time);
-
-                    if (currentUninherited == null) continue;
-
-                    if (currentInherited == null)
+                    foreach (var timingPoint in section.TimingPointList)
                     {
-                        section.TimingPointList.Add(new InheritedTimingPoint(
-                            time: TimeSpan.FromMilliseconds(sound.Time),
-                            sampleSet: sound.Sample,
-                            sampleIndex: (uint)sound.Index,
-                            volume: (uint)sound.Volume,
-                            effects: currentUninherited.Effects,
-                            sliderVelocity: section.GetSliderVelocityAt(sound.Time)
-                        ));
+                        var sampleSet = timeline.GetSampleAtTime(timingPoint.Time.TotalMilliseconds);
+
+                        if (sampleSet == null) continue;
+
+                        timingPoint.SampleSet = sampleSet.Sample;
+                        timingPoint.SampleIndex = (uint)sampleSet.Index;
+                        timingPoint.Volume = (uint)sampleSet.Volume;
                     }
+
+                    // Add the missing timing points 
+                    foreach (var sound in timeline.HitSamples)
+                    {
+                        var currentUninherited = section.GetUninheritedTimingPointAt(sound.Time);
+                        var currentInherited = section.GetInheritedTimingPointAt(sound.Time);
+
+                        if (currentUninherited == null) continue;
+
+                        if (currentInherited == null)
+                        {
+                            section.TimingPointList.Add(new InheritedTimingPoint(
+                                time: TimeSpan.FromMilliseconds(sound.Time),
+                                sampleSet: sound.Sample,
+                                sampleIndex: (uint)sound.Index,
+                                volume: (uint)sound.Volume,
+                                effects: currentUninherited.Effects,
+                                sliderVelocity: section.GetSliderVelocityAt(sound.Time)
+                            ));
+                        }
+                    }
+                    break;
                 }
-                break;
-            }
         }
     }
 }

@@ -1,3 +1,6 @@
+using System.Globalization;
+using System.Text;
+
 namespace MapWizard.BeatmapParser;
 
 /// <summary>
@@ -46,7 +49,13 @@ public class Break : IEvent
     /// <returns></returns>
     public string Encode()
     {
-        return $"{(int)EventTypes.Break},{StartTime},{EndTime}";
+        StringBuilder sb = new StringBuilder();
+        sb.Append($"{(int)EventType.Break}");
+        sb.Append(',');
+        sb.Append(StartTime.TotalMilliseconds.ToString(CultureInfo.InvariantCulture));
+        sb.Append(',');
+        sb.Append(EndTime.TotalMilliseconds.ToString(CultureInfo.InvariantCulture));
+        return sb.ToString();
     }
 
     /// <summary>

@@ -1,11 +1,13 @@
 using System.Numerics;
+using System.Runtime.Serialization;
+using System.Text;
 
 namespace MapWizard.BeatmapParser;
 
 /// <summary>
 /// 
 /// </summary>
-public class Sprite : IEvent, ICommands
+public class Sprite : IEvent, ICommands, ILayeredEvent
 {
     /// <summary>
     /// 
@@ -78,7 +80,15 @@ public class Sprite : IEvent, ICommands
     /// <returns></returns>
     public string Encode()
     {
-        return $"{EventType.Sprite},{(int)Layer},{(int)Origin},{FilePath},{Position.X},{Position.Y}";
+        StringBuilder builder = new();
+        builder.AppendLine($"{EventType.Sprite},{Layer},{Origin},{FilePath},{Position.X},{Position.Y}");
+        foreach (var command in Commands[..^1])
+        {
+            builder.AppendLine(string.Join(Environment.NewLine, command.Encode().Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries).Select(line => " " + line)));
+        }
+        builder.Append(string.Join(Environment.NewLine, Commands.Last().Encode().Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries).Select(line => " " + line)));
+
+        return builder.ToString();
     }
 
     /// <summary>
@@ -88,27 +98,26 @@ public class Sprite : IEvent, ICommands
     /// <param name="commands"></param>
     /// <returns></returns>
     /// <exception cref="Exception"></exception>
-    public static Sprite Decode(string line, List<string> commands)
+    public static Sprite Decode(string line)
     {
-        // Sprite,(layer),(origin),"(filepath)",(x),(y)
-
-        var lineSplited = line.Trim().Split(',');
-
-        var result = new Sprite
-        (
-            layer: (Layer)Enum.Parse(typeof(Layer), lineSplited[0]),
-            origin: (Origin)Enum.Parse(typeof(Origin), lineSplited[1]),
-            filePath: lineSplited[2],
-            position: new Vector2(int.Parse(lineSplited[3]), int.Parse(lineSplited[4]))
-        );
-
-        List<ICommand> parsedCommands = [];
-        foreach (var command in commands)
+        try
         {
-            parsedCommands.Add(Helper.ParseCommand(parsedCommands, commands, commands.IndexOf(command)));
-        }
+            // Sprite,(layer),(origin),"(filepath)",(x),(y)
 
-        result.Commands = parsedCommands;
-        return result;
+            var lineSplited = line.Trim().Split(',');
+
+            var result = new Sprite
+            (
+                layer: (Layer)Enum.Parse(typeof(Layer), lineSplited[1]),
+                origin: (Origin)Enum.Parse(typeof(Origin), lineSplited[2]),
+                filePath: lineSplited[3],
+                position: new Vector2(int.Parse(lineSplited[4]), int.Parse(lineSplited[5]))
+            );
+            return result;
+        }
+        catch (Exception ex)
+        {
+            throw new Exception($"Error while parsing Sprite-> {line}: {ex}");
+        }
     }
 }

@@ -8,45 +8,61 @@ public enum CommandTypes : int
     /// <summary>
     /// 
     /// </summary>
-    Fade = 'F',
+    Fade,
 
     /// <summary>
     /// 
     /// </summary>
-    Move = 'M',
+    Move,
 
     /// <summary>
     /// 
     /// </summary>
-    Scale = 'S',
+    MoveX,
+
 
     /// <summary>
     /// 
     /// </summary>
-    Rotate = 'R',
+    MoveY,
 
     /// <summary>
     /// 
     /// </summary>
-    Color = 'C',
+    Scale,
 
     /// <summary>
     /// 
     /// </summary>
-    Colour = 'C',
+    VectorScale,
 
     /// <summary>
     /// 
     /// </summary>
-    Parameter = 'P',
-    
-    /// <summary>
-    /// 
-    /// </summary>
-    Loop = 'L',
+    Rotate,
 
     /// <summary>
     /// 
     /// </summary>
-    Trigger = 'T'
+    Color,
+
+    /// <summary>
+    /// 
+    /// </summary>
+    Colour,
+
+    /// <summary>
+    /// 
+    /// </summary>
+    Parameter,
+
+    /// <summary>
+    /// 
+    /// </summary>
+    Loop,
+
+    /// <summary>
+    /// 
+    /// </summary>
+    Trigger
 }

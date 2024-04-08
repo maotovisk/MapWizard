@@ -1,4 +1,5 @@
 using System.Globalization;
+using System.Text;
 
 namespace MapWizard.BeatmapParser;
 
@@ -20,22 +21,22 @@ public class Fade : ICommand
     /// <summary>
     /// 
     /// </summary>
-    public TimeSpan StartTime { get; set; }
+    public TimeSpan? StartTime { get; set; }
 
     /// <summary>
     /// 
     /// </summary>
-    public TimeSpan EndTime { get; set; }
+    public TimeSpan? EndTime { get; set; }
 
     /// <summary>
     /// 
     /// </summary>
-    public double StartOpacity { get; set; }
+    public double? StartOpacity { get; set; }
 
     /// <summary>
     /// 
     /// </summary>
-    public double EndOpacity { get; set; }
+    public double? EndOpacity { get; set; }
 
     /// <summary>
     /// 
@@ -47,10 +48,10 @@ public class Fade : ICommand
     /// <param name="endOpacity"></param>
     private Fade(
         Easing easing,
-        TimeSpan startTime,
-        TimeSpan endTime,
-        double startOpacity,
-        double endOpacity
+        TimeSpan? startTime,
+        TimeSpan? endTime,
+        double? startOpacity,
+        double? endOpacity
     )
     {
         Easing = easing;
@@ -67,18 +68,19 @@ public class Fade : ICommand
     /// <param name="parsedCommands"></param>
     /// <param name="command"></param>
     /// <returns></returns>
-    public static Fade Decode(List<ICommand> parsedCommands, List<string> commands, int commandindex)
+    public static Fade Decode(string line)
     {
         // _F,(easing),(starttime),(endtime),(start_opacity),(end_opacity)
 
-        var commandSplit = commands[commandindex].Trim().Split(',');
+        var commandSplit = line.Trim().Split(',');
+
         return new Fade
         (
-            easing: (Easing)Enum.Parse(typeof(Easing), commandSplit[0]),
-            startTime: TimeSpan.FromMilliseconds(int.Parse(commandSplit[1])),
-            endTime: TimeSpan.FromMilliseconds(int.Parse(commandSplit[2])),
-            startOpacity: double.Parse(commandSplit[3], CultureInfo.InvariantCulture),
-            endOpacity: double.Parse(commandSplit[4], CultureInfo.InvariantCulture)
+            easing: (Easing)Enum.Parse(typeof(Easing), commandSplit[1]),
+            startTime: commandSplit.Length > 2 && !string.IsNullOrEmpty(commandSplit[2]) ? TimeSpan.FromMilliseconds(int.Parse(commandSplit[2])) : null,
+            endTime: commandSplit.Length > 3 && !string.IsNullOrEmpty(commandSplit[3]) ? TimeSpan.FromMilliseconds(int.Parse(commandSplit[3])) : null,
+            startOpacity: commandSplit.Length > 4 && !string.IsNullOrEmpty(commandSplit[4]) ? double.Parse(commandSplit[4], CultureInfo.InvariantCulture) : null,
+            endOpacity: commandSplit.Length > 5 && !string.IsNullOrEmpty(commandSplit[5]) ? double.Parse(commandSplit[5], CultureInfo.InvariantCulture) : null
         );
     }
 
@@ -88,6 +90,21 @@ public class Fade : ICommand
     /// <returns></returns>
     public string Encode()
     {
-        return $"F,{Easing},{StartTime},{EndTime},{StartOpacity},{EndOpacity}";
+        StringBuilder sb = new();
+        sb.Append("F,");
+        sb.Append((int)Easing);
+        sb.Append(',');
+        sb.Append(StartTime?.TotalMilliseconds.ToString(CultureInfo.InvariantCulture) ?? string.Empty);
+        sb.Append(',');
+        sb.Append(EndTime?.TotalMilliseconds.ToString(CultureInfo.InvariantCulture) ?? string.Empty);
+        sb.Append(',');
+        sb.Append(StartOpacity?.ToString(CultureInfo.InvariantCulture) ?? string.Empty);
+
+        if (EndOpacity == null) return sb.ToString();
+
+        sb.Append(',');
+        sb.Append(EndOpacity?.ToString(CultureInfo.InvariantCulture) ?? string.Empty);
+
+        return sb.ToString();
     }
 }

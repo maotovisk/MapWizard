@@ -1,4 +1,5 @@
 using System.Globalization;
+using System.Text;
 
 namespace MapWizard.BeatmapParser;
 
@@ -20,22 +21,22 @@ public class Rotate : ICommand
     /// <summary>
     /// 
     /// </summary>
-    public TimeSpan StartTime { get; set; }
+    public TimeSpan? StartTime { get; set; }
 
     /// <summary>
     /// 
     /// </summary>
-    public TimeSpan EndTime { get; set; }
+    public TimeSpan? EndTime { get; set; }
 
     /// <summary>
     /// 
     /// </summary>
-    public double StartRotate { get; set; }
+    public double? StartRotate { get; set; }
 
     /// <summary>
     /// 
     /// </summary>
-    public double EndRotate { get; set; }
+    public double? EndRotate { get; set; }
 
     /// <summary>
     /// 
@@ -47,10 +48,10 @@ public class Rotate : ICommand
     /// <param name="endRotate"></param>
     private Rotate(
         Easing easing,
-        TimeSpan startTime,
-        TimeSpan endTime,
-        double startRotate,
-        double endRotate
+        TimeSpan? startTime,
+        TimeSpan? endTime,
+        double? startRotate,
+        double? endRotate
     )
     {
         Easing = easing;
@@ -67,18 +68,18 @@ public class Rotate : ICommand
     /// <param name="parsedCommands"></param>
     /// <param name="command"></param>
     /// <returns></returns>
-    public static Rotate Decode(List<ICommand> parsedCommands, List<string> commands, int commandindex)
+    public static Rotate Decode(string line)
     {
         // _R,<easing>,<starttime>,<endtime>,<start_rotate>,<end_rotate>
 
-        var commandSplit = commands[commandindex].Trim().Split(',');
+        var commandSplit = line.Trim().Split(',');
         return new Rotate
         (
-            easing: (Easing)Enum.Parse(typeof(Easing), commandSplit[0]),
-            startTime: TimeSpan.FromMilliseconds(int.Parse(commandSplit[1])),
-            endTime: TimeSpan.FromMilliseconds(int.Parse(commandSplit[2])),
-            startRotate: double.Parse(commandSplit[3], CultureInfo.InvariantCulture),
-            endRotate: double.Parse(commandSplit[4], CultureInfo.InvariantCulture)
+            easing: (Easing)Enum.Parse(typeof(Easing), commandSplit[1]),
+            startTime: commandSplit.Length > 2 && !string.IsNullOrEmpty(commandSplit[2]) ? TimeSpan.FromMilliseconds(int.Parse(commandSplit[2])) : null,
+            endTime: commandSplit.Length > 3 && !string.IsNullOrEmpty(commandSplit[3]) ? TimeSpan.FromMilliseconds(int.Parse(commandSplit[3])) : null,
+            startRotate: commandSplit.Length > 4 && !string.IsNullOrEmpty(commandSplit[4]) ? double.Parse(commandSplit[4], CultureInfo.InvariantCulture) : null,
+            endRotate: commandSplit.Length > 5 && !string.IsNullOrEmpty(commandSplit[5]) ? double.Parse(commandSplit[5], CultureInfo.InvariantCulture) : null
         );
     }
 
@@ -88,6 +89,20 @@ public class Rotate : ICommand
     /// <returns></returns>
     public string Encode()
     {
-        return $"R,{Easing},{StartTime},{EndTime},{StartRotate},{EndRotate}";
+        StringBuilder sb = new();
+        sb.Append("R,");
+        sb.Append((int)Easing);
+        sb.Append(',');
+        sb.Append(StartTime?.TotalMilliseconds.ToString(CultureInfo.InvariantCulture) ?? string.Empty);
+        sb.Append(',');
+        sb.Append(EndTime?.TotalMilliseconds.ToString(CultureInfo.InvariantCulture) ?? string.Empty);
+        sb.Append(',');
+        sb.Append(StartRotate?.ToString(CultureInfo.InvariantCulture) ?? string.Empty);
+        if (EndRotate == null) return sb.ToString();
+
+        sb.Append(',');
+        sb.Append(EndRotate?.ToString(CultureInfo.InvariantCulture) ?? string.Empty);
+
+        return sb.ToString();
     }
 }
