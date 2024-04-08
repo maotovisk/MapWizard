@@ -77,13 +77,17 @@ public class Trigger : ICommand, ICommands
     /// <returns></returns>
     public string Encode()
     {
+        if (Commands.Count == 0) return $"T,{TriggerType},{StartTime.TotalMilliseconds.ToString(CultureInfo.InvariantCulture)},{EndTime.TotalMilliseconds.ToString(CultureInfo.InvariantCulture)}";
+
         StringBuilder builder = new();
-        builder.AppendLine($"T,{TriggerType},{StartTime.Milliseconds.ToString(CultureInfo.InvariantCulture)},{EndTime.Milliseconds.ToString(CultureInfo.InvariantCulture)}");
+        builder.AppendLine($"T,{TriggerType},{StartTime.TotalMilliseconds.ToString(CultureInfo.InvariantCulture)},{EndTime.TotalMilliseconds.ToString(CultureInfo.InvariantCulture)}");
+
         foreach (var command in Commands[..^1])
         {
-            builder.AppendLine(string.Join(Environment.NewLine, command.Encode().Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries).Select(line => " " + line)));
+            builder.AppendLine(command is ICommands ? string.Join(Environment.NewLine, command.Encode().Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries).Select(line => " " + line)) : " " + command.Encode());
         }
-        builder.Append(string.Join(Environment.NewLine, Commands.Last().Encode().Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries).Select(line => " " + line)));
+
+        builder.AppendLine(Commands.Last() is ICommands ? string.Join(Environment.NewLine, Commands.Last().Encode().Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries).Select(line => " " + line)) : " " + Commands.Last().Encode());
 
         return builder.ToString();
     }

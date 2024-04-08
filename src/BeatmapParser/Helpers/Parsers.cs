@@ -231,10 +231,7 @@ public partial class Helper
     {
         var commandType = commandline.Split(',')[0];
 
-        while (commandType.StartsWith(" ") || commandType.StartsWith("_"))
-        {
-            commandType = commandType.Substring(1);
-        }
+        while (commandType.StartsWith(' ') || commandType.StartsWith('_')) commandType = commandType[1..];
 
         commandType = commandType.Trim();
 

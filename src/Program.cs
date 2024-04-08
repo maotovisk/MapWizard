@@ -6,7 +6,7 @@ class Program
 {
     static void Main(string[] args)
     {
-        var inputFile = "/home/maot/projects/HitsoundCopier/test4.osu";
+        var inputFile = "/home/maot/projects/HitsoundCopier/test5.osu";
 
         var fileToParse = File.ReadAllText(inputFile);
 
@@ -14,6 +14,6 @@ class Program
 
         var beatmapString = beatmap.Encode();
 
-        File.WriteAllText("test4-parsed.osu", beatmapString);
+        File.WriteAllText("test5-parsed.osu", beatmapString);
     }
 }
