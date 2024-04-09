@@ -106,7 +106,6 @@ public class Events : IEvents
             var currentdepth = GetDepth(sectionRaw[tempindex]);
             if (currentdepth > depth)
             {
-                Console.WriteLine($"{depth} > | index: {tempindex}, ");
                 if (currentEvent.Commands.Last() is not ICommands) throw new Exception($"{currentEvent.Commands.Last()} do not support commands");
 
                 tempindex = AddCommands((ICommands)currentEvent.Commands.Last(), sectionRaw, tempindex, currentdepth);
