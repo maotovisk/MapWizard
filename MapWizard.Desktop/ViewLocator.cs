@@ -1,4 +1,6 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
+using System.Reflection;
 using Avalonia.Controls;
 using Avalonia.Controls.Templates;
 using MapWizard.Desktop.ViewModels;
@@ -7,14 +9,15 @@ namespace TestMVVM;
 
 public class ViewLocator : IDataTemplate
 {
-
     public Control? Build(object? data)
     {
         if (data is null)
             return null;
 
         var name = data.GetType().FullName!.Replace("ViewModel", "View", StringComparison.Ordinal);
+#pragma warning disable IL2057 // Unrecognized value passed to the parameter of method. It's not possible to guarantee the availability of the target type.
         var type = Type.GetType(name);
+#pragma warning restore IL2057 // Unrecognized value passed to the parameter of method. It's not possible to guarantee the availability of the target type.
 
         if (type != null)
         {
