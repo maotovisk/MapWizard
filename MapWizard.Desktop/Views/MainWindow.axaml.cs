@@ -1,6 +1,6 @@
 using Avalonia.Controls;
 
-namespace MapWizard.Desktop;
+namespace MapWizard.Desktop.Views;
 
 public partial class MainWindow : Window
 {
