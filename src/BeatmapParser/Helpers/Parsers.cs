@@ -190,7 +190,7 @@ public partial class Helper
 
         string eventType = eventLine[0].Trim();
 
-        foreach (EventTypes type in Enum.GetValues(typeof(EventTypes)))
+        foreach (EventTypes type in Enum.GetValues<EventTypes>())
         {
             if (type.ToString().Equals(eventType, StringComparison.CurrentCultureIgnoreCase) ||
                 ((int)type).ToString().Equals(eventType, StringComparison.CurrentCultureIgnoreCase))
@@ -198,27 +198,6 @@ public partial class Helper
         }
 
         throw new Exception($"Invalid event type: {eventType}");
-    }
-
-    /// <summary>
-    /// Returns the <see cref="Type"/> of an event.
-    /// </summary>
-    /// <param name="eventIdentity"></param>
-    /// <returns></returns>
-    /// <exception cref="Exception"></exception>
-
-    public static Type GetEventType(EventTypes eventIdentity)
-    {
-        return eventIdentity switch
-        {
-            EventTypes.Background => typeof(Background),
-            EventTypes.Video => typeof(Video),
-            EventTypes.Break => typeof(Break),
-            EventTypes.Sample => typeof(Sample),
-            EventTypes.Sprite => typeof(Sprite),
-            EventTypes.Animation => typeof(Animation),
-            _ => throw new Exception($"Unhandled event with identification '{eventIdentity}'."),
-        };
     }
 
     /// <summary>

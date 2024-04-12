@@ -58,7 +58,7 @@ public class Animation : Sprite
     {
         FrameCount = 0;
         FrameDelay = TimeSpan.FromMilliseconds(0);
-        Looptype = LoopType.Forever;
+        Looptype = LoopType.LoopForever;
     }
 
     /// <summary>
@@ -67,9 +67,9 @@ public class Animation : Sprite
     /// <returns></returns>
     public new string Encode()
     {
-        if (Commands.Count == 0) return $"{EventType.Animation},{(int)Layer},{(int)Origin},{FilePath},{Position.X},{Position.Y},{FrameCount},{FrameDelay},{Looptype}";
+        if (Commands.Count == 0) return $"{EventType.Animation},{(int)Layer},{(int)Origin},{FilePath},{Position.X.ToString(CultureInfo.InvariantCulture)},{Position.Y.ToString(CultureInfo.InvariantCulture)},{FrameCount},{FrameDelay},{Looptype}";
         StringBuilder builder = new();
-        builder.AppendLine($"{EventType.Animation},{(int)Layer},{(int)Origin},{FilePath},{Position.X},{Position.Y},{FrameCount},{FrameDelay},{Looptype}");
+        builder.AppendLine($"{EventType.Animation},{(int)Layer},{(int)Origin},{FilePath},{Position.X.ToString(CultureInfo.InvariantCulture)},{Position.Y.ToString(CultureInfo.InvariantCulture)},{FrameCount},{FrameDelay},{Looptype}");
         foreach (var command in Commands[..^1])
         {
             builder.AppendLine(command is ICommands ? string.Join(Environment.NewLine, command.Encode().Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries).Select(line => " " + line)) : " " + command.Encode());
@@ -93,13 +93,13 @@ public class Animation : Sprite
 
         var result = new Animation
         (
-            layer: (Layer)Enum.Parse(typeof(Layer), lineSplit[0]),
-            origin: (Origin)Enum.Parse(typeof(Origin), lineSplit[1]),
-            filePath: lineSplit[2],
-            position: new Vector2(int.Parse(lineSplit[3]), int.Parse(lineSplit[4])),
-            frameCount: uint.Parse(lineSplit[5]),
-            frameDelay: TimeSpan.FromMilliseconds(int.Parse(lineSplit[6])),
-            looptype: (LoopType)Enum.Parse(typeof(LoopType), lineSplit[7].Skip(4).ToString() ?? throw new Exception("Invalid looptype"))
+            layer: (Layer)Enum.Parse(typeof(Layer), lineSplit[1]),
+            origin: (Origin)Enum.Parse(typeof(Origin), lineSplit[2]),
+            filePath: lineSplit[3],
+            position: new Vector2(float.Parse(lineSplit[4], CultureInfo.InvariantCulture), float.Parse(lineSplit[5], CultureInfo.InvariantCulture)),
+            frameCount: uint.Parse(lineSplit[6]),
+            frameDelay: TimeSpan.FromMilliseconds(double.Parse(lineSplit[7], CultureInfo.InvariantCulture)),
+            looptype: lineSplit.Length > 8 ? (LoopType)Enum.Parse(typeof(LoopType), lineSplit[8] ?? throw new Exception("Invalid looptype")) : LoopType.LoopForever
         );
 
         return result;

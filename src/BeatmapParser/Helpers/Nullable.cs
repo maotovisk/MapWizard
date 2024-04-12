@@ -33,7 +33,7 @@ public partial class Helper
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <returns></returns>
-    private static int CountNonNullableProperties<T>() => typeof(T).GetProperties().Count(p => !IsNullable(p.PropertyType));
+    private static int CountNonNullableProperties<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] T>() => typeof(T).GetProperties().Count(p => !IsNullable(p.PropertyType));
 
 
     /// <summary>
@@ -41,7 +41,7 @@ public partial class Helper
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <returns></returns>
-    private static int CountProperties<T>() => typeof(T).GetProperties().Length;
+    private static int CountProperties<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] T>() => typeof(T).GetProperties().Length;
 
     /// <summary>
     /// Gets the missing properties from a list of properties.
@@ -49,7 +49,7 @@ public partial class Helper
     /// <typeparam name="T"></typeparam>
     /// <param name="properties"></param>
     /// <returns></returns>
-    public static IEnumerable<string> GetMissingPropertiesNames<T>(IEnumerable<string> properties)
+    public static IEnumerable<string> GetMissingPropertiesNames<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] T>(IEnumerable<string> properties)
     {
         List<string> missingProperties = [];
         foreach (var property in typeof(T).GetProperties())
@@ -68,6 +68,6 @@ public partial class Helper
     /// <typeparam name="T"></typeparam>
     /// <param name="count"></param>
     /// <returns></returns>
-    public static bool IsWithinPropertyQuantity<T>(int count) => count > CountProperties<T>() || count < CountNonNullableProperties<T>();
+    public static bool IsWithinPropertyQuantity<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] T>(int count) => count > CountProperties<T>() || count < CountNonNullableProperties<T>();
 
 }

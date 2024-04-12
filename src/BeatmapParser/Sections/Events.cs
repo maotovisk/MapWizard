@@ -70,7 +70,7 @@ public class Events : IEvents
                     var eventSplit = line.Split(',', 2);
                     if (eventSplit.Length != 2) throw new Exception("Invalid event length");
 
-                    IEvent @event = Helper.ParseEventType(eventSplit) switch
+                    IEvent? @event = Helper.ParseEventType(eventSplit) switch
                     {
                         EventTypes.Background => Background.Decode(line),
                         EventTypes.Video => Video.Decode(line),
@@ -78,9 +78,12 @@ public class Events : IEvents
                         EventTypes.Sample => Sample.Decode(line),
                         EventTypes.Sprite => Sprite.Decode(line),
                         EventTypes.Animation => Animation.Decode(line),
-                        _ => throw new Exception($"Unhandled event with identification '{eventSplit[0]}'."),
+                        _ => null,
                     };
-                    events.Add(@event);
+
+                    if (@event != null)
+                        events.Add(@event);
+
                     continue;
                 }
 

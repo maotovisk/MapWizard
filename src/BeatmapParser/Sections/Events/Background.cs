@@ -1,4 +1,5 @@
 
+using System.Globalization;
 using System.Numerics;
 using System.Text;
 
@@ -7,7 +8,7 @@ namespace MapWizard.BeatmapParser;
 /// <summary>
 /// 
 /// </summary>
-public class Background : IEvent
+public class Background : IEvent, ICommands
 {
     /// <summary>
     /// 
@@ -29,6 +30,8 @@ public class Background : IEvent
     /// </summary>
     public Vector2? Offset { get; set; }
 
+    public List<ICommand> Commands { get; set; }
+
 
     /// <summary>
     /// 
@@ -36,6 +39,7 @@ public class Background : IEvent
     private Background()
     {
         Filename = string.Empty;
+        Commands = [];
     }
 
     /// <summary>
@@ -48,6 +52,7 @@ public class Background : IEvent
         StartTime = TimeSpan.FromMilliseconds(0);
         Filename = filename;
         Offset = offset;
+        Commands = [];
     }
 
     /// <summary>
@@ -61,6 +66,7 @@ public class Background : IEvent
         StartTime = time;
         Filename = filename;
         Offset = offset;
+        Commands = [];
     }
 
     /// <summary>
@@ -71,9 +77,18 @@ public class Background : IEvent
     {
         StringBuilder sb = new();
 
-        sb.Append($"{(int)Type},{StartTime.TotalMilliseconds},{Filename}");
+        sb.Append($"{(int)Type},{StartTime.TotalMilliseconds.ToString(CultureInfo.InvariantCulture)},{Filename}");
 
-        if (Offset != null) sb.Append($",{Offset?.X},{Offset?.Y}");
+        if (Offset != null) sb.Append($",{Offset?.X.ToString(CultureInfo.InvariantCulture)},{Offset?.Y.ToString(CultureInfo.InvariantCulture)}");
+
+        sb.AppendLine();
+        if (Commands.Count == 0) sb.ToString();
+
+        foreach (var command in Commands[..^1])
+        {
+            sb.AppendLine(command is ICommands ? string.Join(Environment.NewLine, command.Encode().Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries).Select(line => " " + line)) : " " + command.Encode());
+        }
+        sb.AppendLine(Commands.Last() is ICommands ? string.Join(Environment.NewLine, Commands.Last().Encode().Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries).Select(line => " " + line)) : " " + Commands.Last().Encode());
 
         return sb.ToString();
     }
@@ -93,8 +108,8 @@ public class Background : IEvent
             return new Background
             (
                 filename: args[2],
-                time: TimeSpan.FromMilliseconds(int.Parse(args[1])),
-                offset: args.Length >= 4 ? new Vector2(int.Parse(args[3]), int.Parse(args[4])) : null
+                time: TimeSpan.FromMilliseconds(float.Parse(args[1], CultureInfo.InvariantCulture)),
+                offset: args.Length >= 4 ? new Vector2(float.Parse(args[3], CultureInfo.InvariantCulture), float.Parse(args[4], CultureInfo.InvariantCulture)) : null
             );
         }
         catch (Exception ex)

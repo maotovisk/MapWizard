@@ -99,7 +99,7 @@ public class Sample : IEvent
                 startTime: TimeSpan.FromMilliseconds(int.Parse(args[1])),
                 layer: (Layer)Enum.Parse(typeof(Layer), args[2]),
                 filePath: args[3],
-                volume: int.Parse(args[4])
+                volume: args.Length > 4 ? int.Parse(args[4]) : 100
             );
         }
         catch (Exception ex)

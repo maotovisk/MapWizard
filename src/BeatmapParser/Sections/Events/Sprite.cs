@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Numerics;
 using System.Runtime.Serialization;
 using System.Text;
@@ -80,10 +81,10 @@ public class Sprite : IEvent, ICommands, ILayeredEvent
     /// <returns></returns>
     public string Encode()
     {
-        if (Commands.Count == 0) return $"{EventType.Sprite},{(int)Layer},{(int)Origin},{FilePath},{Position.X},{Position.Y}";
+        if (Commands.Count == 0) return $"{EventType.Sprite},{(int)Layer},{(int)Origin},{FilePath},{Position.X.ToString(CultureInfo.InvariantCulture)},{Position.Y.ToString(CultureInfo.InvariantCulture)}";
 
         StringBuilder builder = new();
-        builder.AppendLine($"{EventType.Sprite},{Layer},{Origin},{FilePath},{Position.X},{Position.Y}");
+        builder.AppendLine($"{EventType.Sprite},{Layer},{Origin},{FilePath},{Position.X.ToString(CultureInfo.InvariantCulture)},{Position.Y.ToString(CultureInfo.InvariantCulture)}");
         foreach (var command in Commands[..^1])
         {
             builder.AppendLine(command is ICommands ? string.Join(Environment.NewLine, command.Encode().Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries).Select(line => " " + line)) : " " + command.Encode());
@@ -116,7 +117,7 @@ public class Sprite : IEvent, ICommands, ILayeredEvent
                 layer: (Layer)Enum.Parse(typeof(Layer), lineSplited[1]),
                 origin: (Origin)Enum.Parse(typeof(Origin), lineSplited[2]),
                 filePath: lineSplited[3],
-                position: new Vector2(int.Parse(lineSplited[4]), int.Parse(lineSplited[5]))
+                position: new Vector2(float.Parse(lineSplited[4], CultureInfo.InvariantCulture), float.Parse(lineSplited[5], CultureInfo.InvariantCulture))
             );
             return result;
         }

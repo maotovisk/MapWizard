@@ -8,10 +8,10 @@ public enum LoopType : int
     /// <summary>
     /// 
     /// </summary>
-    Forever  = 0,
+    LoopForever = 0,
 
     /// <summary>
     /// 
     /// </summary>
-    Once = 1,
+    LoopOnce = 1,
 }
