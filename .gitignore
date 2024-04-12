@@ -1,5 +1,7 @@
 bin/
 obj/
+**/obj/
+**/bin/
 parsing_errors.log
 encode_diffs.log
 output.osu
