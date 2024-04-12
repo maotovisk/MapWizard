@@ -1,0 +1,55 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:materialIcons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+             xmlns:p1="clr-namespace:Material.Styles.Assists;assembly=Material.Styles"
+             xmlns:controls="clr-namespace:Material.Styles.Controls;assembly=Material.Styles"
+             xmlns:vm="clr-namespace:MapWizard.Desktop.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="MapWizard.Desktop.Views.HitsoundCopierView"
+             x:DataType="vm:HitsoundCopierViewModel">
+  <UserControl.DataContext>
+      <vm:HitsoundCopierViewModel/>
+  </UserControl.DataContext>
+
+  <Grid>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto"/>
+      <RowDefinition Height="*"/>
+      <RowDefinition Height="Auto"/>
+    </Grid.RowDefinitions>
+    <controls:Card Margin="16" Grid.Row="0">
+      <StackPanel>
+        <Grid Margin="16">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
+          </Grid.ColumnDefinitions>
+          <TextBox VerticalAlignment="Center" UseFloatingWatermark="True" Theme="{StaticResource FilledTextBox}" Padding="16 16" p1:TextFieldAssist.Label="Origin Beatmap"/>
+          <Button Margin="8 8" Grid.Column="1" Content="Browse" VerticalAlignment="Center"/>
+        </Grid>
+        <Grid Margin="16">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+          <ColumnDefinition Width="Auto"/>
+        </Grid.ColumnDefinitions>
+        <TextBox VerticalAlignment="Center" UseFloatingWatermark="True" Theme="{StaticResource FilledTextBox}" Padding="16 16" p1:TextFieldAssist.Label="Target Beatmap"/>
+        <Button Margin="8 8" Grid.Column="1" Content="Browse" VerticalAlignment="Center"/>
+      </Grid>
+      </StackPanel>
+    </controls:Card>
+    <StackPanel Grid.Row="1">
+    </StackPanel>
+    <StackPanel Grid.Row="2">
+      <Grid Margin="16">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+          <ColumnDefinition Width="Auto"/>
+        </Grid.ColumnDefinitions>
+        <Button Grid.Column="1" Content="Copy Hitsounds" ToolTip.Tip="Click here to copy the hitsounds from the origin to the target." CornerRadius="16" />
+        </Grid>
+    </StackPanel>
+  </Grid>
+
+</UserControl>

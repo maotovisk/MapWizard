@@ -1,11 +1,9 @@
 using System;
-using System.Diagnostics.CodeAnalysis;
-using System.Reflection;
 using Avalonia.Controls;
 using Avalonia.Controls.Templates;
 using MapWizard.Desktop.ViewModels;
 
-namespace TestMVVM;
+namespace MapWizard.Desktop;
 
 public class ViewLocator : IDataTemplate
 {

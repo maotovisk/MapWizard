@@ -6,6 +6,7 @@
         xmlns:vm="using:MapWizard.Desktop.ViewModels"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="MapWizard.Desktop.Views.MainWindow"
+        x:DataType="vm:MainWindowViewModel"
         Title="MapWizard">
 
         <Window.DataContext>
@@ -27,7 +28,13 @@
                                 <RowDefinition Height="Auto" />   
                         </Grid.RowDefinitions>
                         <StackPanel>
-                                <Button Foreground="Black" Theme="{StaticResource MaterialFlatButton}" Height="64"> 
+                                <Button Foreground="Black" Theme="{StaticResource MaterialFlatButton}" Height="64" Command="{Binding ShowWelcomePageCommand}"> 
+                                        <StackPanel>
+                                                <materialIcons:MaterialIcon Kind="Home" Width="24" Height="24"/>
+                                                <TextBlock TextAlignment="Center" TextWrapping="Wrap" Text="Start" Width="64" FontSize="14"/>
+                                        </StackPanel>
+                                </Button>
+                                <Button Foreground="Black" Theme="{StaticResource MaterialFlatButton}" Height="64" Command="{Binding ShowHitsoundCopierCommand}"> 
                                         <StackPanel>
                                                 <materialIcons:MaterialIcon Kind="ContentCopy" Width="24" Height="24"/>
                                                 <TextBlock TextAlignment="Center" TextWrapping="Wrap" Text="HitSound Copier" Width="64" FontSize="14"/>
@@ -48,6 +55,7 @@
                         </Button>
                 </Grid>
                 <Panel Grid.Row="0" Grid.Column="1">
+                        <ContentControl Content="{Binding CurrentView}"/>
                 </Panel>
         </Grid>
 </Window>
