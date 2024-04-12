@@ -1,3 +1,5 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace MapWizard.BeatmapParser;
 
 /// <summary>

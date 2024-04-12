@@ -1,6 +1,4 @@
 using MapWizard.BeatmapParser;
-using ShellProgressBar;
-
 namespace MapWizard.Tests;
 
 /// <summary>
@@ -20,31 +18,22 @@ public class Decoding
 
         Console.ReadKey();
 
-        var options = new ProgressBarOptions
-        {
-            BackgroundCharacter = '\u2593',
-            ForegroundColor = ConsoleColor.DarkGreen,
-            BackgroundColor = ConsoleColor.Gray,
-            ProgressBarOnBottom = true
-        };
-
         List<(string File, Exception Exception)> parsingErrors = [];
 
         List<Beatmap> parsedBeatmaps = [];
 
-        using (var pbar = new ProgressBar(osuFiles.Length, "Initial message", options))
-            foreach (string osuFile in osuFiles)
+        foreach (string osuFile in osuFiles)
+        {
+            try
             {
-                try
-                {
-                    pbar.Tick($"Parsing Beatmap {osuFile}");
-                    parsedBeatmaps.Add(Beatmap.Decode(new FileInfo(osuFile)));
-                }
-                catch (Exception e)
-                {
-                    parsingErrors.Add((osuFile, e));
-                }
+                ConsoleUtils.ProgressBar.DrawProgressBar(osuFiles.Length, parsedBeatmaps.Count);
+                parsedBeatmaps.Add(Beatmap.Decode(new FileInfo(osuFile)));
             }
+            catch (Exception e)
+            {
+                parsingErrors.Add((osuFile, e));
+            }
+        }
 
         Console.WriteLine($"Parsing completed with {parsingErrors.Count - parsingErrors.Count(e =>
             e.Exception.Message.Contains("is not supported yet.") || e.Exception.Message.Contains("Invalid beatmap file") || e.Exception.Message.Contains("Beatmap is empty"))} errors");

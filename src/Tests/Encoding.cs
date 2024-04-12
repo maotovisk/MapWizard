@@ -1,6 +1,5 @@
 using System.Text;
 using MapWizard.BeatmapParser;
-using ShellProgressBar;
 
 namespace MapWizard.Tests;
 
@@ -21,19 +20,13 @@ public class Encoding
         Console.ReadKey();
 
         List<string> differences = [];
-        var options = new ProgressBarOptions
-        {
-            BackgroundCharacter = '\u2593',
-            ForegroundColor = ConsoleColor.DarkGreen,
-            BackgroundColor = ConsoleColor.Gray,
-            ProgressBarOnBottom = true
-        };
 
-        using var pbar = new ProgressBar(osuFiles.Length, "Initial message", options);
+        int count = 0;
 
         foreach (string osuFile in osuFiles)
         {
-            pbar.Tick($"Checking file: {osuFile}");
+            count++;
+            ConsoleUtils.ProgressBar.DrawProgressBar(osuFiles.Length, count);
             string fileContent = File.ReadAllText(osuFile);
 
             try
@@ -54,6 +47,7 @@ public class Encoding
                 for (int index1 = 0, index2 = 0; index1 < maxLength && index2 < maxLength; ++index1, ++index2)
                 {
                     while (index1 < maxLength && originaLines[index1].StartsWith("//")) ++index1;
+                    while (index2 < maxLength && parsedLines[index2].StartsWith("//")) ++index2;
 
                     if (originaLines[index1] == parsedLines[index2]) continue;
 

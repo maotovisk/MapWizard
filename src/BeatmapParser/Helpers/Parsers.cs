@@ -19,7 +19,7 @@ public partial class Helper
         if (data == 0) return [HitSound.None];
         List<HitSound> hitSounds = [];
 
-        foreach (HitSound name in Enum.GetValues(typeof(HitSound)))
+        foreach (HitSound name in Enum.GetValues<HitSound>())
         {
             if ((data & (int)name) != 0) hitSounds.Add(name);
         }
@@ -50,7 +50,7 @@ public partial class Helper
     public static List<Effect> ParseEffects(int data)
     {
         List<Effect> types = [];
-        foreach (Effect name in Enum.GetValues(typeof(Effect)))
+        foreach (Effect name in Enum.GetValues<Effect>())
         {
             if ((data & (int)name) != 00000000) types.Add(name);
         }
@@ -80,7 +80,7 @@ public partial class Helper
     public static HitObjectType ParseHitObjectType(int data)
     {
         List<HitObjectType> types = [];
-        foreach (HitObjectType name in Enum.GetValues(typeof(HitObjectType)))
+        foreach (HitObjectType name in Enum.GetValues<HitObjectType>())
         {
             if ((data & (int)name) != 0x00000000) types.Add(name);
         }
