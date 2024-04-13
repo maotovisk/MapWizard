@@ -1,6 +1,6 @@
 using System.Text;
 
-namespace MapWizard.BeatmapParser.Sections;
+namespace MapWizard.BeatmapParser;
 
 /// <summary>
 /// Represents the hit objects section of a beatmap.

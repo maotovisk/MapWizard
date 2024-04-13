@@ -1,7 +1,7 @@
 using System.Globalization;
 using System.Text;
 
-namespace MapWizard.BeatmapParser.Sections;
+namespace MapWizard.BeatmapParser;
 
 /// <summary>
 ///  This is a osu file format v14 specification of the Metadata section.

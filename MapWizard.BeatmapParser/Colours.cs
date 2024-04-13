@@ -1,7 +1,7 @@
 using System.Numerics;
 using System.Text;
 
-namespace MapWizard.BeatmapParser.Sections;
+namespace MapWizard.BeatmapParser;
 
 /// <summary>
 /// Represents the colours section of a <see cref="Beatmap"/>.
@@ -21,12 +21,12 @@ public class Colours
     /// <summary>
     /// The list of combo colours of the beatmap.
     /// </summary>
-    public List<IComboColour> Combos { get; set; }
+    public List<ComboColour> Combos { get; set; }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="Colours"/> class with the specified parameters.
     /// </summary>
-    public Colours(Vector3 sliderBorder, Vector3 sliderTrackOverride, List<IComboColour> combos)
+    public Colours(Vector3 sliderBorder, Vector3 sliderTrackOverride, List<ComboColour> combos)
     {
         SliderBorder = sliderBorder;
         SliderTrackOverride = sliderTrackOverride;

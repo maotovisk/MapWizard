@@ -1,5 +1,5 @@
 using System.Text;
-using MapWizard.BeatmapParser.Sections;
+using MapWizard.BeatmapParser;
 
 namespace MapWizard.BeatmapParser;
 
@@ -119,14 +119,14 @@ public class Beatmap : IEncodable
 
         if (Helper.IsWithinPropertyQuantity<Beatmap>(sections.Count)) throw new Exception($"Invalid number of sections. Expected {typeof(Beatmap).GetProperties().Length} but got {sections.Count}.");
 
-        var general = Sections.General.Decode(sections[$"{SectionTypes.General}"]);
-        var editor = sections.ContainsKey($"{SectionTypes.Editor}") ? Sections.Editor.Decode(sections[$"{SectionTypes.Editor}"]) : null;
-        var metadata = Sections.Metadata.Decode(sections[$"{SectionTypes.Metadata}"]);
-        var difficulty = Sections.Difficulty.Decode(sections[$"{SectionTypes.Difficulty}"]);
-        var colours = sections.ContainsKey($"{SectionTypes.Colours}") ? Sections.Colours.Decode(sections[$"{SectionTypes.Colours}"]) : null;
-        var events = Sections.Events.Decode(sections[$"{SectionTypes.Events}"]);
-        var timingPoints = sections.ContainsKey($"{SectionTypes.TimingPoints}") ? Sections.TimingPoints.Decode(sections[$"{SectionTypes.TimingPoints}"]) : null;
-        var hitObjects = Sections.HitObjects.Decode(sections[$"{SectionTypes.HitObjects}"], timingPoints ?? new TimingPoints(), difficulty);
+        var general = General.Decode(sections[$"{SectionTypes.General}"]);
+        var editor = sections.ContainsKey($"{SectionTypes.Editor}") ? Editor.Decode(sections[$"{SectionTypes.Editor}"]) : null;
+        var metadata = Metadata.Decode(sections[$"{SectionTypes.Metadata}"]);
+        var difficulty = Difficulty.Decode(sections[$"{SectionTypes.Difficulty}"]);
+        var colours = sections.ContainsKey($"{SectionTypes.Colours}") ? Colours.Decode(sections[$"{SectionTypes.Colours}"]) : null;
+        var events = Events.Decode(sections[$"{SectionTypes.Events}"]);
+        var timingPoints = sections.ContainsKey($"{SectionTypes.TimingPoints}") ? TimingPoints.Decode(sections[$"{SectionTypes.TimingPoints}"]) : null;
+        var hitObjects = HitObjects.Decode(sections[$"{SectionTypes.HitObjects}"], timingPoints ?? new TimingPoints(), difficulty);
 
         return new Beatmap(
             formatVersion, metadata, general, editor, difficulty, colours, events, timingPoints, hitObjects
@@ -201,11 +201,7 @@ public class Beatmap : IEncodable
     /// <returns></returns>
     public UninheritedTimingPoint? GetUninheritedTimingPointAt(double time)
     {
-        if (TimingPoints is TimingPoints section)
-        {
-            return section.GetUninheritedTimingPointAt(time);
-        }
-        return null;
+        return TimingPoints?.GetUninheritedTimingPointAt(time);
     }
 
     /// <summary>
@@ -215,11 +211,7 @@ public class Beatmap : IEncodable
     /// <returns></returns>
     public InheritedTimingPoint? GetInheritedTimingPointAt(double time)
     {
-        if (TimingPoints is TimingPoints section)
-        {
-            return section.GetInheritedTimingPointAt(time);
-        }
-        return null;
+        return TimingPoints?.GetInheritedTimingPointAt(time);
     }
 
     /// <summary>
@@ -229,11 +221,7 @@ public class Beatmap : IEncodable
     /// <returns></returns>
     public uint GetVolumeAt(double time)
     {
-        if (TimingPoints is TimingPoints section)
-        {
-            return section.GetVolumeAt(time);
-        }
-        return 100;
+        return TimingPoints?.GetVolumeAt(time) ?? (uint)100;
     }
 
     /// <summary>
@@ -243,11 +231,7 @@ public class Beatmap : IEncodable
     /// <returns></returns>
     public double GetBpmAt(double time)
     {
-        if (TimingPoints is TimingPoints section)
-        {
-            return section.GetBpmAt(time);
-        }
-        return 120;
+        return TimingPoints?.GetBpmAt(time) ?? 120;
     }
 
     /// <summary>
@@ -258,6 +242,6 @@ public class Beatmap : IEncodable
     /// <returns></returns>
     public IHitObject? GetHitObjectAt(double time, int leniency = 2)
     {
-        return ((HitObjects)HitObjects).GetHitObjectAt(time, leniency);
+        return HitObjects.GetHitObjectAt(time, leniency);
     }
 }

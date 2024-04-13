@@ -1,5 +1,5 @@
 using System.Globalization;
-using MapWizard.BeatmapParser.Sections;
+using MapWizard.BeatmapParser;
 
 namespace MapWizard.BeatmapParser;
 

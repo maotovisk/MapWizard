@@ -5,7 +5,7 @@ namespace MapWizard.BeatmapParser;
 /// <summary>
 /// Represents the difficulty section of a beatmap.
 /// </summary>
-public class ComboColour : IComboColour
+public class ComboColour
 {
     /// <summary>
     /// Gets or sets the number of the combo colour of the beatmap.

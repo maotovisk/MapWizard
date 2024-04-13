@@ -1,7 +1,7 @@
 using System.Globalization;
 using System.Numerics;
 using System.Text;
-using MapWizard.BeatmapParser.Sections;
+using MapWizard.BeatmapParser;
 
 namespace MapWizard.BeatmapParser;
 

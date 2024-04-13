@@ -1,7 +1,7 @@
 using System.Globalization;
 using System.Text;
 
-namespace MapWizard.BeatmapParser.Sections;
+namespace MapWizard.BeatmapParser;
 
 /// <summary>
 /// Represents the difficulty section of a <see cref="Beatmap"/>.

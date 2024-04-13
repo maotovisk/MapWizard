@@ -1,7 +1,7 @@
 using System.Numerics;
 using System.Text;
 
-namespace MapWizard.BeatmapParser.Sections;
+namespace MapWizard.BeatmapParser;
 
 /// <summary>
 /// Represents the events section of a beatmap.
