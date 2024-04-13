@@ -11,7 +11,7 @@ public class Parameter : ICommand
     /// <summary>
     /// 
     /// </summary>
-    public CommandTypes Type { get; init; } = CommandTypes.Parameter;
+    public CommandType Type { get; init; } = CommandType.Parameter;
 
     /// <summary>
     /// 

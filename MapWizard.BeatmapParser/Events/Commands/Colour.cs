@@ -12,7 +12,7 @@ public class Colour : ICommand
     /// <summary>
     /// 
     /// </summary>
-    public CommandTypes Type { get; init; } = CommandTypes.Colour;
+    public CommandType Type { get; init; } = CommandType.Colour;
 
     /// <summary>
     /// 

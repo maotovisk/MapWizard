@@ -12,7 +12,7 @@ public class VectorScale : ICommand
     /// <summary>
     /// 
     /// </summary>
-    public CommandTypes Type { get; init; } = CommandTypes.VectorScale;
+    public CommandType Type { get; init; } = CommandType.VectorScale;
 
     /// <summary>
     /// 

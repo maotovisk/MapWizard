@@ -72,12 +72,12 @@ public class Events
 
                     IEvent? @event = Helper.ParseEventType(eventSplit) switch
                     {
-                        EventTypes.Background => Background.Decode(line),
-                        EventTypes.Video => Video.Decode(line),
-                        EventTypes.Break => Break.Decode(line),
-                        EventTypes.Sample => Sample.Decode(line),
-                        EventTypes.Sprite => Sprite.Decode(line),
-                        EventTypes.Animation => Animation.Decode(line),
+                        EventType.Background => Background.Decode(line),
+                        EventType.Video => Video.Decode(line),
+                        EventType.Break => Break.Decode(line),
+                        EventType.Sample => Sample.Decode(line),
+                        EventType.Sprite => Sprite.Decode(line),
+                        EventType.Animation => Animation.Decode(line),
                         _ => null,
                     };
 

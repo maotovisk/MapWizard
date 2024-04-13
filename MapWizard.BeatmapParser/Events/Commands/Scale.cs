@@ -11,7 +11,7 @@ public class Scale : ICommand
     /// <summary>
     /// 
     /// </summary>
-    public CommandTypes Type { get; init; } = CommandTypes.Scale;
+    public CommandType Type { get; init; } = CommandType.Scale;
 
     /// <summary>
     /// 

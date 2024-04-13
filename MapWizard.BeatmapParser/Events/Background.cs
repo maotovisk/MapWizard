@@ -81,8 +81,8 @@ public class Background : IEvent, IHasCommands
 
         if (Offset != null) sb.Append($",{Offset?.X.ToString(CultureInfo.InvariantCulture)},{Offset?.Y.ToString(CultureInfo.InvariantCulture)}");
 
+        if (Commands.Count < 1) return sb.ToString();
         sb.AppendLine();
-        if (Commands.Count == 0) sb.ToString();
 
         foreach (var command in Commands[..^1])
         {

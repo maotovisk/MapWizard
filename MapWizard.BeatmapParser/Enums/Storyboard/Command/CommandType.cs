@@ -3,7 +3,7 @@ namespace MapWizard.BeatmapParser;
 /// <summary>
 /// 
 /// </summary>
-public enum CommandTypes : int
+public enum CommandType : int
 {
     /// <summary>
     /// 

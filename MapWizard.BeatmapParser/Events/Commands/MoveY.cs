@@ -12,7 +12,7 @@ public class MoveY : ICommand
     /// <summary>
     /// 
     /// </summary>
-    public CommandTypes Type { get; init; } = CommandTypes.MoveY;
+    public CommandType Type { get; init; } = CommandType.MoveY;
 
     /// <summary>
     /// 

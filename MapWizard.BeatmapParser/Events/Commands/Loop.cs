@@ -11,7 +11,7 @@ public class Loop : ICommand, IHasCommands
     /// <summary>
     /// 
     /// </summary>
-    public CommandTypes Type { get; init; } = CommandTypes.Loop;
+    public CommandType Type { get; init; } = CommandType.Loop;
 
     /// <summary>
     /// 

@@ -1,8 +1,9 @@
 namespace MapWizard.BeatmapParser;
+
 /// <summary>
-/// Represents the type of event in a beatmap.
+/// 
 /// </summary>
-public enum EventType
+public enum EventType : int
 {
     /// <summary>
     /// Background event.
@@ -37,10 +38,5 @@ public enum EventType
     /// <summary>
     /// Animation event.
     /// </summary>
-    Animation = 6,
-
-    /// <summary>
-    /// Storyboard command event.
-    /// </summary>
-    StoryboardCommand = 7
+    Animation = 6
 }

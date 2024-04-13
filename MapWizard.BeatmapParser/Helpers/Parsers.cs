@@ -185,12 +185,12 @@ public partial class Helper
     /// <param name="eventLine"></param>
     /// <returns></returns>
     /// <exception cref="Exception"></exception>
-    public static EventTypes ParseEventType(string[] eventLine)
+    public static EventType ParseEventType(string[] eventLine)
     {
 
         string eventType = eventLine[0].Trim();
 
-        foreach (EventTypes type in Enum.GetValues<EventTypes>())
+        foreach (EventType type in Enum.GetValues<EventType>())
         {
             if (type.ToString().Equals(eventType, StringComparison.CurrentCultureIgnoreCase) ||
                 ((int)type).ToString().Equals(eventType, StringComparison.CurrentCultureIgnoreCase))
@@ -206,7 +206,7 @@ public partial class Helper
     /// <param name="commandType"></param>
     /// <returns></returns>
     /// <exception cref="Exception"></exception>
-    public static CommandTypes ParseCommandType(string commandline)
+    public static CommandType ParseCommandType(string commandline)
     {
         var commandType = commandline.Split(',')[0];
 
@@ -216,17 +216,17 @@ public partial class Helper
 
         return commandType switch
         {
-            "F" => CommandTypes.Fade,
-            "M" => CommandTypes.Move,
-            "MY" => CommandTypes.MoveY,
-            "MX" => CommandTypes.MoveX,
-            "S" => CommandTypes.Scale,
-            "V" => CommandTypes.VectorScale,
-            "R" => CommandTypes.Rotate,
-            "C" => CommandTypes.Colour,
-            "P" => CommandTypes.Parameter,
-            "L" => CommandTypes.Loop,
-            "T" => CommandTypes.Trigger,
+            "F" => CommandType.Fade,
+            "M" => CommandType.Move,
+            "MY" => CommandType.MoveY,
+            "MX" => CommandType.MoveX,
+            "S" => CommandType.Scale,
+            "V" => CommandType.VectorScale,
+            "R" => CommandType.Rotate,
+            "C" => CommandType.Colour,
+            "P" => CommandType.Parameter,
+            "L" => CommandType.Loop,
+            "T" => CommandType.Trigger,
             _ => throw new Exception($"Invalid command type: {commandType}"),
         };
     }
@@ -236,20 +236,20 @@ public partial class Helper
     {
         try
         {
-            CommandTypes identity = ParseCommandType(line);
+            CommandType identity = ParseCommandType(line);
             ICommand commandDecoded = identity switch
             {
-                CommandTypes.Fade => Fade.Decode(line),
-                CommandTypes.Move => Move.Decode(line),
-                CommandTypes.MoveY => MoveY.Decode(line),
-                CommandTypes.MoveX => MoveX.Decode(line),
-                CommandTypes.Scale => Scale.Decode(line),
-                CommandTypes.Loop => Loop.Decode(line),
-                CommandTypes.Trigger => Trigger.Decode(line),
-                CommandTypes.VectorScale => VectorScale.Decode(line),
-                CommandTypes.Rotate => Rotate.Decode(line),
-                CommandTypes.Colour => Colour.Decode(line),
-                CommandTypes.Parameter => Parameter.Decode(line),
+                CommandType.Fade => Fade.Decode(line),
+                CommandType.Move => Move.Decode(line),
+                CommandType.MoveY => MoveY.Decode(line),
+                CommandType.MoveX => MoveX.Decode(line),
+                CommandType.Scale => Scale.Decode(line),
+                CommandType.Loop => Loop.Decode(line),
+                CommandType.Trigger => Trigger.Decode(line),
+                CommandType.VectorScale => VectorScale.Decode(line),
+                CommandType.Rotate => Rotate.Decode(line),
+                CommandType.Colour => Colour.Decode(line),
+                CommandType.Parameter => Parameter.Decode(line),
                 _ => throw new Exception($"Unhandled command type \'{identity}\'"),
             };
             return commandDecoded;

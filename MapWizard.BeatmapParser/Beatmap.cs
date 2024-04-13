@@ -119,14 +119,14 @@ public class Beatmap : IEncodable
 
         if (Helper.IsWithinPropertyQuantity<Beatmap>(sections.Count)) throw new Exception($"Invalid number of sections. Expected {typeof(Beatmap).GetProperties().Length} but got {sections.Count}.");
 
-        var general = General.Decode(sections[$"{SectionTypes.General}"]);
-        var editor = sections.ContainsKey($"{SectionTypes.Editor}") ? Editor.Decode(sections[$"{SectionTypes.Editor}"]) : null;
-        var metadata = Metadata.Decode(sections[$"{SectionTypes.Metadata}"]);
-        var difficulty = Difficulty.Decode(sections[$"{SectionTypes.Difficulty}"]);
-        var colours = sections.ContainsKey($"{SectionTypes.Colours}") ? Colours.Decode(sections[$"{SectionTypes.Colours}"]) : null;
-        var events = Events.Decode(sections[$"{SectionTypes.Events}"]);
-        var timingPoints = sections.ContainsKey($"{SectionTypes.TimingPoints}") ? TimingPoints.Decode(sections[$"{SectionTypes.TimingPoints}"]) : null;
-        var hitObjects = HitObjects.Decode(sections[$"{SectionTypes.HitObjects}"], timingPoints ?? new TimingPoints(), difficulty);
+        var general = General.Decode(sections[$"{SectionType.General}"]);
+        var editor = sections.ContainsKey($"{SectionType.Editor}") ? Editor.Decode(sections[$"{SectionType.Editor}"]) : null;
+        var metadata = Metadata.Decode(sections[$"{SectionType.Metadata}"]);
+        var difficulty = Difficulty.Decode(sections[$"{SectionType.Difficulty}"]);
+        var colours = sections.ContainsKey($"{SectionType.Colours}") ? Colours.Decode(sections[$"{SectionType.Colours}"]) : null;
+        var events = Events.Decode(sections[$"{SectionType.Events}"]);
+        var timingPoints = sections.ContainsKey($"{SectionType.TimingPoints}") ? TimingPoints.Decode(sections[$"{SectionType.TimingPoints}"]) : null;
+        var hitObjects = HitObjects.Decode(sections[$"{SectionType.HitObjects}"], timingPoints ?? new TimingPoints(), difficulty);
 
         return new Beatmap(
             formatVersion, metadata, general, editor, difficulty, colours, events, timingPoints, hitObjects
@@ -153,22 +153,22 @@ public class Beatmap : IEncodable
         builder.AppendLine($"osu file format v14"); // we are only supporting v14
         builder.AppendLine();
 
-        builder.AppendLine($"[{SectionTypes.General}]");
+        builder.AppendLine($"[{SectionType.General}]");
         builder.AppendLine(General.Encode());
 
         if (Editor != null)
         {
-            builder.AppendLine($"[{SectionTypes.Editor}]");
+            builder.AppendLine($"[{SectionType.Editor}]");
             builder.AppendLine(Editor.Encode());
         }
 
-        builder.AppendLine($"[{SectionTypes.Metadata}]");
+        builder.AppendLine($"[{SectionType.Metadata}]");
         builder.AppendLine(Metadata.Encode());
 
-        builder.AppendLine($"[{SectionTypes.Difficulty}]");
+        builder.AppendLine($"[{SectionType.Difficulty}]");
         builder.AppendLine(Difficulty.Encode());
 
-        builder.AppendLine($"[{SectionTypes.Events}]");
+        builder.AppendLine($"[{SectionType.Events}]");
         if (Events.EventList.Count > 0)
             builder.AppendLine(Events.Encode());
 
@@ -176,7 +176,7 @@ public class Beatmap : IEncodable
 
         if (TimingPoints != null)
         {
-            builder.AppendLine($"[{SectionTypes.TimingPoints}]");
+            builder.AppendLine($"[{SectionType.TimingPoints}]");
             if (TimingPoints.TimingPointList.Count > 0)
                 builder.AppendLine(TimingPoints.Encode());
             builder.AppendLine();
@@ -184,11 +184,11 @@ public class Beatmap : IEncodable
 
         if (Colours != null)
         {
-            builder.AppendLine($"[{SectionTypes.Colours}]");
+            builder.AppendLine($"[{SectionType.Colours}]");
             builder.AppendLine(Colours.Encode());
         }
 
-        builder.AppendLine($"[{SectionTypes.HitObjects}]");
+        builder.AppendLine($"[{SectionType.HitObjects}]");
         builder.Append(HitObjects.Encode());
 
         return builder.ToString();

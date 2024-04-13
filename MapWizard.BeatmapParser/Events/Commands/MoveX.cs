@@ -12,7 +12,7 @@ public class MoveX : ICommand
     /// <summary>
     /// 
     /// </summary>
-    public CommandTypes Type { get; init; } = CommandTypes.MoveX;
+    public CommandType Type { get; init; } = CommandType.MoveX;
 
     /// <summary>
     /// 

@@ -11,7 +11,7 @@ public class Fade : ICommand
     /// <summary>
     /// 
     /// </summary>
-    public CommandTypes Type { get; init; } = CommandTypes.Fade;
+    public CommandType Type { get; init; } = CommandType.Fade;
 
     /// <summary>
     /// 

@@ -11,7 +11,7 @@ public class Rotate : ICommand
     /// <summary>
     /// 
     /// </summary>
-    public CommandTypes Type { get; init; } = CommandTypes.Rotate;
+    public CommandType Type { get; init; } = CommandType.Rotate;
 
     /// <summary>
     /// 

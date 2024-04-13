@@ -70,7 +70,7 @@ public class Sample : IEvent
     public string Encode()
     {
         StringBuilder sb = new StringBuilder();
-        sb.Append($"{(int)EventTypes.Sample}");
+        sb.Append($"{(int)EventType.Sample}");
         sb.Append(',');
         sb.Append(StartTime.TotalMilliseconds.ToString(CultureInfo.InvariantCulture));
         sb.Append(',');

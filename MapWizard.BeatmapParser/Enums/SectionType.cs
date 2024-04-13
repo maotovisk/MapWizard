@@ -3,7 +3,7 @@ namespace MapWizard.BeatmapParser;
 /// <summary>
 /// Represents the types of sections in a beatmap file.
 /// </summary>
-public enum SectionTypes
+public enum SectionType
 {
     /// <summary>
     /// Represents the general section.

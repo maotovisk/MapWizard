@@ -8,5 +8,5 @@ public interface ICommand : IEncodable
     /// <summary>
     /// 
     /// </summary>
-    public CommandTypes Type { get; init; }
+    public CommandType Type { get; init; }
 }

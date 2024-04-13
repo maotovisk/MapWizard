@@ -12,7 +12,7 @@ public class Trigger : ICommand, IHasCommands
     /// <summary>
     /// 
     /// </summary>
-    public CommandTypes Type { get; init; } = CommandTypes.Trigger;
+    public CommandType Type { get; init; } = CommandType.Trigger;
 
     /// <summary>
     /// 

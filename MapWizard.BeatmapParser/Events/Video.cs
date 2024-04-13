@@ -87,8 +87,9 @@ public class Video : IEvent, IHasCommands
             sb.Append(Offset.Value.Y.ToString(CultureInfo.InvariantCulture));
             sb.Append(',');
         }
+        
+        if (Commands.Count == 0) return sb.ToString();
         sb.AppendLine();
-        if (Commands.Count == 0) sb.ToString();
 
         foreach (var command in Commands[..^1])
         {
