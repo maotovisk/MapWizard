@@ -3,6 +3,10 @@
   <component name="AvaloniaProject">
     <option name="projectPerEditor">
       <map>
+        <entry key="MapWizard.Desktop/App.axaml" value="MapWizard.Desktop/MapWizard.Desktop.csproj" />
+        <entry key="MapWizard.Desktop/Views/HitsoundCopier/HitsoundCopierView.axaml" value="MapWizard.Desktop/MapWizard.Desktop.csproj" />
+        <entry key="MapWizard.Desktop/Views/MainWindow.axaml" value="MapWizard.Desktop/MapWizard.Desktop.csproj" />
+        <entry key="MapWizard.Desktop/Views/WelcomePage/WelcomePageView.axaml" value="MapWizard.Desktop/MapWizard.Desktop.csproj" />
         <entry key="src/App.axaml" value="MapWizard.csproj" />
         <entry key="src/Views/HitSoundCopier.axaml" value="MapWizard.csproj" />
         <entry key="src/Views/HitSoundCopierView.axaml" value="MapWizard.csproj" />

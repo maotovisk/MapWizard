@@ -13,43 +13,35 @@
       <vm:HitsoundCopierViewModel/>
   </UserControl.DataContext>
 
-  <Grid>
-    <Grid.RowDefinitions>
-      <RowDefinition Height="Auto"/>
-      <RowDefinition Height="*"/>
-      <RowDefinition Height="Auto"/>
-    </Grid.RowDefinitions>
-    <controls:Card Margin="16" Grid.Row="0">
+  <Grid RowDefinitions="Auto,*,Auto">
+    <controls:Card Margin="16" CornerRadius="16" Grid.Row="0">
       <StackPanel>
-        <Grid Margin="16">
-          <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="Auto"/>
-          </Grid.ColumnDefinitions>
-          <TextBox VerticalAlignment="Center" UseFloatingWatermark="True" Theme="{StaticResource FilledTextBox}" Padding="16 16" p1:TextFieldAssist.Label="Origin Beatmap"/>
-          <Button Margin="8 8" Grid.Column="1" Content="Browse" VerticalAlignment="Center"/>
+        <Grid Margin="16" ColumnDefinitions="*,Auto">
+          <TextBox VerticalAlignment="Center" UseFloatingWatermark="True" Classes="outline dense" Theme="{StaticResource OutlineTextBox}" Padding="16 16" p1:TextFieldAssist.Label="Origin Beatmap"/>
+          <Button Theme="{StaticResource MaterialFlatButton}" Padding="8" Margin="12" Grid.Column="1" VerticalAlignment="Center">
+            <materialIcons:MaterialIcon Kind="FileSearchOutline" Width="24" Height="24"></materialIcons:MaterialIcon>
+          </Button>
         </Grid>
-        <Grid Margin="16">
-        <Grid.ColumnDefinitions>
-          <ColumnDefinition Width="*"/>
-          <ColumnDefinition Width="Auto"/>
-        </Grid.ColumnDefinitions>
-        <TextBox VerticalAlignment="Center" UseFloatingWatermark="True" Theme="{StaticResource FilledTextBox}" Padding="16 16" p1:TextFieldAssist.Label="Target Beatmap"/>
-        <Button Margin="8 8" Grid.Column="1" Content="Browse" VerticalAlignment="Center"/>
+        <Separator></Separator>
+        <Grid Margin="16" ColumnDefinitions="*,Auto">
+          <TextBox VerticalAlignment="Center" UseFloatingWatermark="True" Classes="outline dense" Theme="{StaticResource OutlineTextBox}" Padding="16 16" p1:TextFieldAssist.Label="Target Beatmap"/>
+        <Button Theme="{StaticResource MaterialFlatButton}" Padding="8" Margin="12" Grid.Column="1" VerticalAlignment="Center">
+          <materialIcons:MaterialIcon Kind="FileSearchOutline" Width="24" Height="24"></materialIcons:MaterialIcon>
+        </Button>
       </Grid>
       </StackPanel>
     </controls:Card>
     <StackPanel Grid.Row="1">
     </StackPanel>
     <StackPanel Grid.Row="2">
-      <Grid Margin="16">
-        <Grid.ColumnDefinitions>
-          <ColumnDefinition Width="*"/>
-          <ColumnDefinition Width="Auto"/>
-        </Grid.ColumnDefinitions>
-        <Button Grid.Column="1" Content="Copy Hitsounds" ToolTip.Tip="Click here to copy the hitsounds from the origin to the target." CornerRadius="16" />
+      <Grid Margin="16" ColumnDefinitions="*,Auto">
+        <Button Height="48" Grid.Column="1" ToolTip.Tip="Click here to copy the hitsounds from the origin to the target." CornerRadius="16">
+          <StackPanel Orientation="Horizontal">
+            <materialIcons:MaterialIcon Width="24" Height="24" Kind="ContentSave"></materialIcons:MaterialIcon>
+            <TextBlock FontWeight="Bold" FontSize="16" Text="Copy Hitsounds" VerticalAlignment="Center"></TextBlock>
+          </StackPanel>
+        </Button>
         </Grid>
     </StackPanel>
   </Grid>
-
 </UserControl>
