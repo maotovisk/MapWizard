@@ -24,4 +24,8 @@
   <ItemGroup>
     <ProjectReference Include="..\MapWizard.BeatmapParser\MapWizard.BeatmapParser.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Assets\" />
+  </ItemGroup>
 </Project>
