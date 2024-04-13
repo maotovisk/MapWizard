@@ -17,15 +17,15 @@
     <controls:Card Margin="16" CornerRadius="16" Grid.Row="0">
       <StackPanel>
         <Grid Margin="16" ColumnDefinitions="*,Auto">
-          <TextBox VerticalAlignment="Center" UseFloatingWatermark="True" Classes="outline dense" Theme="{StaticResource OutlineTextBox}" Padding="16 16" p1:TextFieldAssist.Label="Origin Beatmap"/>
-          <Button Theme="{StaticResource MaterialFlatButton}" Padding="8" Margin="12" Grid.Column="1" VerticalAlignment="Center">
+          <TextBox VerticalAlignment="Center" UseFloatingWatermark="True" Classes="outline dense" Theme="{StaticResource OutlineTextBox}" Text="{Binding OriginBeatmapPath}" Padding="16 16" p1:TextFieldAssist.Label="Origin Beatmap"/>
+          <Button Command="{Binding SelectOriginBeatmapCommand}" Theme="{StaticResource MaterialFlatButton}" Padding="8" Margin="12" Grid.Column="1" VerticalAlignment="Center">
             <materialIcons:MaterialIcon Kind="FileSearchOutline" Width="24" Height="24"></materialIcons:MaterialIcon>
           </Button>
         </Grid>
         <Separator></Separator>
         <Grid Margin="16" ColumnDefinitions="*,Auto">
           <TextBox VerticalAlignment="Center" UseFloatingWatermark="True" Classes="outline dense" Theme="{StaticResource OutlineTextBox}" Padding="16 16" p1:TextFieldAssist.Label="Target Beatmap"/>
-        <Button Theme="{StaticResource MaterialFlatButton}" Padding="8" Margin="12" Grid.Column="1" VerticalAlignment="Center">
+        <Button Command="{Binding SelectDestinationBeatmapCommand}" Theme="{StaticResource MaterialFlatButton}" Padding="8" Margin="12" Grid.Column="1" VerticalAlignment="Center">
           <materialIcons:MaterialIcon Kind="FileSearchOutline" Width="24" Height="24"></materialIcons:MaterialIcon>
         </Button>
       </Grid>

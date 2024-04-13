@@ -1,6 +1,10 @@
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
+using MapWizard.Desktop.Services;
 using MapWizard.Desktop.ViewModels;
 using MapWizard.Desktop.Views;
 
@@ -21,8 +25,13 @@ public partial class App : Application
             {
                 DataContext = new MainWindowViewModel(),
             };
+            
+            FilesService = new FilesService(desktop.MainWindow);
+            
         }
-
         base.OnFrameworkInitializationCompleted();
     }
+    
+    public FilesService? FilesService { get; set; }
+    
 }
