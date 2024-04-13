@@ -8,6 +8,9 @@
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
   </PropertyGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\test5.osu" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.6.0" />
