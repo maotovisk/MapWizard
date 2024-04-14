@@ -1,36 +1,34 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reactive;
-using System.Reactive.Disposables;
 using System.Threading;
 using System.Threading.Tasks;
 using Avalonia;
+using Avalonia.Collections;
 using Avalonia.Platform.Storage;
-using ReactiveUI;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 
 namespace MapWizard.Desktop.ViewModels;
 
-public class HitsoundCopierViewModel : ViewModelBase
+public partial class HitsoundCopierViewModel : ViewModelBase
 {
     public string Message { get; set; }
     
-    private string originBeatmapPath = string.Empty;
-    public string OriginBeatmapPath { get=> originBeatmapPath; set => this.RaiseAndSetIfChanged(ref originBeatmapPath, value); }
+    [ObservableProperty]
+    private string _originBeatmapPath = string.Empty;
 
-    private string[] destinationBeatmapPath = [string.Empty];
-    public string[] DestinationBeatmapPath { get=> destinationBeatmapPath; set => this.RaiseAndSetIfChanged(ref destinationBeatmapPath, value); }
-
+    [ObservableProperty]
+    private AvaloniaList<string> _destinationBeatmapPath = [string.Empty];
+    
     public HitsoundCopierViewModel()
     {
-        SelectOriginBeatmapCommand = ReactiveCommand.CreateFromTask(OpenOriginFile);
-        SelectOriginBeatmapCommand = ReactiveCommand.CreateFromTask(OpenDestinationFile);
         Message = "Hitsound Copier View";
+        OpenOriginFileCommand = new AsyncRelayCommand(OpenOriginFile);
+        OpenDestinationFileCommand = new AsyncRelayCommand(OpenDestinationFile);
     }
-
-    public ReactiveCommand<Unit, Unit> SelectOriginBeatmapCommand { get; }
-    public ReactiveCommand<Unit, Unit> SelectDestinationBeatmapCommand { get; }
-
+    
+    public IAsyncRelayCommand OpenOriginFileCommand { get; }
     private async Task OpenOriginFile(CancellationToken token)
     {
         try
@@ -71,6 +69,9 @@ public class HitsoundCopierViewModel : ViewModelBase
             Console.WriteLine(e.Message);
         }
     }
+
+    public IAsyncRelayCommand OpenDestinationFileCommand { get; }
+    
     private async Task OpenDestinationFile(CancellationToken token)
     {
         try
@@ -103,9 +104,9 @@ public class HitsoundCopierViewModel : ViewModelBase
             if (file is null || file.Count == 0) return;
 
             // Do something with the file
-            DestinationBeatmapPath = file.Select(f => f.Path.LocalPath).ToArray();
-            
-            Console.WriteLine($"Selected file: {OriginBeatmapPath}");
+            DestinationBeatmapPath = new AvaloniaList<string>(file.Select(f => f.Path.LocalPath));
+
+            Console.WriteLine($"Selected file: {DestinationBeatmapPath}");
         }
         catch (Exception e)
         {

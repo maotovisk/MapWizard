@@ -1,33 +1,26 @@
-using System.Reactive;
-using ReactiveUI;
+
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 
 namespace MapWizard.Desktop.ViewModels;
-public class MainWindowViewModel : ViewModelBase
+public partial class MainWindowViewModel : ViewModelBase
 {
+    [ObservableProperty]
     private ViewModelBase currentView;
-    public ViewModelBase CurrentView
-    {
-        get => currentView;
-        set => this.RaiseAndSetIfChanged(ref currentView, value);
-    }
-
-    public ReactiveCommand<Unit, Unit> ShowWelcomePageCommand { get; }
-    public ReactiveCommand<Unit, Unit> ShowHitsoundCopierCommand { get; }
 
     public MainWindowViewModel()
-    {
-        CurrentView = new WelcomePageViewModel();
-        currentView = CurrentView;
-        ShowWelcomePageCommand = ReactiveCommand.Create(ShowWelcomePage);
-        ShowHitsoundCopierCommand = ReactiveCommand.Create(ShowHitsoundCopier);
-    }
-
-    public void ShowWelcomePage()
-    {
+    { 
         CurrentView = new WelcomePageViewModel();
     }
 
-    public void ShowHitsoundCopier()
+    [RelayCommand]
+    private void ShowWelcomePage()
+    {
+        CurrentView = new WelcomePageViewModel();
+    }
+
+    [RelayCommand]
+    private void ShowHitsoundCopier()
     {
         CurrentView = new HitsoundCopierViewModel();
     }

@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
@@ -27,7 +24,6 @@ public partial class App : Application
             };
             
             FilesService = new FilesService(desktop.MainWindow);
-            
         }
         base.OnFrameworkInitializationCompleted();
     }

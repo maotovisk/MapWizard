@@ -1,6 +1,5 @@
 using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Markup.Xaml;
 using MapWizard.Desktop.ViewModels;
 
 namespace MapWizard.Desktop.Views;
