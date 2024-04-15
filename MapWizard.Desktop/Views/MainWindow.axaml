@@ -9,41 +9,44 @@
         x:DataType="vm:MainWindowViewModel"
         Title="MapWizard">
 
-        <Window.DataContext>
-                <vm:MainWindowViewModel/>
-        </Window.DataContext>
+  <Window.DataContext>
+    <vm:MainWindowViewModel />
+  </Window.DataContext>
 
-        <Grid ColumnDefinitions="Auto,*" RowDefinitions="*">
-                <Grid Background="Yellow" Grid.Row="0" Grid.Column="0" RowDefinitions="*,Auto">
-                        <StackPanel>
-                                <Button Foreground="Black" Theme="{StaticResource MaterialFlatButton}" Height="64" Command="{Binding ShowWelcomePageCommand}"> 
-                                        <StackPanel>
-                                                <materialIcons:MaterialIcon Kind="Home" Width="24" Height="24"/>
-                                                <TextBlock TextAlignment="Center" TextWrapping="Wrap" Text="Start" Width="64" FontSize="14"/>
-                                        </StackPanel>
-                                </Button>
-                                <Button Foreground="Black" Theme="{StaticResource MaterialFlatButton}" Height="64" Command="{Binding ShowHitsoundCopierCommand}"> 
-                                        <StackPanel>
-                                                <materialIcons:MaterialIcon Kind="ContentCopy" Width="24" Height="24"/>
-                                                <TextBlock TextAlignment="Center" TextWrapping="Wrap" Text="HitSound Copier" Width="64" FontSize="14"/>
-                                        </StackPanel>
-                                </Button>
-                                <Button Foreground="Black" Theme="{StaticResource MaterialFlatButton}" Height="64"> 
-                                        <StackPanel>
-                                                <materialIcons:MaterialIcon Kind="FileDocumentMultiple" Width="24" Height="24"/>
-                                                <TextBlock TextAlignment="Center" TextWrapping="Wrap" Text="Metadata Manager" Width="64" FontSize="14"/>
-                                        </StackPanel>
-                                </Button>
-                        </StackPanel>
-                        <Button Grid.Row="0" Foreground="Black" Theme="{StaticResource MaterialFlatButton}" Height="64" VerticalAlignment="Bottom">
-                                <StackPanel>
-                                        <materialIcons:MaterialIcon Kind="Cog" Width="24" Height="24"/>
-                                        <TextBlock TextAlignment="Center" TextWrapping="Wrap" Text="Settings" FontSize="14"/>
-                                </StackPanel>
-                        </Button>
-                </Grid>
-                <Panel Grid.Row="0" Grid.Column="1">
-                        <ContentControl Content="{Binding CurrentView}"/>
-                </Panel>
-        </Grid>
+  <Grid ColumnDefinitions="Auto,*" RowDefinitions="*">
+    <Grid Background="Yellow" Grid.Row="0" Grid.Column="0" RowDefinitions="*,Auto">
+      <StackPanel>
+        <Button Foreground="Black" Theme="{StaticResource MaterialFlatButton}" Height="64"
+                Command="{Binding ShowWelcomePageCommand}">
+          <StackPanel>
+            <materialIcons:MaterialIcon Kind="Home" Width="24" Height="24" />
+            <TextBlock TextAlignment="Center" TextWrapping="Wrap" Text="Start" Width="64" FontSize="14" />
+          </StackPanel>
+        </Button>
+        <Button Foreground="Black" Theme="{StaticResource MaterialFlatButton}" Height="64"
+                Command="{Binding ShowHitsoundCopierCommand}">
+          <StackPanel>
+            <materialIcons:MaterialIcon Kind="ContentCopy" Width="24" Height="24" />
+            <TextBlock TextAlignment="Center" TextWrapping="Wrap" Text="HitSound Copier" Width="64" FontSize="14" />
+          </StackPanel>
+        </Button>
+        <Button Foreground="Black" Theme="{StaticResource MaterialFlatButton}" Height="64">
+          <StackPanel>
+            <materialIcons:MaterialIcon Kind="FileDocumentMultiple" Width="24" Height="24" />
+            <TextBlock TextAlignment="Center" TextWrapping="Wrap" Text="Metadata Manager" Width="64" FontSize="14" />
+          </StackPanel>
+        </Button>
+      </StackPanel>
+      <Button Grid.Row="0" Foreground="Black" Theme="{StaticResource MaterialFlatButton}" Height="64"
+              VerticalAlignment="Bottom">
+        <StackPanel>
+          <materialIcons:MaterialIcon Kind="Cog" Width="24" Height="24" />
+          <TextBlock TextAlignment="Center" TextWrapping="Wrap" Text="Settings" FontSize="14" />
+        </StackPanel>
+      </Button>
+    </Grid>
+    <Panel Grid.Row="0" Grid.Column="1">
+      <ContentControl Content="{Binding CurrentView}" />
+    </Panel>
+  </Grid>
 </Window>

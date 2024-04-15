@@ -7,7 +7,7 @@
              x:Class="MapWizard.Desktop.Views.WelcomePageView"
              x:DataType="vm:WelcomePageViewModel">
   <UserControl.DataContext>
-      <vm:WelcomePageViewModel/>
+    <vm:WelcomePageViewModel />
   </UserControl.DataContext>
-  <TextBlock Text="{Binding Message}" FontSize="24" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+  <TextBlock Text="{Binding Message}" FontSize="24" HorizontalAlignment="Center" VerticalAlignment="Center" />
 </UserControl>
