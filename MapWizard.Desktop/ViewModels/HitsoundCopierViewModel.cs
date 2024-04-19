@@ -14,31 +14,24 @@ namespace MapWizard.Desktop.ViewModels;
 public partial class HitsoundCopierViewModel : ViewModelBase
 {
     public string Message { get; set; }
-    
+
     [ObservableProperty]
     private string _originBeatmapPath = string.Empty;
 
     [ObservableProperty]
     private AvaloniaList<string> _destinationBeatmapPath = [string.Empty];
-    
+
     public HitsoundCopierViewModel()
     {
         Message = "Hitsound Copier View";
-        OpenOriginFileCommand = new AsyncRelayCommand(OpenOriginFile);
-        OpenDestinationFileCommand = new AsyncRelayCommand(OpenDestinationFile);
     }
-    
-    public IAsyncRelayCommand OpenOriginFileCommand { get; }
-    private async Task OpenOriginFile(CancellationToken token)
+
+    [RelayCommand]
+    async Task OpenOriginFile(CancellationToken token)
     {
         try
         {
-            var filesService = ((App)Application.Current!)?.FilesService;
-
-            if (filesService is null)
-            {
-                throw new Exception("FilesService is not initialized.");
-            }
+            var filesService = (((App)Application.Current!)?.FilesService) ?? throw new Exception("FilesService is not initialized.");
 
             var file = await filesService.OpenFileAsync(
                 new FilePickerOpenOptions()
@@ -61,7 +54,7 @@ public partial class HitsoundCopierViewModel : ViewModelBase
 
             // Do something with the file
             OriginBeatmapPath = file[0].Path.LocalPath;
-            
+
             Console.WriteLine($"Selected file: {OriginBeatmapPath}");
         }
         catch (Exception e)
@@ -70,19 +63,12 @@ public partial class HitsoundCopierViewModel : ViewModelBase
         }
     }
 
-    public IAsyncRelayCommand OpenDestinationFileCommand { get; }
-    
-    private async Task OpenDestinationFile(CancellationToken token)
+    [RelayCommand]
+    async Task OpenDestinationFile(CancellationToken token)
     {
         try
         {
-            var filesService = ((App)Application.Current!)?.FilesService;
-
-            if (filesService is null)
-            {
-                throw new Exception("FilesService is not initialized.");
-            }
-
+            var filesService = (((App)Application.Current!)?.FilesService) ?? throw new Exception("FilesService is not initialized.");
             var file = await filesService.OpenFileAsync(
                 new FilePickerOpenOptions()
                 {
@@ -100,7 +86,7 @@ public partial class HitsoundCopierViewModel : ViewModelBase
                         }
                     }
                 });
-            
+
             if (file is null || file.Count == 0) return;
 
             // Do something with the file

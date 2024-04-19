@@ -4,6 +4,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:materialIcons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
         xmlns:vm="using:MapWizard.Desktop.ViewModels"
+        xmlns:maot="using:MapWizard.Desktop.Views"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="MapWizard.Desktop.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
@@ -46,7 +47,7 @@
       </Button>
     </Grid>
     <Panel Grid.Row="0" Grid.Column="1">
-      <ContentControl Content="{Binding CurrentView}" />
+      <TransitioningContentControl Content="{Binding CurrentView}" /> 
     </Panel>
   </Grid>
 </Window>
