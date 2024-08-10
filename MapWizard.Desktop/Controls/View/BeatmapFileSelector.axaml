@@ -23,7 +23,7 @@
             <ItemsControl ItemsSource="{Binding BeatmapPaths}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <TextBlock IsVisible="{Binding " Text="{Binding}"/>
+                        <TextBlock IsVisible="{Binding }" Text="{Binding}"/>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
