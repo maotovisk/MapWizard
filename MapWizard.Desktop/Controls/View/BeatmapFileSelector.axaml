@@ -1,32 +1,39 @@
 <UserControl xmlns="https://github.com/avaloniaui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:p1="clr-namespace:Material.Styles.Assists;assembly=Material.Styles"
-             xmlns:vm="clr-namespace:MapWizard.Desktop.Controls.ViewModel"
-             xmlns:materialIcons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
-             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-             x:Class="MapWizard.Desktop.Controls.View.BeatmapFileSelector"
-             x:DataType="vm:BeatmapFileSelectorData"
-             >
+                xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                xmlns:p1="clr-namespace:Material.Styles.Assists;assembly=Material.Styles"
+                xmlns:materialIcons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+                mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+                xmlns:controls="clr-namespace:MapWizard.Desktop.Controls.View"
+                xmlns:vm="clr-namespace:MapWizard.Desktop.Controls.ViewModel"
+                x:Class="MapWizard.Desktop.Controls.View.BeatmapFileSelector"
+                x:DataType="vm:BeatmapFileSelectorData"
+>
     <UserControl.DataContext>
         <vm:BeatmapFileSelectorData/>
     </UserControl.DataContext>
     <StackPanel>
         <Grid Margin="16" ColumnDefinitions="*,Auto">
-            <TextBox Grid.Row="0" VerticalAlignment="Center" UseFloatingWatermark="True" Classes="outline dense" Theme="{StaticResource OutlineTextBox}" Text="{Binding BeatmapPaths[0]}" Padding="16 16" p1:TextFieldAssist.Label="Origin Beatmap"/>
+            <TextBox Grid.Row="0" VerticalAlignment="Center" UseFloatingWatermark="True" Classes="outline dense" Theme="{StaticResource OutlineTextBox}" Text="{Binding BeatmapPaths[0].Path, Mode=TwoWay}" Padding="16 16" p1:TextFieldAssist.Label="{Binding Title}"/>
             <Button Grid.Row="0" Command="{Binding PickFilesCommand}" Theme="{StaticResource MaterialFlatButton}" Padding="8" Margin="12" Grid.Column="1" VerticalAlignment="Center">
                 <materialIcons:MaterialIcon Kind="FileSearchOutline" Width="24" Height="24"></materialIcons:MaterialIcon>
             </Button>
         </Grid>
-        <Grid>
-            <ItemsControl ItemsSource="{Binding BeatmapPaths}">
+        <Grid IsVisible="{Binding AllowMany}"> 
+            <ItemsControl ItemsSource="{Binding AdditionalBeatmapPaths}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <TextBlock IsVisible="{Binding }" Text="{Binding}"/>
+                        <Grid Classes="FileLine" Margin="16" ColumnDefinitions="*,Auto" >
+                            <TextBox Grid.Row="0" VerticalAlignment="Center" UseFloatingWatermark="False" Text="{Binding Path, Mode=TwoWay}" Padding="16 16"/>
+                            <Button Grid.Row="0" Command="{Binding $parent[ItemsControl].((vm:BeatmapFileSelectorData)DataContext).RemoveMapCommand}" CommandParameter="{Binding Path}" Theme="{StaticResource MaterialFlatButton}" Padding="8" Margin="12" Grid.Column="1" VerticalAlignment="Center">
+                                <materialIcons:MaterialIcon Kind="Cancel" Width="24" Height="24"></materialIcons:MaterialIcon>
+                            </Button>
+                        </Grid>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
         </Grid>
+        <TextBlock IsVisible="{Binding AllowMany}" Text="{Binding BeatmapPaths.Count, StringFormat=There are {0} selected beatmaps.}" Padding="16"></TextBlock>
     </StackPanel>
 </UserControl>

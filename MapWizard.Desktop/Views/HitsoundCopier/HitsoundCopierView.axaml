@@ -7,37 +7,34 @@
              xmlns:controls="clr-namespace:Material.Styles.Controls;assembly=Material.Styles"
              xmlns:mwCtl="clr-namespace:MapWizard.Desktop.Controls.View"
              xmlns:vm="clr-namespace:MapWizard.Desktop.ViewModels"
+              xmlns:model="using:MapWizard.Desktop.Models"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-             x:Class="MapWizard.Desktop.Views.HitsoundCopierView"
-             x:DataType="vm:HitsoundCopierViewModel">
+             x:DataType="vm:HitsoundCopierViewModel"
+             x:Class="MapWizard.Desktop.Views.HitsoundCopierView">
   <UserControl.DataContext>
       <vm:HitsoundCopierViewModel/>
   </UserControl.DataContext>
-
-  <Grid RowDefinitions="Auto,*,Auto">
-    <controls:Card Margin="16" CornerRadius="16" Grid.Row="0">
-      <StackPanel>
-        <mwCtl:BeatmapFileSelector></mwCtl:BeatmapFileSelector>
-        <Separator></Separator>
+  <ScrollViewer>
+    <Grid RowDefinitions="Auto,*,Auto">
+      <controls:Card Margin="16" CornerRadius="16" Grid.Row="0">
+        <StackPanel>
+          <mwCtl:BeatmapFileSelector BeatmapPaths="{Binding OriginBeatmapPath, Mode=TwoWay}" Title="Origin Beatmap"></mwCtl:BeatmapFileSelector>
+          <Separator></Separator>
+          <mwCtl:BeatmapFileSelector BeatmapPaths="{Binding DestinationBeatmapPath, Mode=TwoWay}" Title="Destination Beatmaps" AllowMany="True"></mwCtl:BeatmapFileSelector>
+        </StackPanel>
+      </controls:Card>
+      <StackPanel Grid.Row="1">
+      </StackPanel>
+      <StackPanel Grid.Row="2">
         <Grid Margin="16" ColumnDefinitions="*,Auto">
-          <TextBox VerticalAlignment="Center" UseFloatingWatermark="True" Classes="outline dense" Theme="{StaticResource OutlineTextBox}" Padding="16 16" p1:TextFieldAssist.Label="Target Beatmap"/>
-          <Button Command="{Binding OpenDestinationFileCommand}" Theme="{StaticResource MaterialFlatButton}" Padding="8" Margin="12" Grid.Column="1" VerticalAlignment="Center">
-            <materialIcons:MaterialIcon Kind="FileSearchOutline" Width="24" Height="24"></materialIcons:MaterialIcon>
+          <Button Height="48" Command="{Binding CopyHitsoundsCommand}" Grid.Column="1" ToolTip.Tip="Click here to copy the hitsounds from the origin to the target." CornerRadius="16">
+            <StackPanel Orientation="Horizontal">
+              <materialIcons:MaterialIcon Width="24" Height="24" Kind="ContentSave"></materialIcons:MaterialIcon>
+              <TextBlock FontWeight="Bold" FontSize="16" Text="Copy Hitsounds" VerticalAlignment="Center"></TextBlock>
+            </StackPanel>
           </Button>
         </Grid>
       </StackPanel>
-    </controls:Card>
-    <StackPanel Grid.Row="1">
-    </StackPanel>
-    <StackPanel Grid.Row="2">
-      <Grid Margin="16" ColumnDefinitions="*,Auto">
-        <Button Height="48" Grid.Column="1" ToolTip.Tip="Click here to copy the hitsounds from the origin to the target." CornerRadius="16">
-          <StackPanel Orientation="Horizontal">
-            <materialIcons:MaterialIcon Width="24" Height="24" Kind="ContentSave"></materialIcons:MaterialIcon>
-            <TextBlock FontWeight="Bold" FontSize="16" Text="Copy Hitsounds" VerticalAlignment="Center"></TextBlock>
-          </StackPanel>
-        </Button>
-        </Grid>
-    </StackPanel>
-  </Grid>
+    </Grid>
+  </ScrollViewer>
 </UserControl>

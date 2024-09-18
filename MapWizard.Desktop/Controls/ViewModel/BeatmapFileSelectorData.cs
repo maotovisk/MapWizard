@@ -8,22 +8,42 @@ using Avalonia.Collections;
 using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using MapWizard.Desktop.Models;
 
 namespace MapWizard.Desktop.Controls.ViewModel;
 
 public partial class BeatmapFileSelectorData : ObservableObject
 {
+    [NotifyPropertyChangedFor(nameof(AdditionalBeatmapPaths))]
     [ObservableProperty]
-    private AvaloniaList<string> _beatmapPaths;
+    private AvaloniaList<SelectedMap> _beatmapPaths;
+    
+    public AvaloniaList<SelectedMap> AdditionalBeatmapPaths
+    {
+        get => new AvaloniaList<SelectedMap>(BeatmapPaths.Skip(1));
+        set => BeatmapPaths = new AvaloniaList<SelectedMap>(BeatmapPaths.Take(1).Concat(value));
+    }
 
     [ObservableProperty]
     private bool _allowMany;
 
+    [ObservableProperty] 
+    private string _title;
+    
+    [ObservableProperty]
+    private string _preferredDirectory;
+    
     public BeatmapFileSelectorData()
     {
-        BeatmapPaths = [string.Empty];
+        BeatmapPaths = [];
     }
-
+    
+    [RelayCommand]
+    void RemoveMap(string path)
+    {
+        BeatmapPaths = new AvaloniaList<SelectedMap>(BeatmapPaths.Where(x => x.Path != path));
+    }
+    
     [RelayCommand]
     async Task PickFiles(CancellationToken token)
     {
@@ -50,9 +70,8 @@ public partial class BeatmapFileSelectorData : ObservableObject
 
             if (file is null || file.Count == 0) return;
 
-            // Do something with the file
-            BeatmapPaths = new AvaloniaList<string>(file.Select(f => f.Path.LocalPath));
-            Console.WriteLine($"Selected file: {string.Join(", ", BeatmapPaths)}");
+            BeatmapPaths = new AvaloniaList<SelectedMap>(file.Select(f => new SelectedMap {Path = f.Path.LocalPath}));
+            Console.WriteLine($"Selected file: {string.Join(", ", BeatmapPaths.Select(x => x.Path))}");
         }
         catch (Exception e)
         {
