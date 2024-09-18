@@ -4,6 +4,7 @@
     <option name="projectPerEditor">
       <map>
         <entry key="MapWizard.Desktop/App.axaml" value="MapWizard.Desktop/MapWizard.Desktop.csproj" />
+        <entry key="MapWizard.Desktop/Controls/View/BeatmapFileSelector.axaml" value="MapWizard.Desktop/MapWizard.Desktop.csproj" />
         <entry key="MapWizard.Desktop/Views/HitsoundCopier/HitsoundCopierView.axaml" value="MapWizard.Desktop/MapWizard.Desktop.csproj" />
         <entry key="MapWizard.Desktop/Views/MainWindow.axaml" value="MapWizard.Desktop/MapWizard.Desktop.csproj" />
         <entry key="MapWizard.Desktop/Views/WelcomePage/WelcomePageView.axaml" value="MapWizard.Desktop/MapWizard.Desktop.csproj" />
