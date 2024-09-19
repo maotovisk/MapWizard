@@ -5,9 +5,7 @@
              xmlns:materialIcons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
              xmlns:p1="clr-namespace:Material.Styles.Assists;assembly=Material.Styles"
              xmlns:controls="clr-namespace:Material.Styles.Controls;assembly=Material.Styles"
-             xmlns:mwCtl="clr-namespace:MapWizard.Desktop.Controls"
              xmlns:vm="clr-namespace:MapWizard.Desktop.ViewModels"
-              xmlns:model="using:MapWizard.Desktop.Models"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:DataType="vm:HitsoundCopierViewModel"
              x:Class="MapWizard.Desktop.Views.HitsoundCopierView">
@@ -18,9 +16,38 @@
     <Grid RowDefinitions="Auto,*,Auto">
       <controls:Card Margin="16" CornerRadius="16" Grid.Row="0">
         <StackPanel>
-          <mwCtl:BeatmapFileSelector BeatmapPaths="{Binding OriginBeatmapPath, Mode=TwoWay}" Title="Origin Beatmap"></mwCtl:BeatmapFileSelector>
+          <StackPanel>
+                <Grid Margin="16" ColumnDefinitions="*,Auto">
+                    <TextBox Grid.Row="0" VerticalAlignment="Center" UseFloatingWatermark="True" Classes="outline dense" Theme="{StaticResource OutlineTextBox}" Text="{Binding OriginBeatmap.Path, Mode=TwoWay}" Padding="16 16" p1:TextFieldAssist.Label="Origin Beatmap"/>
+                    <Button Grid.Row="0" Command="{Binding PickOriginFileCommand}" Theme="{StaticResource MaterialFlatButton}" Padding="8" Margin="12" Grid.Column="1" VerticalAlignment="Center">
+                        <materialIcons:MaterialIcon Kind="FileSearchOutline" Width="24" Height="24"></materialIcons:MaterialIcon>
+                    </Button>
+                </Grid>
+            </StackPanel>
           <Separator></Separator>
-          <mwCtl:BeatmapFileSelector BeatmapPaths="{Binding DestinationBeatmapPath, Mode=TwoWay}" Title="Destination Beatmaps" AllowMany="True"></mwCtl:BeatmapFileSelector>
+          <StackPanel>
+                <Grid Margin="16" ColumnDefinitions="*,Auto">
+                    <TextBox Grid.Row="0" VerticalAlignment="Center" UseFloatingWatermark="True" Classes="outline dense" Theme="{StaticResource OutlineTextBox}" Text="{Binding DestinationBeatmaps[0].Path, Mode=TwoWay}" Padding="16 16" p1:TextFieldAssist.Label="Target Beatmap"/>
+                    <Button Grid.Row="0" Command="{Binding PickDestinationFileCommand}" Theme="{StaticResource MaterialFlatButton}" Padding="8" Margin="12" Grid.Column="1" VerticalAlignment="Center">
+                        <materialIcons:MaterialIcon Kind="FileSearchOutline" Width="24" Height="24"></materialIcons:MaterialIcon>
+                    </Button>
+                </Grid>
+                <Grid IsVisible="{Binding HasMultiple}"> 
+                    <ItemsControl ItemsSource="{Binding AdditionalBeatmaps}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Grid Classes="FileLine" Margin="16" ColumnDefinitions="*,Auto" >
+                                    <TextBox Grid.Row="0" VerticalAlignment="Center" UseFloatingWatermark="False" Text="{Binding Path, Mode=TwoWay}" Padding="16 16"/>
+                                    <Button Grid.Row="0" Command="{Binding $parent[ItemsControl].((vm:HitsoundCopierViewModel)DataContext).RemoveMapCommand}" CommandParameter="{Binding Path}" Theme="{StaticResource MaterialFlatButton}" Padding="8" Margin="12" Grid.Column="1" VerticalAlignment="Center">
+                                        <materialIcons:MaterialIcon Kind="Cancel" Width="24" Height="24"></materialIcons:MaterialIcon>
+                                    </Button>
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </Grid>
+                <TextBlock IsVisible="{Binding HasMultiple}" Text="{Binding DestinationBeatmaps.Count, StringFormat=There are {0} selected beatmaps.}" Padding="16"></TextBlock>
+            </StackPanel>
         </StackPanel>
       </controls:Card>
       <StackPanel Grid.Row="1">

@@ -8,7 +8,7 @@ public partial class HitsoundCopierView : UserControl
 {
     public HitsoundCopierView()
     {
-        InitializeComponent();
         DataContext = new HitsoundCopierViewModel();
+        InitializeComponent();
     }
 }

@@ -1,3 +1,5 @@
+using System.Runtime.InteropServices;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using MapWizard.BeatmapParser;
 
@@ -12,7 +14,7 @@ public class HitSoundCopier
     /// </summary>
     /// <param name="sourcePath"></param>
     /// <param name="targetPath"></param>
-    private static void CopyFromBeatmap(string sourcePath, string targetPath)
+    private static string CopyFromBeatmapToString(string sourcePath, string targetPath)
     {
         var source = Beatmap.Decode(new FileInfo(sourcePath));
         var target = Beatmap.Decode(new FileInfo(targetPath));
@@ -20,7 +22,7 @@ public class HitSoundCopier
         SoundTimeline hitSoundTimeLine = new();
         SoundTimeline sliderBodyTimeline = new();
 
-        if (source.TimingPoints == null) return;
+        if (source.TimingPoints == null) return target.Encode().Replace("\r\n", "\n").Replace("\n", "\r\n");
 
         foreach (var hitObject in source.HitObjects.Objects)
         {
@@ -100,7 +102,7 @@ public class HitSoundCopier
         // make sure it's encoding with Windows Line endings
         output = output.Replace("\r\n", "\n").Replace("\n", "\r\n");
 
-        File.WriteAllText("output-copied.osu", output, Encoding.UTF8);
+        return output;
     }
 
 
@@ -267,11 +269,12 @@ public class HitSoundCopier
     /// </summary>
     /// <param name="sourcePath"></param>
     /// <param name="targetPath"></param>
-    public static void CopyFromBeatmaps(string sourcePath, string[] targetPath)
+    public static void CopyFromBeatmapToTarget(string sourcePath, string[] targetPath)
     {
         foreach (var path in targetPath)
         {
-            CopyFromBeatmap(sourcePath, path);
+            var output = CopyFromBeatmapToString(sourcePath, path);
+            File.WriteAllText(path, output);
         }
     }
 }
