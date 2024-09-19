@@ -2,24 +2,38 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Platform.Storage;
+using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MapWizard.Desktop.Models;
 using MapWizard.Desktop.Services;
+using MapWizard.Desktop.Views;
+using Material.Styles.Controls;
+using Material.Styles.Models;
 
 namespace MapWizard.Desktop.ViewModels;
 
 public partial class HitsoundCopierViewModel : ViewModelBase
 {
     private IHitSoundService _hitsoundService = new HitSoundService();
+
+    [ObservableProperty]
+    private string _snackbarName;
+    
+    public HitsoundCopierViewModel()
+    {
+        var hash = System.Guid.NewGuid();
+        SnackbarName = hash.ToString();
+    }
     
     public string Message { get; set; } = "Hitsound Copier View";
     [ObservableProperty]
-    private SelectedMap _originBeatmap;
+    private SelectedMap _originBeatmap = new SelectedMap();
     
     [ObservableProperty]
     private bool _hasMultiple = false;
@@ -126,10 +140,27 @@ public partial class HitsoundCopierViewModel : ViewModelBase
     void CopyHitsounds()
     {
         Console.WriteLine("Copying hitsounds...");
+        // create dialog using Avalonia
 
-        if (_hitsoundService.CopyHitsoundsAsync(OriginBeatmap.Path, DestinationBeatmaps.Select(x=> x.Path).ToArray()))
+        var message = "";
+        if (string.IsNullOrEmpty(OriginBeatmap.Path))
         {
-            
+            message = "Please select an origin beatmap!";
         }
+        else if (DestinationBeatmaps.Count == 0)
+        {
+            message = "Please select at least one destination beatmap!";
+        }
+        else if (_hitsoundService.CopyHitsoundsAsync(OriginBeatmap.Path, DestinationBeatmaps.Select(x=> x.Path).ToArray()))
+        {
+            message = $"Hitsounds applied successfully to {DestinationBeatmaps.Count} beatmap(s)!";
+        }
+        
+        SnackbarHost.Post(
+            new SnackbarModel(
+                message,
+                TimeSpan.FromSeconds(8)),
+            SnackbarName,
+            DispatcherPriority.Normal);
     }
 }

@@ -54,6 +54,19 @@ public class ViewLocator : IDataTemplate
 #pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
 #pragma warning restore CS8603 // Possible null reference return.
     }
+    
+    public static UserControl ResolveControlViewFromViewModel<T>(T vm) where T : ViewModelBase
+    {
+        var name = vm.GetType().AssemblyQualifiedName!.Replace("ViewModel", "View");
+#pragma warning disable IL2057 // Unrecognized value passed to the parameter of method. It's not possible to guarantee the availability of the target type.
+        var type = Type.GetType(name);
+#pragma warning restore IL2057 // Unrecognized value passed to the parameter of method. It's not possible to guarantee the availability of the target type.
+#pragma warning disable CS8603 // Possible null reference return.
+#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
+        return type != null ? (UserControl)Activator.CreateInstance(type) : null;
+#pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
+#pragma warning restore CS8603 // Possible null reference return.
+    }
 
     private static IEnumerable<Window> Windows =>
         (Application.Current?.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime)?.Windows ?? Array.Empty<Window>();
