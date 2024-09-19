@@ -5,7 +5,7 @@
              xmlns:materialIcons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
              xmlns:p1="clr-namespace:Material.Styles.Assists;assembly=Material.Styles"
              xmlns:controls="clr-namespace:Material.Styles.Controls;assembly=Material.Styles"
-             xmlns:mwCtl="clr-namespace:MapWizard.Desktop.Controls.View"
+             xmlns:mwCtl="clr-namespace:MapWizard.Desktop.Controls"
              xmlns:vm="clr-namespace:MapWizard.Desktop.ViewModels"
               xmlns:model="using:MapWizard.Desktop.Models"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
