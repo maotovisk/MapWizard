@@ -120,10 +120,10 @@ public class HitObjects
                     return slider;
                 case Slider slider:
                     {
-                        if (slider is { Repeats: > 1, RepeatSounds: not null } && slider.RepeatSounds.Count == (slider.Repeats - 1))
-                            for (var i = 1; i < slider.Repeats - 1; i++)
+                        if (slider is { Slides: > 1, RepeatSounds: not null } && slider.RepeatSounds.Count == (slider.Slides - 1))
+                            for (var i = 1; i < slider.Slides - 1; i++)
                             {
-                                var repeatTime = (slider.EndTime - slider.Time) / (slider.Repeats - 1) * i + slider.Time;
+                                var repeatTime = (slider.EndTime - slider.Time) / (slider.Slides - 1) * i + slider.Time;
                                 if (Math.Abs(repeatTime.TotalMilliseconds - time) <= leniency)
                                     return slider;
                             }

@@ -23,7 +23,7 @@ public class Slider : HitObject
     /// <summary>
     /// Number of repeats of the slider.
     /// </summary>
-    public uint Repeats { get; set; }
+    public uint Slides { get; set; }
 
     /// <summary>
     /// Length of the slider.
@@ -61,19 +61,19 @@ public class Slider : HitObject
     /// <param name="comboColour"></param>
     /// <param name="curveType"></param>
     /// <param name="curvePoints"></param>
-    /// <param name="repeats"></param>
+    /// <param name="slides"></param>
     /// <param name="length"></param>
     /// <param name="endTime"></param>
     /// <param name="headSounds"></param>
     /// <param name="repeatSounds"></param>
     /// <param name="tailSounds"></param>
-    public Slider(Vector2 coordinates, TimeSpan time, HitObjectType type, (HitSample, List<HitSound>) hitSounds, bool newCombo, uint comboColour, CurveType curveType, List<Vector2> curvePoints, uint repeats, double length, TimeSpan endTime, (HitSample SampleData, List<HitSound> Sounds) headSounds, List<(HitSample SampleData, List<HitSound> Sounds)>? repeatSounds, (HitSample SampleData, List<HitSound> Sounds) tailSounds) :
+    public Slider(Vector2 coordinates, TimeSpan time, HitObjectType type, (HitSample, List<HitSound>) hitSounds, bool newCombo, uint comboColour, CurveType curveType, List<Vector2> curvePoints, uint slides, double length, TimeSpan endTime, (HitSample SampleData, List<HitSound> Sounds) headSounds, List<(HitSample SampleData, List<HitSound> Sounds)>? repeatSounds, (HitSample SampleData, List<HitSound> Sounds) tailSounds) :
         base(coordinates, time, type, hitSounds, newCombo, comboColour)
     {
         CurveType = curveType;
         CurvePoints = curvePoints;
         EndTime = endTime;
-        Repeats = repeats;
+        Slides = slides;
         Length = length;
         HeadSounds = headSounds;
         RepeatSounds = repeatSounds;
@@ -87,7 +87,7 @@ public class Slider : HitObject
     {
         CurveType = CurveType.Bezier;
         CurvePoints = [];
-        Repeats = 1;
+        Slides = 1;
         Length = 0;
         EndTime = TimeSpan.FromSeconds(0);
         HeadSounds = (new HitSample(), []);
@@ -107,7 +107,7 @@ public class Slider : HitObject
     {
         CurveType = CurveType.Bezier;
         CurvePoints = [];
-        Repeats = 1;
+        Slides = 1;
         Length = 0;
         EndTime = Time;
     }
@@ -123,6 +123,7 @@ public class Slider : HitObject
     {
         // x,   y,  time,   type,   hitSound,   curveType|curvePoints,  slides, length, edgeSounds,     ,edgeSets   ,hitSample
         // 0    1   2       3       4           5                       6       7          	      8             9           10
+        
         try
         {
             if (split.Count > 11) throw new ArgumentException("Invalid slider hit object line.");
@@ -147,7 +148,7 @@ public class Slider : HitObject
                         var curvePoints = x.Split(':');
                         return new Vector2(float.Parse(curvePoints[0]), float.Parse(curvePoints[1]));
                     }).ToList(),
-                Repeats = uint.Parse(split[6] == "NaN" ? "1" : split[6]),
+                Slides = uint.Parse(split[6] == "NaN" ? "1" : split[6]),
                 Length = double.Parse(split[7] == "NaN" ? "0" : split[7], CultureInfo.InvariantCulture),
                 EndTime = Helper.CalculateEndTime(
                     sliderMultiplier: difficulty.SliderMultiplier * timingPoints.GetSliderVelocityAt(double.Parse(split[2], CultureInfo.InvariantCulture)),
@@ -187,7 +188,7 @@ public class Slider : HitObject
 
         builder.Append($"{Helper.EncodeCurveType(CurveType)}|{string.Join("|", CurvePoints.Select(x => $"{x.X}:{x.Y}"))},");
 
-        builder.Append($"{Repeats},");
+        builder.Append($"{Slides},");
 
         builder.Append($"{Length.ToString(CultureInfo.InvariantCulture)}");
 

@@ -1,3 +1,4 @@
+using System.IO.Enumeration;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
@@ -14,7 +15,7 @@ public class HitSoundCopier
     /// </summary>
     /// <param name="sourcePath"></param>
     /// <param name="targetPath"></param>
-    private static string CopyFromBeatmapToString(string sourcePath, string targetPath)
+    private static Beatmap CopyFromBeatmapToString(string sourcePath, string targetPath)
     {
         var source = Beatmap.Decode(new FileInfo(sourcePath));
         var target = Beatmap.Decode(new FileInfo(targetPath));
@@ -22,7 +23,7 @@ public class HitSoundCopier
         SoundTimeline hitSoundTimeLine = new();
         SoundTimeline sliderBodyTimeline = new();
 
-        if (source.TimingPoints == null) return target.Encode().Replace("\r\n", "\n").Replace("\n", "\r\n");
+        if (source.TimingPoints == null) return target;
 
         foreach (var hitObject in source.HitObjects.Objects)
         {
@@ -43,17 +44,17 @@ public class HitSoundCopier
                     hitSoundTimeLine.SoundEvents.Add(currentHeadSound);
 
                     // Update the repeats sounds
-                    if (slider is { Repeats: > 1, RepeatSounds: not null } && slider.RepeatSounds.Count == slider.Repeats- 1)
+                    if (slider is { Slides: > 1, RepeatSounds: not null } && slider.RepeatSounds.Count == slider.Slides - 1)
                     {
                         // the parser interprets the tail as an extra repeat, so we need to loop to one less repeat
-                        for (var i = 0; i < slider.Repeats - 1; i++)
+                        for (var i = 0; i < slider.Slides - 1; i++)
                         {
                             var repeatSound = slider.RepeatSounds[i];
                             var repeatSoundTime = TimeSpan.FromMilliseconds(
-                                Math.Round(slider.Time.TotalMilliseconds + 
-                                           (slider.EndTime.TotalMilliseconds - slider.Time.TotalMilliseconds) / (slider.Repeats - 1) * (i + 1)
-                                           )
+                                Math.Round(slider.Time.TotalMilliseconds + ((slider.EndTime.TotalMilliseconds - slider.Time.TotalMilliseconds) / slider.Slides) * (i + 1)
+                                )
                             );
+                            
                             var currentRepeatSound = new SoundEvent(repeatSoundTime, repeatSound.Sounds, repeatSound.SampleData.NormalSet, repeatSound.SampleData.AdditionSet);
                             hitSoundTimeLine.SoundEvents.Add(currentRepeatSound);
                         }
@@ -73,9 +74,9 @@ public class HitSoundCopier
             }
         }
 
-        ApplyNonDraggableHitSounds(target, hitSoundTimeline: hitSoundTimeLine);
+        ApplyNonDraggableHitSounds(ref target, hitSoundTimeline: hitSoundTimeLine);
 
-        ApplyDraggableHitSounds(target, sliderBodyTimeline);
+        ApplyDraggableHitSounds(ref target, sliderBodyTimeline);
 
 
         // Get sample set events
@@ -83,7 +84,7 @@ public class HitSoundCopier
 
         foreach (var timingPoint in source.TimingPoints.TimingPointList)
         {
-            var currentSampleSet = sampleSetTimeline.GetCurrentSampleAtTime(timingPoint.Time.TotalMilliseconds);
+            var currentSampleSet = sampleSetTimeline.GetSampleAtExactTime(timingPoint.Time.TotalMilliseconds);
   
             if (currentSampleSet == null)
             {
@@ -99,14 +100,10 @@ public class HitSoundCopier
             }
         }
 
-        ApplySampleTimeline(target, sampleSetTimeline);
+        ApplySampleTimeline(ref target, sampleSetTimeline);
 
-        var output = target.Encode();
-
-        // make sure it's encoding with Windows Line endings
-        output = output.Replace("\r\n", "\n").Replace("\n", "\r\n");
-
-        return output;
+        // avoid any potential issues with race conditions
+        return target;
     }
 
 
@@ -116,10 +113,12 @@ public class HitSoundCopier
     /// <param name="origin"></param>
     /// <param name="hitSoundTimeline"></param>
     /// <param name="leniency"></param>
-    private static void ApplyNonDraggableHitSounds(Beatmap origin, SoundTimeline hitSoundTimeline, int leniency = 2)
+    private static void ApplyNonDraggableHitSounds(ref Beatmap origin, SoundTimeline hitSoundTimeline, int leniency = 2)
     {
         if (origin.TimingPoints == null) return;
-
+        
+        var newHitObjects = new List<IHitObject>(origin.HitObjects.Objects.ToList());
+        
         foreach (var hitObject in origin.HitObjects.Objects)
         {
             switch (hitObject)
@@ -135,13 +134,15 @@ public class HitSoundCopier
                                 circle.HitSounds.SampleData.FileName
                             ), currentSound.HitSounds);
                         }
+                        
+                        newHitObjects[newHitObjects.IndexOf(hitObject)] = circle;
                         break;
                     }
                 case Slider slider:
                     {
                         var currentHeadSound = hitSoundTimeline.GetSoundAtTime(slider.Time);
 
-                        if (currentHeadSound != null && (Math.Abs(slider.Time.TotalMilliseconds - currentHeadSound.Time.TotalMilliseconds) <= leniency))
+                        if (currentHeadSound != null)
                         {
                             slider.HeadSounds = (new HitSample(
                                 normalSet: currentHeadSound.NormalSample,
@@ -151,16 +152,15 @@ public class HitSoundCopier
                         }
 
                         // Update the repeats sounds
-                        if (slider is { Repeats: > 1, RepeatSounds: not null } && slider.RepeatSounds.Count == (slider.Repeats - 1))
+                        if (slider is { Slides: > 1, RepeatSounds: not null } && slider.RepeatSounds.Count == (slider.Slides - 1))
                         {
-                            for (var i = 0; i < slider.Repeats - 1; i++)
+                            for (var i = 0; i < slider.Slides - 1; i++)
                             {
-                                var repeatSound = hitSoundTimeline.GetSoundAtTime(
-                                    TimeSpan.FromMilliseconds(
-                                        Math.Round(slider.Time.TotalMilliseconds + (slider.EndTime.TotalMilliseconds - slider.Time.TotalMilliseconds) / (slider.Repeats - 1) * (i + 1)
-                                        )
-                                    )
+                                var repeatSoundTime = TimeSpan.FromMilliseconds(
+                                    Math.Round(slider.Time.TotalMilliseconds + ((slider.EndTime.TotalMilliseconds - slider.Time.TotalMilliseconds) / slider.Slides) * (i + 1))
                                 );
+                                
+                                var repeatSound = hitSoundTimeline.GetSoundAtTime(repeatSoundTime);
 
                                 if (repeatSound != null)
                                 {
@@ -173,7 +173,7 @@ public class HitSoundCopier
                             }
                         }
                         var currentEndSound = hitSoundTimeline.GetSoundAtTime(slider.EndTime);
-                        if (currentEndSound != null && (Math.Abs(slider.EndTime.TotalMilliseconds - currentEndSound.Time.TotalMilliseconds) <= leniency))
+                        if (currentEndSound != null)
                         {
                             slider.TailSounds = (new HitSample(
                                 currentEndSound.NormalSample,
@@ -181,7 +181,9 @@ public class HitSoundCopier
                                 slider.TailSounds.SampleData.FileName
                             ), currentEndSound.HitSounds);
                         }
-
+                        
+                        
+                        newHitObjects[newHitObjects.IndexOf(hitObject)] = slider;
                         break;
                     }
                 case Spinner spinner:
@@ -195,10 +197,15 @@ public class HitSoundCopier
                                spinner.HitSounds.SampleData.FileName
                             ), currentSound.HitSounds);
                         }
+                        
+                        
+                        newHitObjects[newHitObjects.IndexOf(hitObject)] = spinner;
                         break;
                     }
             }
         }
+        
+        origin.HitObjects.Objects = newHitObjects;
     }
 
     /// <summary>
@@ -207,8 +214,9 @@ public class HitSoundCopier
     /// <param name="origin"></param>
     /// <param name="bodyTimeline"></param>
     /// <param name="leniency"></param>
-    private static void ApplyDraggableHitSounds(Beatmap origin, SoundTimeline bodyTimeline, int leniency = 2)
+    private static void ApplyDraggableHitSounds(ref Beatmap origin, SoundTimeline bodyTimeline, int leniency = 2)
     {
+        var newHitObjects = new List<IHitObject>(origin.HitObjects.Objects.ToList());
         foreach (var hitObject in origin.HitObjects.Objects)
         {
             if (hitObject is not Slider slider) continue;
@@ -221,61 +229,67 @@ public class HitSoundCopier
                     slider.TailSounds.SampleData.FileName
                 ), currentBodySound.HitSounds);
             }
+            
+            newHitObjects[newHitObjects.IndexOf(hitObject)] = slider;
         }
     }
 
     /// <summary>
     /// Applies a SampleSetTimeline to the timing points
-    /// </summary>
+    /// </summary>\
+    /// <param name="origin"></param>
     /// <param name="timeline"></param>
     /// <param name="leniency"></param>
-    private static void ApplySampleTimeline(Beatmap origin, SampleSetTimeline timeline, int leniency = 2)
+    private static void ApplySampleTimeline(ref Beatmap origin, SampleSetTimeline timeline, int leniency = 2)
     {
         switch (origin.TimingPoints)
         {
             case null:
                 return;
             case var section:
+                foreach (var timingPoint in section.TimingPointList)
                 {
-                    foreach (var timingPoint in section.TimingPointList)
-                    {
-                        var sampleSet = timeline.GetCurrentSampleAtTime(timingPoint.Time.TotalMilliseconds);
+                    var sampleSet = timeline.GetCurrentSampleAtTime(timingPoint.Time.TotalMilliseconds);
 
-                        if (sampleSet == null) continue;
+                    if (sampleSet == null) continue;
 
-                        timingPoint.SampleSet = sampleSet.Sample;
-                        timingPoint.SampleIndex = (uint)sampleSet.Index;
-                        timingPoint.Volume = (uint)sampleSet.Volume;
-                    }
-
-                    // Add the missing timing points 
-                    foreach (var sound in timeline.HitSamples)
-                    {
-                        var currentUninherited = section.GetUninheritedTimingPointAt(sound.Time);
-                        var currentInherited = section.GetInheritedTimingPointAt(sound.Time);
-
-                        if (currentUninherited == null) continue;
-
-                        if (currentInherited == null)
-                        {
-                            section.TimingPointList.Add(new InheritedTimingPoint(
-                                time: TimeSpan.FromMilliseconds(sound.Time),
-                                sampleSet: sound.Sample,
-                                sampleIndex: (uint)sound.Index,
-                                volume: (uint)sound.Volume,
-                                effects: currentUninherited.Effects,
-                                sliderVelocity: section.GetSliderVelocityAt(sound.Time)
-                            ));
-                        }
-                        else
-                        {
-                            currentInherited.SampleSet = sound.Sample;
-                            currentInherited.SampleIndex = (uint)sound.Index;
-                            currentInherited.Volume = (uint)sound.Volume;
-                        }
-                    }
-                    break;
+                    timingPoint.SampleSet = sampleSet.Sample;
+                    timingPoint.SampleIndex = (uint)sampleSet.Index;
+                    timingPoint.Volume = (uint)sampleSet.Volume;
                 }
+
+                // Add the missing inherited points from the timeline
+                foreach (var sampleSet in timeline.HitSamples)
+                {
+                    if (section.TimingPointList.Any(x => Math.Abs(x.Time.TotalMilliseconds - sampleSet.Time) < leniency)) continue;
+                    
+                    var currentTimingPoint = section.TimingPointList.OrderBy(x => x.Time.TotalMilliseconds).LastOrDefault(x => x.Time.TotalMilliseconds <= sampleSet.Time);
+                    
+                    if (currentTimingPoint ==  null) continue;
+
+                    var newTimingPoint = currentTimingPoint switch
+                    {
+                        UninheritedTimingPoint uninheritedTimingPoint =>
+                            new InheritedTimingPoint(
+                                time: TimeSpan.FromMilliseconds(sampleSet.Time),
+                                sampleSet: sampleSet.Sample,
+                                sliderVelocity: 1.0,
+                                sampleIndex: (uint)sampleSet.Index,
+                                volume: (uint)sampleSet.Volume,
+                                effects: uninheritedTimingPoint.Effects
+                            ),
+                        InheritedTimingPoint inheritedTimingPoint => new InheritedTimingPoint(
+                            time: TimeSpan.FromMilliseconds(sampleSet.Time),
+                            sampleSet: sampleSet.Sample,
+                            sliderVelocity: inheritedTimingPoint.SliderVelocity,
+                            sampleIndex: (uint)sampleSet.Index,
+                            volume: (uint)sampleSet.Volume,
+                            effects: inheritedTimingPoint.Effects
+                        ),
+                    };
+                    section.TimingPointList.Insert(section.TimingPointList.IndexOf(currentTimingPoint), newTimingPoint);
+                } 
+                break;
         }
     }
 
@@ -289,7 +303,19 @@ public class HitSoundCopier
         foreach (var path in targetPath)
         {
             var output = CopyFromBeatmapToString(sourcePath, path);
-            File.WriteAllText(path, output);
+
+            if (File.Exists(sourcePath))
+            {
+                if (Directory.Exists(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)))
+                {
+                    var backupDirectory = Directory.CreateDirectory(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + "/MapWizard/Backup");
+                    
+                    var currentTimestamp = DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss");
+                    File.Move(path, backupDirectory.FullName + "/" + currentTimestamp + Path.GetFileName(path));
+                }
+                
+                File.WriteAllText(path, output.Encode().Replace("\r\n", "\n").Replace("\n", "\r\n"));
+            }
         }
     }
 }

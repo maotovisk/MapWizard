@@ -24,19 +24,19 @@ public class SampleSetTimeline
     /// <param name="time"></param>
     /// <param name="leniency"></param>
     /// <returns></returns>
-    public SampleSetEvent? GetSampleAtTime(double time, int leniency = 2)
+    public SampleSetEvent? GetSampleAtExactTime(double time, int leniency = 2)
     {
         if (HitSamples.Count == 0)
             return null;
 
-        return HitSamples.FirstOrDefault(x => Math.Abs(x.Time - time) <= leniency);
+        return HitSamples.OrderBy(x => x.Time).LastOrDefault(x => Math.Abs(x.Time - time) <= leniency);
     }
     
     public SampleSetEvent? GetCurrentSampleAtTime(double time, int leniency = 2)
     {
         if (HitSamples.Count == 0)
             return null;
-        
-        return HitSamples.FirstOrDefault(x => x.Time - leniency <= leniency);
+            
+        return HitSamples.OrderBy(x => x.Time).LastOrDefault(x => x.Time <= time + leniency);
     }
 }
