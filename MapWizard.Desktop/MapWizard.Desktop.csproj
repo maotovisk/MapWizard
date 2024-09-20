@@ -6,6 +6,7 @@
     <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
     <PublishAOT>true</PublishAOT>
     <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>Assets/app-icon.ico</ApplicationIcon>
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
   </PropertyGroup>
 
@@ -29,5 +30,6 @@
 
   <ItemGroup>
     <Folder Include="Assets\" />
+    <AvaloniaResource Include="Assets\app-icon.ico" />
   </ItemGroup>
 </Project>

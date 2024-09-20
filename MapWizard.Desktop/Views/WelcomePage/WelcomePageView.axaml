@@ -2,6 +2,10 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:materialIcons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+             xmlns:dialogHost="clr-namespace:DialogHostAvalonia;assembly=DialogHost.Avalonia"
+             xmlns:p1="clr-namespace:Material.Styles.Assists;assembly=Material.Styles"
+             xmlns:controls="clr-namespace:Material.Styles.Controls;assembly=Material.Styles"
              xmlns:vm="clr-namespace:MapWizard.Desktop.ViewModels"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="MapWizard.Desktop.Views.WelcomePageView"
@@ -9,5 +13,17 @@
   <UserControl.DataContext>
     <vm:WelcomePageViewModel />
   </UserControl.DataContext>
-  <TextBlock Text="{Binding Message}" FontSize="24" HorizontalAlignment="Center" VerticalAlignment="Center" />
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition />
+            <RowDefinition />
+        </Grid.RowDefinitions>
+        <TextBlock Grid.Row="0" Text="{Binding Message}" FontSize="24" HorizontalAlignment="Center" VerticalAlignment="Center" />
+        <Button Grid.Row="1" Height="48" ToolTip.Tip="Click here to copy the hitsounds from the origin to the target." CornerRadius="16" VerticalAlignment="Center" HorizontalAlignment="Center">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock FontWeight="Bold" FontSize="16" Text="Go to the hitsound copier" VerticalAlignment="Center"></TextBlock>
+                <materialIcons:MaterialIcon Width="24" Height="24" Kind="ArrowForwardCircle"></materialIcons:MaterialIcon>
+            </StackPanel>
+        </Button>
+    </Grid>
 </UserControl>

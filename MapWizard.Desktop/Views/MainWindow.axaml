@@ -17,13 +17,13 @@
   <Grid ColumnDefinitions="Auto,*" RowDefinitions="*">
     <Grid Background="Yellow" Grid.Row="0" Grid.Column="0" RowDefinitions="*,Auto">
       <StackPanel>
-        <Button Foreground="Black" Theme="{StaticResource MaterialFlatButton}" Height="64"
-                Command="{Binding ShowWelcomePageCommand}">
-          <StackPanel>
-            <materialIcons:MaterialIcon Kind="Home" Width="24" Height="24" />
-            <TextBlock TextAlignment="Center" TextWrapping="Wrap" Text="Start" Width="64" FontSize="14" />
-          </StackPanel>
-        </Button>
+        <!-- <Button Foreground="Black" Theme="{StaticResource MaterialFlatButton}" Height="64" -->
+        <!--         Command="{Binding ShowWelcomePageCommand}"> -->
+        <!--   <StackPanel> -->
+        <!--     <materialIcons:MaterialIcon Kind="Home" Width="24" Height="24" /> -->
+        <!--     <TextBlock TextAlignment="Center" TextWrapping="Wrap" Text="Start" Width="64" FontSize="14" /> -->
+        <!--   </StackPanel> -->
+        <!-- </Button> -->
         <Button Foreground="Black" Theme="{StaticResource MaterialFlatButton}" Height="64"
                 Command="{Binding ShowHitsoundCopierCommand}">
           <StackPanel>
@@ -31,12 +31,12 @@
             <TextBlock TextAlignment="Center" TextWrapping="Wrap" Text="HitSound Copier" Width="64" FontSize="14" />
           </StackPanel>
         </Button>
-        <Button Foreground="Black" Theme="{StaticResource MaterialFlatButton}" Height="64">
-          <StackPanel>
-            <materialIcons:MaterialIcon Kind="FileDocumentMultiple" Width="24" Height="24" />
-            <TextBlock TextAlignment="Center" TextWrapping="Wrap" Text="Metadata Manager" Width="64" FontSize="14" />
-          </StackPanel>
-        </Button>
+        <!-- <Button Foreground="Black" Theme="{StaticResource MaterialFlatButton}" Height="64"> -->
+        <!--   <StackPanel> -->
+        <!--     <materialIcons:MaterialIcon Kind="FileDocumentMultiple" Width="24" Height="24" /> -->
+        <!--     <TextBlock TextAlignment="Center" TextWrapping="Wrap" Text="Metadata Manager" Width="64" FontSize="14" /> -->
+        <!--   </StackPanel> -->
+        <!-- </Button> -->
       </StackPanel>
       <Button Grid.Row="0" Foreground="Black" Theme="{StaticResource MaterialFlatButton}" Height="64"
               VerticalAlignment="Bottom">

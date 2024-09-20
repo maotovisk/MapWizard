@@ -40,7 +40,7 @@ public partial class HitsoundCopierViewModel : ViewModelBase
 
     [NotifyPropertyChangedFor(nameof(AdditionalBeatmaps))] 
     [ObservableProperty]
-    private ObservableCollection<SelectedMap> _destinationBeatmaps;
+    private ObservableCollection<SelectedMap> _destinationBeatmaps = [];
     
     public ObservableCollection<SelectedMap> AdditionalBeatmaps {
         get => new ObservableCollection<SelectedMap>(DestinationBeatmaps.Skip(1));
@@ -117,7 +117,8 @@ public partial class HitsoundCopierViewModel : ViewModelBase
                                 "application/octet-stream",
                             }
                         }
-                    ]
+                    ],
+                    SuggestedStartLocation = await filesService.TryGetFolderFromPath(OriginBeatmap.Path)
                 });
 
             if (file is null || file.Count == 0) return;
@@ -137,7 +138,7 @@ public partial class HitsoundCopierViewModel : ViewModelBase
     }
     
     [RelayCommand]
-    void CopyHitsounds()
+    private void CopyHitsounds()
     {
         Console.WriteLine("Copying hitsounds...");
         // create dialog using Avalonia

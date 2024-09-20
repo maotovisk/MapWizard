@@ -10,9 +10,9 @@
     <Application.DataTemplates>
         <local:ViewLocator/>
     </Application.DataTemplates>
+    
 
     <Application.Styles>
-        
         <dialogHostAvalonia:DialogHostStyles />
         <themes:MaterialTheme PrimaryColor="Amber" SecondaryColor="Blue" />
         <materialIcons:MaterialIconStyles />

@@ -11,7 +11,7 @@ public partial class MainWindowViewModel : ViewModelBase
 
     public MainWindowViewModel()
     { 
-        CurrentView = new WelcomePageViewModel();
+        CurrentView = new HitsoundCopierViewModel();
     }
 
     [RelayCommand]

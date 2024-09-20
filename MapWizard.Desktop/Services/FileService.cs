@@ -26,4 +26,9 @@ public class FilesService(TopLevel target) : IFilesService
             Title = "Save File"
         });
     }
+    
+    public Task<IStorageFolder?> TryGetFolderFromPath(string path)
+    {
+        return target.StorageProvider.TryGetFolderFromPathAsync(path);
+    } 
 }
