@@ -1,25 +1,18 @@
-using System.IO.Enumeration;
-using System.Runtime.InteropServices;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
 using MapWizard.BeatmapParser;
 
 namespace MapWizard.Tools.HitSoundCopier;
 /// <summary>
 /// Class to copy hit sounds from one beatmap to others.
 /// </summary>
-public class HitSoundCopier
+public static class HitSoundCopier
 {
     /// <summary>
     /// Copy hit sounds from one beatmap to another.
     /// </summary>
-    /// <param name="sourcePath"></param>
-    /// <param name="targetPath"></param>
-    private static Beatmap CopyFromBeatmapToString(string sourcePath, string targetPath)
+    /// <param name="source">Source `Beatmap` object.</param>
+    /// <param name="target">Target `Beatmap` object.</param>
+    private static Beatmap CopyFromBeatmap(Beatmap source, Beatmap target)
     {
-        var source = Beatmap.Decode(new FileInfo(sourcePath));
-        var target = Beatmap.Decode(new FileInfo(targetPath));
-
         SoundTimeline hitSoundTimeLine = new();
         SoundTimeline sliderBodyTimeline = new();
 
@@ -135,7 +128,7 @@ public class HitSoundCopier
                             ), currentSound.HitSounds);
                         }
                         
-                        newHitObjects[newHitObjects.IndexOf(hitObject)] = circle;
+                        newHitObjects[origin.HitObjects.Objects.IndexOf(hitObject)] = circle;
                         break;
                     }
                 case Slider slider:
@@ -183,7 +176,7 @@ public class HitSoundCopier
                         }
                         
                         
-                        newHitObjects[newHitObjects.IndexOf(hitObject)] = slider;
+                        newHitObjects[origin.HitObjects.Objects.IndexOf(hitObject)] = slider;
                         break;
                     }
                 case Spinner spinner:
@@ -199,7 +192,7 @@ public class HitSoundCopier
                         }
                         
                         
-                        newHitObjects[newHitObjects.IndexOf(hitObject)] = spinner;
+                        newHitObjects[origin.HitObjects.Objects.IndexOf(hitObject)] = spinner;
                         break;
                     }
             }
@@ -230,8 +223,10 @@ public class HitSoundCopier
                 ), currentBodySound.HitSounds);
             }
             
-            newHitObjects[newHitObjects.IndexOf(hitObject)] = slider;
+            newHitObjects[origin.HitObjects.Objects.IndexOf(hitObject)] = slider;
         }
+        
+        origin.HitObjects.Objects = newHitObjects;
     }
 
     /// <summary>
@@ -286,7 +281,10 @@ public class HitSoundCopier
                             volume: (uint)sampleSet.Volume,
                             effects: inheritedTimingPoint.Effects
                         ),
+                        _ => null
                     };
+                    if (newTimingPoint == null) continue;
+
                     section.TimingPointList.Insert(section.TimingPointList.IndexOf(currentTimingPoint), newTimingPoint);
                 } 
                 break;
@@ -294,15 +292,17 @@ public class HitSoundCopier
     }
 
     /// <summary>
-    /// Copy hitsounds from one beatmap to multiple others.
+    /// Copy hit sounds from one beatmap to multiple others.
     /// </summary>
     /// <param name="sourcePath"></param>
     /// <param name="targetPath"></param>
     public static void CopyFromBeatmapToTarget(string sourcePath, string[] targetPath)
     {
+        var sourceFile = Beatmap.Decode(File.ReadAllText(sourcePath));
         foreach (var path in targetPath)
         {
-            var output = CopyFromBeatmapToString(sourcePath, path);
+            var targetFile = Beatmap.Decode(File.ReadAllText(path));
+            var output = CopyFromBeatmap(sourceFile, targetFile);
 
             if (File.Exists(sourcePath))
             {
