@@ -31,4 +31,12 @@ public class SampleSetTimeline
 
         return HitSamples.FirstOrDefault(x => Math.Abs(x.Time - time) <= leniency);
     }
+    
+    public SampleSetEvent? GetCurrentSampleAtTime(double time, int leniency = 2)
+    {
+        if (HitSamples.Count == 0)
+            return null;
+        
+        return HitSamples.FirstOrDefault(x => x.Time - leniency <= leniency);
+    }
 }

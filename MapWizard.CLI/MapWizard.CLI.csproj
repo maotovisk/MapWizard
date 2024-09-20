@@ -2,6 +2,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\MapWizard.BeatmapParser\MapWizard.BeatmapParser.csproj" />
+    <ProjectReference Include="..\MapWizard.Tools\MapWizard.Tools.csproj" />
   </ItemGroup>
 
   <PropertyGroup>

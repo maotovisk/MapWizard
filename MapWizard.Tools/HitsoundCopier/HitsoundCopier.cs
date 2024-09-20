@@ -43,15 +43,19 @@ public class HitSoundCopier
                     hitSoundTimeLine.SoundEvents.Add(currentHeadSound);
 
                     // Update the repeats sounds
-                    if (slider is { Repeats: > 1, RepeatSounds: not null } && slider.RepeatSounds.Count == (slider.Repeats - 1))
+                    if (slider is { Repeats: > 1, RepeatSounds: not null } && slider.RepeatSounds.Count == slider.Repeats- 1)
                     {
+                        // the parser interprets the tail as an extra repeat, so we need to loop to one less repeat
                         for (var i = 0; i < slider.Repeats - 1; i++)
                         {
                             var repeatSound = slider.RepeatSounds[i];
-                            var repeatSoundTime = TimeSpan.FromMilliseconds(Math.Round(slider.Time.TotalMilliseconds + (slider.EndTime.TotalMilliseconds - slider.Time.TotalMilliseconds) / slider.Repeats * (i + 1)));
+                            var repeatSoundTime = TimeSpan.FromMilliseconds(
+                                Math.Round(slider.Time.TotalMilliseconds + 
+                                           (slider.EndTime.TotalMilliseconds - slider.Time.TotalMilliseconds) / (slider.Repeats - 1) * (i + 1)
+                                           )
+                            );
                             var currentRepeatSound = new SoundEvent(repeatSoundTime, repeatSound.Sounds, repeatSound.SampleData.NormalSet, repeatSound.SampleData.AdditionSet);
                             hitSoundTimeLine.SoundEvents.Add(currentRepeatSound);
-
                         }
                     }
 
@@ -79,8 +83,8 @@ public class HitSoundCopier
 
         foreach (var timingPoint in source.TimingPoints.TimingPointList)
         {
-            var currentSampleSet = sampleSetTimeline.GetSampleAtTime(timingPoint.Time.TotalMilliseconds);
-
+            var currentSampleSet = sampleSetTimeline.GetCurrentSampleAtTime(timingPoint.Time.TotalMilliseconds);
+  
             if (currentSampleSet == null)
             {
                 currentSampleSet = new SampleSetEvent(timingPoint.Time.TotalMilliseconds, timingPoint.SampleSet, (int)timingPoint.SampleIndex, timingPoint.Volume);
@@ -151,7 +155,12 @@ public class HitSoundCopier
                         {
                             for (var i = 0; i < slider.Repeats - 1; i++)
                             {
-                                var repeatSound = hitSoundTimeline.GetSoundAtTime(TimeSpan.FromMilliseconds(Math.Round(slider.Time.TotalMilliseconds + (slider.EndTime.TotalMilliseconds - slider.Time.TotalMilliseconds) / slider.Repeats * (i + 1))));
+                                var repeatSound = hitSoundTimeline.GetSoundAtTime(
+                                    TimeSpan.FromMilliseconds(
+                                        Math.Round(slider.Time.TotalMilliseconds + (slider.EndTime.TotalMilliseconds - slider.Time.TotalMilliseconds) / (slider.Repeats - 1) * (i + 1)
+                                        )
+                                    )
+                                );
 
                                 if (repeatSound != null)
                                 {
@@ -230,7 +239,7 @@ public class HitSoundCopier
                 {
                     foreach (var timingPoint in section.TimingPointList)
                     {
-                        var sampleSet = timeline.GetSampleAtTime(timingPoint.Time.TotalMilliseconds);
+                        var sampleSet = timeline.GetCurrentSampleAtTime(timingPoint.Time.TotalMilliseconds);
 
                         if (sampleSet == null) continue;
 
@@ -257,6 +266,12 @@ public class HitSoundCopier
                                 effects: currentUninherited.Effects,
                                 sliderVelocity: section.GetSliderVelocityAt(sound.Time)
                             ));
+                        }
+                        else
+                        {
+                            currentInherited.SampleSet = sound.Sample;
+                            currentInherited.SampleIndex = (uint)sound.Index;
+                            currentInherited.Volume = (uint)sound.Volume;
                         }
                     }
                     break;
