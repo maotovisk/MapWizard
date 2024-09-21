@@ -13,11 +13,7 @@
   <UserControl.DataContext>
     <vm:WelcomePageViewModel />
   </UserControl.DataContext>
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition />
-            <RowDefinition />
-        </Grid.RowDefinitions>
+    <Grid RowDefinitions="*,*">
         <TextBlock Grid.Row="0" Text="{Binding Message}" FontSize="24" HorizontalAlignment="Center" VerticalAlignment="Center" />
         <Button Grid.Row="1" Height="48" ToolTip.Tip="Click here to copy the hitsounds from the origin to the target." CornerRadius="16" VerticalAlignment="Center" HorizontalAlignment="Center">
             <StackPanel Orientation="Horizontal">

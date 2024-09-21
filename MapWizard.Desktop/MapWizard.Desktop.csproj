@@ -4,7 +4,7 @@
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
-    <PublishAOT>true</PublishAOT>
+    <PublishAOT>false</PublishAOT>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <ApplicationIcon>Assets/app-icon.ico</ApplicationIcon>
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
@@ -21,6 +21,7 @@
     <PackageReference Include="DialogHost.Avalonia" Version="0.8.1" />
     <PackageReference Include="Material.Avalonia" Version="3.7.3" />
     <PackageReference Include="Material.Icons.Avalonia" Version="2.1.10" />
+    <PackageReference Include="Velopack" Version="0.0.594" />
   </ItemGroup>
 
   <ItemGroup>

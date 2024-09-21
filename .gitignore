@@ -2,6 +2,8 @@ bin/
 obj/
 **/obj/
 **/bin/
+**/publish/
+**/releases/
 parsing_errors.log
 encode_diffs.log
 output.osu
