@@ -40,7 +40,7 @@ public partial class HitsoundCopierViewModel : ViewModelBase
 
     [NotifyPropertyChangedFor(nameof(AdditionalBeatmaps))] 
     [ObservableProperty]
-    private ObservableCollection<SelectedMap> _destinationBeatmaps = [];
+    private ObservableCollection<SelectedMap> _destinationBeatmaps = [new SelectedMap()];
     
     public ObservableCollection<SelectedMap> AdditionalBeatmaps {
         get => new ObservableCollection<SelectedMap>(DestinationBeatmaps.Skip(1));
@@ -140,9 +140,6 @@ public partial class HitsoundCopierViewModel : ViewModelBase
     [RelayCommand]
     private void CopyHitsounds()
     {
-        Console.WriteLine("Copying hitsounds...");
-        // create dialog using Avalonia
-
         var message = "";
         if (string.IsNullOrEmpty(OriginBeatmap.Path))
         {

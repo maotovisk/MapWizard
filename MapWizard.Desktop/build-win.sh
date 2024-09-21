@@ -15,9 +15,9 @@ RELEASE_DIR="$SCRIPT_DIR/releases"
 PUBLISH_DIR="$SCRIPT_DIR/publish"
 
 echo ""
-echo "Compiling MapWizardDesktop with dotnet..."
-dotnet publish -c Release --self-contained -r osx-x64 -o "$PUBLISH_DIR"
+echo "Compiling MapWizard with dotnet..."
+dotnet publish -c Release --self-contained -r win-x64 -o "$PUBLISH_DIR"
 
 echo ""
 echo "Building Velopack Release v$BUILD_VERSION"
-vpk [osx] pack -u MapWizard.Desktop -v $BUILD_VERSION -o "$RELEASE_DIR" -p "$PUBLISH_DIR"
+vpk [win] pack -u MapWizard.Desktop -v $BUILD_VERSION -o "$RELEASE_DIR" -p "$PUBLISH_DIR"
