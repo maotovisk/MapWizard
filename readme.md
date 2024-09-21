@@ -22,13 +22,13 @@ A tool that aims to allow mappers replicate the hitsounds of a beatmap difficult
 1. Clone the repository
 
 ```bash
-git clone https://github.com/maotovisk/HitsoundCopier.git
+git clone https://github.com/maotovisk/MapWizard.git
 ```
 
 2. Run the project
 
 ```bash
-dotnet run
+dotnet run --project MapWizard.Desktop
 ```
 
 ## Roadmap
