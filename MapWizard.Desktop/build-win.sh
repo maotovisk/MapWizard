@@ -15,6 +15,8 @@ RELEASE_DIR="$SCRIPT_DIR/releases"
 PUBLISH_DIR="$SCRIPT_DIR/publish"
 ICON_PATH="$SCRIPT_DIR/Assets/app-icon.ico"
 
+echo "Cleaning up previous build..."
+dotnet clean
 echo ""
 echo "Compiling MapWizard with dotnet..."
 dotnet publish -c Release --self-contained -r win-x64 -o "$PUBLISH_DIR"
