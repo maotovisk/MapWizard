@@ -22,7 +22,7 @@ A tool that aims to allow mappers copy the hitsounds of a beatmap difficulty to 
 We provide pre-built binaries for Linux and Windows. You can download it from the [releases page](
 https://github.com/maotovisk/MapWizard/releases). 
  
-Thanks to the [Velopack](https://velopack.io/) project, for providing a way to package the application for Linux and Windows.
+Thanks to the [Velopack](https://velopack.io/) project, it auto-updates and it's just a 1-click install.
 
 ## Building
 

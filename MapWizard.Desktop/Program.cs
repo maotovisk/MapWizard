@@ -14,7 +14,8 @@ sealed class Program
     [STAThread]
     public static void Main(string[] args)
     {
-        VelopackApp.Build().Run();
+        VelopackApp.Build()
+            .Run();
         
         BuildAvaloniaApp()
             .StartWithClassicDesktopLifetime(args);
@@ -26,20 +27,4 @@ sealed class Program
             .UsePlatformDetect()
             .WithInterFont()
             .LogToTrace();
-    
-    private static async Task UpdateMyApp()
-    {
-        var mgr = new UpdateManager(new GithubSource("https://github.com/maotovisk/MapWizard", null, false, null));
-
-        // check for new version
-        var newVersion = await mgr.CheckForUpdatesAsync();
-        if (newVersion == null)
-            return; // no update available
-
-        // download new version
-        await mgr.DownloadUpdatesAsync(newVersion);
-
-        // install new version and restart app
-        mgr.ApplyUpdatesAndRestart(newVersion);
-    }
 }

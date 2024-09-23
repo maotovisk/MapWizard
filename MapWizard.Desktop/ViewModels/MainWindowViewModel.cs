@@ -26,11 +26,11 @@ public partial class MainWindowViewModel : ViewModelBase
     
     public MainWindowViewModel()
     { 
-        CurrentView = new HitsoundCopierViewModel();
+        CurrentView = new WelcomePageViewModel();
         MenuItems = new AvaloniaDictionary<string, bool>()
         {
-            { "WelcomePage", false },
-            { "HitsoundCopier", true }
+            { "WelcomePage", true },
+            { "HitsoundCopier", false }
         };
     }
 
