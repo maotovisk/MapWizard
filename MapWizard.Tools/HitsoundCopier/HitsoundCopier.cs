@@ -1,4 +1,5 @@
 using MapWizard.BeatmapParser;
+using MapWizard.Tools.Helpers;
 
 namespace MapWizard.Tools.HitSoundCopier;
 /// <summary>
@@ -11,7 +12,8 @@ public static class HitSoundCopier
     /// </summary>
     /// <param name="source">Source `Beatmap` object.</param>
     /// <param name="target">Target `Beatmap` object.</param>
-    private static Beatmap CopyFromBeatmap(Beatmap source, Beatmap target)
+    /// <param name="options">Options for the hit sound copying.</param>
+    private static Beatmap CopyFromBeatmap(Beatmap source, Beatmap target, HitSoundCopierOptions options)
     {
         SoundTimeline hitSoundTimeLine = new();
         SoundTimeline sliderBodyTimeline = new();
@@ -67,9 +69,10 @@ public static class HitSoundCopier
             }
         }
 
-        ApplyNonDraggableHitSounds(ref target, hitSoundTimeline: hitSoundTimeLine);
-
-        ApplyDraggableHitSounds(ref target, sliderBodyTimeline);
+        ApplyNonDraggableHitSounds(ref target, hitSoundTimeline: hitSoundTimeLine, options);
+        
+        if (options.CopySliderBodySounds)
+            ApplyDraggableHitSounds(ref target, sliderBodyTimeline, options);
 
 
         // Get sample set events
@@ -87,13 +90,19 @@ public static class HitSoundCopier
             else
             {
                 if (timingPoint is not InheritedTimingPoint) continue;
+                
                 currentSampleSet.Sample = timingPoint.SampleSet;
                 currentSampleSet.Index = (int)timingPoint.SampleIndex;
                 currentSampleSet.Volume = timingPoint.Volume;
             }
         }
 
-        ApplySampleTimeline(ref target, sampleSetTimeline);
+
+        ApplySampleTimeline(ref target, sampleSetTimeline, options);
+        
+        if (target.TimingPoints != null)
+            target.TimingPoints.TimingPointList = TimingPointHelper.RemoveRedundantGreenLines(target.TimingPoints);
+        
 
         // avoid any potential issues with race conditions
         return target;
@@ -105,8 +114,8 @@ public static class HitSoundCopier
     /// </summary>
     /// <param name="origin"></param>
     /// <param name="hitSoundTimeline"></param>
-    /// <param name="leniency"></param>
-    private static void ApplyNonDraggableHitSounds(ref Beatmap origin, SoundTimeline hitSoundTimeline, int leniency = 2)
+    /// <param name="options"></param>
+    private static void ApplyNonDraggableHitSounds(ref Beatmap origin, SoundTimeline hitSoundTimeline, HitSoundCopierOptions options)
     {
         if (origin.TimingPoints == null) return;
         
@@ -118,8 +127,8 @@ public static class HitSoundCopier
             {
                 case Circle circle:
                     {
-                        var currentSound = hitSoundTimeline.GetSoundAtTime(circle.Time);
-                        if (currentSound != null && (Math.Abs(circle.Time.TotalMilliseconds - currentSound.Time.TotalMilliseconds) <= leniency))
+                        var currentSound = hitSoundTimeline.GetSoundAtTime(circle.Time, options.Leniency);
+                        if (currentSound != null && (Math.Abs(circle.Time.TotalMilliseconds - currentSound.Time.TotalMilliseconds) <= options.Leniency))
                         {
                             circle.HitSounds = (new HitSample(
                                 normalSet: currentSound.NormalSample,
@@ -133,7 +142,7 @@ public static class HitSoundCopier
                     }
                 case Slider slider:
                     {
-                        var currentHeadSound = hitSoundTimeline.GetSoundAtTime(slider.Time);
+                        var currentHeadSound = hitSoundTimeline.GetSoundAtTime(slider.Time, options.Leniency);
 
                         if (currentHeadSound != null)
                         {
@@ -153,7 +162,7 @@ public static class HitSoundCopier
                                     Math.Round(slider.Time.TotalMilliseconds + ((slider.EndTime.TotalMilliseconds - slider.Time.TotalMilliseconds) / slider.Slides) * (i + 1))
                                 );
                                 
-                                var repeatSound = hitSoundTimeline.GetSoundAtTime(repeatSoundTime);
+                                var repeatSound = hitSoundTimeline.GetSoundAtTime(repeatSoundTime, options.Leniency);
 
                                 if (repeatSound != null)
                                 {
@@ -165,7 +174,7 @@ public static class HitSoundCopier
                                 }
                             }
                         }
-                        var currentEndSound = hitSoundTimeline.GetSoundAtTime(slider.EndTime);
+                        var currentEndSound = hitSoundTimeline.GetSoundAtTime(slider.EndTime, options.Leniency);
                         if (currentEndSound != null)
                         {
                             slider.TailSounds = (new HitSample(
@@ -181,8 +190,8 @@ public static class HitSoundCopier
                     }
                 case Spinner spinner:
                     {
-                        var currentSound = hitSoundTimeline.GetSoundAtTime(spinner.End);
-                        if (currentSound != null && (Math.Abs(spinner.End.TotalMilliseconds - currentSound.Time.TotalMilliseconds) <= leniency))
+                        var currentSound = hitSoundTimeline.GetSoundAtTime(spinner.End, options.Leniency);
+                        if (currentSound != null && (Math.Abs(spinner.End.TotalMilliseconds - currentSound.Time.TotalMilliseconds) <= options.Leniency))
                         {
                             spinner.HitSounds = (new HitSample(
                                currentSound.NormalSample,
@@ -190,7 +199,6 @@ public static class HitSoundCopier
                                spinner.HitSounds.SampleData.FileName
                             ), currentSound.HitSounds);
                         }
-                        
                         
                         newHitObjects[origin.HitObjects.Objects.IndexOf(hitObject)] = spinner;
                         break;
@@ -206,15 +214,15 @@ public static class HitSoundCopier
     /// </summary>
     /// <param name="origin"></param>
     /// <param name="bodyTimeline"></param>
-    /// <param name="leniency"></param>
-    private static void ApplyDraggableHitSounds(ref Beatmap origin, SoundTimeline bodyTimeline, int leniency = 2)
+    /// <param name="options"></param>
+    private static void ApplyDraggableHitSounds(ref Beatmap origin, SoundTimeline bodyTimeline, HitSoundCopierOptions options)
     {
         var newHitObjects = new List<IHitObject>(origin.HitObjects.Objects.ToList());
         foreach (var hitObject in origin.HitObjects.Objects)
         {
             if (hitObject is not Slider slider) continue;
-            var currentBodySound = bodyTimeline.GetSoundAtTime(slider.Time);
-            if (currentBodySound != null && (Math.Abs(slider.Time.TotalMilliseconds - currentBodySound.Time.TotalMilliseconds) <= leniency))
+            var currentBodySound = bodyTimeline.GetSoundAtTime(slider.Time, options.Leniency);
+            if (currentBodySound != null && (Math.Abs(slider.Time.TotalMilliseconds - currentBodySound.Time.TotalMilliseconds) <= options.Leniency))
             {
                 slider.HitSounds = (new HitSample(
                     currentBodySound.NormalSample,
@@ -234,8 +242,8 @@ public static class HitSoundCopier
     /// </summary>\
     /// <param name="origin"></param>
     /// <param name="timeline"></param>
-    /// <param name="leniency"></param>
-    private static void ApplySampleTimeline(ref Beatmap origin, SampleSetTimeline timeline, int leniency = 2)
+    /// <param name="options"></param>
+    private static void ApplySampleTimeline(ref Beatmap origin, SampleSetTimeline timeline, HitSoundCopierOptions options)
     {
         switch (origin.TimingPoints)
         {
@@ -244,23 +252,28 @@ public static class HitSoundCopier
             case var section:
                 foreach (var timingPoint in section.TimingPointList)
                 {
-                    var sampleSet = timeline.GetCurrentSampleAtTime(timingPoint.Time.TotalMilliseconds);
+                    var sampleSet = timeline.GetCurrentSampleAtTime(timingPoint.Time.TotalMilliseconds, options.Leniency);
 
                     if (sampleSet == null) continue;
-
+                    
                     timingPoint.SampleSet = sampleSet.Sample;
                     timingPoint.SampleIndex = (uint)sampleSet.Index;
-                    timingPoint.Volume = (uint)sampleSet.Volume;
+                    timingPoint.Volume = (timingPoint.Volume == 5 && !options.OverwriteMuting) ? timingPoint.Volume : (uint)sampleSet.Volume;
                 }
 
                 // Add the missing inherited points from the timeline
                 foreach (var sampleSet in timeline.HitSamples)
                 {
-                    if (section.TimingPointList.Any(x => Math.Abs(x.Time.TotalMilliseconds - sampleSet.Time) < leniency)) continue;
+                    if (section.TimingPointList.Any(x => Math.Abs(x.Time.TotalMilliseconds - sampleSet.Time) < options.Leniency)) continue;
                     
                     var currentTimingPoint = section.TimingPointList.OrderBy(x => x.Time.TotalMilliseconds).LastOrDefault(x => x.Time.TotalMilliseconds <= sampleSet.Time);
                     
-                    if (currentTimingPoint ==  null) continue;
+                    if (currentTimingPoint == null) continue;
+                    
+                    // If the timing point is already using the same sample set, sample index and volume, skip it
+                    if (currentTimingPoint.SampleSet == sampleSet.Sample && 
+                        currentTimingPoint.SampleIndex == sampleSet.Index &&
+                        !(Math.Abs(currentTimingPoint.Volume - sampleSet.Volume) > 0.5)) continue;
 
                     var newTimingPoint = currentTimingPoint switch
                     {
@@ -286,7 +299,9 @@ public static class HitSoundCopier
                     if (newTimingPoint == null) continue;
 
                     section.TimingPointList.Insert(section.TimingPointList.IndexOf(currentTimingPoint), newTimingPoint);
-                } 
+                }
+
+                origin.TimingPoints = section;
                 break;
         }
     }
@@ -296,26 +311,26 @@ public static class HitSoundCopier
     /// </summary>
     /// <param name="sourcePath"></param>
     /// <param name="targetPath"></param>
-    public static void CopyFromBeatmapToTarget(string sourcePath, string[] targetPath)
+    /// <param name="options"></param>
+    public static void CopyFromBeatmapToTarget(string sourcePath, string[] targetPath, HitSoundCopierOptions options)
     {
         var sourceFile = Beatmap.Decode(File.ReadAllText(sourcePath));
         foreach (var path in targetPath)
         {
             var targetFile = Beatmap.Decode(File.ReadAllText(path));
-            var output = CopyFromBeatmap(sourceFile, targetFile);
+            var output = CopyFromBeatmap(sourceFile, targetFile, options);
 
-            if (File.Exists(sourcePath))
+            if (!File.Exists(sourcePath)) continue;
+            
+            if (Directory.Exists(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)))
             {
-                if (Directory.Exists(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)))
-                {
-                    var backupDirectory = Directory.CreateDirectory(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + "/MapWizard/Backup");
+                var backupDirectory = Directory.CreateDirectory(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + "/MapWizard/Backup");
                     
-                    var currentTimestamp = DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss");
-                    File.Move(path, backupDirectory.FullName + "/" + currentTimestamp + Path.GetFileName(path));
-                }
-                
-                File.WriteAllText(path, output.Encode().Replace("\r\n", "\n").Replace("\n", "\r\n"));
+                var currentTimestamp = DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss");
+                File.Move(path, backupDirectory.FullName + "/" + currentTimestamp + Path.GetFileName(path));
             }
+                
+            File.WriteAllText(path, output.Encode().Replace("\r\n", "\n").Replace("\n", "\r\n"));
         }
     }
 }

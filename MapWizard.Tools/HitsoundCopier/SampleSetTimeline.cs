@@ -32,6 +32,12 @@ public class SampleSetTimeline
         return HitSamples.OrderBy(x => x.Time).LastOrDefault(x => Math.Abs(x.Time - time) <= leniency);
     }
     
+    /// <summary>
+    /// Get the current sample set information that affects the specified time.
+    /// </summary>
+    /// <param name="time"></param>
+    /// <param name="leniency"></param>
+    /// <returns></returns>
     public SampleSetEvent? GetCurrentSampleAtTime(double time, int leniency = 2)
     {
         if (HitSamples.Count == 0)

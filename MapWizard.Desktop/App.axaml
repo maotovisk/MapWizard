@@ -14,7 +14,7 @@
 
     <Application.Styles>
         <dialogHostAvalonia:DialogHostStyles />
-        <themes:MaterialTheme PrimaryColor="Amber" SecondaryColor="Blue" />
+        <themes:MaterialTheme PrimaryColor="BlueGrey" SecondaryColor="DeepOrange" />
         <materialIcons:MaterialIconStyles />
     </Application.Styles>
 </Application>

@@ -15,21 +15,27 @@
   </Window.DataContext>
 
   <Grid ColumnDefinitions="Auto,*" RowDefinitions="*">
-    <Grid Background="Yellow" Grid.Row="0" Grid.Column="0" RowDefinitions="*,Auto">
+    <Grid Background="SteelBlue" Grid.Row="0" Grid.Column="0" RowDefinitions="*,Auto">
       <StackPanel>
-        <!-- <Button Foreground="Black" Theme="{StaticResource MaterialFlatButton}" Height="64" -->
-        <!--         Command="{Binding ShowWelcomePageCommand}"> -->
-        <!--   <StackPanel> -->
-        <!--     <materialIcons:MaterialIcon Kind="Home" Width="24" Height="24" /> -->
-        <!--     <TextBlock TextAlignment="Center" TextWrapping="Wrap" Text="Start" Width="64" FontSize="14" /> -->
-        <!--   </StackPanel> -->
-        <!-- </Button> -->
         <Button Foreground="Black" Theme="{StaticResource MaterialFlatButton}" Height="64"
-                Command="{Binding ShowHitsoundCopierCommand}">
-          <StackPanel>
-            <materialIcons:MaterialIcon Kind="ContentCopy" Width="24" Height="24" />
-            <TextBlock TextAlignment="Center" TextWrapping="Wrap" Text="HitSound Copier" Width="64" FontSize="14" />
-          </StackPanel>
+                Command="{Binding ShowWelcomePageCommand}">
+          <Grid ColumnDefinitions="*,7">
+            <StackPanel>
+              <materialIcons:MaterialIcon Kind="Home" Width="24" Height="24" />
+              <TextBlock TextAlignment="Center" TextWrapping="Wrap" Text="Start" Width="64" FontSize="14" />
+            </StackPanel>
+            <Rectangle Fill="Black" VerticalAlignment="Center" HorizontalAlignment="Right" IsVisible="{ReflectionBinding MenuItems[WelcomePage]}" Grid.Column="1" Width="4" Height="24"></Rectangle>
+          </Grid>
+        </Button>
+        <Button Foreground="Black" Theme="{StaticResource MaterialFlatButton}" Height="64"
+                Command="{ReflectionBinding ShowHitsoundCopierCommand}">
+          <Grid ColumnDefinitions="*,10">
+            <StackPanel>
+              <materialIcons:MaterialIcon Kind="ContentCopy" Width="24" Height="24" />
+              <TextBlock TextAlignment="Center" TextWrapping="Wrap" Text="Hitsound Copier" Width="64" FontSize="14" />
+            </StackPanel>
+            <Rectangle Fill="Black" VerticalAlignment="Center" HorizontalAlignment="Right" IsVisible="{ReflectionBinding MenuItems[HitsoundCopier]}" Grid.Column="1" Width="4" Height="24"></Rectangle>
+          </Grid>
         </Button>
         <!-- <Button Foreground="Black" Theme="{StaticResource MaterialFlatButton}" Height="64"> -->
         <!--   <StackPanel> -->

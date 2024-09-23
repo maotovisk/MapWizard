@@ -13,6 +13,7 @@ using CommunityToolkit.Mvvm.Input;
 using MapWizard.Desktop.Models;
 using MapWizard.Desktop.Services;
 using MapWizard.Desktop.Views;
+using MapWizard.Tools.HitSoundCopier;
 using Material.Styles.Controls;
 using Material.Styles.Models;
 
@@ -22,21 +23,33 @@ public partial class HitsoundCopierViewModel : ViewModelBase
 {
     private IHitSoundService _hitsoundService = new HitSoundService();
 
-    [ObservableProperty]
-    private string _snackbarName;
-    
     public HitsoundCopierViewModel()
     {
         var hash = System.Guid.NewGuid();
         SnackbarName = hash.ToString();
     }
     
-    public string Message { get; set; } = "Hitsound Copier View";
+    [ObservableProperty]
+    private string _snackbarName;
+    
     [ObservableProperty]
     private SelectedMap _originBeatmap = new SelectedMap();
     
     [ObservableProperty]
     private bool _hasMultiple = false;
+    
+    [ObservableProperty]
+    private bool _copySampleAndVolumeChanges = true;
+    
+    [ObservableProperty]
+    private bool _overwriteMuting = false;
+    
+    
+    [ObservableProperty]
+    private bool _copySliderBodySounds = true;
+    
+    [ObservableProperty]
+    private int _leniency = 5;
 
     [NotifyPropertyChangedFor(nameof(AdditionalBeatmaps))] 
     [ObservableProperty]
@@ -141,6 +154,15 @@ public partial class HitsoundCopierViewModel : ViewModelBase
     private void CopyHitsounds()
     {
         var message = "";
+
+        var options = new HitSoundCopierOptions()
+        {
+            CopySampleAndVolumeChanges = CopySampleAndVolumeChanges,
+            CopySliderBodySounds = CopySliderBodySounds,
+            Leniency = Leniency,
+            OverwriteMuting = OverwriteMuting
+        };
+        
         if (string.IsNullOrEmpty(OriginBeatmap.Path))
         {
             message = "Please select an origin beatmap!";
@@ -149,7 +171,7 @@ public partial class HitsoundCopierViewModel : ViewModelBase
         {
             message = "Please select at least one destination beatmap!";
         }
-        else if (_hitsoundService.CopyHitsoundsAsync(OriginBeatmap.Path, DestinationBeatmaps.Select(x=> x.Path).ToArray()))
+        else if (_hitsoundService.CopyHitsoundsAsync(OriginBeatmap.Path, DestinationBeatmaps.Select(x=> x.Path).ToArray(), options))
         {
             message = $"Hitsounds applied successfully to {DestinationBeatmaps.Count} beatmap(s)!";
         }

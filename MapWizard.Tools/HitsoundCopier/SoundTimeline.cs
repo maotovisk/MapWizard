@@ -24,6 +24,7 @@ public class SoundTimeline()
     /// Gets the sound event at a specific time.
     /// </summary>
     /// <param name="time"></param>
+    /// <param name="leniency"></param>
     /// <returns></returns>
     public SoundEvent? GetSoundAtTime(TimeSpan time, int leniency = 2)
     {
