@@ -4,7 +4,7 @@ A tool that aims to allow mappers replicate the hitsounds of a beatmap difficult
 
 <br/>
 
-<p align="right"><b>Current Status</b>: Hit Sound Copier is done. Starting work on the UI</p>
+<p align="right"><b>Current Status</b>: First public release, working on feedback.</p>
 
 ## Project Goals
 
