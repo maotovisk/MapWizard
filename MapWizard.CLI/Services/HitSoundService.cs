@@ -4,24 +4,8 @@ namespace MapWizard.Services;
 
 public class HitSoundService
 {
-    public void CopyHitsounds(string sourcePath, string targetPath)
+    public void CopyHitsounds(string sourcePath, string targetPath, HitSoundCopierOptions options)
     {
-        HitSoundCopier.CopyFromBeatmapToTarget(sourcePath, new []{targetPath});
-    }
-
-    public void CopyHitsounds(string sourcePath, string targetPath, double offset)
-    {
-        throw new Exception("Not implemented");
-    }
-
-    public void CopyHitsounds(string sourcePath, string targetPath, double offset, double leniency)
-    {
-        throw new Exception("Not implemented");
-    }
-
-    public void CopyHitsounds(string sourcePath, string targetPath, double offset, double leniency,
-        bool copySampleChanges)
-    {
-        throw new Exception("Not implemented");
+        HitSoundCopier.CopyFromBeatmapToTarget(sourcePath, new []{targetPath}, options);
     }
 }
