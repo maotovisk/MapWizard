@@ -1,9 +1,8 @@
 using System.Threading.Tasks;
 using Avalonia.Controls;
+using Avalonia.Interactivity;
 using MapWizard.Desktop.ViewModels;
-using MapWizard.Desktop.Views;
 using MsBox.Avalonia;
-using MsBox.Avalonia.Enums;
 using Velopack;
 using Velopack.Sources;
 
@@ -14,9 +13,9 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
-        UpdateMyApp().Wait();
         DataContext = new MainWindowViewModel();
     }
+    
     
     private static async Task UpdateMyApp()
     {
@@ -28,10 +27,7 @@ public partial class MainWindow : Window
         // check for new version
         var newVersion = await mgr.CheckForUpdatesAsync();
         if (newVersion == null)
-            return; // no update available        var box = MessageBoxManager
-                    //     .GetMessageBoxStandard("New update available!", "There is a new update, the application is will restart to apply it.");
-
-                    // await box.ShowAsync();
+            return;
         
         // download new version
         await mgr.DownloadUpdatesAsync(newVersion);
@@ -43,5 +39,12 @@ public partial class MainWindow : Window
         
         // install new version and restart app
         mgr.ApplyUpdatesAndRestart(newVersion);
+    }
+
+    protected override async void OnLoaded(RoutedEventArgs e)
+    {
+        base.OnLoaded(e);
+        
+        await UpdateMyApp();
     }
 }

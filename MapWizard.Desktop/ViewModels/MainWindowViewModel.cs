@@ -1,9 +1,13 @@
 
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Avalonia.Collections;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MapWizard.Desktop.Views;
+using MsBox.Avalonia;
+using Velopack;
+using Velopack.Sources;
 
 namespace MapWizard.Desktop.ViewModels;
 public partial class MainWindowViewModel : ViewModelBase
@@ -33,7 +37,7 @@ public partial class MainWindowViewModel : ViewModelBase
             { "HitsoundCopier", false }
         };
     }
-
+    
     [RelayCommand]
     private void ShowWelcomePage()
     {
