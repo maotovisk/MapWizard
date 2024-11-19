@@ -127,6 +127,11 @@ public static class HitSoundCopier
             {
                 case Circle circle:
                     {
+                        if (options.OvewriteEverything) 
+                        {
+                            circle.HitSounds = (new HitSample(), []);
+                        }
+                        
                         var currentSound = hitSoundTimeline.GetSoundAtTime(circle.Time, options.Leniency);
                         if (currentSound != null && (Math.Abs(circle.Time.TotalMilliseconds - currentSound.Time.TotalMilliseconds) <= options.Leniency))
                         {
@@ -143,6 +148,12 @@ public static class HitSoundCopier
                 case Slider slider:
                     {
                         var currentHeadSound = hitSoundTimeline.GetSoundAtTime(slider.Time, options.Leniency);
+                        
+                        if (options.OvewriteEverything)
+                        {
+                            slider.HeadSounds = (new HitSample(), []);
+                            slider.TailSounds = (new HitSample(), []);
+                        }
 
                         if (currentHeadSound != null)
                         {
@@ -154,8 +165,18 @@ public static class HitSoundCopier
                         }
 
                         // Update the repeats sounds
-                        if (slider is { Slides: > 1, RepeatSounds: not null } && slider.RepeatSounds.Count == (slider.Slides - 1))
+                        if (slider is { Slides: > 1 })
                         {
+                            if (slider.RepeatSounds == null || slider.RepeatSounds.Count != slider.Slides - 1 || options.OvewriteEverything)
+                            {
+                                slider.RepeatSounds = new List<(HitSample, List<HitSound>)>(new (HitSample, List<HitSound>)[slider.Slides - 1]);
+                                
+                                for (var i = 0; i < slider.Slides - 1; i++)
+                                {
+                                    slider.RepeatSounds[i] = (new HitSample(), []);
+                                }
+                            }
+                            
                             for (var i = 0; i < slider.Slides - 1; i++)
                             {
                                 var repeatSoundTime = TimeSpan.FromMilliseconds(
@@ -166,11 +187,12 @@ public static class HitSoundCopier
 
                                 if (repeatSound != null)
                                 {
-                                    slider.RepeatSounds[i] = (new HitSample(
-                                       repeatSound.NormalSample,
-                                       repeatSound.AdditionSample,
-                                       slider.RepeatSounds[i].SampleData.FileName
-                                    ), repeatSound.HitSounds);
+                                    slider.RepeatSounds[i] = (new HitSample
+                                    {
+                                        AdditionSet = repeatSound.AdditionSample,
+                                        NormalSet = repeatSound.NormalSample,
+                                        FileName = slider.RepeatSounds[i].SampleData.FileName
+                                    }, repeatSound.HitSounds);
                                 }
                             }
                         }
@@ -190,6 +212,11 @@ public static class HitSoundCopier
                     }
                 case Spinner spinner:
                     {
+                        if (options.OvewriteEverything)
+                        {
+                            spinner.HitSounds = (new HitSample(), []);
+                        }
+                        
                         var currentSound = hitSoundTimeline.GetSoundAtTime(spinner.End, options.Leniency);
                         if (currentSound != null && (Math.Abs(spinner.End.TotalMilliseconds - currentSound.Time.TotalMilliseconds) <= options.Leniency))
                         {
@@ -221,6 +248,12 @@ public static class HitSoundCopier
         foreach (var hitObject in origin.HitObjects.Objects)
         {
             if (hitObject is not Slider slider) continue;
+            
+            if (options.OvewriteEverything)
+            {
+                slider.HitSounds = (new HitSample(), []);
+            }
+            
             var currentBodySound = bodyTimeline.GetSoundAtTime(slider.Time, options.Leniency);
             if (currentBodySound != null && (Math.Abs(slider.Time.TotalMilliseconds - currentBodySound.Time.TotalMilliseconds) <= options.Leniency))
             {
