@@ -186,7 +186,8 @@ public class Slider : HitObject
         builder.Append($"{type},");
         builder.Append($"{Helper.EncodeHitSounds(HitSounds.Sounds)},");
 
-        builder.Append($"{Helper.EncodeCurveType(CurveType)}|{string.Join("|", CurvePoints.Select(x => $"{x.X}:{x.Y}"))},");
+        builder.Append(
+            $"{Helper.EncodeCurveType(CurveType)}|{string.Join("|", CurvePoints.Select(x => $"{x.X}:{x.Y}"))},");
 
         builder.Append($"{Slides},");
 
@@ -194,46 +195,55 @@ public class Slider : HitObject
 
         List<int> edgeSounds = [];
 
-        if (HeadSounds.Sounds.Count > 0)
+        if (HeadSounds.Sounds.Count > 0 || RepeatSounds != null && RepeatSounds.Any(x => x.Sounds.Count > 0) || TailSounds.Sounds.Count > 0)
         {
             edgeSounds.Add(Helper.EncodeHitSounds(HeadSounds.Sounds));
         }
 
-        if (RepeatSounds != null)
+        if (RepeatSounds != null && RepeatSounds.Any(x => x.Sounds.Count > 0) || TailSounds.Sounds.Count > 0)
         {
-            edgeSounds.AddRange(RepeatSounds.Select(x => Helper.EncodeHitSounds(x.Sounds)));
+            edgeSounds.AddRange(RepeatSounds?.Select(x => Helper.EncodeHitSounds(x.Sounds)) ?? Enumerable.Repeat(0, (int)Slides-1));
         }
 
         if (TailSounds.Sounds.Count > 0)
         {
             edgeSounds.Add(Helper.EncodeHitSounds(TailSounds.Sounds));
         }
+
         if (edgeSounds.Count > 0)
             builder.Append($",{string.Join("|", edgeSounds)}");
 
-        List<string> edgeSets = [];
+        List<string> edgeSets =
+            [];
 
-        if (HeadSounds.SampleData.FileName != string.Empty)
+        if (HasNonDefaultSampleData(HeadSounds.SampleData) || 
+            RepeatSounds != null && RepeatSounds.Any(x => HasNonDefaultSampleData(x.SampleData)) || 
+            HasNonDefaultSampleData(TailSounds.SampleData))
         {
             edgeSets.Add(HeadSounds.SampleData.Encode());
-        }
-
-        if (RepeatSounds != null)
-        {
-            edgeSets.AddRange(RepeatSounds.Select(x => x.SampleData.Encode()));
-        }
-
-        if (TailSounds.SampleData.FileName != string.Empty)
-        {
+            if (RepeatSounds != null)
+            {
+                edgeSets.AddRange(RepeatSounds.Select(x => x.SampleData.Encode()));
+            }
             edgeSets.Add(TailSounds.SampleData.Encode());
         }
 
         if (edgeSets.Count > 0)
+        {
             builder.Append($",{string.Join("|", edgeSets)}");
+        }
 
-        if (edgeSets.Count > 0 && edgeSounds.Count > 0)
+        if (edgeSets.Count > 0 || edgeSounds.Count > 0 || HasNonDefaultSampleData(HitSounds.SampleData))
+        {
             builder.Append($",{HitSounds.SampleData.Encode()}");
-
+        }
+        
         return builder.ToString();
     }
+    
+    private static bool HasNonDefaultSampleData(HitSample sample) =>
+        sample.NormalSet != SampleSet.Default ||
+        sample.AdditionSet != SampleSet.Default ||
+        sample.Index != 0 ||
+        sample.Volume != 0;
 }
