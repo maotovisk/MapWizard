@@ -13,29 +13,37 @@ public static class TimingPointHelper
     {
         var inheritedTimingPoints = timingPointsSection.TimingPointList.Where(x => x is InheritedTimingPoint).OrderBy(x => x.Time.TotalMilliseconds).ToList();
         
-        var clearedTimingPoints = timingPointsSection.TimingPointList.ToList();
+        var timingPointsToRemove = new List<TimingPoint>();
 
         foreach (var inheritedTimingPoint in inheritedTimingPoints)
         {
-            var inheritedTimingPointIndex = clearedTimingPoints.IndexOf(inheritedTimingPoint);
+            
+            var inheritedTimingPointIndex = timingPointsSection.TimingPointList.IndexOf(inheritedTimingPoint);
             
             if (inheritedTimingPointIndex == 0)
             {
                 continue;
             }
             
-            var previousTimingPoint = inheritedTimingPoints[inheritedTimingPointIndex - 1];
-
-
-            if (inheritedTimingPoint.Effects == previousTimingPoint.Effects &&
-                inheritedTimingPoint.SampleIndex == previousTimingPoint.SampleIndex &&
-                inheritedTimingPoint.SampleSet == previousTimingPoint.SampleSet &&
-                inheritedTimingPoint.Volume == previousTimingPoint.Volume)
+            var previousTimingPoint = timingPointsSection.TimingPointList[inheritedTimingPointIndex - 1];
+            
+            if (previousTimingPoint is UninheritedTimingPoint or null)
             {
-                clearedTimingPoints = clearedTimingPoints.Where(x=> x != inheritedTimingPoint).ToList();
+                continue;
+            }
+
+            previousTimingPoint = previousTimingPoint as InheritedTimingPoint;
+
+            if (previousTimingPoint != null &&
+                previousTimingPoint.SampleSet == inheritedTimingPoint.SampleSet &&
+                previousTimingPoint.SampleIndex == inheritedTimingPoint.SampleIndex &&
+                previousTimingPoint.Volume == inheritedTimingPoint.Volume &&
+                Math.Abs(((InheritedTimingPoint)previousTimingPoint).SliderVelocity - ((InheritedTimingPoint)inheritedTimingPoint).SliderVelocity) < 0.0005 &&
+                ((InheritedTimingPoint)previousTimingPoint).Effects == ((InheritedTimingPoint)inheritedTimingPoint).Effects)
+            {   
+                timingPointsToRemove.Add(inheritedTimingPoint);
             }
         }
-        
-        return clearedTimingPoints;
+        return timingPointsSection.TimingPointList.Except(timingPointsToRemove).ToList();
     }
 }
