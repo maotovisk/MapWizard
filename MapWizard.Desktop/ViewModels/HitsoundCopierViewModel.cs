@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
-using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
 using Avalonia;
@@ -12,7 +12,6 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MapWizard.Desktop.Models;
 using MapWizard.Desktop.Services;
-using MapWizard.Desktop.Views;
 using MapWizard.Tools.HitSoundCopier;
 using Material.Styles.Controls;
 using Material.Styles.Models;
@@ -21,28 +20,24 @@ namespace MapWizard.Desktop.ViewModels;
 
 public partial class HitsoundCopierViewModel : ViewModelBase
 {
-    private IHitSoundService _hitsoundService = new HitSoundService();
-
-    public HitsoundCopierViewModel()
-    {
-        var hash = System.Guid.NewGuid();
-        SnackbarName = hash.ToString();
-    }
+    private readonly HitSoundService _hitsoundService = new();
+    
+    private readonly FilesService _filesService = (((App)Application.Current!)?.FilesService) ?? throw new Exception("FilesService is not initialized.");
     
     [ObservableProperty]
-    private string _snackbarName;
+    private string _snackbarName = Guid.NewGuid().ToString();
     
     [ObservableProperty]
-    private SelectedMap _originBeatmap = new SelectedMap();
+    private SelectedMap _originBeatmap = new();
     
     [ObservableProperty]
-    private bool _hasMultiple = false;
+    private bool _hasMultiple;
     
     [ObservableProperty]
     private bool _copySampleAndVolumeChanges = true;
     
     [ObservableProperty]
-    private bool _overwriteMuting = false;
+    private bool _overwriteMuting;
     
     
     [ObservableProperty]
@@ -76,8 +71,7 @@ public partial class HitsoundCopierViewModel : ViewModelBase
     {
         try
         {
-            var filesService = (((App)Application.Current!)?.FilesService) ?? throw new Exception("FilesService is not initialized.");
-            var file = await filesService.OpenFileAsync(
+            var file = await _filesService.OpenFileAsync(
                 new FilePickerOpenOptions()
                 {
                     Title = "Select the origin beatmap file",
@@ -102,6 +96,8 @@ public partial class HitsoundCopierViewModel : ViewModelBase
                 Path = file.First().Path.LocalPath
             };
             
+            PreferredDirectory = Path.GetDirectoryName(OriginBeatmap.Path) ?? "";
+            
         }
         catch (Exception e)
         {
@@ -114,8 +110,8 @@ public partial class HitsoundCopierViewModel : ViewModelBase
     {
         try
         {
-            var filesService = (((App)Application.Current!)?.FilesService) ?? throw new Exception("FilesService is not initialized.");
-            var file = await filesService.OpenFileAsync(
+            var preferredDirectory = await _filesService.TryGetFolderFromPath(PreferredDirectory);
+            var file = await _filesService.OpenFileAsync(
                 new FilePickerOpenOptions()
                 {
                     Title = "Select the origin beatmap file",
@@ -131,7 +127,7 @@ public partial class HitsoundCopierViewModel : ViewModelBase
                             }
                         }
                     ],
-                    SuggestedStartLocation = await filesService.TryGetFolderFromPath(OriginBeatmap.Path)
+                    SuggestedStartLocation = preferredDirectory,
                 });
 
             if (file is null || file.Count == 0) return;
@@ -153,7 +149,7 @@ public partial class HitsoundCopierViewModel : ViewModelBase
     [RelayCommand]
     private void CopyHitsounds()
     {
-        var message = "";
+        var message = string.Empty;
 
         var options = new HitSoundCopierOptions()
         {

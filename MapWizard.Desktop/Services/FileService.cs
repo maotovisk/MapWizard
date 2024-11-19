@@ -27,8 +27,9 @@ public class FilesService(TopLevel target) : IFilesService
         });
     }
     
-    public Task<IStorageFolder?> TryGetFolderFromPath(string path)
+    public async Task<IStorageFolder?> TryGetFolderFromPath(string path)
     {
-        return target.StorageProvider.TryGetFolderFromPathAsync(path);
+        
+        return await target.StorageProvider.TryGetFolderFromPathAsync(path);
     } 
 }
