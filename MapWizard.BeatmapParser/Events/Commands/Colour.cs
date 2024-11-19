@@ -78,8 +78,8 @@ public class Colour : ICommand
         Easing easing = commandSplit.Length > 1 ? (Easing)Enum.Parse(typeof(Easing), commandSplit[1]) : Easing.Linear;
         TimeSpan? startTime = commandSplit.Length > 2 && !string.IsNullOrEmpty(commandSplit[2]) ? TimeSpan.FromMilliseconds(int.Parse(commandSplit[2])) : null;
         TimeSpan? endTime = commandSplit.Length > 3 && !string.IsNullOrEmpty(commandSplit[3]) ? TimeSpan.FromMilliseconds(int.Parse(commandSplit[3])) : null;
-        Vector3? startColour = commandSplit.Length > 4 && !string.IsNullOrEmpty(commandSplit[4]) ? Helper.ParseVector3FromUnknownString(string.Join(',', [commandSplit[4], commandSplit[5], commandSplit[6]])) : null;
-        Vector3? endColour = commandSplit.Length > 7 && !string.IsNullOrEmpty(commandSplit[7]) ? Helper.ParseVector3FromUnknownString(string.Join(',', [commandSplit[7], commandSplit[8], commandSplit[9]])) : null;
+        Vector3? startColour = commandSplit.Length > 4 && !string.IsNullOrEmpty(commandSplit[4]) ? Helper.ParseVector3FromUnknownString(string.Join(',', commandSplit[4], commandSplit[5], commandSplit[6])) : null;
+        Vector3? endColour = commandSplit.Length > 7 && !string.IsNullOrEmpty(commandSplit[7]) ? Helper.ParseVector3FromUnknownString(string.Join(',', commandSplit[7], commandSplit[8], commandSplit[9])) : null;
 
         return new Colour(easing, startTime, endTime, startColour, endColour);
     }
