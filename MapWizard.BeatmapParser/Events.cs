@@ -87,7 +87,7 @@ public class Events
                     continue;
                 }
 
-                if (events.Last() is not IHasCommands currentEvent) throw new Exception($"this event \'{events.Last().Type}\' do not support commands");
+                if (events.Last() is not IHasCommands currentEvent) throw new Exception($"this event \'{events.Last().Type}\' does not support commands");
 
                 index = AddCommands(currentEvent, section, index, depth) - 1;
             }
@@ -109,7 +109,7 @@ public class Events
             var currentdepth = GetDepth(sectionRaw[tempindex]);
             if (currentdepth > depth)
             {
-                if (currentEvent.Commands.Last() is not IHasCommands) throw new Exception($"{currentEvent.Commands.Last()} do not support commands");
+                if (currentEvent.Commands.Last() is not IHasCommands) throw new Exception($"{currentEvent.Commands.Last()} does not support commands");
 
                 tempindex = AddCommands((IHasCommands)currentEvent.Commands.Last(), sectionRaw, tempindex, currentdepth);
                 continue;
@@ -176,5 +176,29 @@ public class Events
         var encodeInfo = eventItem.GetType().GetMethod("Encode") ?? throw new Exception($"{eventItem} do not have method \'Encode\'.");
         var encodeResult = encodeInfo.Invoke(eventItem, null) ?? throw new Exception($"Failed to \'Encode\' event at \'{eventItem}\'");
         builder.Append((string)encodeResult);
+    }
+    
+    public string? GetBackgroundImage()
+    {
+        var background = EventList.OfType<Background>()?.First();
+
+        return background?.Filename;
+    }
+    
+    public string SetBackgroundImage(string filename)
+    {
+        var background = EventList.OfType<Background>()?.First();
+
+        if (background == null)
+        {
+            background = new Background(filename, null);
+            EventList.Add(background);
+        }
+        else
+        {
+            background.Filename = filename;
+        }
+
+        return background.Filename;
     }
 }
