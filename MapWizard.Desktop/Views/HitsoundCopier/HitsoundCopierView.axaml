@@ -29,11 +29,11 @@
                                         <TextBox Grid.Row="0" VerticalAlignment="Center" UseFloatingWatermark="True"
                                                  Classes="outline dense" Theme="{StaticResource OutlineTextBox}"
                                                  Text="{Binding OriginBeatmap.Path, Mode=TwoWay}" Padding="16 16"
-                                                 p1:TextFieldAssist.Label="Origin Beatmap" />
+                                                 p1:TextFieldAssist.Label="Copy hitsounds from..." />
                                         <Button Grid.Row="0" Command="{Binding PickOriginFileCommand}"
                                                 Theme="{StaticResource MaterialFlatButton}" Padding="8" Margin="12"
                                                 Grid.Column="1" VerticalAlignment="Center"
-                                                ToolTip.Tip="Click here to select the origin beatmap.">
+                                                ToolTip.Tip="Click here to select the beatmap you want to copy the hitsounds from.">
                                             <materialIcons:MaterialIcon Kind="FileSearchOutline" Width="24" Height="24"></materialIcons:MaterialIcon>
                                         </Button>
                                     </Grid>
@@ -45,11 +45,11 @@
                                                  Classes="outline dense" Theme="{StaticResource OutlineTextBox}"
                                                  Text="{Binding DestinationBeatmaps[0].Path, Mode=TwoWay}"
                                                  Padding="16 16"
-                                                 p1:TextFieldAssist.Label="Target Beatmap" />
+                                                 p1:TextFieldAssist.Label="Copy hitsounds to..." />
                                         <Button Grid.Row="0" Command="{Binding PickDestinationFileCommand}"
                                                 Theme="{StaticResource MaterialFlatButton}" Padding="8" Margin="12"
                                                 Grid.Column="1" VerticalAlignment="Center"
-                                                ToolTip.Tip="Click here to select the destination beatmap(s).">
+                                                ToolTip.Tip="Click here to select the beatmap(s) you want to copy the hitsounds to.">
                                             <materialIcons:MaterialIcon Kind="FileSearchOutline" Width="24" Height="24"></materialIcons:MaterialIcon>
                                         </Button>
                                     </Grid>

@@ -242,19 +242,15 @@ public class Slider : HitObject
             builder.Append($",{string.Join("|", edgeSounds)}");
 
         List<string> edgeSets =
-            [];
+        [
+            HeadSounds.SampleData.Encode()
+        ];
 
-        if (HasNonDefaultSampleData(HeadSounds.SampleData) || 
-            RepeatSounds != null && RepeatSounds.Any(x => HasNonDefaultSampleData(x.SampleData)) || 
-            HasNonDefaultSampleData(TailSounds.SampleData))
+        if (RepeatSounds != null)
         {
-            edgeSets.Add(HeadSounds.SampleData.Encode());
-            if (RepeatSounds != null)
-            {
-                edgeSets.AddRange(RepeatSounds.Select(x => x.SampleData.Encode()));
-            }
-            edgeSets.Add(TailSounds.SampleData.Encode());
+            edgeSets.AddRange(RepeatSounds.Select(x => x.SampleData.Encode()));
         }
+        edgeSets.Add(TailSounds.SampleData.Encode());
 
         if (edgeSets.Count > 0)
         {
