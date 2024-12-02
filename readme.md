@@ -4,7 +4,7 @@ A tool that aims to allow mappers copy the hitsounds of a beatmap difficulty to 
 
 <br/>
 
-<p align="right"><b>Current Status</b>: First public release, working on feedback.</p>
+<p align="right"><b>Current Status</b>: Working on Metadata Manager.</p>
 
 ## Project Goals
 
