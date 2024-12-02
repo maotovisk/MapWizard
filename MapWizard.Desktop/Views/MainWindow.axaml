@@ -4,7 +4,6 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:materialIcons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
         xmlns:vm="using:MapWizard.Desktop.ViewModels"
-        xmlns:maot="using:MapWizard.Desktop.Views"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="MapWizard.Desktop.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
@@ -37,12 +36,15 @@
             <Rectangle Fill="Black" VerticalAlignment="Center" HorizontalAlignment="Right" IsVisible="{ReflectionBinding MenuItems[HitsoundCopier]}" Grid.Column="1" Width="4" Height="24"></Rectangle>
           </Grid>
         </Button>
-        <!-- <Button Foreground="Black" Theme="{StaticResource MaterialFlatButton}" Height="64"> -->
-        <!--   <StackPanel> -->
-        <!--     <materialIcons:MaterialIcon Kind="FileDocumentMultiple" Width="24" Height="24" /> -->
-        <!--     <TextBlock TextAlignment="Center" TextWrapping="Wrap" Text="Metadata Manager" Width="64" FontSize="14" /> -->
-        <!--   </StackPanel> -->
-        <!-- </Button> -->
+        <Button Foreground="Black" Theme="{StaticResource MaterialFlatButton}" Command="{ReflectionBinding ShowMetadataManagerCommand}" Height="64">
+          <Grid ColumnDefinitions="*,10">
+            <StackPanel>
+              <materialIcons:MaterialIcon Kind="FileDocumentMultiple" Width="24" Height="24" />
+              <TextBlock TextAlignment="Center" TextWrapping="Wrap" Text="Metadata Manager" Width="64" FontSize="14" />
+            </StackPanel>
+            <Rectangle Fill="Black" VerticalAlignment="Center" HorizontalAlignment="Right" IsVisible="{ReflectionBinding MenuItems[MetadataManager]}" Grid.Column="1" Width="4" Height="24"></Rectangle>
+          </Grid>
+        </Button>
       </StackPanel>
       <Button Grid.Row="0" Foreground="Black" Theme="{StaticResource MaterialFlatButton}" Height="64"
               VerticalAlignment="Bottom">

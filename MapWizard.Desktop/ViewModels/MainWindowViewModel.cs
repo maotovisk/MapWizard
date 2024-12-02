@@ -1,13 +1,6 @@
-
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using Avalonia.Collections;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using MapWizard.Desktop.Views;
-using MsBox.Avalonia;
-using Velopack;
-using Velopack.Sources;
 
 namespace MapWizard.Desktop.ViewModels;
 public partial class MainWindowViewModel : ViewModelBase
@@ -25,7 +18,6 @@ public partial class MainWindowViewModel : ViewModelBase
             MenuItems[item.Key] = false;
         }
         MenuItems[viewName] = true;
-        
     }
     
     public MainWindowViewModel()
@@ -34,7 +26,8 @@ public partial class MainWindowViewModel : ViewModelBase
         MenuItems = new AvaloniaDictionary<string, bool>()
         {
             { "WelcomePage", true },
-            { "HitsoundCopier", false }
+            { "HitsoundCopier", false },
+            { "MetadataManager", false }
         };
     }
     
@@ -50,5 +43,12 @@ public partial class MainWindowViewModel : ViewModelBase
     {
         SetCurrentViewMenu("HitsoundCopier");
         CurrentView = new HitsoundCopierViewModel();
+    }
+    
+    [RelayCommand]
+    private void ShowMetadataManager()
+    {
+        SetCurrentViewMenu("MetadataManager");
+        CurrentView = new MetadataManagerViewModel();
     }
 }
