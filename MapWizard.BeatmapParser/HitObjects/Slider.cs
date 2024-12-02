@@ -140,14 +140,22 @@ public class Slider : HitObject
             }
 
             var objectParams = split[5].Split('|');
-            return new Slider(HitObject.Decode(split))
+            var baseObject = HitObject.Decode(split);
+
+            // slider shorthand, should apply the base object hitsounds for all edges
+            if (baseObject.HitSounds.Sounds.Count != 0 && split.Count == 8)
+            {
+                sliderHitSounds = Enumerable.Repeat(baseObject.HitSounds, (int)uint.Parse(split[6]) + 1).ToList();
+            }
+            
+            return new Slider(baseObject)
             {
                 CurveType = Helper.ParseCurveType(char.Parse(objectParams[0])),
                 CurvePoints = objectParams.Skip(1).Select(x =>
-                    {
-                        var curvePoints = x.Split(':');
-                        return new Vector2(float.Parse(curvePoints[0]), float.Parse(curvePoints[1]));
-                    }).ToList(),
+                {
+                    var curvePoints = x.Split(':');
+                    return new Vector2(float.Parse(curvePoints[0]), float.Parse(curvePoints[1]));
+                }).ToList(),
                 Slides = uint.Parse(split[6] == "NaN" ? "1" : split[6]),
                 Length = double.Parse(split[7] == "NaN" ? "0" : split[7], CultureInfo.InvariantCulture),
                 EndTime = Helper.CalculateEndTime(
@@ -192,7 +200,27 @@ public class Slider : HitObject
         builder.Append($"{Slides},");
 
         builder.Append($"{Length.ToString(CultureInfo.InvariantCulture)}");
+        
+        var allSoundsMatch = (Slides > 1 && RepeatSounds != null && RepeatSounds.All(x => x.Sounds == HitSounds.Sounds && x.SampleData == HitSounds.SampleData) &&
+                              TailSounds.Sounds == HitSounds.Sounds && TailSounds.SampleData == HitSounds.SampleData &&
+                              HeadSounds.Sounds == HitSounds.Sounds && HeadSounds.SampleData == HitSounds.SampleData) ||
+                             (Slides == 1 && TailSounds.Sounds == HitSounds.Sounds && TailSounds.SampleData == HitSounds.SampleData &&
+                              HeadSounds.Sounds == HitSounds.Sounds && HeadSounds.SampleData == HitSounds.SampleData);
 
+        var hasNoDefaultSampleData = new[] { HitSounds.SampleData, HeadSounds.SampleData, TailSounds.SampleData }
+            .Concat(RepeatSounds?.Select(x => x.SampleData) ?? Enumerable.Empty<HitSample>())
+            .Any(HasNonDefaultSampleData);
+
+        var hasNoDefaultAdditions = new[] { HitSounds.Sounds, HeadSounds.Sounds, TailSounds.Sounds }
+            .Concat(RepeatSounds?.Select(x => x.Sounds) ?? Enumerable.Empty<List<HitSound>>())
+            .Any(sounds => sounds.Count > 0 && !sounds.Contains(HitSound.None));
+
+        var shouldShorthand = allSoundsMatch || (!hasNoDefaultSampleData && !hasNoDefaultAdditions);
+        if (shouldShorthand)
+        {
+            return builder.ToString();
+        }
+        
         List<int> edgeSounds = [];
 
         if (HeadSounds.Sounds.Count > 0 || RepeatSounds != null && RepeatSounds.Any(x => x.Sounds.Count > 0) || TailSounds.Sounds.Count > 0)

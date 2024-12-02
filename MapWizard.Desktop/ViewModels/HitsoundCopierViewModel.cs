@@ -39,7 +39,6 @@ public partial class HitsoundCopierViewModel : ViewModelBase
     [ObservableProperty]
     private bool _overwriteMuting;
     
-    
     [ObservableProperty]
     private bool _copySliderBodySounds = true;
     
