@@ -15,7 +15,8 @@ public class BeatmapShouldEncodeIdentically
         var beatmapString = reader.ReadToEnd();
         
         // Act
-        var encodedBeatmap = Beatmap.Decode(beatmapString).Encode();
+        var beatmap = Beatmap.Decode(beatmapString);
+        var encodedBeatmap = beatmap.Encode();
         
         // Assert
         Assert.Equal(beatmapString, encodedBeatmap);
@@ -31,7 +32,8 @@ public class BeatmapShouldEncodeIdentically
         var beatmapString = reader.ReadToEnd();
         
         // Act
-        var encodedBeatmap = Beatmap.Decode(beatmapString).Encode();
+        var beatmap = Beatmap.Decode(beatmapString);
+        var encodedBeatmap = beatmap.Encode();
         
         // Assert
         Assert.Equal(beatmapString, encodedBeatmap);
@@ -47,7 +49,8 @@ public class BeatmapShouldEncodeIdentically
         var beatmapString = reader.ReadToEnd();
         
         // Act
-        var encodedBeatmap = Beatmap.Decode(beatmapString).Encode();
+        var beatmap = Beatmap.Decode(beatmapString);
+        var encodedBeatmap = beatmap.Encode();
         
         // Assert
         Assert.Equal(beatmapString, encodedBeatmap);
