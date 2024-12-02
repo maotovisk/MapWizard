@@ -47,7 +47,7 @@ public class Background : IEvent, IHasCommands
     /// </summary>
     /// <param name="filename"></param>
     /// <param name="offset"></param>
-    private Background(string filename, Vector2? offset = null)
+    public Background(string filename, Vector2? offset = null)
     {
         StartTime = TimeSpan.FromMilliseconds(0);
         Filename = filename;

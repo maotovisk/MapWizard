@@ -244,4 +244,21 @@ public class Beatmap : IEncodable
     {
         return HitObjects.GetHitObjectAt(time, leniency);
     }
+    
+    /// <summary>
+    /// Gets the current Background image name for the beatmap
+    /// </summary>
+    public string? GetBackgroundFilename()
+    {
+        return Events.GetBackgroundImage();
+    }
+    
+    /// <summary>
+    /// Sets the current background image name for the beatmap
+    /// </summary>
+    /// <param name="filename">Complete filename with extension of the file in the root folder of the beatmap.</param>
+    public void SetBackgroundFileName(string filename)
+    {
+        Events.SetBackgroundImage(filename);
+    }
 }
