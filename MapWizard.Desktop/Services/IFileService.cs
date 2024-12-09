@@ -6,8 +6,7 @@ namespace MapWizard.Desktop.Services;
 
 public interface IFilesService
 {
-    public Task<List<IStorageFile>?> OpenFileAsync(FilePickerOpenOptions? options);
-    
-    public Task<IStorageFolder?> TryGetFolderFromPath(string path);
-    public Task<IStorageFile?> SaveFileAsync();
+    Task<List<IStorageFile>?> OpenFileAsync(FilePickerOpenOptions? options);
+    Task<IStorageFile?> SaveFileAsync(FilePickerSaveOptions? options = null);
+    Task<IStorageFolder?> TryGetFolderFromPathAsync(string path);
 }

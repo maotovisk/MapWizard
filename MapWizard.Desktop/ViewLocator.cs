@@ -22,10 +22,12 @@ public class ViewLocator : IDataTemplate
         var type = Type.GetType(name);
 #pragma warning restore IL2057 // Unrecognized value passed to the parameter of method. It's not possible to guarantee the availability of the target type.
 
-        if (type != null)
+        if (type != null && data is ViewModelBase)
         {
-            var control = (Control)Activator.CreateInstance(type)!;
-            control.DataContext = data;
+            // pass the data context to the view directly at construction
+            
+            var control = (Control)Activator.CreateInstance(type, data);
+            
             return control;
         }
 

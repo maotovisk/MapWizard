@@ -5,7 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Platform.Storage;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -18,11 +18,9 @@ using Material.Styles.Models;
 
 namespace MapWizard.Desktop.ViewModels;
 
-public partial class HitsoundCopierViewModel : ViewModelBase
+public partial class HitsoundCopierViewModel(IFilesService filesService) : ViewModelBase
 {
     private readonly HitSoundService _hitsoundService = new();
-    
-    private readonly FilesService _filesService = (((App)Application.Current!)?.FilesService) ?? throw new Exception("FilesService is not initialized.");
     
     [ObservableProperty]
     private string _snackbarName = Guid.NewGuid().ToString();
@@ -70,8 +68,7 @@ public partial class HitsoundCopierViewModel : ViewModelBase
     {
         try
         {
-            var file = await _filesService.OpenFileAsync(
-                new FilePickerOpenOptions()
+            var file = await filesService.OpenFileAsync(new FilePickerOpenOptions()
                 {
                     Title = "Select the origin beatmap file",
                     AllowMultiple = false,
@@ -109,9 +106,8 @@ public partial class HitsoundCopierViewModel : ViewModelBase
     {
         try
         {
-            var preferredDirectory = await _filesService.TryGetFolderFromPath(PreferredDirectory);
-            var file = await _filesService.OpenFileAsync(
-                new FilePickerOpenOptions()
+            var preferredDirectory = await filesService.TryGetFolderFromPathAsync(PreferredDirectory);
+            var file = await filesService.OpenFileAsync(new FilePickerOpenOptions()
                 {
                     Title = "Select the origin beatmap file",
                     AllowMultiple = true,

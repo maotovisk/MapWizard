@@ -8,11 +8,6 @@
         x:Class="MapWizard.Desktop.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
         Title="MapWizard">
-
-  <Window.DataContext>
-    <vm:MainWindowViewModel />
-  </Window.DataContext>
-
   <Grid ColumnDefinitions="Auto,*" RowDefinitions="*">
     <Grid Background="SteelBlue" Grid.Row="0" Grid.Column="0" RowDefinitions="*,Auto">
       <StackPanel>

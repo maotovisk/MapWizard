@@ -10,10 +10,10 @@ namespace MapWizard.Desktop.Views;
 
 public partial class MainWindow : Window
 {
-    public MainWindow()
+    public MainWindow(MainWindowViewModel viewModel)
     {
+        DataContext = viewModel;
         InitializeComponent();
-        DataContext = new MainWindowViewModel();
     }
     
     

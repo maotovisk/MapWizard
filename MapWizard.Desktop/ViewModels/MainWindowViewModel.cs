@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Linq;
 using Avalonia.Collections;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -10,6 +12,8 @@ public partial class MainWindowViewModel : ViewModelBase
 
     [ObservableProperty]
     private AvaloniaDictionary<string, bool> _menuItems;
+
+    private AvaloniaList<ViewModelBase> _views = [];
     
     private void SetCurrentViewMenu(string viewName)
     {
@@ -20,9 +24,17 @@ public partial class MainWindowViewModel : ViewModelBase
         MenuItems[viewName] = true;
     }
     
-    public MainWindowViewModel()
-    { 
-        CurrentView = new WelcomePageViewModel();
+    public MainWindowViewModel(HitsoundCopierViewModel hsVm, MetadataManagerViewModel mmVm, WelcomePageViewModel wpVm)
+    {
+        _views = 
+        [   
+            wpVm,
+            hsVm,
+            mmVm
+        ];
+        
+        CurrentView = wpVm;
+        
         MenuItems = new AvaloniaDictionary<string, bool>()
         {
             { "WelcomePage", true },
@@ -35,20 +47,20 @@ public partial class MainWindowViewModel : ViewModelBase
     private void ShowWelcomePage()
     {
         SetCurrentViewMenu("WelcomePage");
-        CurrentView = new WelcomePageViewModel();
+        CurrentView = _views.First(x => x is WelcomePageViewModel);
     }
 
     [RelayCommand]
     private void ShowHitsoundCopier()
     {
         SetCurrentViewMenu("HitsoundCopier");
-        CurrentView = new HitsoundCopierViewModel();
+        CurrentView = _views.First(x => x is HitsoundCopierViewModel);
     }
     
     [RelayCommand]
     private void ShowMetadataManager()
     {
         SetCurrentViewMenu("MetadataManager");
-        CurrentView = new MetadataManagerViewModel();
+        CurrentView = _views.First(x => x is MetadataManagerViewModel);
     }
 }

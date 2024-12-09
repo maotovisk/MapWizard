@@ -10,9 +10,6 @@
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="MapWizard.Desktop.Views.WelcomePageView"
              x:DataType="vm:WelcomePageViewModel" Padding="26">
-  <UserControl.DataContext>
-    <vm:WelcomePageViewModel />
-  </UserControl.DataContext>
     <StackPanel VerticalAlignment="Center">
         <Image Grid.Row="1" Source="/Assets/app-icon.ico" MaxWidth="200" Stretch="Uniform" Margin="0 10"></Image>
         <TextBlock Grid.Row="0" Text="{Binding Message}" FontSize="24" HorizontalAlignment="Center" VerticalAlignment="Center" />

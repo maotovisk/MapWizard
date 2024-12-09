@@ -22,12 +22,10 @@ using Material.Styles.Controls;
 using Material.Styles.Models;
 
 namespace MapWizard.Desktop.ViewModels;
-public partial class MetadataManagerViewModel : ViewModelBase
+public partial class MetadataManagerViewModel(IFilesService filesService) : ViewModelBase
 {
     [ObservableProperty]
     private string _snackbarName = Guid.NewGuid().ToString();
-    
-    private readonly FilesService _filesService = (((App)Application.Current!)?.FilesService) ?? new FilesService((Application.Current.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime).MainWindow);
         
     [ObservableProperty]
     private SelectedMap _originBeatmap = new();
@@ -60,7 +58,7 @@ public partial class MetadataManagerViewModel : ViewModelBase
     {
         try
         {
-            var file = await _filesService.OpenFileAsync(
+            var file = await filesService.OpenFileAsync(
                 new FilePickerOpenOptions()
                 {
                     Title = "Select the origin beatmap file",
@@ -99,8 +97,8 @@ public partial class MetadataManagerViewModel : ViewModelBase
     {
         try
         {
-            var preferredDirectory = await _filesService.TryGetFolderFromPath(PreferredDirectory);
-            var file = await _filesService.OpenFileAsync(
+            var preferredDirectory = await filesService.TryGetFolderFromPathAsync(PreferredDirectory);
+            var file = await filesService.OpenFileAsync(
                 new FilePickerOpenOptions()
                 {
                     Title = "Select the origin beatmap file",

@@ -6,9 +6,10 @@ namespace MapWizard.Desktop.Views;
 
 public partial class HitsoundCopierView : UserControl
 {
-    public HitsoundCopierView()
+    public HitsoundCopierView(HitsoundCopierViewModel viewModel)
     {
-        DataContext = new HitsoundCopierViewModel();
+        // use DI to get the view model
+        DataContext = viewModel;
         InitializeComponent();
     }
 }
