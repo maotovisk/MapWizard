@@ -182,55 +182,67 @@ public class Slider : HitObject
     /// <returns></returns>
     public new string Encode()
     {
-        // x,   y,  time,   type,   hitSound,   curveType|curvePoints,  slides, length, edgeSounds,     ,edgeSets   ,hitSample
-        // 0    1   2       3       4           5                       6       7          	      8             9           10
+        // Format:
+        // x,y,time,type,hitSound,curveType|curvePoints,slides,length,edgeSounds,edgeSets,hitSample
+        // Indexes:  0  1   2      3        4           5                  6      7          8         9         10
         StringBuilder builder = new();
-
+        
         builder.Append($"{Coordinates.X},{Coordinates.Y},");
         builder.Append($"{Time.TotalMilliseconds.ToString(CultureInfo.InvariantCulture)},");
 
         int type = (int)Type | (NewCombo ? 1 << 2 : 0) | ((int)ComboColour << 4);
-
         builder.Append($"{type},");
+
+        // HitSound field
         builder.Append($"{Helper.EncodeHitSounds(HitSounds.Sounds)},");
 
-        builder.Append(
-            $"{Helper.EncodeCurveType(CurveType)}|{string.Join("|", CurvePoints.Select(x => $"{x.X}:{x.Y}"))},");
+        builder.Append($"{Helper.EncodeCurveType(CurveType)}|{string.Join("|", CurvePoints.Select(p => $"{p.X}:{p.Y}"))},");
 
         builder.Append($"{Slides},");
-
         builder.Append($"{Length.ToString(CultureInfo.InvariantCulture)}");
-        
-        var allSoundsMatch = (Slides > 1 && RepeatSounds != null && RepeatSounds.All(x => x.Sounds == HitSounds.Sounds && x.SampleData == HitSounds.SampleData) &&
-                              TailSounds.Sounds == HitSounds.Sounds && TailSounds.SampleData == HitSounds.SampleData &&
-                              HeadSounds.Sounds == HitSounds.Sounds && HeadSounds.SampleData == HitSounds.SampleData) ||
-                             (Slides == 1 && TailSounds.Sounds == HitSounds.Sounds && TailSounds.SampleData == HitSounds.SampleData &&
-                              HeadSounds.Sounds == HitSounds.Sounds && HeadSounds.SampleData == HitSounds.SampleData);
 
-        var hasNoDefaultSampleData = new[] { HitSounds.SampleData, HeadSounds.SampleData, TailSounds.SampleData }
+        // this is used to know if we are going to shorthand the slider
+        bool allSoundsMatch =
+            (Slides > 1 && RepeatSounds != null &&
+             RepeatSounds.All(x => x.Sounds.SequenceEqual(HitSounds.Sounds) &&
+                                    x.SampleData.Equals(HitSounds.SampleData)) &&
+             TailSounds.Sounds.SequenceEqual(HitSounds.Sounds) &&
+             TailSounds.SampleData.Equals(HitSounds.SampleData) &&
+             HeadSounds.Sounds.SequenceEqual(HitSounds.Sounds) &&
+             HeadSounds.SampleData.Equals(HitSounds.SampleData)) ||
+            (Slides == 1 &&
+             TailSounds.Sounds.SequenceEqual(HitSounds.Sounds) &&
+             TailSounds.SampleData.Equals(HitSounds.SampleData) &&
+             HeadSounds.Sounds.SequenceEqual(HitSounds.Sounds) &&
+             HeadSounds.SampleData.Equals(HitSounds.SampleData));
+
+        bool hasNonDefaultSampleData = new[] { HitSounds.SampleData, HeadSounds.SampleData, TailSounds.SampleData }
             .Concat(RepeatSounds?.Select(x => x.SampleData) ?? Enumerable.Empty<HitSample>())
             .Any(HasNonDefaultSampleData);
 
-        var hasNoDefaultAdditions = new[] { HitSounds.Sounds, HeadSounds.Sounds, TailSounds.Sounds }
+        bool hasNonDefaultAdditions = new[] { HitSounds.Sounds, HeadSounds.Sounds, TailSounds.Sounds }
             .Concat(RepeatSounds?.Select(x => x.Sounds) ?? Enumerable.Empty<List<HitSound>>())
             .Any(sounds => sounds.Count > 0 && !sounds.Contains(HitSound.None));
 
-        var shouldShorthand = allSoundsMatch || (!hasNoDefaultSampleData && !hasNoDefaultAdditions);
+        bool shouldShorthand = allSoundsMatch || (!hasNonDefaultSampleData && !hasNonDefaultAdditions);
         if (shouldShorthand)
         {
             return builder.ToString();
         }
-        
-        List<int> edgeSounds = [];
 
-        if (HeadSounds.Sounds.Count > 0 || RepeatSounds != null && RepeatSounds.Any(x => x.Sounds.Count > 0) || TailSounds.Sounds.Count > 0)
+        List<int> edgeSounds = new();
+        if (HeadSounds.Sounds.Count > 0 ||
+            (RepeatSounds != null && RepeatSounds.Any(x => x.Sounds.Count > 0)) ||
+            TailSounds.Sounds.Count > 0)
         {
             edgeSounds.Add(Helper.EncodeHitSounds(HeadSounds.Sounds));
         }
 
-        if (RepeatSounds != null && RepeatSounds.Any(x => x.Sounds.Count > 0) || TailSounds.Sounds.Count > 0)
+        if (RepeatSounds != null && RepeatSounds.Any(x => x.Sounds.Count > 0) ||
+            TailSounds.Sounds.Count > 0)
         {
-            edgeSounds.AddRange(RepeatSounds?.Select(x => Helper.EncodeHitSounds(x.Sounds)) ?? Enumerable.Repeat(0, (int)Slides-1));
+            edgeSounds.AddRange(RepeatSounds?.Select(x => Helper.EncodeHitSounds(x.Sounds))
+                              ?? Enumerable.Repeat(0, (int)Slides - 1));
         }
 
         if (TailSounds.Sounds.Count > 0)
@@ -239,24 +251,39 @@ public class Slider : HitObject
         }
 
         if (edgeSounds.Count > 0)
+        {
             builder.Append($",{string.Join("|", edgeSounds)}");
+        }
 
-        List<string> edgeSets =
-        [
+        List<string> edgeSets = new()
+        {
             HeadSounds.SampleData.Encode()
-        ];
+        };
 
         if (RepeatSounds != null)
         {
             edgeSets.AddRange(RepeatSounds.Select(x => x.SampleData.Encode()));
         }
-        edgeSets.Add(TailSounds.SampleData.Encode());
+        
+        
+        // IMPORTANT: For the tail sample, if it equals the base hit sample then we output default "0:0" 
+        // rather than repeating the head’s value.
+        string tailEdgeSet = TailSounds.SampleData.Equals(HitSounds.SampleData)
+            ? "0:0"
+            : TailSounds.SampleData.Encode();
+        edgeSets.Add(tailEdgeSet);
 
         if (edgeSets.Count > 0)
         {
-            builder.Append($",{string.Join("|", edgeSets)}");
+            var processedEdgeSets = edgeSets.Select(s =>
+            {
+                var parts = s.Split(new[] { ':' }, StringSplitOptions.RemoveEmptyEntries);
+                return parts.Length >= 2 ? $"{parts[0]}:{parts[1]}" : s;
+            });
+            builder.Append($",{string.Join("|", processedEdgeSets)}");
         }
 
+        // Append the overall hit sample field (with the full encoding, including trailing colon).
         if (edgeSets.Count > 0 || edgeSounds.Count > 0 || HasNonDefaultSampleData(HitSounds.SampleData))
         {
             builder.Append($",{HitSounds.SampleData.Encode()}");
@@ -264,7 +291,10 @@ public class Slider : HitObject
         
         return builder.ToString();
     }
-    
+
+    /// <summary>
+    /// Returns true if the given hit sample has non-default values.
+    /// </summary>
     private static bool HasNonDefaultSampleData(HitSample sample) =>
         sample.NormalSet != SampleSet.Default ||
         sample.AdditionSet != SampleSet.Default ||

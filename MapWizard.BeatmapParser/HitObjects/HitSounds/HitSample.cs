@@ -92,25 +92,21 @@ public class HitSample
     {
         StringBuilder builder = new();
 
+        // Always output normalSet and additionSet.
         builder.Append($"{(uint)NormalSet}:{(uint)AdditionSet}");
-
-        if (Index.HasValue)
-        {
-            builder.Append($":{Index}");
-        }
-
-        if (Volume.HasValue)
-        {
-            builder.Append($":{Volume}:");
-        }
-
+    
+        // Always output index: if not set, default to 0.
+        builder.Append($":{(Index.HasValue ? Index.Value.ToString() : "0")}");
+    
+        // Always output volume followed by a trailing colon; default to 0 if not provided.
+        builder.Append($":{(Volume.HasValue ? Volume.Value.ToString() : "0")}:");
+    
+        // Append file name if it exists.
         if (!string.IsNullOrEmpty(FileName))
         {
-            builder.Append($"{FileName}");
+            builder.Append(FileName);
         }
 
         return builder.ToString();
     }
-
-
 }

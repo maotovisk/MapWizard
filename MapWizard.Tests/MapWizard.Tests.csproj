@@ -13,6 +13,8 @@
     <EmbeddedResource Include="Resources\test6.osu" />
     <EmbeddedResource Include="Resources\test5.osu" />
     <EmbeddedResource Include="Resources\test3.osu" />
+    <EmbeddedResource Include="Resources\test7.osu" />
+    <EmbeddedResource Include="Resources\test8.osu" />
   </ItemGroup>
 
   <ItemGroup>
@@ -30,6 +32,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\MapWizard.BeatmapParser\MapWizard.BeatmapParser.csproj" />
+    <ProjectReference Include="..\MapWizard.Tools\MapWizard.Tools.csproj" />
   </ItemGroup>
 
 </Project>

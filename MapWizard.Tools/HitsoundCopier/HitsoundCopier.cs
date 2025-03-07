@@ -13,7 +13,7 @@ public static class HitSoundCopier
     /// <param name="source">Source `Beatmap` object.</param>
     /// <param name="target">Target `Beatmap` object.</param>
     /// <param name="options">Options for the hit sound copying.</param>
-    private static Beatmap CopyFromBeatmap(Beatmap source, Beatmap target, HitSoundCopierOptions options)
+    public static Beatmap CopyFromBeatmap(Beatmap source, Beatmap target, HitSoundCopierOptions options)
     {
         SoundTimeline hitSoundTimeLine = new();
         SoundTimeline sliderBodyTimeline = new();

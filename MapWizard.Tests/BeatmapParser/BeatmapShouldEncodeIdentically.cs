@@ -55,4 +55,20 @@ public class BeatmapShouldEncodeIdentically
         // Assert
         Assert.Equal(beatmapString, encodedBeatmap);
     }
+    
+    [Fact]
+    public void Encode_InputIsColouredSliderBeatmapString_ReturnsTrue()
+    {
+        // Arrange
+        var assembly = Assembly.GetExecutingAssembly();
+        using var stream = assembly.GetManifestResourceStream("MapWizard.Tests.Resources.test7.osu");
+        using var reader = new StreamReader(stream);
+        var beatmapString = reader.ReadToEnd();
+        
+        // Act
+        var beatmap = Beatmap.Decode(beatmapString);
+        var encodedBeatmap = beatmap.Encode();
+        // Assert
+        Assert.Equal(beatmapString, encodedBeatmap);
+    }
 }

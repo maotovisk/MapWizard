@@ -53,15 +53,15 @@ public class Colours
         {
             section.ForEach(sectionLine =>
             {
-                if (sectionLine.StartsWith("SliderBorder:"))
+                if (sectionLine.StartsWith("SliderBorder"))
                 {
                     var split = sectionLine.Split(':', 2);
-                    result.SliderBorder = Helper.ParseVector3(split[1]);
+                    result.SliderBorder = Helper.ParseVector3(split[1].Trim());
                 }
-                else if (sectionLine.StartsWith("SliderTrackOverride:"))
+                else if (sectionLine.StartsWith("SliderTrackOverride"))
                 {
                     var split = sectionLine.Split(':', 2);
-                    result.SliderTrackOverride = Helper.ParseVector3(split[1]);
+                    result.SliderTrackOverride = Helper.ParseVector3(split[1].Trim());
                 }
                 else if (sectionLine.StartsWith("Combo"))
                 {
@@ -78,27 +78,28 @@ public class Colours
     }
 
     /// <summary>
-    /// Encodes the <see cref="General"/> class into a string.
+    /// Encodes the <see cref="Colours"/> class into a string.
     /// </summary>
     /// <returns></returns>
     public string Encode()
     {
         StringBuilder builder = new();
 
-        if (SliderBorder.HasValue)
-        {
-            builder.AppendLine($"SliderBorder: {SliderBorder.Value.X},{SliderBorder.Value.Y},{SliderBorder.Value.Z}");
-        }
-        if (SliderTrackOverride.HasValue)
-        {
-            builder.AppendLine($"SliderTrackOverride: {SliderTrackOverride.Value.X},{SliderTrackOverride.Value.Y},{SliderTrackOverride.Value.Z}");
-        }
-
         Combos.ForEach(combo =>
         {
             builder.AppendLine($"Combo{combo.Number} : {combo.Colour.X},{combo.Colour.Y},{combo.Colour.Z}");
         });
-
+        
+        if (SliderBorder.HasValue)
+        {
+            builder.AppendLine($"SliderBorder : {SliderBorder.Value.X},{SliderBorder.Value.Y},{SliderBorder.Value.Z}");
+        }
+        
+        if (SliderTrackOverride.HasValue)
+        {
+            builder.AppendLine($"SliderTrackOverride : {SliderTrackOverride.Value.X},{SliderTrackOverride.Value.Y},{SliderTrackOverride.Value.Z}");
+        }
+        
         return builder.ToString();
     }
 
