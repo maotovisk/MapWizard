@@ -30,6 +30,7 @@ public static class ServiceCollectionExtensions
 
         // Register FilesService with TopLevel
         collection.AddScoped<IFilesService, FilesService>();
+        collection.AddScoped<IMetadataManagerService, MetadataManagerService>();
     }
 
 }

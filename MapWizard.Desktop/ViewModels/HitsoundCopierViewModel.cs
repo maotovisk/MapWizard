@@ -23,7 +23,7 @@ public partial class HitsoundCopierViewModel(IFilesService filesService) : ViewM
     private readonly HitSoundService _hitsoundService = new();
     
     [ObservableProperty]
-    private string _snackbarName = Guid.NewGuid().ToString();
+    private string _snackbarName = "SnackbarMainWindow";
     
     [ObservableProperty]
     private SelectedMap _originBeatmap = new();

@@ -6,7 +6,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Collections;
-using Avalonia.Media;
 using Avalonia.Platform.Storage;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -16,15 +15,27 @@ using MapWizard.Desktop.Models;
 using MapWizard.Desktop.Services;
 using Material.Styles.Controls;
 using Material.Styles.Models;
+using Color = System.Drawing.Color;
 
 namespace MapWizard.Desktop.ViewModels;
-public partial class MetadataManagerViewModel(IFilesService filesService) : ViewModelBase
+public partial class MetadataManagerViewModel(IFilesService filesService, IMetadataManagerService metadataManagerService) : ViewModelBase
 {
-    [ObservableProperty]
-    private string _snackbarName = Guid.NewGuid().ToString();
+    [ObservableProperty] private string _snackbarName = "SnackbarMainWindow";
         
     [ObservableProperty]
     private SelectedMap _originBeatmap = new();
+
+    [ObservableProperty]
+    private bool _sliderTrackOverride;
+    
+    [ObservableProperty]
+    private bool _sliderBorderOverride;
+
+    [ObservableProperty]
+    private bool _resetBeatmapIds;
+    
+    [ObservableProperty]
+    private bool _removeDuplicateTags;
     
     [ObservableProperty]
     private bool _hasMultiple;
@@ -71,7 +82,7 @@ public partial class MetadataManagerViewModel(IFilesService filesService) : View
         try
         {
             var originMetadata = Beatmap.Decode( await File.ReadAllTextAsync(origin, token) ?? string.Empty);
-            var comboColourList = new AvaloniaList<AvaloniaComboColour>();
+            AvaloniaList<AvaloniaComboColour> comboColourList = [];
             
             if (originMetadata.Colours != null)
             {
@@ -106,6 +117,16 @@ public partial class MetadataManagerViewModel(IFilesService filesService) : View
                 EpilepsyWarning = originMetadata.General.EpilepsyWarning ?? false,
                 SamplesMatch = originMetadata.General.SamplesMatchPlaybackRate ?? false,
             };
+            SliderBorderOverride = Metadata.SliderBorderColour != null;
+            SliderTrackOverride = Metadata.SliderTrackColour != null;
+            
+            SnackbarHost.Post( 
+                new SnackbarModel(
+                    "Successfully imported metadata!",
+                    TimeSpan.FromSeconds(8)),
+                SnackbarName,
+                DispatcherPriority.Normal);
+            
         } catch (Exception e)
         {
             Console.WriteLine(e.Message);
@@ -126,11 +147,24 @@ public partial class MetadataManagerViewModel(IFilesService filesService) : View
         {
             var index = Metadata.Colours.IndexOf(colour);
             Metadata.Colours.RemoveAt(index);
+            
+            // Reprocess the combo numbers
+            
+            for (var i = index; i < Metadata.Colours.Count; i++)
+            {
+                Metadata.Colours[i].Number = i + 1;
+            }
         }
         catch (Exception e)
         {
             Console.WriteLine(e.Message);
         }
+    }
+    
+    [RelayCommand]
+    void AddColour()
+    {
+        Metadata.Colours.Add(new AvaloniaComboColour(Metadata.Colours.Count + 1, Color.White));
     }
     
     [RelayCommand]
@@ -226,7 +260,31 @@ public partial class MetadataManagerViewModel(IFilesService filesService) : View
         {
             message = "Please select at least one destination beatmap!";
         }
-       
+
+        var appliedMetadata = Metadata;
+        
+        if (ResetBeatmapIds)
+        {
+            appliedMetadata.BeatmapId = 0;
+            appliedMetadata.BeatmapSetId = -1;
+        }
+        
+        if (RemoveDuplicateTags)
+        {
+            appliedMetadata.Tags = string.Join(" ", appliedMetadata.Tags.Split(' ').Distinct());
+        }
+
+        try
+        {
+            metadataManagerService.ApplyMetadata(appliedMetadata, DestinationBeatmaps.Select(x => x.Path).ToArray());
+            message = $"Successfully exported metadata to {DestinationBeatmaps.Count} beatmap(s)!";
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            message = e.Message;
+        }
+        
         SnackbarHost.Post(
             new SnackbarModel(
                 message,
