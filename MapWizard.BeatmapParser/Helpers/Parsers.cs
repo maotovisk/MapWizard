@@ -1,3 +1,4 @@
+using System.Drawing;
 using System.Globalization;
 using System.Numerics;
 using System.Text.RegularExpressions;
@@ -126,7 +127,17 @@ public partial class Helper
         return new Vector3(float.Parse(split[0], CultureInfo.InvariantCulture),
             float.Parse(split[1], CultureInfo.InvariantCulture), float.Parse(split[2], CultureInfo.InvariantCulture));
     }
-
+    
+    /// <summary>
+    /// Returns a Color from a string.
+    /// </summary>
+    /// <param name="colorString">The RGB colour from in the format R,G,B</param>
+    public static Color ParseColor(string colorString)
+    {
+        string[] split = colorString.Split(',');
+        return Color.FromArgb(255, int.Parse(split[0]), int.Parse(split[1]), int.Parse(split[2]));
+    }
+    
     /// <summary>
     /// 
     /// </summary>
@@ -156,6 +167,19 @@ public partial class Helper
         var Z = IsNumeric(split[2]) ? int.Parse(split[2]) : int.Parse(split[2], NumberStyles.HexNumber);
 
         return new Vector3(X, Y, Z);
+    }
+
+    public static Color ParseColorFromUnknownString(string input)
+    {
+        string[] split = input.Split(',', 3);
+
+        if (split.Length != 3) throw new Exception("Not a valid vector3 string.");
+        
+        var R = IsNumeric(split[0]) ? int.Parse(split[0]) : int.Parse(split[0], NumberStyles.HexNumber);
+        var G = IsNumeric(split[1]) ? int.Parse(split[1]) : int.Parse(split[1], NumberStyles.HexNumber);
+        var B = IsNumeric(split[2]) ? int.Parse(split[2]) : int.Parse(split[2], NumberStyles.HexNumber);
+        
+        return Color.FromArgb(255, R, G, B);
     }
 
     /// <summary>

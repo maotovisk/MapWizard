@@ -1,3 +1,4 @@
+using System.Drawing;
 using System.Numerics;
 
 namespace MapWizard.BeatmapParser;
@@ -15,14 +16,14 @@ public class ComboColour
     /// <summary>
     /// Gets or sets the colour of the combo colour of the beatmap.
     /// </summary>
-    public Vector3 Colour { get; set; }
+    public Color Colour { get; set; }
 
     /// <summary>
     /// 
     /// </summary>
     /// <param name="number"></param>
     /// <param name="colour"></param>
-    public ComboColour(uint number, Vector3 colour)
+    public ComboColour(uint number, Color colour)
     {
         Number = number;
         Colour = colour;
@@ -38,7 +39,7 @@ public class ComboColour
         try
         {
             string[] split = line.Split(':');
-            return new ComboColour(uint.Parse(split[0].Replace("Combo", string.Empty)), Helper.ParseVector3(split[1]));
+            return new ComboColour(uint.Parse(split[0].Replace("Combo", string.Empty)), Helper.ParseColor(split[1]));
         }
         catch (Exception ex)
         {

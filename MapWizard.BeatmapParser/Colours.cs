@@ -1,3 +1,4 @@
+using System.Drawing;
 using System.Numerics;
 using System.Text;
 
@@ -11,12 +12,12 @@ public class Colours
     /// <summary>
     /// The slider border colour of the beatmap.
     /// </summary>
-    public Vector3? SliderBorder { get; set; }
+    public Color? SliderBorder { get; set; }
 
     /// <summary>
     /// The additive slider track colour of the beatmap.
     /// </summary>
-    public Vector3? SliderTrackOverride { get; set; }
+    public Color? SliderTrackOverride { get; set; }
 
     /// <summary>
     /// The list of combo colours of the beatmap.
@@ -26,7 +27,7 @@ public class Colours
     /// <summary>
     /// Initializes a new instance of the <see cref="Colours"/> class with the specified parameters.
     /// </summary>
-    public Colours(Vector3 sliderBorder, Vector3 sliderTrackOverride, List<ComboColour> combos)
+    public Colours(Color sliderBorder, Color sliderTrackOverride, List<ComboColour> combos)
     {
         SliderBorder = sliderBorder;
         SliderTrackOverride = sliderTrackOverride;
@@ -56,12 +57,12 @@ public class Colours
                 if (sectionLine.StartsWith("SliderBorder"))
                 {
                     var split = sectionLine.Split(':', 2);
-                    result.SliderBorder = Helper.ParseVector3(split[1].Trim());
+                    result.SliderBorder = Helper.ParseColor(split[1].Trim());
                 }
                 else if (sectionLine.StartsWith("SliderTrackOverride"))
                 {
                     var split = sectionLine.Split(':', 2);
-                    result.SliderTrackOverride = Helper.ParseVector3(split[1].Trim());
+                    result.SliderTrackOverride = Helper.ParseColor(split[1].Trim());
                 }
                 else if (sectionLine.StartsWith("Combo"))
                 {
@@ -87,17 +88,17 @@ public class Colours
 
         Combos.ForEach(combo =>
         {
-            builder.AppendLine($"Combo{combo.Number} : {combo.Colour.X},{combo.Colour.Y},{combo.Colour.Z}");
+            builder.AppendLine($"Combo{combo.Number} : {combo.Colour.R},{combo.Colour.G},{combo.Colour.B}");
         });
         
         if (SliderBorder.HasValue)
         {
-            builder.AppendLine($"SliderBorder : {SliderBorder.Value.X},{SliderBorder.Value.Y},{SliderBorder.Value.Z}");
+            builder.AppendLine($"SliderBorder : {SliderBorder.Value.R},{SliderBorder.Value.G},{SliderBorder.Value.B}");
         }
         
         if (SliderTrackOverride.HasValue)
         {
-            builder.AppendLine($"SliderTrackOverride : {SliderTrackOverride.Value.X},{SliderTrackOverride.Value.Y},{SliderTrackOverride.Value.Z}");
+            builder.AppendLine($"SliderTrackOverride : {SliderTrackOverride.Value.R},{SliderTrackOverride.Value.G},{SliderTrackOverride.Value.B}");
         }
         
         return builder.ToString();
