@@ -10,12 +10,13 @@ public class HitSoundService : IHitSoundService
         try
         {
             HitSoundCopier.CopyFromBeatmapToTarget(sourcePath: sourcePath, targetPath: targetPaths, options: options);
-            return true;
         }
         catch (Exception ex)
         {
             Console.WriteLine(ex.Message);
             return false;
         }
+        
+        return true;
     }
 }
