@@ -1,10 +1,10 @@
 # MapWizard 2
 
-A tool that aims to allow mappers copy the hitsounds of a beatmap difficulty to other difficulties on the set, manage metadata and more. This is a rewrite of the original [Map Wizard](https://github.com/maotovisk/map-wizard), previously made in Tauri and Svelte, now being rewritten in C# with .NET 8 and Avalonia.
+A tool that aims to allow mappers copy the hitsounds of a beatmap difficulty to other difficulties on the set, manage metadata and more. This is a rewrite of the original [Map Wizard](https://github.com/maotovisk/map-wizard), previously made in Tauri and Svelte, now being rewritten in C# with .NET 9 and Avalonia.
 
 <br/>
 
-<p align="right"><b>Current Status</b>: Working on Metadata Manager.</p>
+<p align="right"><b>Current Status</b>: Working on Map Cleaner</p>
 
 ## Project Goals
 
@@ -16,13 +16,15 @@ A tool that aims to allow mappers copy the hitsounds of a beatmap difficulty to 
 
 ## Requirements
 
-- .NET 8 or above
+- .NET 9 or above
 
 ## Installing
 We provide pre-built binaries for Linux and Windows. You can download it from the [releases page](
 https://github.com/maotovisk/MapWizard/releases). 
  
 Thanks to the [Velopack](https://velopack.io/) project, it auto-updates and it's just a 1-click install.
+
+You can also get it from the [AUR](https://aur.archlinux.org/packages/mapwizard-git) with the package `mapwizard-git`
 
 ## Building
 
@@ -42,7 +44,7 @@ dotnet run --project MapWizard.Desktop
 
 - [x] Implement the basic beatmap parser
 - [x] Implement the hitsound copier
-- [ ] Implement the metadata manager
+- [x] Implement the metadata manager
 - [ ] Implement the map cleaner
 - [ ] Implement the combo color generator
 
