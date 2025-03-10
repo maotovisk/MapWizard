@@ -13,7 +13,6 @@ namespace MapWizard.Desktop.Views;
 
 public partial class MainWindow : Window
 {
-    string snackbarName { get; set; } = "SnackbarMainWindow";
     public MainWindow(MainWindowViewModel viewModel)
     {
         DataContext = viewModel;
@@ -33,7 +32,7 @@ public partial class MainWindow : Window
         if (newVersion == null)
             return;
         
-        SnackbarHost.Post($"Update available, downloading version {newVersion.BaseRelease?.Version}...", "snackbarName", DispatcherPriority.Normal);
+        SnackbarHost.Post($"Update available, downloading version {newVersion.BaseRelease?.Version}...", "SnackbarMainWindow", DispatcherPriority.Normal);
         
         await mgr.DownloadUpdatesAsync(newVersion);
         
