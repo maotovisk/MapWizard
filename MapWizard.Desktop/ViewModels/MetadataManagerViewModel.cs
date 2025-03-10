@@ -13,6 +13,7 @@ using CommunityToolkit.Mvvm.Input;
 using MapWizard.BeatmapParser;
 using MapWizard.Desktop.Models;
 using MapWizard.Desktop.Services;
+using MapWizard.Tools.MetadataManager;
 using Material.Styles.Controls;
 using Material.Styles.Models;
 using Color = System.Drawing.Color;
@@ -30,7 +31,13 @@ public partial class MetadataManagerViewModel(IFilesService filesService, IMetad
     
     [ObservableProperty]
     private bool _sliderBorderOverride;
+    
+    [ObservableProperty]
+    private bool _overwriteBackground;
 
+    [ObservableProperty]
+    private bool _overwriteVideo;
+    
     [ObservableProperty]
     private bool _resetBeatmapIds;
     
@@ -55,7 +62,7 @@ public partial class MetadataManagerViewModel(IFilesService filesService, IMetad
     private string _preferredDirectory = "";
     
     [ObservableProperty]
-    private BeatmapMetadata _metadata = new();
+    private AvaloniaBeatmapMetadata _metadata = new();
     
     [RelayCommand]
     private void RemoveMap(string path)
@@ -93,7 +100,7 @@ public partial class MetadataManagerViewModel(IFilesService filesService, IMetad
             }
         
             
-            Metadata = new BeatmapMetadata
+            Metadata = new AvaloniaBeatmapMetadata
             {
                 Title = originMetadata.Metadata.TitleUnicode,
                 RomanizedTitle = originMetadata.Metadata.Title,
@@ -256,7 +263,7 @@ public partial class MetadataManagerViewModel(IFilesService filesService, IMetad
         {
             message = "Please select an origin beatmap!";
         }
-        else if (DestinationBeatmaps.Count == 0)
+        else if (DestinationBeatmaps.Count == 0 || DestinationBeatmaps.All(x => string.IsNullOrEmpty(x.Path)))
         {
             message = "Please select at least one destination beatmap!";
         }
@@ -276,7 +283,16 @@ public partial class MetadataManagerViewModel(IFilesService filesService, IMetad
 
         try
         {
-            metadataManagerService.ApplyMetadata(appliedMetadata, DestinationBeatmaps.Select(x => x.Path).ToArray());
+            var options = new MetadataManagerOptions()
+            {
+                OverwriteAudio = true,
+                OverwriteBackground = OverwriteBackground,
+                OverwriteVideo = OverwriteVideo,
+                SliderBorderColour = SliderBorderOverride,
+                SliderTrackColour = SliderTrackOverride,
+            };
+            
+            metadataManagerService.ApplyMetadata(appliedMetadata, DestinationBeatmaps.Select(x => x.Path).ToArray(), options);
             message = $"Successfully exported metadata to {DestinationBeatmaps.Count} beatmap(s)!";
         }
         catch (Exception e)

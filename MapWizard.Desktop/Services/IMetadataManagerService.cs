@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Threading.Tasks;
 using MapWizard.Desktop.Models;
+using MapWizard.Tools.MetadataManager;
 
 namespace MapWizard.Desktop.Services;
 
 public interface IMetadataManagerService
 {
-    public void ApplyMetadata(BeatmapMetadata metadata, string[] targetPaths);
+    public void ApplyMetadata(AvaloniaBeatmapMetadata metadata, string[] targetPaths, MetadataManagerOptions options);
 }

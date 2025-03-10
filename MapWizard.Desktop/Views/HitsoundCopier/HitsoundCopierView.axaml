@@ -18,14 +18,16 @@
         <ScrollViewer Grid.Row="2">
             <Grid RowDefinitions="Auto,*,Auto">
                 <controls:Card Margin="16" CornerRadius="16" Grid.Row="0">
-                    <StackPanel>
+                    <StackPanel Margin="6">
+                        <TextBlock Text="Beatmap Selection"></TextBlock>
+                        <Separator></Separator>
                         <StackPanel>
                             <Grid Margin="16" ColumnDefinitions="*,Auto">
                                 <TextBox Grid.Row="0" VerticalAlignment="Center" UseFloatingWatermark="True"
                                          Classes="outline dense" Theme="{StaticResource OutlineTextBox}"
-                                         Text="{Binding OriginBeatmap.Path, Mode=TwoWay}" Padding="16 16"
+                                         Text="{CompiledBinding OriginBeatmap.Path, Mode=TwoWay}" Padding="16 16"
                                          p1:TextFieldAssist.Label="Copy hitsounds from..." />
-                                <Button Grid.Row="0" Command="{Binding PickOriginFileCommand}"
+                                <Button Grid.Row="0" Command="{CompiledBinding PickOriginFileCommand}"
                                         Theme="{StaticResource MaterialFlatButton}" Padding="8" Margin="12"
                                         Grid.Column="1" VerticalAlignment="Center"
                                         ToolTip.Tip="Click here to select the beatmap you want to copy the hitsounds from.">
@@ -38,29 +40,29 @@
                             <Grid Margin="16" ColumnDefinitions="*,Auto">
                                 <TextBox Grid.Row="0" VerticalAlignment="Center" UseFloatingWatermark="True"
                                          Classes="outline dense" Theme="{StaticResource OutlineTextBox}"
-                                         Text="{Binding DestinationBeatmaps[0].Path, Mode=TwoWay}"
+                                         Text="{CompiledBinding DestinationBeatmaps[0].Path, Mode=TwoWay}"
                                          Padding="16 16"
                                          p1:TextFieldAssist.Label="Copy hitsounds to..." />
-                                <Button Grid.Row="0" Command="{Binding PickDestinationFileCommand}"
+                                <Button Grid.Row="0" Command="{CompiledBinding PickDestinationFileCommand}"
                                         Theme="{StaticResource MaterialFlatButton}" Padding="8" Margin="12"
                                         Grid.Column="1" VerticalAlignment="Center"
                                         ToolTip.Tip="Click here to select the beatmap(s) you want to copy the hitsounds to.">
                                     <materialIcons:MaterialIcon Kind="FileSearchOutline" Width="24" Height="24"></materialIcons:MaterialIcon>
                                 </Button>
                             </Grid>
-                            <Grid IsVisible="{Binding HasMultiple}">
-                                <ItemsControl ItemsSource="{Binding AdditionalBeatmaps}">
+                            <Grid IsVisible="{CompiledBinding HasMultiple}">
+                                <ItemsControl ItemsSource="{CompiledBinding AdditionalBeatmaps}">
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
                                             <Grid Classes="FileLine" Margin="16" ColumnDefinitions="*,Auto">
                                                 <TextBox Grid.Row="0" VerticalAlignment="Center"
                                                          UseFloatingWatermark="False"
-                                                         Text="{Binding Path, Mode=TwoWay}" Padding="16 16" />
+                                                         Text="{CompiledBinding Path, Mode=TwoWay}" Padding="16 16" />
                                                 <Button
                                                     ToolTip.Tip="Click here to remove this beatmap from the list."
                                                     Grid.Row="0"
-                                                    Command="{Binding $parent[ItemsControl].((vm:HitsoundCopierViewModel)DataContext).RemoveMapCommand}"
-                                                    CommandParameter="{Binding Path}"
+                                                    Command="{CompiledBinding $parent[ItemsControl].((vm:HitsoundCopierViewModel)DataContext).RemoveMapCommand}"
+                                                    CommandParameter="{CompiledBinding Path}"
                                                     Theme="{StaticResource MaterialFlatButton}" Padding="8"
                                                     Margin="12" Grid.Column="1" VerticalAlignment="Center">
                                                     <materialIcons:MaterialIcon Kind="Cancel" Width="24"
@@ -72,8 +74,8 @@
                                     </ItemsControl.ItemTemplate>
                                 </ItemsControl>
                             </Grid>
-                            <TextBlock IsVisible="{Binding HasMultiple}"
-                                       Text="{Binding DestinationBeatmaps.Count, StringFormat=There are {0} selected beatmaps.}"
+                            <TextBlock IsVisible="{CompiledBinding HasMultiple}"
+                                       Text="{CompiledBinding DestinationBeatmaps.Count, StringFormat=There are {0} selected beatmaps.}"
                                        Padding="16">
                             </TextBlock>
                         </StackPanel>
@@ -82,30 +84,30 @@
                 <StackPanel Grid.Row="1" Margin="20">
                     <ToggleSwitch Classes="LeftHeader" Margin="20" Padding="10" Grid.Column="1"
                                   HorizontalContentAlignment="Stretch"
-                                  IsChecked="{Binding CopySampleAndVolumeChanges}"
+                                  IsChecked="{CompiledBinding CopySampleAndVolumeChanges}"
                                   Content="Copy sampleset and volume changes">
                     </ToggleSwitch>
                     <ToggleSwitch Margin="20" Padding="10" HorizontalContentAlignment="Stretch"
                                   Classes="LeftHeader" Content="Ovewrite muting (5% greenlines)"
-                                  IsVisible="{Binding CopySampleAndVolumeChanges}" Grid.Column="1"
-                                  IsChecked="{Binding OverwriteMuting}">
+                                  IsVisible="{CompiledBinding CopySampleAndVolumeChanges}" Grid.Column="1"
+                                  IsChecked="{CompiledBinding OverwriteMuting}">
                     </ToggleSwitch>
 
                     <ToggleSwitch Margin="20" Padding="10" HorizontalContentAlignment="Stretch"
                                   Classes="LeftHeader" Content="Copy sider-body hitsounds" Grid.Column="1"
-                                  IsChecked="{Binding CopySliderBodySounds}">
+                                  IsChecked="{CompiledBinding CopySliderBodySounds}">
                     </ToggleSwitch>
 
                     <Grid ColumnDefinitions="*, 250" Margin="20">
                         <TextBlock>Leniency (ms)</TextBlock>
-                        <Slider Grid.Column="1" IsSnapToTickEnabled="True" Value="{Binding Leniency}"
+                        <Slider Grid.Column="1" IsSnapToTickEnabled="True" Value="{CompiledBinding Leniency}"
                                 Classes="Discrete Accent" TickPlacement="TopLeft" TickFrequency="1" Minimum="0"
                                 Maximum="20" />
                     </Grid>
                 </StackPanel>
                 <StackPanel Grid.Row="2">
                     <Grid Margin="16" ColumnDefinitions="*,Auto">
-                        <Button Height="48" Command="{Binding CopyHitsoundsCommand}" Grid.Column="1"
+                        <Button Foreground="White" Height="48" Command="{CompiledBinding CopyHitsoundsCommand}" Grid.Column="1"
                                 ToolTip.Tip="Click here to copy the hitsounds from the origin to the target."
                                 CornerRadius="16">
                             <StackPanel Orientation="Horizontal">

@@ -7,7 +7,7 @@ using MapWizard.BeatmapParser;
 
 namespace MapWizard.Desktop.Models;
 
-public class BeatmapMetadata : INotifyPropertyChanged
+public class AvaloniaBeatmapMetadata : INotifyPropertyChanged
 {
     public string Title { get; set; } = string.Empty;
     public string RomanizedTitle { get; set; } = string.Empty;

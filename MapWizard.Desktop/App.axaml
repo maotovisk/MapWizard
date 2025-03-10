@@ -4,6 +4,7 @@
              xmlns:materialIcons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
              xmlns:dialogHostAvalonia="clr-namespace:DialogHostAvalonia;assembly=DialogHost.Avalonia"
              xmlns:local="clr-namespace:MapWizard.Desktop"
+             xmlns:converters="clr-namespace:MapWizard.Desktop.Converters"
              x:Class="MapWizard.Desktop.App"
              RequestedThemeVariant="Dark">
     
@@ -12,8 +13,12 @@
     </Application.DataTemplates>
     <Application.Styles>
         <dialogHostAvalonia:DialogHostStyles />
-        <themes:MaterialTheme PrimaryColor="BlueGrey" SecondaryColor="DeepOrange" />
+        <themes:MaterialTheme PrimaryColor="Teal" SecondaryColor="DeepOrange" />
         <materialIcons:MaterialIconStyles />
         <StyleInclude Source="avares://Avalonia.Controls.ColorPicker/Themes/Fluent/Fluent.xaml" />
     </Application.Styles>
+    
+    <Application.Resources>
+        <converters:IndexToTransformConverter x:Key="IndexToTransformConverter"/>
+    </Application.Resources>
 </Application>

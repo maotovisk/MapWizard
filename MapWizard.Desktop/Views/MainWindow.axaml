@@ -12,50 +12,44 @@
         Title="MapWizard">
   <dialogHost:DialogHost>
     <controls:SnackbarHost x:Name="SnackbarMainWindow" HostName="SnackbarMainWindow" SnackbarHorizontalAlignment="Right">
-      <Grid ColumnDefinitions="Auto,*" RowDefinitions="*">
-        <Grid Background="SteelBlue" Grid.Row="0" Grid.Column="0" RowDefinitions="*,Auto">
-          <StackPanel>
-            <Button Foreground="Black" Theme="{StaticResource MaterialFlatButton}" Height="64"
-                    Command="{Binding ShowWelcomePageCommand}">
-              <Grid ColumnDefinitions="*,7">
-                <StackPanel>
-                  <materialIcons:MaterialIcon Kind="Home" Width="24" Height="24" />
-                  <TextBlock TextAlignment="Center" TextWrapping="Wrap" Text="Start" Width="64" FontSize="14" />
-                </StackPanel>
-                <Rectangle Fill="Black" VerticalAlignment="Center" HorizontalAlignment="Right" IsVisible="{ReflectionBinding MenuItems[WelcomePage]}" Grid.Column="1" Width="4" Height="24"></Rectangle>
-              </Grid>
-            </Button>
-            <Button Foreground="Black" Theme="{StaticResource MaterialFlatButton}" Height="64"
-                    Command="{ReflectionBinding ShowHitsoundCopierCommand}">
-              <Grid ColumnDefinitions="*,10">
-                <StackPanel>
-                  <materialIcons:MaterialIcon Kind="ContentCopy" Width="24" Height="24" />
-                  <TextBlock TextAlignment="Center" TextWrapping="Wrap" Text="Hitsound Copier" Width="64" FontSize="14" />
-                </StackPanel>
-                <Rectangle Fill="Black" VerticalAlignment="Center" HorizontalAlignment="Right" IsVisible="{ReflectionBinding MenuItems[HitsoundCopier]}" Grid.Column="1" Width="4" Height="24"></Rectangle>
-              </Grid>
-            </Button>
-            <Button Foreground="Black" Theme="{StaticResource MaterialFlatButton}" Command="{ReflectionBinding ShowMetadataManagerCommand}" Height="64">
-              <Grid ColumnDefinitions="*,10">
-                <StackPanel>
-                  <materialIcons:MaterialIcon Kind="FileDocumentMultiple" Width="24" Height="24" />
-                  <TextBlock TextAlignment="Center" TextWrapping="Wrap" Text="Metadata Manager" Width="64" FontSize="14" />
-                </StackPanel>
-                <Rectangle Fill="Black" VerticalAlignment="Center" HorizontalAlignment="Right" IsVisible="{ReflectionBinding MenuItems[MetadataManager]}" Grid.Column="1" Width="4" Height="24"></Rectangle>
-              </Grid>
-            </Button>
-          </StackPanel>
-          <Button Grid.Row="0" Foreground="Black" Theme="{StaticResource MaterialFlatButton}" Height="64"
-                  VerticalAlignment="Bottom">
-            <StackPanel>
-              <materialIcons:MaterialIcon Kind="Cog" Width="24" Height="24" />
-              <TextBlock TextAlignment="Center" TextWrapping="Wrap" Text="Settings" FontSize="14" />
-            </StackPanel>
-          </Button>
+      <Grid ColumnDefinitions="Auto,*">
+        <Grid Background="SteelBlue" Width="135">
+          <Border x:Name="Underline" Background="White" Width="4" Height="30" CornerRadius="2" Margin="0,0,4,0"
+                  VerticalAlignment="Top" HorizontalAlignment="Right"
+                  RenderTransform="{CompiledBinding SelectedIndex, Converter={StaticResource IndexToTransformConverter}}">
+            <Border.Transitions>
+              <Transitions>
+                <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.4" Easing="CircularEaseInOut"/>
+              </Transitions>
+            </Border.Transitions>
+          </Border>
+          
+          <ListBox ItemsSource="{CompiledBinding MenuItems}" 
+                   SelectedItem="{CompiledBinding SelectedMenuItem, Mode=TwoWay}" 
+                   BorderThickness="0" Padding="0" Margin="0">
+            <ListBox.ItemTemplate>
+              <DataTemplate>
+                <Grid Height="70" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="6,0">
+                  <Border Background="Transparent" Padding="0" Margin="0">
+                    <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center">
+                      <materialIcons:MaterialIcon Kind="{CompiledBinding Icon}" Width="16" Height="16" Margin="0,5"/>
+                      <TextBlock Text="{CompiledBinding Title}" FontSize="14" TextAlignment="Center" TextWrapping="Wrap"/>
+                    </StackPanel>
+                  </Border>
+                </Grid>
+              </DataTemplate>
+            </ListBox.ItemTemplate>
+          </ListBox>
         </Grid>
-        <Panel Grid.Row="0" Grid.Column="1">
-          <TransitioningContentControl Content="{Binding CurrentView}" /> 
-        </Panel>
+
+        <TransitioningContentControl Grid.Column="1" Content="{CompiledBinding CurrentView}">
+          <TransitioningContentControl.PageTransition>
+            <CompositePageTransition>
+              <CrossFade Duration="0:00:00.400" />
+              <PageSlide Duration="0:00:00.400" Orientation="Vertical" SlideInEasing="CircularEaseInOut" SlideOutEasing="CircularEaseInOut" />
+            </CompositePageTransition>
+          </TransitioningContentControl.PageTransition>
+        </TransitioningContentControl>
       </Grid>
     </controls:SnackbarHost>
   </dialogHost:DialogHost>
