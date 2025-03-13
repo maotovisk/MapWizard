@@ -1,7 +1,9 @@
+using System;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Data.Core.Plugins;
 using Avalonia.Markup.Xaml;
+using Avalonia.Rendering;
 using MapWizard.Desktop.DependencyInjection;
 using MapWizard.Desktop.Services;
 using MapWizard.Desktop.ViewModels;
@@ -35,6 +37,8 @@ public partial class App : Application
         {
             singleViewPlatform.MainView = mainWindow;
         }
+        
         base.OnFrameworkInitializationCompleted();
     }
+    
 }

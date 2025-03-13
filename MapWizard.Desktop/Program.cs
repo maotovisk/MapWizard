@@ -1,7 +1,12 @@
 ﻿using Avalonia;
 using System;
 using System.Threading.Tasks;
+using Avalonia.Media;
+using Avalonia.Media.Imaging;
+using Avalonia.OpenGL.Egl;
+using Avalonia.Rendering;
 using Avalonia.Rendering.Composition;
+using Avalonia.Vulkan;
 using Velopack;
 using Velopack.Sources;
 
@@ -27,17 +32,13 @@ sealed class Program
         => AppBuilder.Configure<App>()
             .UsePlatformDetect()
             .WithInterFont()
-            .With(new SkiaOptions()
-            {
-                UseOpacitySaveLayer = false
-            })
             .With(new X11PlatformOptions()
             {
                 RenderingMode = new []
-                {
-                    X11RenderingMode.Vulkan,
+                {                    
                     X11RenderingMode.Glx,
-                    X11RenderingMode.Software
+                    X11RenderingMode.Vulkan,
+                    X11RenderingMode.Software,
                 }
             })
             .LogToTrace();
