@@ -30,8 +30,10 @@ public partial class MainWindow : Window
         
         var newVersion = await mgr.CheckForUpdatesAsync();
         if (newVersion == null)
+        {
+            SnackbarHost.Post("You're running the latest version!", "SnackbarMainWindow", DispatcherPriority.Normal);
             return;
-        
+        }
         SnackbarHost.Post($"Update available, downloading version {newVersion.BaseRelease?.Version}...", "SnackbarMainWindow", DispatcherPriority.Normal);
         
         await mgr.DownloadUpdatesAsync(newVersion);
