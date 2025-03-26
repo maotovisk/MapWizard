@@ -34,6 +34,6 @@ public interface IHitObject : IEncodable
     ///  <summary>
     /// 
     /// </summary>
-    public uint ComboColour { get; set; }
+    public uint ComboOffset { get; set; }
 
 }

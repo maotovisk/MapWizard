@@ -29,7 +29,7 @@ public class Circle : HitObject
     /// Initializes a new instance of the Circle class.
     /// </summary>
     /// <param name="baseObject"></param>
-    private Circle(IHitObject baseObject) : base(baseObject.Coordinates, baseObject.Time, baseObject.Type, baseObject.HitSounds, baseObject.NewCombo, baseObject.ComboColour)
+    private Circle(IHitObject baseObject) : base(baseObject.Coordinates, baseObject.Time, baseObject.Type, baseObject.HitSounds, baseObject.NewCombo, baseObject.ComboOffset)
     {
     }
 

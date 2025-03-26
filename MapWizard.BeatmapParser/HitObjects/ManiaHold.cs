@@ -28,14 +28,14 @@ public class ManiaHold : HitObject
         Time = new TimeSpan();
         HitSounds = (new HitSample(), new List<HitSound>());
         NewCombo = false;
-        ComboColour = 0;
+        ComboOffset = 0;
     }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="ManiaHold"/> class.
     /// </summary>
     /// <param name="baseObject"></param>
-    public ManiaHold(HitObject baseObject) : base(baseObject.Coordinates, baseObject.Time, baseObject.Type, baseObject.HitSounds, baseObject.NewCombo, baseObject.ComboColour)
+    public ManiaHold(HitObject baseObject) : base(baseObject.Coordinates, baseObject.Time, baseObject.Type, baseObject.HitSounds, baseObject.NewCombo, baseObject.ComboOffset)
     {
     }
 }

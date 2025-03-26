@@ -35,7 +35,7 @@ public class HitObject : IHitObject
     /// <summary>
     /// Gets or sets the color of the combo associated with the hit object.
     /// </summary>
-    public uint ComboColour { get; set; }
+    public uint ComboOffset { get; set; }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="HitObject"/> class.
@@ -53,7 +53,7 @@ public class HitObject : IHitObject
         Time = time;
         HitSounds = hitSounds;
         NewCombo = newCombo;
-        ComboColour = comboColour;
+        ComboOffset = comboColour;
     }
 
     /// <summary>
@@ -66,7 +66,7 @@ public class HitObject : IHitObject
         Time = TimeSpan.FromSeconds(0);
         HitSounds = (new HitSample(), []);
         NewCombo = false;
-        ComboColour = 0;
+        ComboOffset = 0;
     }
 
     /// <summary>
@@ -114,7 +114,7 @@ public class HitObject : IHitObject
             type |= 1 << 2;
         }
 
-        type |= (int)ComboColour << 4;
+        type |= (int)ComboOffset << 4;
 
         builder.Append($"{type},");
         builder.Append($"{Helper.EncodeHitSounds(HitSounds.Sounds)},");

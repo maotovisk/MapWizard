@@ -41,7 +41,7 @@ public class Spinner : HitObject
     /// Initializes a new instance of the <see cref="Spinner"/> class.
     /// </summary>
     /// <param name="baseObject"></param>
-    public Spinner(IHitObject baseObject) : base(baseObject.Coordinates, baseObject.Time, baseObject.Type, baseObject.HitSounds, baseObject.NewCombo, baseObject.ComboColour)
+    public Spinner(IHitObject baseObject) : base(baseObject.Coordinates, baseObject.Time, baseObject.Type, baseObject.HitSounds, baseObject.NewCombo, baseObject.ComboOffset)
     {
         End = new TimeSpan();
     }
@@ -90,7 +90,7 @@ public class Spinner : HitObject
             type |= 1 << 2;
         }
 
-        type |= (int)ComboColour << 4;
+        type |= (int)ComboOffset << 4;
 
         builder.Append($"{type},");
         builder.Append($"{Helper.EncodeHitSounds(HitSounds.Sounds)},");

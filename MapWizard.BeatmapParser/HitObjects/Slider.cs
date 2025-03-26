@@ -96,14 +96,14 @@ public class Slider : HitObject
         Coordinates = new Vector2();
         Time = TimeSpan.FromSeconds(0);
         NewCombo = false;
-        ComboColour = 0;
+        ComboOffset = 0;
     }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="Slider"/> class.
     /// </summary>
     /// <param name="baseObject"></param>
-    private Slider(IHitObject baseObject) : base(baseObject.Coordinates, baseObject.Time, baseObject.Type, baseObject.HitSounds, baseObject.NewCombo, baseObject.ComboColour)
+    private Slider(IHitObject baseObject) : base(baseObject.Coordinates, baseObject.Time, baseObject.Type, baseObject.HitSounds, baseObject.NewCombo, baseObject.ComboOffset)
     {
         CurveType = CurveType.Bezier;
         CurvePoints = [];
@@ -190,7 +190,7 @@ public class Slider : HitObject
         builder.Append($"{Coordinates.X},{Coordinates.Y},");
         builder.Append($"{Time.TotalMilliseconds.ToString(CultureInfo.InvariantCulture)},");
 
-        int type = (int)Type | (NewCombo ? 1 << 2 : 0) | ((int)ComboColour << 4);
+        int type = (int)Type | (NewCombo ? 1 << 2 : 0) | ((int)ComboOffset << 4);
         builder.Append($"{type},");
 
         // HitSound field
