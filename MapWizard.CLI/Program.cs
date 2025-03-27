@@ -130,7 +130,24 @@ class Program
         }
         
         //filter repeating sequenced patterns
-        
+        List<(TimeSpan StartTime, List<int> ColourIndexes)> filteredPatterns = new();
+
+        foreach (var comboSequence in groupedPatterns)
+        {
+            if (filteredPatterns.Count == 0)
+            {
+                filteredPatterns.Add(comboSequence);
+                continue;
+            }
+
+            var lastOne = filteredPatterns.Last();
+            if (lastOne.ColourIndexes.SequenceEqual(comboSequence.ColourIndexes))
+            {
+                continue;
+            }
+
+            filteredPatterns.Add(comboSequence);
+        }
         
         Console.WriteLine($"{comboColours.Count} combo colours found.");
         Console.WriteLine($"{groupedPatterns.Count} grouped patterns.");
