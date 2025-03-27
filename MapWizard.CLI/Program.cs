@@ -45,109 +45,24 @@ class Program
             var comboIndex = (lastComboIndex + 1 + comboOffset) % comboColours.Count;
             combosWithIndexes.Add((obj.Time, comboIndex));
             lastComboIndex = comboIndex;
-            Console.WriteLine(comboIndex);
         }
+
+        var patterns = PatternMatcher.Find(combosWithIndexes.Select(x => x.Index).ToList());
         
         var groupedPatterns = new List<(TimeSpan StartTime, List<int> ColourIndexes)>();
-        TimeSpan? groupStartTime = null;
-        List<int> currentPattern = new();
-        List<int> previousPattern = new();
-        foreach (var (time, index) in combosWithIndexes)
+        
+        foreach (var pattern in patterns)
         {
-            groupStartTime ??= time;
+            var patternStartTime = combosWithIndexes[pattern.Position].Time;
+            var patternColourIndexes = combosWithIndexes
+                .Skip(pattern.Position)
+                .Take(pattern.Length)
+                .Select(x => x.Index)
+                .ToList();
 
-            var comboOffset = objectsCombo.Find(x => x.Time == time).ComboOffset;
-            
-            var combosWasManuallySet = comboOffset != 0;
-
-            if (currentPattern.Count == 1 && combosWasManuallySet)
-            {
-                groupedPatterns.Add(((TimeSpan)groupStartTime, currentPattern));
-                previousPattern = currentPattern;
-                currentPattern = [];
-                groupStartTime = time;
-            }
-            
-            // we can verify if we want to group the pattern
-            // by looking at the combo offset at the original object list at the right time
-            // if the combo offset is zero we can group the pattern into one sequence
-            if (!currentPattern.Contains(index))
-            {
-                if (currentPattern.Count > 0 && currentPattern.SequenceEqual(previousPattern))
-                {
-                    groupedPatterns.Add(((TimeSpan)groupStartTime, currentPattern));
-                    previousPattern = currentPattern;
-                    currentPattern = [];
-                    groupStartTime = time;
-                }
-                currentPattern.Add(index);
-            }
-            else
-            {
-                if (combosWasManuallySet)
-                {
-                    groupedPatterns.Add(((TimeSpan)groupStartTime, currentPattern));
-                    previousPattern = currentPattern;
-                    currentPattern = [index];
-                    groupStartTime = time;
-                }
-                else
-                {
-                    currentPattern.Add(index);
-                } 
-            }
+            groupedPatterns.Add((patternStartTime, patternColourIndexes));
         }
         
-        if (currentPattern.Count > 0)
-        {
-            groupedPatterns.Add(((TimeSpan)groupStartTime, currentPattern));
-        }
-        var lastPattern = groupedPatterns.FirstOrDefault();
-        
-        foreach (var comboIndexSequence in groupedPatterns.ToList())
-        {
-            var pastPatterns =  groupedPatterns.Where(x => x.StartTime < comboIndexSequence.StartTime).ToList();
-         
-            if (comboIndexSequence.ColourIndexes.Count == 1)
-            {
-                var partternCandidate = HasPatternCandidate(lastPattern.ColourIndexes, comboIndexSequence.ColourIndexes[0], pastPatterns);
-                
-                if (partternCandidate.result)
-                {
-                    // we need to find the start time of the pattern that was returned, to do that, we need to find the object that was used to create the pattern
-                    var indexToLookFor = partternCandidate.pattern[0];
-                    var patternStartTime = combosWithIndexes.OrderBy(x=> x.Time).Where(x => x.Index == indexToLookFor && x.Time > lastPattern.StartTime).Select(x => x.Time).FirstOrDefault();
-                    if (patternStartTime != default)
-                    {
-                        groupedPatterns[groupedPatterns.IndexOf(lastPattern)] = (lastPattern.StartTime, lastPattern.ColourIndexes.Slice(0, comboIndexSequence.ColourIndexes[0]));
-                        groupedPatterns.Insert(groupedPatterns.IndexOf(comboIndexSequence), (patternStartTime, partternCandidate.pattern));
-                    }
-                    groupedPatterns.Remove(comboIndexSequence);
-                }
-            }
-            
-            lastPattern = comboIndexSequence;
-        }
-        
-        //filter repeating sequenced patterns
-        List<(TimeSpan StartTime, List<int> ColourIndexes)> filteredPatterns = new();
-
-        foreach (var comboSequence in groupedPatterns)
-        {
-            if (filteredPatterns.Count == 0)
-            {
-                filteredPatterns.Add(comboSequence);
-                continue;
-            }
-
-            var lastOne = filteredPatterns.Last();
-            if (lastOne.ColourIndexes.SequenceEqual(comboSequence.ColourIndexes))
-            {
-                continue;
-            }
-
-            filteredPatterns.Add(comboSequence);
-        }
         
         Console.WriteLine($"{comboColours.Count} combo colours found.");
         Console.WriteLine($"{groupedPatterns.Count} grouped patterns.");
