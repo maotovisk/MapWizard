@@ -31,6 +31,8 @@ public static class ServiceCollectionExtensions
         // Register FilesService with TopLevel
         collection.AddScoped<IFilesService, FilesService>();
         collection.AddScoped<IMetadataManagerService, MetadataManagerService>();
+        collection.AddScoped<IHitSoundService, HitSoundService>();
+        collection.AddScoped<IOsuMemoryReaderService, OsuMemoryReaderService>();
     }
 
 }

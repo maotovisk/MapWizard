@@ -18,10 +18,8 @@ using Material.Styles.Models;
 
 namespace MapWizard.Desktop.ViewModels;
 
-public partial class HitsoundCopierViewModel(IFilesService filesService) : ViewModelBase
+public partial class HitsoundCopierViewModel(IFilesService filesService, IHitSoundService hitsoundService, IOsuMemoryReaderService osuMemoryReaderService) : ViewModelBase
 {
-    private readonly HitSoundService _hitsoundService = new();
-    
     [ObservableProperty]
     private string _snackbarName = "SnackbarMainWindow";
     
@@ -140,6 +138,83 @@ public partial class HitsoundCopierViewModel(IFilesService filesService) : ViewM
             Console.WriteLine(e.Message);
         }
     }
+
+    [RelayCommand]
+    void SetOriginFromMemory()
+    {
+        var currentBeatmap = GetBeatmapFromMemory();
+        
+        if (currentBeatmap is null) return;
+        
+        OriginBeatmap = new SelectedMap()
+        {
+            Path = currentBeatmap
+        };
+        
+        PreferredDirectory = Path.GetDirectoryName(OriginBeatmap.Path) ?? "";
+    }
+    [RelayCommand]
+    void AddDestinationFromMemory()
+    {
+        var currentBeatmap = GetBeatmapFromMemory();
+        
+        if (currentBeatmap is null) return;
+        
+        if (DestinationBeatmaps.Count == 0 || (DestinationBeatmaps.Count == 1 && string.IsNullOrEmpty(DestinationBeatmaps.First().Path)))
+        {
+            DestinationBeatmaps = [];
+        }
+        
+        if (DestinationBeatmaps.Any(x => x.Path == currentBeatmap))
+        {
+            SnackbarHost.Post(
+                new SnackbarModel(
+                    "This beatmap is already in the list.",
+                    TimeSpan.FromSeconds(8)),
+                SnackbarName,
+                DispatcherPriority.Normal);
+            return;
+        }
+        
+        DestinationBeatmaps = new ObservableCollection<SelectedMap>(DestinationBeatmaps.Append(new SelectedMap()
+        {
+            Path = currentBeatmap
+        }));
+        
+        if (DestinationBeatmaps.Count > 1)
+        {
+            HasMultiple = true;
+        }
+    }
+    
+    private string? GetBeatmapFromMemory()
+    {
+        var currentBeatmap = osuMemoryReaderService.GetBeatmapPath();
+        
+        if (currentBeatmap.Status == ResultStatus.Error)
+        {
+            SnackbarHost.Post(
+                new SnackbarModel(
+                    currentBeatmap.ErrorMessage ?? "Something went wrong while getting the beatmap path from memory.",
+                    TimeSpan.FromSeconds(8)),
+                SnackbarName,
+                DispatcherPriority.Normal);
+            return null;
+        }
+        
+        if (string.IsNullOrEmpty(currentBeatmap.Value))
+        {
+            SnackbarHost.Post(
+                new SnackbarModel(
+                    "No beatmap found in memory.",
+                    TimeSpan.FromSeconds(8)),
+                SnackbarName,
+                DispatcherPriority.Normal);
+            return null;
+        }
+
+        return currentBeatmap.Value;
+    }
     
     [RelayCommand]
     private void CopyHitsounds()
@@ -162,7 +237,7 @@ public partial class HitsoundCopierViewModel(IFilesService filesService) : ViewM
         {
             message = "Please select at least one destination beatmap!";
         }
-        else if (_hitsoundService.CopyHitsoundsAsync(OriginBeatmap.Path, DestinationBeatmaps.Select(x=> x.Path).ToArray(), options))
+        else if (hitsoundService.CopyHitsoundsAsync(OriginBeatmap.Path, DestinationBeatmaps.Select(x=> x.Path).ToArray(), options))
         {
             message = $"Hitsounds applied successfully to {DestinationBeatmaps.Count} beatmap(s)!";
         }

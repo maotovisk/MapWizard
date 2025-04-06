@@ -27,12 +27,20 @@
                                          Classes="outline dense" Theme="{StaticResource OutlineTextBox}"
                                          Text="{CompiledBinding OriginBeatmap.Path, Mode=TwoWay}" Padding="16 16"
                                          p1:TextFieldAssist.Label="Copy hitsounds from..." />
-                                <Button Grid.Row="0" Command="{CompiledBinding PickOriginFileCommand}"
-                                        Theme="{StaticResource MaterialFlatButton}" Padding="8" Margin="12"
-                                        Grid.Column="1" VerticalAlignment="Center"
-                                        ToolTip.Tip="Click here to select the beatmap you want to copy the hitsounds from.">
-                                    <materialIcons:MaterialIcon Kind="FileSearchOutline" Width="24" Height="24"></materialIcons:MaterialIcon>
-                                </Button>
+                                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                    <Button Grid.Row="0" Command="{CompiledBinding PickOriginFileCommand}"
+                                            Theme="{StaticResource MaterialFlatButton}" Padding="8" Margin="12"
+                                            Grid.Column="1" VerticalAlignment="Center"
+                                            ToolTip.Tip="Click here to select the beatmap you want to copy the hitsounds from.">
+                                        <materialIcons:MaterialIcon Kind="FileSearchOutline" Width="24" Height="24"></materialIcons:MaterialIcon>
+                                    </Button>
+                                    <Button Grid.Row="0" Command="{CompiledBinding SetOriginFromMemoryCommand}"
+                                            Theme="{StaticResource MaterialFlatButton}" Padding="8" Margin="12"
+                                            Grid.Column="1" VerticalAlignment="Center"
+                                            ToolTip.Tip="Click here to get the current beatmap selected in the osu! client.">
+                                        <materialIcons:MaterialIcon Kind="Import" Width="24" Height="24"></materialIcons:MaterialIcon>
+                                    </Button>
+                                </StackPanel>
                             </Grid>
                         </StackPanel>
                         <Separator></Separator>
@@ -43,12 +51,26 @@
                                          Text="{CompiledBinding DestinationBeatmaps[0].Path, Mode=TwoWay}"
                                          Padding="16 16"
                                          p1:TextFieldAssist.Label="Copy hitsounds to..." />
-                                <Button Grid.Row="0" Command="{CompiledBinding PickDestinationFileCommand}"
-                                        Theme="{StaticResource MaterialFlatButton}" Padding="8" Margin="12"
-                                        Grid.Column="1" VerticalAlignment="Center"
-                                        ToolTip.Tip="Click here to select the beatmap(s) you want to copy the hitsounds to.">
-                                    <materialIcons:MaterialIcon Kind="FileSearchOutline" Width="24" Height="24"></materialIcons:MaterialIcon>
-                                </Button>
+
+                                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                    <Button Grid.Row="0" Command="{CompiledBinding PickDestinationFileCommand}"
+                                            Theme="{StaticResource MaterialFlatButton}" Padding="8" Margin="12"
+                                            Grid.Column="1" VerticalAlignment="Center"
+                                            ToolTip.Tip="Click here to select the beatmap(s) you want to copy the hitsounds to.">
+                                        <materialIcons:MaterialIcon Kind="FileSearchOutline" Width="24" Height="24"></materialIcons:MaterialIcon>
+                                    </Button>
+
+                                    <Button Grid.Row="0"
+                                            Command="{CompiledBinding AddDestinationFromMemoryCommand}"
+                                            Theme="{StaticResource MaterialFlatButton}" Padding="8" Margin="12"
+                                            Grid.Column="1" VerticalAlignment="Center"
+                                            ToolTip.Tip="Click here to add the current beatmap selected in the osu! client.">
+                                        <StackPanel Orientation="Horizontal">
+                                            <materialIcons:MaterialIcon Kind="Import" Width="24" Height="24"></materialIcons:MaterialIcon>
+                                            <TextBlock Text="Add from client"></TextBlock>
+                                        </StackPanel>
+                                    </Button>
+                                </StackPanel>
                             </Grid>
                             <Grid IsVisible="{CompiledBinding HasMultiple}">
                                 <ItemsControl ItemsSource="{CompiledBinding AdditionalBeatmaps}">
@@ -107,7 +129,8 @@
                 </StackPanel>
                 <StackPanel Grid.Row="2">
                     <Grid Margin="16" ColumnDefinitions="*,Auto">
-                        <Button Foreground="White" Height="48" Command="{CompiledBinding CopyHitsoundsCommand}" Grid.Column="1"
+                        <Button Foreground="White" Height="48" Command="{CompiledBinding CopyHitsoundsCommand}"
+                                Grid.Column="1"
                                 ToolTip.Tip="Click here to copy the hitsounds from the origin to the target."
                                 CornerRadius="16">
                             <StackPanel Orientation="Horizontal">
