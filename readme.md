@@ -1,60 +1,79 @@
 # MapWizard 2
 
-A tool that aims to allow mappers copy the hitsounds of a beatmap difficulty to other difficulties on the set, manage metadata and more. This is a rewrite of the original [Map Wizard](https://github.com/maotovisk/map-wizard), previously made in Tauri and Svelte, now being rewritten in C# with .NET 9 and Avalonia.
+**A powerful osu! beatmap editing tool** for transferring hitsounds between difficulties, managing metadata, auto-generating combo colors, and cleaning beatmaps.  
 
-<br/>
+✨ *Rewritten in C# (.NET 9 + Avalonia) for better performance and cross-platform support*  
 
-<p align="right"><b>Current Status</b>: Working on Map Cleaner</p>
+[![GitHub release](https://img.shields.io/github/v/release/maotovisk/MapWizard?style=flat-square)](https://github.com/maotovisk/MapWizard/releases)
+![Platforms](https://img.shields.io/badge/platforms-Windows%20|%20Linux%20|%20macOS-blue?style=flat-square)
+![Status](https://img.shields.io/badge/status-Working%20on%20Map%20Cleaner-yellow?style=flat-square)
 
-## Project Goals
+---
 
-- Fully cross-platform (primary target is Linux, but should work on MacOS and Windows as well);
-- Hitsound Copier;
-- Metadata manager;
-- Auto generate combo color from BG;
-- Map cleaner.
+## 🎯 Features & Goals
 
-## Requirements
+- **Cross-platform** (Linux-first, with Windows & macOS support)  
+- **Hitsound Copier** - Transfer hitsounds between difficulties  
+- **Metadata Manager** - Edit beatmap metadata efficiently  
+- **Auto Combo Colors** - Generate colors from background images  
+- **Map Cleaner** - Remove unused files and optimize beatmaps  
 
-- .NET 9 or above
+---
 
-## Installing
-We provide pre-built binaries for Linux and Windows. You can download it from the [releases page](
-https://github.com/maotovisk/MapWizard/releases). 
- 
-Thanks to the [Velopack](https://velopack.io/) project, it auto-updates and it's just a 1-click install.
+## ⚙️ Installation
 
-You can also get it from the [AUR](https://aur.archlinux.org/packages/mapwizard-git) with the package `mapwizard-git`
+### 📦 Pre-built Packages
+- **Windows/Linux**: [Download from Releases](https://github.com/maotovisk/MapWizard/releases)  
+  *(Auto-updates via [Velopack](https://velopack.io/))*  
+- **Arch Linux**: Available via [AUR](https://aur.archlinux.org/packages/mapwizard-git)  
+  ```bash
+  yay -S mapwizard-git
+  ```
 
-## Building
+### 🔧 Build from Source
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/maotovisk/MapWizard.git
+   ```
+2. Run the project:
+   ```bash
+   dotnet run --project MapWizard.Desktop
+   ```
 
-1. Clone the repository
+**Requirements**: .NET 9 or later
 
-```bash
-git clone https://github.com/maotovisk/MapWizard.git
-```
+---
 
-2. Run the project
+## 🗺️ Development Roadmap
 
-```bash
-dotnet run --project MapWizard.Desktop
-```
+| Status | Feature |
+|--------|---------|
+| ✅ | Basic beatmap parser |
+| ✅ | Hitsound copier |
+| ✅ | Metadata manager |
+| 🚧 | Map cleaner |
+| ⏳ | Combo color generator |
 
-## Roadmap
+---
 
-- [x] Implement the basic beatmap parser
-- [x] Implement the hitsound copier
-- [x] Implement the metadata manager
-- [ ] Implement the map cleaner
-- [ ] Implement the combo color generator
+## 🙏 Acknowledgments
 
-## References
+Special thanks to:
+- [OliBomby's Mapping Tools](https://github.com/olibomby/mapping_tools) for inspiration  
+- The original [Map Wizard](https://github.com/maotovisk/map-wizard) (Tauri/Svelte)  
+- [osu! File Formats](https://osu.ppy.sh/help/wiki/osu!_File_Formats) documentation  
+- [ppy/osu](https://github.com/ppy/osu) (Lazer reference implementation)  
 
-- [Mapping Tools](https://github.com/olibomby/mapping_tools) by [OliBomby](https://github.com/olibomby) for the whole idea of the project and such a great toolset for mapping.
-- [Map Wizard](https://github.com/maotovisk/map-wizard) by [me](https://github.com/maotovisk) for the first implementation of the hitsound copier and metadata management stuff.
-- [osu! File Formats](https://osu.ppy.sh/help/wiki/osu!_File_Formats) for the .osu file format documentation.
-- [osu!](https://github.com/ppy/osu) for the osu! lazer project, which is a great reference for the new parser.
+---
 
-## Contributing
+## 🤝 Contributing
 
-Feel free to contribute to this project. Any help is welcome.
+Contributions welcome! Feel free to open issues or submit PRs.  
+
+---
+
+*✨ Happy mapping!*  
+
+<p align="center">
+  <sub>Created with ❤️ by <a href="https://github.com/maotovisk">maotovisk</a></sub>
+</p>
