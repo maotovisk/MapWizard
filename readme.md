@@ -1,79 +1,81 @@
 # MapWizard 2
 
-**A powerful osu! beatmap editing tool** for transferring hitsounds between difficulties, managing metadata, auto-generating combo colors, and cleaning beatmaps.  
+**A modern tool for osu! beatmap editing**, designed to streamline your workflow with features like hitsound transfer, metadata management, auto combo color generation, and map cleaning.
 
-✨ *Rewritten in C# (.NET 9 + Avalonia) for better performance and cross-platform support*  
+> ✨ Rebuilt from the ground up in C# (.NET 9 + Avalonia) for speed, stability, and cross-platform support.
 
 [![GitHub release](https://img.shields.io/github/v/release/maotovisk/MapWizard?style=flat-square)](https://github.com/maotovisk/MapWizard/releases)
 ![Platforms](https://img.shields.io/badge/platforms-Windows%20|%20Linux%20|%20macOS-blue?style=flat-square)
-![Status](https://img.shields.io/badge/status-Working%20on%20Map%20Cleaner-yellow?style=flat-square)
+![Status](https://img.shields.io/badge/status-Map%20Cleaner%20in%20Progress-yellow?style=flat-square)
 
 ---
 
-## 🎯 Features & Goals
+## 🎯 Features
 
-- **Cross-platform** (Linux-first, with Windows & macOS support)  
-- **Hitsound Copier** - Transfer hitsounds between difficulties  
-- **Metadata Manager** - Edit beatmap metadata efficiently  
-- **Auto Combo Colors** - Generate colors from background images  
-- **Map Cleaner** - Remove unused files and optimize beatmaps  
+- **Cross-platform** – First-class Linux support, works on Windows and macOS  
+- **Hitsound Copier** – Quickly transfer hitsounds between difficulties  
+- **Metadata Manager** – Edit and sync beatmap metadata with ease  
+- **Auto Combo Colors** – Generate color schemes from background images  
+- **Map Cleaner** – Remove unused files and tidy up your beatmaps  
 
 ---
 
 ## ⚙️ Installation
 
-### 📦 Pre-built Packages
-- **Windows/Linux**: [Download from Releases](https://github.com/maotovisk/MapWizard/releases)  
-  *(Auto-updates via [Velopack](https://velopack.io/))*  
-- **Arch Linux**: Available via [AUR](https://aur.archlinux.org/packages/mapwizard-git)  
+### 📦 Pre-built Binaries
+
+- **Windows / Linux** – [Grab the latest release](https://github.com/maotovisk/MapWizard/releases)  
+  *(Includes auto-update via [Velopack](https://velopack.io/))*  
+- **Arch Linux** – Install via the AUR:  
   ```bash
   yay -S mapwizard-git
   ```
 
-### 🔧 Build from Source
+### 🔧 Building from Source
+
 1. Clone the repository:
    ```bash
    git clone https://github.com/maotovisk/MapWizard.git
    ```
-2. Run the project:
+2. Run the app:
    ```bash
    dotnet run --project MapWizard.Desktop
    ```
 
-**Requirements**: .NET 9 or later
+> Requires [.NET 9](https://dotnet.microsoft.com/) or later
 
 ---
 
-## 🗺️ Development Roadmap
+## 🗺 Roadmap
 
-| Status | Feature |
-|--------|---------|
-| ✅ | Basic beatmap parser |
-| ✅ | Hitsound copier |
-| ✅ | Metadata manager |
-| 🚧 | Map cleaner |
-| ⏳ | Combo color generator |
-
----
-
-## 🙏 Acknowledgments
-
-Special thanks to:
-- [OliBomby's Mapping Tools](https://github.com/olibomby/mapping_tools) for inspiration  
-- The original [Map Wizard](https://github.com/maotovisk/map-wizard) (Tauri/Svelte)  
-- [osu! File Formats](https://osu.ppy.sh/help/wiki/osu!_File_Formats) documentation  
-- [ppy/osu](https://github.com/ppy/osu) (Lazer reference implementation)  
+| Status | Feature               |
+|--------|-----------------------|
+| ✅     | Beatmap parser         |
+| ✅     | Hitsound copier        |
+| ✅     | Metadata manager       |
+| 🚧     | Map cleaner            |
+| ⏳     | Combo color generator  |
 
 ---
 
-## 🤝 Contributing
+## 🙌 Credits
 
-Contributions welcome! Feel free to open issues or submit PRs.  
+With thanks to:
+
+- [OliBomby's Mapping Tools](https://github.com/olibomby/mapping_tools) – for inspiration  
+- The original [Map Wizard](https://github.com/maotovisk/map-wizard) (Tauri/Svelte version)  
+- [osu! File Formats](https://osu.ppy.sh/help/wiki/osu!_File_Formats) – official documentation  
+- [ppy/osu](https://github.com/ppy/osu) – for reference and structure  
 
 ---
 
-*✨ Happy mapping!*  
+## 🤝 Contribute
+
+Contributions are welcome—feel free to open issues or submit pull requests!
+
+---
 
 <p align="center">
+  <em>Happy mapping!</em><br/>
   <sub>Created with ❤️ by <a href="https://github.com/maotovisk">maotovisk</a></sub>
 </p>
