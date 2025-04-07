@@ -12,34 +12,33 @@ public partial class MainWindowViewModel : ViewModelBase
     private ViewModelBase _currentView;
 
     [ObservableProperty]
-    private AvaloniaList<MenuItem> _menuItems;
+    private AvaloniaList<MenuItem?> _menuItems;
 
-    private AvaloniaList<ViewModelBase> _views = [];
+    private readonly AvaloniaList<ViewModelBase> _views;
 
-    private MenuItem _selectedMenuItem;
-    public MenuItem SelectedMenuItem
+    private MenuItem? _selectedMenuItem;
+    public MenuItem? SelectedMenuItem
     {
         get => _selectedMenuItem;
         set
         {
-            if (SetProperty(ref _selectedMenuItem, value))
-            {
-                foreach (var item in MenuItems)
+            if (!SetProperty(ref _selectedMenuItem, value)) return;
+            foreach (var item in MenuItems)
+                if (item != null)
                     item.IsSelected = item == value;
 
-                value?.Command.Execute(null);
+            value?.Command.Execute(null);
 
-                SelectedIndex = MenuItems.IndexOf(value);
-            }
+            SelectedIndex = MenuItems.IndexOf(value);
         }
     }
 
     [ObservableProperty]
-    private int _selectedIndex = 0;
+    private int _selectedIndex;
     
     private void SetCurrentViewMenu(string viewName)
     {
-        SelectedMenuItem = MenuItems.FirstOrDefault(x => x.Title == viewName);
+        SelectedMenuItem = MenuItems.FirstOrDefault(x => x?.Title == viewName);
     }
     
     public MainWindowViewModel(HitsoundCopierViewModel hsVm, MetadataManagerViewModel mmVm, WelcomePageViewModel wpVm)
@@ -53,12 +52,17 @@ public partial class MainWindowViewModel : ViewModelBase
         
         CurrentView = wpVm;
         
-        MenuItems = new AvaloniaList<MenuItem>
-        {
+        MenuItems =
+        [
             new MenuItem { Title = "Start", Icon = MaterialIconKind.Home, Command = ShowWelcomePageCommand },
-            new MenuItem { Title = "Hitsound Copier", Icon = MaterialIconKind.ContentCopy, Command = ShowHitsoundCopierCommand },
-            new MenuItem { Title = "Metadata Manager", Icon = MaterialIconKind.FileDocumentMultiple, Command = ShowMetadataManagerCommand }
-        };
+            new MenuItem
+                { Title = "Hitsound Copier", Icon = MaterialIconKind.ContentCopy, Command = ShowHitsoundCopierCommand },
+            new MenuItem
+            {
+                Title = "Metadata Manager", Icon = MaterialIconKind.FileDocumentMultiple,
+                Command = ShowMetadataManagerCommand
+            }
+        ];
 
         SelectedMenuItem = MenuItems.FirstOrDefault();
     }
@@ -86,10 +90,10 @@ public partial class MainWindowViewModel : ViewModelBase
 }
 
 public class MenuItem : ViewModelBase
-{
-    public string Title { get; set; }
+{ 
+    public required string Title { get; set; }
     public MaterialIconKind Icon { get; set; }
-    public ICommand Command { get; set; }
+    public required ICommand Command { get; init; }
 
     private bool _isSelected;
     public bool IsSelected

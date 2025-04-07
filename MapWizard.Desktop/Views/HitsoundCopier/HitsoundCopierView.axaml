@@ -38,7 +38,10 @@
                                             Theme="{StaticResource MaterialFlatButton}" Padding="8" Margin="12"
                                             Grid.Column="1" VerticalAlignment="Center"
                                             ToolTip.Tip="Click here to get the current beatmap selected in the osu! client.">
-                                        <materialIcons:MaterialIcon Kind="Import" Width="24" Height="24"></materialIcons:MaterialIcon>
+                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" >
+                                            <materialIcons:MaterialIcon Kind="Import" Width="24" Height="24"></materialIcons:MaterialIcon>
+                                            <TextBlock VerticalAlignment="Center" Text="Select current"></TextBlock>
+                                        </StackPanel>
                                     </Button>
                                 </StackPanel>
                             </Grid>
@@ -65,9 +68,9 @@
                                             Theme="{StaticResource MaterialFlatButton}" Padding="8" Margin="12"
                                             Grid.Column="1" VerticalAlignment="Center"
                                             ToolTip.Tip="Click here to add the current beatmap selected in the osu! client.">
-                                        <StackPanel Orientation="Horizontal">
+                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" >
                                             <materialIcons:MaterialIcon Kind="Import" Width="24" Height="24"></materialIcons:MaterialIcon>
-                                            <TextBlock Text="Add from client"></TextBlock>
+                                            <TextBlock VerticalAlignment="Center" Text="Add current"></TextBlock>
                                         </StackPanel>
                                     </Button>
                                 </StackPanel>

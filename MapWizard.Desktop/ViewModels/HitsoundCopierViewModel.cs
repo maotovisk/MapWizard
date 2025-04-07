@@ -5,7 +5,6 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Avalonia.Controls;
 using Avalonia.Platform.Storage;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -18,70 +17,72 @@ using Material.Styles.Models;
 
 namespace MapWizard.Desktop.ViewModels;
 
-public partial class HitsoundCopierViewModel(IFilesService filesService, IHitSoundService hitsoundService, IOsuMemoryReaderService osuMemoryReaderService) : ViewModelBase
+public partial class HitsoundCopierViewModel(
+    IFilesService filesService,
+    IHitSoundService hitsoundService,
+    IOsuMemoryReaderService osuMemoryReaderService) : ViewModelBase
 {
-    [ObservableProperty]
-    private string _snackbarName = "SnackbarMainWindow";
-    
-    [ObservableProperty]
-    private SelectedMap _originBeatmap = new();
-    
-    [ObservableProperty]
-    private bool _hasMultiple;
-    
-    [ObservableProperty]
-    private bool _copySampleAndVolumeChanges = true;
-    
-    [ObservableProperty]
-    private bool _overwriteMuting;
-    
-    [ObservableProperty]
-    private bool _copySliderBodySounds = true;
-    
-    [ObservableProperty]
-    private int _leniency = 5;
+    [ObservableProperty] private string _snackbarName = "SnackbarMainWindow";
 
-    [NotifyPropertyChangedFor(nameof(AdditionalBeatmaps))] 
-    [ObservableProperty]
+    [ObservableProperty] private SelectedMap _originBeatmap = new();
+
+    [ObservableProperty] private bool _hasMultiple;
+
+    [ObservableProperty] private bool _copySampleAndVolumeChanges = true;
+
+    [ObservableProperty] private bool _overwriteMuting;
+
+    [ObservableProperty] private bool _copySliderBodySounds = true;
+
+    [ObservableProperty] private int _leniency = 5;
+
+    [NotifyPropertyChangedFor(nameof(AdditionalBeatmaps))] [ObservableProperty]
     private ObservableCollection<SelectedMap> _destinationBeatmaps = [new SelectedMap()];
-    
-    public ObservableCollection<SelectedMap> AdditionalBeatmaps {
+
+    public ObservableCollection<SelectedMap> AdditionalBeatmaps
+    {
         get => new ObservableCollection<SelectedMap>(DestinationBeatmaps.Skip(1));
-        set {
-            DestinationBeatmaps = new ObservableCollection<SelectedMap>(new[] { DestinationBeatmaps.First() }.Concat(value));
+        set
+        {
+            DestinationBeatmaps =
+                new ObservableCollection<SelectedMap>(new[] { DestinationBeatmaps.First() }.Concat(value));
         }
     }
-    
-    [ObservableProperty]
-    private string _preferredDirectory = "";
-    
+
+    [ObservableProperty] private string _preferredDirectory = "";
+
     [RelayCommand]
     private void RemoveMap(string path)
     {
         DestinationBeatmaps = new ObservableCollection<SelectedMap>(DestinationBeatmaps.Where(x => x.Path != path));
     }
-    
+
     [RelayCommand]
     async Task PickOriginFile(CancellationToken token)
     {
         try
-        {
+        { 
+            var preferredDirectory = PreferredDirectory == string.Empty
+                ? await filesService.TryGetFolderFromPathAsync(
+                    Environment.GetFolderPath(Environment.SpecialFolder.UserProfile))
+                : await filesService.TryGetFolderFromPathAsync(PreferredDirectory);
             var file = await filesService.OpenFileAsync(new FilePickerOpenOptions()
-                {
-                    Title = "Select the origin beatmap file",
-                    AllowMultiple = false,
-                    FileTypeFilter =
-                    [
-                        new FilePickerFileType("osu! beatmap file")
+            {
+                Title = "Select the origin beatmap file",
+                AllowMultiple = false,
+                FileTypeFilter =
+                [
+                    new FilePickerFileType("osu! beatmap file")
+                    {
+                        Patterns = ["*.osu"],
+                        MimeTypes = new List<string>()
                         {
-                            Patterns =["*.osu"],
-                            MimeTypes = new List<string>()
-                            {
-                                "application/octet-stream",
-                            }
+                            "application/octet-stream"
                         }
-                    ]
-                });
+                    }
+                ],
+                SuggestedStartLocation = preferredDirectory
+            });
 
             if (file is null || file.Count == 0) return;
 
@@ -89,9 +90,8 @@ public partial class HitsoundCopierViewModel(IFilesService filesService, IHitSou
             {
                 Path = file.First().Path.LocalPath
             };
-            
+
             PreferredDirectory = Path.GetDirectoryName(OriginBeatmap.Path) ?? "";
-            
         }
         catch (Exception e)
         {
@@ -104,33 +104,37 @@ public partial class HitsoundCopierViewModel(IFilesService filesService, IHitSou
     {
         try
         {
-            var preferredDirectory = await filesService.TryGetFolderFromPathAsync(PreferredDirectory);
+            var preferredDirectory = PreferredDirectory == string.Empty
+                ? await filesService.TryGetFolderFromPathAsync(
+                    Environment.GetFolderPath(Environment.SpecialFolder.UserProfile))
+                : await filesService.TryGetFolderFromPathAsync(PreferredDirectory);
             var file = await filesService.OpenFileAsync(new FilePickerOpenOptions()
-                {
-                    Title = "Select the origin beatmap file",
-                    AllowMultiple = true,
-                    FileTypeFilter =
-                    [
-                        new FilePickerFileType("osu! beatmap file")
+            {
+                Title = "Select the origin beatmap file",
+                AllowMultiple = true,
+                FileTypeFilter =
+                [
+                    new FilePickerFileType("osu! beatmap file")
+                    {
+                        Patterns = ["*.osu"],
+                        MimeTypes = new List<string>()
                         {
-                            Patterns =["*.osu"],
-                            MimeTypes = new List<string>()
-                            {
-                                "application/octet-stream",
-                            }
+                            "application/octet-stream"
                         }
-                    ],
-                    SuggestedStartLocation = preferredDirectory,
-                });
+                    }
+                ],
+                SuggestedStartLocation = preferredDirectory
+            });
 
             if (file is null || file.Count == 0) return;
-            
+
             if (file.Count > 1)
             {
                 HasMultiple = true;
             }
 
-            DestinationBeatmaps = new ObservableCollection<SelectedMap>(file.Select(f => new SelectedMap {Path = f.Path.LocalPath}));
+            DestinationBeatmaps =
+                new ObservableCollection<SelectedMap>(file.Select(f => new SelectedMap { Path = f.Path.LocalPath }));
             Console.WriteLine($"Selected file: {string.Join(", ", DestinationBeatmaps.Select(x => x.Path))}");
         }
         catch (Exception e)
@@ -143,28 +147,30 @@ public partial class HitsoundCopierViewModel(IFilesService filesService, IHitSou
     void SetOriginFromMemory()
     {
         var currentBeatmap = GetBeatmapFromMemory();
-        
+
         if (currentBeatmap is null) return;
-        
+
         OriginBeatmap = new SelectedMap()
         {
             Path = currentBeatmap
         };
-        
+
         PreferredDirectory = Path.GetDirectoryName(OriginBeatmap.Path) ?? "";
     }
+
     [RelayCommand]
     void AddDestinationFromMemory()
     {
         var currentBeatmap = GetBeatmapFromMemory();
-        
+
         if (currentBeatmap is null) return;
-        
-        if (DestinationBeatmaps.Count == 0 || (DestinationBeatmaps.Count == 1 && string.IsNullOrEmpty(DestinationBeatmaps.First().Path)))
+
+        if (DestinationBeatmaps.Count == 0 ||
+            (DestinationBeatmaps.Count == 1 && string.IsNullOrEmpty(DestinationBeatmaps.First().Path)))
         {
             DestinationBeatmaps = [];
         }
-        
+
         if (DestinationBeatmaps.Any(x => x.Path == currentBeatmap))
         {
             SnackbarHost.Post(
@@ -175,22 +181,22 @@ public partial class HitsoundCopierViewModel(IFilesService filesService, IHitSou
                 DispatcherPriority.Normal);
             return;
         }
-        
+
         DestinationBeatmaps = new ObservableCollection<SelectedMap>(DestinationBeatmaps.Append(new SelectedMap()
         {
             Path = currentBeatmap
         }));
-        
+
         if (DestinationBeatmaps.Count > 1)
         {
             HasMultiple = true;
         }
     }
-    
+
     private string? GetBeatmapFromMemory()
     {
         var currentBeatmap = osuMemoryReaderService.GetBeatmapPath();
-        
+
         if (currentBeatmap.Status == ResultStatus.Error)
         {
             SnackbarHost.Post(
@@ -201,7 +207,7 @@ public partial class HitsoundCopierViewModel(IFilesService filesService, IHitSou
                 DispatcherPriority.Normal);
             return null;
         }
-        
+
         if (string.IsNullOrEmpty(currentBeatmap.Value))
         {
             SnackbarHost.Post(
@@ -215,7 +221,7 @@ public partial class HitsoundCopierViewModel(IFilesService filesService, IHitSou
 
         return currentBeatmap.Value;
     }
-    
+
     [RelayCommand]
     private void CopyHitsounds()
     {
@@ -228,7 +234,7 @@ public partial class HitsoundCopierViewModel(IFilesService filesService, IHitSou
             Leniency = Leniency,
             OverwriteMuting = OverwriteMuting
         };
-        
+
         if (string.IsNullOrEmpty(OriginBeatmap.Path))
         {
             message = "Please select an origin beatmap!";
@@ -237,11 +243,12 @@ public partial class HitsoundCopierViewModel(IFilesService filesService, IHitSou
         {
             message = "Please select at least one destination beatmap!";
         }
-        else if (hitsoundService.CopyHitsoundsAsync(OriginBeatmap.Path, DestinationBeatmaps.Select(x=> x.Path).ToArray(), options))
+        else if (hitsoundService.CopyHitsoundsAsync(OriginBeatmap.Path,
+                     DestinationBeatmaps.Select(x => x.Path).ToArray(), options))
         {
             message = $"Hitsounds applied successfully to {DestinationBeatmaps.Count} beatmap(s)!";
         }
-        
+
         SnackbarHost.Post(
             new SnackbarModel(
                 message,
