@@ -12,13 +12,13 @@ public static class ServiceCollectionExtensions
     public static void AddCommonServices(this IServiceCollection collection)
     {
         // Register ViewModels
-        collection.AddTransient<HitsoundCopierViewModel>();
+        collection.AddTransient<HitSoundCopierViewModel>();
         collection.AddTransient<MetadataManagerViewModel>();
         collection.AddTransient<WelcomePageViewModel>();
         collection.AddTransient<MainWindowViewModel>();
 
         // Register Views
-        collection.AddTransient<HitsoundCopierView>();
+        collection.AddTransient<HitSoundCopierView>();
         collection.AddTransient<MetadataManagerView>();
         collection.AddTransient<WelcomePageView>();
 

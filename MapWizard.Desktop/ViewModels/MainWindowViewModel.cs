@@ -41,7 +41,7 @@ public partial class MainWindowViewModel : ViewModelBase
         SelectedMenuItem = MenuItems.FirstOrDefault(x => x?.Title == viewName);
     }
     
-    public MainWindowViewModel(HitsoundCopierViewModel hsVm, MetadataManagerViewModel mmVm, WelcomePageViewModel wpVm)
+    public MainWindowViewModel(HitSoundCopierViewModel hsVm, MetadataManagerViewModel mmVm, WelcomePageViewModel wpVm)
     {
         _views = 
         [   
@@ -78,7 +78,7 @@ public partial class MainWindowViewModel : ViewModelBase
     private void ShowHitsoundCopier()
     {
         SetCurrentViewMenu("Hitsound Copier");
-        CurrentView = _views.First(x => x is HitsoundCopierViewModel);
+        CurrentView = _views.First(x => x is HitSoundCopierViewModel);
     }
     
     [RelayCommand]

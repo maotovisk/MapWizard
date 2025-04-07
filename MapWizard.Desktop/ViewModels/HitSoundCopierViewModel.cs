@@ -17,9 +17,9 @@ using Material.Styles.Models;
 
 namespace MapWizard.Desktop.ViewModels;
 
-public partial class HitsoundCopierViewModel(
+public partial class HitSoundCopierViewModel(
     IFilesService filesService,
-    IHitSoundService hitsoundService,
+    IHitSoundService hitSoundService,
     IOsuMemoryReaderService osuMemoryReaderService) : ViewModelBase
 {
     [ObservableProperty] private string _snackbarName = "SnackbarMainWindow";
@@ -144,7 +144,7 @@ public partial class HitsoundCopierViewModel(
     }
 
     [RelayCommand]
-    void SetOriginFromMemory()
+    private void SetOriginFromMemory()
     {
         var currentBeatmap = GetBeatmapFromMemory();
 
@@ -159,7 +159,7 @@ public partial class HitsoundCopierViewModel(
     }
 
     [RelayCommand]
-    void AddDestinationFromMemory()
+    private void AddDestinationFromMemory()
     {
         var currentBeatmap = GetBeatmapFromMemory();
 
@@ -223,7 +223,7 @@ public partial class HitsoundCopierViewModel(
     }
 
     [RelayCommand]
-    private void CopyHitsounds()
+    private void CopyHitSounds()
     {
         var message = string.Empty;
 
@@ -243,10 +243,10 @@ public partial class HitsoundCopierViewModel(
         {
             message = "Please select at least one destination beatmap!";
         }
-        else if (hitsoundService.CopyHitsoundsAsync(OriginBeatmap.Path,
+        else if (hitSoundService.CopyHitsoundsAsync(OriginBeatmap.Path,
                      DestinationBeatmaps.Select(x => x.Path).ToArray(), options))
         {
-            message = $"Hitsounds applied successfully to {DestinationBeatmaps.Count} beatmap(s)!";
+            message = $"HitSounds applied successfully to {DestinationBeatmaps.Count} beatmap(s)!";
         }
 
         SnackbarHost.Post(
