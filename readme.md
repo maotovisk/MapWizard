@@ -2,15 +2,16 @@
 
 **A modern tool for osu! beatmap editing**, designed to streamline your workflow with features like hitsound transfer, metadata management, auto combo color generation, and map cleaning.
 
-> ✨ Rebuilt from the ground up in C# (.NET 9 + Avalonia) for speed, stability, and cross-platform support.
+> Rebuilt from the ground up in C# (.NET 9 + Avalonia) for speed, stability, and cross-platform support.
 
 [![GitHub release](https://img.shields.io/github/v/release/maotovisk/MapWizard?style=flat-square)](https://github.com/maotovisk/MapWizard/releases)
 ![Platforms](https://img.shields.io/badge/platforms-Windows%20|%20Linux%20|%20macOS-blue?style=flat-square)
 ![Status](https://img.shields.io/badge/status-Map%20Cleaner%20in%20Progress-yellow?style=flat-square)
+![Website(https://mapwizard.maot.dev)](https://img.shields.io/badge/website-mapwizard.maot.dev-blue?style=flat-square)
 
 ---
 
-## 🎯 Features
+## Features
 
 - **Cross-platform** – First-class Linux support, works on Windows and macOS  
 - **Hitsound Copier** – Quickly transfer hitsounds between difficulties  
@@ -20,9 +21,9 @@
 
 ---
 
-## ⚙️ Installation
+## Installation
 
-### 📦 Pre-built Binaries
+### Pre-built Binaries
 
 - **Windows / Linux** – [Grab the latest release](https://github.com/maotovisk/MapWizard/releases)  
   *(Includes auto-update via [Velopack](https://velopack.io/))*  
@@ -31,7 +32,7 @@
   yay -S mapwizard-git
   ```
 
-### 🔧 Building from Source
+### Building from Source
 
 1. Clone the repository:
    ```bash
@@ -46,7 +47,7 @@
 
 ---
 
-## 🗺 Roadmap
+## Roadmap
 
 | Status | Feature               |
 |--------|-----------------------|
@@ -58,7 +59,7 @@
 
 ---
 
-## 🙌 Credits
+## Credits
 
 With thanks to:
 
@@ -66,10 +67,11 @@ With thanks to:
 - The original [Map Wizard](https://github.com/maotovisk/map-wizard) (Tauri/Svelte version)  
 - [osu! File Formats](https://osu.ppy.sh/help/wiki/osu!_File_Formats) – official documentation  
 - [ppy/osu](https://github.com/ppy/osu) – for reference and structure  
+- [OsuMemoryDataProvider](https://github.com/Piotrekol/ProcessMemoryDataFinder) - for memory reading on windows
 
 ---
 
-## 🤝 Contribute
+## Contribute
 
 Contributions are welcome—feel free to open issues or submit pull requests!
 
