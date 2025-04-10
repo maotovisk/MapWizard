@@ -165,13 +165,15 @@ public partial class HitSoundCopierViewModel(
 
         if (currentBeatmap is null) return;
 
-        if (DestinationBeatmaps.Count == 0 ||
-            (DestinationBeatmaps.Count == 1 && string.IsNullOrEmpty(DestinationBeatmaps.First().Path)))
+        var destinationBeatmaps = DestinationBeatmaps;
+
+        if (destinationBeatmaps.Count == 0 ||
+            (destinationBeatmaps.Count == 1 && string.IsNullOrEmpty(destinationBeatmaps.First().Path)))
         {
-            DestinationBeatmaps = [];
+            destinationBeatmaps = [];
         }
 
-        if (DestinationBeatmaps.Any(x => x.Path == currentBeatmap))
+        if (destinationBeatmaps.Any(x => x.Path == currentBeatmap))
         {
             SnackbarHost.Post(
                 new SnackbarModel(
@@ -182,15 +184,17 @@ public partial class HitSoundCopierViewModel(
             return;
         }
 
-        DestinationBeatmaps = new ObservableCollection<SelectedMap>(DestinationBeatmaps.Append(new SelectedMap()
+        destinationBeatmaps = new ObservableCollection<SelectedMap>(destinationBeatmaps.Append(new SelectedMap()
         {
             Path = currentBeatmap
         }));
 
-        if (DestinationBeatmaps.Count > 1)
+        if (destinationBeatmaps.Count > 1)
         {
             HasMultiple = true;
         }
+        
+        DestinationBeatmaps = destinationBeatmaps;
     }
 
     private string? GetBeatmapFromMemory()

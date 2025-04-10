@@ -169,13 +169,14 @@ public partial class MetadataManagerViewModel(IFilesService filesService, IMetad
 
         if (currentBeatmap is null) return;
 
-        if (DestinationBeatmaps.Count == 0 ||
-            (DestinationBeatmaps.Count == 1 && string.IsNullOrEmpty(DestinationBeatmaps.First().Path)))
-        {
-            DestinationBeatmaps = [];
+        var destinationBeatmap = DestinationBeatmaps;
+        
+        if (destinationBeatmap.Count == 0 ||
+            (destinationBeatmap.Count == 1 && string.IsNullOrEmpty(destinationBeatmap.First().Path)))
+        { destinationBeatmap = [];
         }
 
-        if (DestinationBeatmaps.Any(x => x.Path == currentBeatmap))
+        if (destinationBeatmap.Any(x => x.Path == currentBeatmap))
         {
             SnackbarHost.Post(
                 new SnackbarModel(
@@ -186,15 +187,17 @@ public partial class MetadataManagerViewModel(IFilesService filesService, IMetad
             return;
         }
 
-        DestinationBeatmaps = new ObservableCollection<SelectedMap>(DestinationBeatmaps.Append(new SelectedMap()
+        destinationBeatmap = new ObservableCollection<SelectedMap>(destinationBeatmap.Append(new SelectedMap()
         {
             Path = currentBeatmap
         }));
 
-        if (DestinationBeatmaps.Count > 1)
+        if (destinationBeatmap.Count > 1)
         {
             HasMultiple = true;
         }
+        
+        DestinationBeatmaps = destinationBeatmap;
     }
 
     private string? GetBeatmapFromMemory()

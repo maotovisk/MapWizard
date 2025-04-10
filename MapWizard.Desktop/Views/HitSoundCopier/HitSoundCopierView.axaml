@@ -3,13 +3,12 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:materialIcons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
-             xmlns:dialogHost="clr-namespace:DialogHostAvalonia;assembly=DialogHost.Avalonia"
-             xmlns:p1="clr-namespace:Material.Styles.Assists;assembly=Material.Styles"
              xmlns:controls="clr-namespace:Material.Styles.Controls;assembly=Material.Styles"
+             xmlns:p1="clr-namespace:Material.Styles.Assists;assembly=Material.Styles"
+             x:Class="MapWizard.Desktop.Views.HitSoundCopierView"
              xmlns:vm="clr-namespace:MapWizard.Desktop.ViewModels"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-             x:DataType="vm:HitSoundCopierViewModel"
-             x:Class="MapWizard.Desktop.Views.HitSoundCopierView">
+             x:DataType="vm:HitSoundCopierViewModel">
     <Grid RowDefinitions="Auto, Auto,*">
         <Panel Grid.Row="0" Margin="15">
             <TextBlock Classes="Headline5">Hitsound Copier</TextBlock>
