@@ -68,6 +68,7 @@ With thanks to:
 - [osu! File Formats](https://osu.ppy.sh/help/wiki/osu!_File_Formats) – official documentation  
 - [ppy/osu](https://github.com/ppy/osu) – for reference and structure  
 - [OsuMemoryDataProvider](https://github.com/Piotrekol/ProcessMemoryDataFinder) - for memory reading on windows
+- [cosutrainer's osumem](https://github.com/hwsmm/cosutrainer) by hwsmm - for reference on memory reading on linux
 
 ---
 
