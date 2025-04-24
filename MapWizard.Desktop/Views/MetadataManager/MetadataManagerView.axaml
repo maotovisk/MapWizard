@@ -45,7 +45,7 @@
       </Button>
     </Grid>
 
-    <Separator Grid.Row="1" Margin="0 5 0 5" />
+    <Separator Grid.Row="1" />
     <ScrollViewer Grid.Row="2">
       <StackPanel Spacing="16">
 

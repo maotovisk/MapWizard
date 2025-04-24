@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Controls.Notifications;
@@ -58,6 +59,7 @@ namespace MapWizard.Desktop.ViewModels
                 .WithLoadingState(true)
                 .WithTitle("Updates")
                 .WithContent("Checking for updates...")
+                .Dismiss().After(TimeSpan.FromSeconds(8))
                 .Queue();
 
             var newVersion = await _updateManager.CheckForUpdatesAsync();
