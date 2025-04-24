@@ -38,7 +38,7 @@
             </StackPanel>
         </Button>
         </Grid>
-        <Separator Grid.Row="1" Margin="0 5 0 5" />
+        <Separator Grid.Row="1" Margin="0 10 0 5" />
 
         <ScrollViewer Grid.Row="2">
             <StackPanel Spacing="16">
@@ -60,7 +60,10 @@
                             <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
                                 <Button Classes="Basic" Command="{Binding PickOriginFileCommand}"
                                         ToolTip.Tip="Select the beatmap you want to copy the hitsounds from.">
-                                    <materialIcons:MaterialIcon Kind="FileSearchOutline" Width="24" Height="24" />
+                                    <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+                                        <materialIcons:MaterialIcon Kind="FileSearchOutline" Width="24" Height="24" />
+                                        <TextBlock VerticalAlignment="Center" Text="Open"></TextBlock>
+                                    </StackPanel>
                                 </Button>
                                 <Button Classes="Flat Rounded" Command="{Binding SetOriginFromMemoryCommand}"
                                         ToolTip.Tip="Get the current beatmap selected in the osu! client.">
@@ -87,11 +90,14 @@
                                         CommandParameter="{Binding DestinationBeatmaps[0].Path}"
                                         Classes="Basic"
                                         ToolTip.Tip="Remove this beatmap from the list.">
-                                    <materialIcons:MaterialIcon Kind="Cancel" Width="24" Height="24" />
+                                        <materialIcons:MaterialIcon Kind="Close" Width="24" Height="24" />
                                 </Button>
                                 <Button Classes="Basic" Command="{Binding PickDestinationFileCommand}"
                                         ToolTip.Tip="Select the beatmap(s) you want to copy the hitsounds to.">
-                                    <materialIcons:MaterialIcon Kind="FileSearchOutline" Width="24" Height="24" />
+                                    <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+                                        <materialIcons:MaterialIcon Kind="FileSearchOutline" Width="24" Height="24" />
+                                        <TextBlock VerticalAlignment="Center" Text="Open"></TextBlock>
+                                    </StackPanel>
                                 </Button>
                                 <Button Classes="Flat Rounded" Command="{Binding AddDestinationFromMemoryCommand}"
                                         ToolTip.Tip="Add the current beatmap selected in the osu! client.">
@@ -117,7 +123,7 @@
                                                 CommandParameter="{Binding Path}"
                                                 Classes="Basic"
                                                 ToolTip.Tip="Remove this beatmap from the list.">
-                                            <materialIcons:MaterialIcon Kind="Cancel" Width="24" Height="24" />
+                                            <materialIcons:MaterialIcon Kind="Close" Width="24" Height="24" />
                                         </Button>
                                     </Grid>
                                 </DataTemplate>

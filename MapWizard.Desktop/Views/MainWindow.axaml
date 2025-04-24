@@ -8,6 +8,8 @@
     x:Class="MapWizard.Desktop.Views.MainWindow"
     x:DataType="vm:MainWindowViewModel"
     IsMenuVisible="False"
+    MinWidth="800"
+    MinHeight="600"
     Title="MapWizard">
     
 
@@ -50,7 +52,7 @@
         <ToggleButton Classes="Compact" 
                       IsChecked="{Binding IsDarkTheme, Mode=TwoWay}" 
                       ToolTip.Tip="Toggle dark theme">
-            <materialIcons:MaterialIcon Kind="ThemeLightDark" />
+            <materialIcons:MaterialIcon Kind="{Binding ThemeToggleIcon}" />
         </ToggleButton>
     </suki:SukiWindow.RightWindowTitleBarControls>
         
@@ -83,15 +85,20 @@
             </suki:SukiSideMenuItem>
         </suki:SukiSideMenu.Items>
         <suki:SukiSideMenu.FooterContent>
-            <StackPanel HorizontalAlignment="Center" Orientation="Horizontal">
+            <StackPanel HorizontalAlignment="Center" Orientation="Vertical">
                 <Button Classes="Basic" 
-                        Command="{Binding }" 
+                        Command="{Binding OpenGithubCommand}" 
                         CommandParameter="https://github.com/maotovisk/MapWizard"
                         ToolTip.Tip="View on GitHub">
-                    <materialIcons:MaterialIcon Kind="Github" 
-                                                Width="25" 
-                                                Height="25" />
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <materialIcons:MaterialIcon Kind="Github" 
+                                                    Width="25" 
+                                                    Height="25" />
+                        <TextBlock Text="Github" VerticalAlignment="Center"></TextBlock>
+                    </StackPanel>
                 </Button>
+                
+                <TextBlock Text="{Binding Version}"></TextBlock>
             </StackPanel>
         </suki:SukiSideMenu.FooterContent>
     </suki:SukiSideMenu>
