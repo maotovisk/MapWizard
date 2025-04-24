@@ -1,152 +1,161 @@
-<UserControl xmlns="https://github.com/avaloniaui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:materialIcons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
-             xmlns:controls="clr-namespace:Material.Styles.Controls;assembly=Material.Styles"
-             xmlns:p1="clr-namespace:Material.Styles.Assists;assembly=Material.Styles"
-             x:Class="MapWizard.Desktop.Views.HitSoundCopierView"
-             xmlns:vm="clr-namespace:MapWizard.Desktop.ViewModels"
-             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-             x:DataType="vm:HitSoundCopierViewModel">
-    <Grid RowDefinitions="Auto, Auto,*">
-        <Panel Grid.Row="0" Margin="15">
-            <TextBlock Classes="Headline5">Hitsound Copier</TextBlock>
-        </Panel>
-        <Separator Grid.Row="1"></Separator>
-        <ScrollViewer Grid.Row="2">
-            <Grid RowDefinitions="Auto,*,Auto">
-                <controls:Card Margin="16" CornerRadius="16" Grid.Row="0">
-                    <StackPanel Margin="6">
-                        <TextBlock Text="Beatmap Selection"></TextBlock>
-                        <Separator></Separator>
-                        <StackPanel>
-                            <Grid Margin="16" ColumnDefinitions="*,Auto">
-                                <TextBox Grid.Row="0" VerticalAlignment="Center" UseFloatingWatermark="True"
-                                         Classes="outline dense" Theme="{StaticResource OutlineTextBox}"
-                                         Text="{CompiledBinding OriginBeatmap.Path, Mode=TwoWay}" Padding="16 16"
-                                         p1:TextFieldAssist.Label="Copy hitsounds from..." />
-                                <StackPanel Grid.Column="1" Orientation="Horizontal">
-                                    <Button Grid.Row="0" Command="{CompiledBinding PickOriginFileCommand}"
-                                            Theme="{StaticResource MaterialFlatButton}" Padding="8" Margin="12"
-                                            Grid.Column="1" VerticalAlignment="Center"
-                                            ToolTip.Tip="Click here to select the beatmap you want to copy the hitsounds from.">
-                                        <materialIcons:MaterialIcon Kind="FileSearchOutline" Width="24" Height="24"></materialIcons:MaterialIcon>
-                                    </Button>
-                                    <Button Grid.Row="0" Command="{CompiledBinding SetOriginFromMemoryCommand}"
-                                            Theme="{StaticResource MaterialFlatButton}" Padding="8" Margin="12"
-                                            Grid.Column="1" VerticalAlignment="Center"
-                                            ToolTip.Tip="Click here to get the current beatmap selected in the osu! client.">
-                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" >
-                                            <materialIcons:MaterialIcon Kind="Import" Width="24" Height="24"></materialIcons:MaterialIcon>
-                                            <TextBlock VerticalAlignment="Center" Text="Select current"></TextBlock>
-                                        </StackPanel>
-                                    </Button>
-                                </StackPanel>
-                            </Grid>
-                        </StackPanel>
-                        <Separator></Separator>
-                        <StackPanel>
-                            <Grid Margin="16" ColumnDefinitions="*,Auto">
-                                <TextBox Grid.Row="0" VerticalAlignment="Center" UseFloatingWatermark="True"
-                                         Classes="outline dense" Theme="{StaticResource OutlineTextBox}"
-                                         Text="{CompiledBinding DestinationBeatmaps[0].Path, Mode=TwoWay}"
-                                         Padding="16 16"
-                                         p1:TextFieldAssist.Label="Copy hitsounds to..." />
+<UserControl
+  xmlns="https://github.com/avaloniaui"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+  xmlns:materialIcons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+  xmlns:suki="clr-namespace:SukiUI.Controls;assembly=SukiUI"
+  mc:Ignorable="d"
+  d:DesignWidth="800"
+  d:DesignHeight="450"
+  x:Class="MapWizard.Desktop.Views.HitSoundCopierView"
+  xmlns:vm="clr-namespace:MapWizard.Desktop.ViewModels"
+  xmlns:viewModels="clr-namespace:MapWizard.Desktop.ViewModels"
+  x:DataType="viewModels:HitSoundCopierViewModel"
+  Padding="16">
+  <Grid RowDefinitions="Auto,Auto,*">
+    <TextBlock
+      Grid.Row="0"
+      Text="Hitsound Copier"
+      Classes="Headline5"
+      Margin="16,0" />
 
-                                <StackPanel Grid.Column="1" Orientation="Horizontal">
-                                    <Button Grid.Row="0" Command="{CompiledBinding PickDestinationFileCommand}"
-                                            Theme="{StaticResource MaterialFlatButton}" Padding="8" Margin="12"
-                                            Grid.Column="1" VerticalAlignment="Center"
-                                            ToolTip.Tip="Click here to select the beatmap(s) you want to copy the hitsounds to.">
-                                        <materialIcons:MaterialIcon Kind="FileSearchOutline" Width="24" Height="24"></materialIcons:MaterialIcon>
-                                    </Button>
+    <Separator Grid.Row="1" />
 
-                                    <Button Grid.Row="0"
-                                            Command="{CompiledBinding AddDestinationFromMemoryCommand}"
-                                            Theme="{StaticResource MaterialFlatButton}" Padding="8" Margin="12"
-                                            Grid.Column="1" VerticalAlignment="Center"
-                                            ToolTip.Tip="Click here to add the current beatmap selected in the osu! client.">
-                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" >
-                                            <materialIcons:MaterialIcon Kind="Import" Width="24" Height="24"></materialIcons:MaterialIcon>
-                                            <TextBlock VerticalAlignment="Center" Text="Add current"></TextBlock>
-                                        </StackPanel>
-                                    </Button>
-                                </StackPanel>
-                            </Grid>
-                            <Grid IsVisible="{CompiledBinding HasMultiple}">
-                                <ItemsControl ItemsSource="{CompiledBinding AdditionalBeatmaps}">
-                                    <ItemsControl.ItemTemplate>
-                                        <DataTemplate>
-                                            <Grid Classes="FileLine" Margin="16" ColumnDefinitions="*,Auto">
-                                                <TextBox Grid.Row="0" VerticalAlignment="Center"
-                                                         UseFloatingWatermark="False"
-                                                         Text="{CompiledBinding Path, Mode=TwoWay}" Padding="16 16" />
-                                                <Button
-                                                    ToolTip.Tip="Click here to remove this beatmap from the list."
-                                                    Grid.Row="0"
-                                                    Command="{CompiledBinding $parent[ItemsControl].((vm:HitSoundCopierViewModel)DataContext).RemoveMapCommand}"
-                                                    CommandParameter="{CompiledBinding Path}"
-                                                    Theme="{StaticResource MaterialFlatButton}" Padding="8"
-                                                    Margin="12" Grid.Column="1" VerticalAlignment="Center">
-                                                    <materialIcons:MaterialIcon Kind="Cancel" Width="24"
-                                                        Height="24">
-                                                    </materialIcons:MaterialIcon>
-                                                </Button>
-                                            </Grid>
-                                        </DataTemplate>
-                                    </ItemsControl.ItemTemplate>
-                                </ItemsControl>
-                            </Grid>
-                            <TextBlock IsVisible="{CompiledBinding HasMultiple}"
-                                       Text="{CompiledBinding DestinationBeatmaps.Count, StringFormat=There are {0} selected beatmaps.}"
-                                       Padding="16">
-                            </TextBlock>
-                        </StackPanel>
-                    </StackPanel>
-                </controls:Card>
-                <StackPanel Grid.Row="1" Margin="20">
-                    <ToggleSwitch Classes="LeftHeader" Margin="20" Padding="10" Grid.Column="1"
-                                  HorizontalContentAlignment="Stretch"
-                                  IsChecked="{CompiledBinding CopySampleAndVolumeChanges}"
-                                  Content="Copy sampleset and volume changes">
-                    </ToggleSwitch>
-                    <ToggleSwitch Margin="20" Padding="10" HorizontalContentAlignment="Stretch"
-                                  Classes="LeftHeader" Content="Ovewrite muting (5% greenlines)"
-                                  IsVisible="{CompiledBinding CopySampleAndVolumeChanges}" Grid.Column="1"
-                                  IsChecked="{CompiledBinding OverwriteMuting}">
-                    </ToggleSwitch>
+    <ScrollViewer Grid.Row="2">
+      <StackPanel Spacing="16">
 
-                    <ToggleSwitch Margin="20" Padding="10" HorizontalContentAlignment="Stretch"
-                                  Classes="LeftHeader" Content="Copy sider-body hitsounds" Grid.Column="1"
-                                  IsChecked="{CompiledBinding CopySliderBodySounds}">
-                    </ToggleSwitch>
+        <!-- Beatmap Selection -->
+        <suki:GlassCard
+          Margin="16"
+          Padding="12"
+          CornerRadius="16">
+          <StackPanel Spacing="8">
+            <TextBlock Text="Beatmap Selection" />
+            <Separator />
 
-                    <Grid ColumnDefinitions="*, 250" Margin="20">
-                        <TextBlock>Leniency (ms)</TextBlock>
-                        <Slider Grid.Column="1" IsSnapToTickEnabled="True" Value="{CompiledBinding Leniency}"
-                                Classes="Discrete Accent" TickPlacement="TopLeft" TickFrequency="1" Minimum="0"
-                                Maximum="20" />
-                    </Grid>
-                </StackPanel>
-                <StackPanel Grid.Row="2">
-                    <Grid Margin="16" ColumnDefinitions="*,Auto">
-                        <Button Foreground="White" Height="48" Command="{CompiledBinding CopyHitSoundsCommand}"
-                                Grid.Column="1"
-                                ToolTip.Tip="Click here to copy the hitsounds from the origin to the target."
-                                CornerRadius="16">
-                            <StackPanel Orientation="Horizontal">
-                                <materialIcons:MaterialIcon Width="24" Height="24" Kind="ContentSave"
-                                                            Margin="5 0">
-                                </materialIcons:MaterialIcon>
-                                <TextBlock FontWeight="Bold" FontSize="16" Text="Copy Hitsounds"
-                                           VerticalAlignment="Center">
-                                </TextBlock>
-                            </StackPanel>
-                        </Button>
-                    </Grid>
-                </StackPanel>
+            <!-- Origin -->
+            <Grid ColumnDefinitions="*,Auto" VerticalAlignment="Center">
+              <TextBox
+                Watermark="Copy hitsounds from..."
+                Text="{Binding OriginBeatmap.Path, Mode=TwoWay}"
+                VerticalAlignment="Center"
+                HorizontalAlignment="Stretch"
+                Margin="0,0,8,0" />
+              <StackPanel Orientation="Horizontal" Spacing="8">
+                <Button Command="{Binding PickOriginFileCommand}"
+                        ToolTip.Tip="Select the beatmap you want to copy the hitsounds from.">
+                  <materialIcons:MaterialIcon Kind="FileSearchOutline" Width="24" Height="24" />
+                </Button>
+                <Button Command="{Binding SetOriginFromMemoryCommand}"
+                        ToolTip.Tip="Get the current beatmap selected in the osu! client.">
+                  <StackPanel Orientation="Horizontal" Spacing="4">
+                    <materialIcons:MaterialIcon Kind="Import" Width="24" Height="24" />
+                    <TextBlock VerticalAlignment="Center" Text="Select current" />
+                  </StackPanel>
+                </Button>
+              </StackPanel>
             </Grid>
-        </ScrollViewer>
-    </Grid>
+
+            <Separator />
+
+            <!-- Destination -->
+            <Grid ColumnDefinitions="*,Auto" VerticalAlignment="Center">
+              <TextBox
+                Watermark="Copy hitsounds to..."
+                Text="{Binding DestinationBeatmaps[0].Path, Mode=TwoWay}"
+                VerticalAlignment="Center"
+                HorizontalAlignment="Stretch"
+                Margin="0,0,8,0" />
+              <StackPanel Orientation="Horizontal" Spacing="8">
+                <Button Command="{Binding PickDestinationFileCommand}"
+                        ToolTip.Tip="Select the beatmap(s) you want to copy the hitsounds to.">
+                  <materialIcons:MaterialIcon Kind="FileSearchOutline" Width="24" Height="24" />
+                </Button>
+                <Button Command="{Binding AddDestinationFromMemoryCommand}"
+                        ToolTip.Tip="Add the current beatmap selected in the osu! client.">
+                  <StackPanel Orientation="Horizontal" Spacing="4">
+                    <materialIcons:MaterialIcon Kind="Import" Width="24" Height="24" />
+                    <TextBlock VerticalAlignment="Center" Text="Add current" />
+                  </StackPanel>
+                </Button>
+              </StackPanel>
+            </Grid>
+
+            <!-- Additional beatmaps list -->
+            <ItemsControl
+              ItemsSource="{Binding AdditionalBeatmaps}"
+              IsVisible="{Binding HasMultiple}"
+              Margin="0,8,0,0">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                  <Grid ColumnDefinitions="*,Auto">
+                    <TextBox
+                      Text="{Binding Path, Mode=TwoWay}"
+                      HorizontalAlignment="Stretch" />
+                    <Button
+                      Command="{Binding $parent[ItemsControl].((vm:HitSoundCopierViewModel)DataContext).RemoveMapCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                      CommandParameter="{Binding Path}"
+                      ToolTip.Tip="Remove this beatmap from the list.">
+                      <materialIcons:MaterialIcon Kind="Cancel" Width="24" Height="24" />
+                    </Button>
+                  </Grid>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+
+            <!-- Count label -->
+            <TextBlock
+              IsVisible="{Binding HasMultiple}"
+              Text="{Binding DestinationBeatmaps.Count, StringFormat=There are {0} selected beatmaps.}"
+              Margin="0,8,0,0" />
+
+          </StackPanel>
+        </suki:GlassCard>
+
+        <!-- Options & Slider -->
+        <StackPanel Margin="16" Spacing="12">
+          <ToggleSwitch
+            IsChecked="{Binding CopySampleAndVolumeChanges}"
+            Content="Copy sampleset and volume changes" />
+          <ToggleSwitch
+            IsVisible="{Binding CopySampleAndVolumeChanges}"
+            IsChecked="{Binding OverwriteMuting}"
+            Content="Overwrite muting (5% greenlines)" />
+          <ToggleSwitch
+            IsChecked="{Binding CopySliderBodySounds}"
+            Content="Copy slider-body hitsounds" />
+          <Grid ColumnDefinitions="*,Auto">
+            <TextBlock VerticalAlignment="Center">Leniency (ms)</TextBlock>
+            <Slider
+              Grid.Column="1"
+              Value="{Binding Leniency}"
+              Minimum="0"
+              Maximum="20"
+              IsSnapToTickEnabled="True"
+              TickFrequency="1" />
+          </Grid>
+        </StackPanel>
+
+        <!-- Copy button -->
+        <Grid HorizontalAlignment="Right" Margin="0,16,0,0">
+          <Button
+            Command="{Binding CopyHitSoundsCommand}"
+            CornerRadius="16"
+            Padding="12,6"
+            ToolTip.Tip="Copy the hitsounds">
+            <StackPanel Orientation="Horizontal" Spacing="8">
+              <materialIcons:MaterialIcon Kind="ContentSave" Width="24" Height="24" />
+              <TextBlock
+                VerticalAlignment="Center"
+                FontWeight="Bold"
+                FontSize="16"
+                Text="Copy Hitsounds" />
+            </StackPanel>
+          </Button>
+        </Grid>
+
+      </StackPanel>
+    </ScrollViewer>
+  </Grid>
 </UserControl>

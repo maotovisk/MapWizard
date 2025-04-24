@@ -5,9 +5,8 @@ namespace MapWizard.Desktop.Views;
 
 public partial class MetadataManagerView : UserControl
 {
-    public MetadataManagerView(MetadataManagerViewModel viewModel)
+    public MetadataManagerView()
     {
-        DataContext = viewModel;
         InitializeComponent();
     }
 }

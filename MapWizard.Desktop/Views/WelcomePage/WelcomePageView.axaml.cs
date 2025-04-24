@@ -5,9 +5,8 @@ namespace MapWizard.Desktop.Views;
 
 public partial class WelcomePageView : UserControl
 {
-    public WelcomePageView(WelcomePageViewModel viewModel)
+    public WelcomePageView()
     {
-        DataContext = viewModel;
         InitializeComponent();
     }
 }

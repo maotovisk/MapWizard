@@ -6,23 +6,20 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Collections;
+using Avalonia.Controls.Notifications;
 using Avalonia.Platform.Storage;
-using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MapWizard.BeatmapParser;
 using MapWizard.Desktop.Models;
 using MapWizard.Desktop.Services;
 using MapWizard.Tools.MetadataManager;
-using Material.Styles.Controls;
-using Material.Styles.Models;
+using SukiUI.Toasts;
 using Color = System.Drawing.Color;
 
 namespace MapWizard.Desktop.ViewModels;
-public partial class MetadataManagerViewModel(IFilesService filesService, IMetadataManagerService metadataManagerService, IOsuMemoryReaderService osuMemoryReaderService) : ViewModelBase
+public partial class MetadataManagerViewModel(IFilesService filesService, IMetadataManagerService metadataManagerService, IOsuMemoryReaderService osuMemoryReaderService, ISukiToastManager toastManager) : ViewModelBase
 {
-    [ObservableProperty] private string _snackbarName = "SnackbarMainWindow";
-        
     [ObservableProperty]
     private SelectedMap _originBeatmap = new();
 
@@ -77,12 +74,10 @@ public partial class MetadataManagerViewModel(IFilesService filesService, IMetad
         
         if (string.IsNullOrEmpty(origin))
         {
-            SnackbarHost.Post(
-                new SnackbarModel(
-                    "Please select an origin beatmap!",
-                    TimeSpan.FromSeconds(8)),
-                SnackbarName,
-                DispatcherPriority.Normal);
+            toastManager.CreateToast()
+                .OfType(NotificationType.Error)
+                .WithContent("Please select an origin beatmap!");
+            
             return;
         }
 
@@ -126,24 +121,20 @@ public partial class MetadataManagerViewModel(IFilesService filesService, IMetad
             };
             SliderBorderOverride = Metadata.SliderBorderColour != null;
             SliderTrackOverride = Metadata.SliderTrackColour != null;
-            
-            SnackbarHost.Post( 
-                new SnackbarModel(
-                    "Successfully imported metadata!",
-                    TimeSpan.FromSeconds(8)),
-                SnackbarName,
-                DispatcherPriority.Normal);
-            
+
+            toastManager.CreateToast()
+                .OfType(NotificationType.Success)
+                .WithContent("Successfully imported metadata!")
+                .Queue();
+
         } catch (Exception e)
         {
             Console.WriteLine(e.Message);
             
-            SnackbarHost.Post(
-                new SnackbarModel(
-                    "Failed to import metadata!",
-                    TimeSpan.FromSeconds(8)),
-                SnackbarName,
-                DispatcherPriority.Normal);
+            toastManager.CreateToast()
+                .OfType(NotificationType.Error)
+                .WithContent("Failed to import metadata!")
+                .Queue();
         }
     }
     
@@ -178,12 +169,11 @@ public partial class MetadataManagerViewModel(IFilesService filesService, IMetad
 
         if (destinationBeatmap.Any(x => x.Path == currentBeatmap))
         {
-            SnackbarHost.Post(
-                new SnackbarModel(
-                    "This beatmap is already in the list.",
-                    TimeSpan.FromSeconds(8)),
-                SnackbarName,
-                DispatcherPriority.Normal);
+            toastManager.CreateToast()
+                .OfType(NotificationType.Error)
+                .WithContent("This beatmap is already in the list.")
+                .Queue();
+            
             return;
         }
 
@@ -206,23 +196,19 @@ public partial class MetadataManagerViewModel(IFilesService filesService, IMetad
 
         if (currentBeatmap.Status == ResultStatus.Error)
         {
-            SnackbarHost.Post(
-                new SnackbarModel(
-                    currentBeatmap.ErrorMessage ?? "Something went wrong while getting the beatmap path from memory.",
-                    TimeSpan.FromSeconds(8)),
-                SnackbarName,
-                DispatcherPriority.Normal);
+            toastManager.CreateToast()
+                .OfType(NotificationType.Error)
+                .WithContent("Failed to get beatmap from memory.")
+                .Queue();
             return null;
         }
 
         if (string.IsNullOrEmpty(currentBeatmap.Value))
         {
-            SnackbarHost.Post(
-                new SnackbarModel(
-                    "No beatmap found in memory.",
-                    TimeSpan.FromSeconds(8)),
-                SnackbarName,
-                DispatcherPriority.Normal);
+            toastManager.CreateToast()
+                .OfType(NotificationType.Error)
+                .WithContent("No beatmap is currently loaded.")
+                .Queue();
             return null;
         }
 
@@ -339,7 +325,7 @@ public partial class MetadataManagerViewModel(IFilesService filesService, IMetad
     [RelayCommand]
     private void ApplyMetadata()
     {
-        var message = string.Empty;
+        string message;
         
         if (string.IsNullOrEmpty(OriginBeatmap.Path))
         {
@@ -383,12 +369,10 @@ public partial class MetadataManagerViewModel(IFilesService filesService, IMetad
             message = e.Message;
         }
         
-        SnackbarHost.Post(
-            new SnackbarModel(
-                message,
-                TimeSpan.FromSeconds(8)),
-            SnackbarName,
-            DispatcherPriority.Normal);
+        toastManager.CreateToast()
+            .OfType(NotificationType.Success)
+            .WithContent(message)
+            .Queue();
     }
     
 }

@@ -1,371 +1,229 @@
-<UserControl xmlns="https://github.com/avaloniaui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:materialIcons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
-             xmlns:controls="clr-namespace:Material.Styles.Controls;assembly=Material.Styles"
-             xmlns:p1="clr-namespace:Material.Styles.Assists;assembly=Material.Styles"
-             x:Class="MapWizard.Desktop.Views.MetadataManagerView"
-             xmlns:vm="clr-namespace:MapWizard.Desktop.ViewModels"
-             xmlns:local="clr-namespace:MapWizard.Desktop.Converters"
-             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-             x:DataType="vm:MetadataManagerViewModel">
-    <UserControl.Resources>
-        <!-- Register the color-to-hex converter -->
-        <local:ColorToHexConverter x:Key="ColorToHexConverter" />
-        <local:AvaloniaColorToColorConverter x:Key="AvaloniaColorToColorConverter" />
-    </UserControl.Resources>
+<UserControl
+  xmlns="https://github.com/avaloniaui"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+  xmlns:vm="clr-namespace:MapWizard.Desktop.ViewModels"
+  xmlns:local="clr-namespace:MapWizard.Desktop.Converters"
+  xmlns:materialIcons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+  xmlns:suki="clr-namespace:SukiUI.Controls;assembly=SukiUI"
+  mc:Ignorable="d"
+  d:DesignWidth="800"
+  d:DesignHeight="450"
+  x:Class="MapWizard.Desktop.Views.MetadataManagerView"
+  x:DataType="vm:MetadataManagerViewModel"
+  Padding="16">
 
-    <Grid RowDefinitions="Auto, Auto,*">
-        <Panel Grid.Row="0" Margin="15">
-            <TextBlock Classes="Headline5">Metadata Manager</TextBlock>
-        </Panel>
-        <Separator Grid.Row="1"></Separator>
-        <ScrollViewer Grid.Row="2">
-            <Grid RowDefinitions="Auto,*,Auto">
-                <StackPanel Grid.Row="1">
-                    <controls:Card Margin="16" CornerRadius="16">
-                        <StackPanel Margin="6">
-                            <TextBlock Text="Beatmap Selection"></TextBlock>
-                            <Separator></Separator>
-                            <StackPanel>
-                                <Grid Margin="16" ColumnDefinitions="*,Auto">
-                                    <TextBox Grid.Row="0" VerticalAlignment="Center" UseFloatingWatermark="True"
-                                             Classes="outline dense" Theme="{StaticResource OutlineTextBox}"
-                                             Text="{CompiledBinding OriginBeatmap.Path, Mode=TwoWay}" Padding="16 16"
-                                             p1:TextFieldAssist.Label="Import metadata from..." />
-                                    <StackPanel Grid.Row="0" Grid.Column="1" VerticalAlignment="Center"
-                                                Orientation="Horizontal">
-                                        <Button Command="{CompiledBinding PickOriginFileCommand}"
-                                                Theme="{StaticResource MaterialFlatButton}" Padding="8" Margin="12"
-                                                VerticalAlignment="Center"
-                                                ToolTip.Tip="Click here to select the origin beatmap.">
-                                            <materialIcons:MaterialIcon Kind="FileSearchOutline" Width="24" Height="24"></materialIcons:MaterialIcon>
-                                        </Button>
-                                        <Button Grid.Row="0"
-                                                Command="{CompiledBinding SetOriginFromMemoryCommand}"
-                                                Theme="{StaticResource MaterialFlatButton}" Padding="8" Margin="12"
-                                                Grid.Column="1" VerticalAlignment="Center"
-                                                ToolTip.Tip="Click here to select the current beatmap selected in the osu! client.">
-                                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                                <materialIcons:MaterialIcon Kind="Import" Width="24" Height="24"></materialIcons:MaterialIcon>
-                                                <TextBlock VerticalAlignment="Center" Text="Select current"></TextBlock>
-                                            </StackPanel>
-                                        </Button>
-                                        <Button Command="{CompiledBinding ImportMetadataCommand }"
-                                                Theme="{StaticResource MaterialButton}" Padding="8" Margin="12"
-                                                VerticalAlignment="Center"
-                                                ToolTip.Tip="Click here to import metadata from the selected map."
-                                                Foreground="White">
-                                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                                <materialIcons:MaterialIcon Kind="Download" Width="24" Height="24"
-                                                                            Margin="0,0,8,0" />
-                                                <TextBlock Text="Import" VerticalAlignment="Center" />
-                                            </StackPanel>
-                                        </Button>
-                                    </StackPanel>
-                                </Grid>
-                            </StackPanel>
-                            <Separator></Separator>
-                            <StackPanel>
-                                <Grid Margin="16" ColumnDefinitions="*,Auto">
-                                    <TextBox Grid.Row="0" VerticalAlignment="Center" UseFloatingWatermark="True"
-                                             Classes="outline dense" Theme="{StaticResource OutlineTextBox}"
-                                             Text="{CompiledBinding DestinationBeatmaps[0].Path, Mode=TwoWay}"
-                                             Padding="16 16"
-                                             p1:TextFieldAssist.Label="Export metadata to..." />
-                                    <StackPanel Grid.Row="0" Grid.Column="1" VerticalAlignment="Center"
-                                                Orientation="Horizontal">
-                                        <Button Grid.Row="0" Command="{CompiledBinding PickDestinationFileCommand}"
-                                                Theme="{StaticResource MaterialFlatButton}" Padding="8" Margin="12"
-                                                Grid.Column="1" VerticalAlignment="Center"
-                                                ToolTip.Tip="Click here to select the destination beatmap(s).">
-                                            <materialIcons:MaterialIcon Kind="FileSearchOutline" Width="24" Height="24"></materialIcons:MaterialIcon>
-                                        </Button>
-                                        <Button Grid.Row="0"
-                                                Command="{CompiledBinding AddDestinationFromMemoryCommand}"
-                                                Theme="{StaticResource MaterialFlatButton}" Padding="8" Margin="12"
-                                                Grid.Column="1" VerticalAlignment="Center"
-                                                ToolTip.Tip="Click here to add the current beatmap selected in the osu! client.">
-                                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                                <materialIcons:MaterialIcon Kind="Import" Width="24" Height="24"></materialIcons:MaterialIcon>
-                                                <TextBlock VerticalAlignment="Center" Text="Add current"></TextBlock>
-                                            </StackPanel>
-                                        </Button>
-                                    </StackPanel>
-                                </Grid>
-                                <Grid IsVisible="{CompiledBinding HasMultiple}">
-                                    <ItemsControl ItemsSource="{CompiledBinding AdditionalBeatmaps}">
-                                        <ItemsControl.ItemTemplate>
-                                            <DataTemplate>
-                                                <Grid Classes="FileLine" Margin="16" ColumnDefinitions="*,Auto">
-                                                    <TextBox Grid.Row="0" VerticalAlignment="Center"
-                                                             UseFloatingWatermark="False"
-                                                             Text="{CompiledBinding Path, Mode=TwoWay}" Padding="16 16" />
-                                                    <Button
-                                                        ToolTip.Tip="Click here to remove this beatmap from the list."
-                                                        Grid.Row="0"
-                                                        Command="{CompiledBinding $parent[ItemsControl].((vm:MetadataManagerViewModel)DataContext).RemoveMapCommand}"
-                                                        CommandParameter="{CompiledBinding Path}"
-                                                        Theme="{StaticResource MaterialFlatButton}" Padding="8"
-                                                        Margin="12" Grid.Column="1" VerticalAlignment="Center">
-                                                        <materialIcons:MaterialIcon Kind="Cancel" Width="24"
-                                                            Height="24">
-                                                        </materialIcons:MaterialIcon>
-                                                    </Button>
-                                                </Grid>
-                                            </DataTemplate>
-                                        </ItemsControl.ItemTemplate>
-                                    </ItemsControl>
-                                </Grid>
-                                <TextBlock IsVisible="{CompiledBinding HasMultiple}"
-                                           Text="{CompiledBinding DestinationBeatmaps.Count, StringFormat=There are {0} selected beatmaps.}"
-                                           Padding="16">
-                                </TextBlock>
-                            </StackPanel>
-                        </StackPanel>
-                    </controls:Card>
-                    <Grid ColumnDefinitions="*, *">
-                        <controls:Card Margin="16" CornerRadius="16">
-                            <StackPanel Margin="6">
-                                <TextBlock Text="Metadata"></TextBlock>
-                                <Separator></Separator>
-                                <TextBox UseFloatingWatermark="True" Classes="dense clearButton"
-                                         Text="{CompiledBinding Metadata.Title, Mode=TwoWay}" Margin="4"
-                                         p1:TextFieldAssist.Label="Title" />
-                                <TextBox UseFloatingWatermark="True" Classes="dense clearButton"
-                                         Text="{CompiledBinding Metadata.RomanizedTitle, Mode=TwoWay}" Margin="4"
-                                         p1:TextFieldAssist.Label="Romanized Title" />
+  <UserControl.Resources>
+    <local:ColorToHexConverter x:Key="ColorToHexConverter" />
+    <local:AvaloniaColorToColorConverter x:Key="AvaloniaColorToColorConverter" />
+  </UserControl.Resources>
 
-                                <TextBox UseFloatingWatermark="True" Classes="dense clearButton"
-                                         Text="{CompiledBinding Metadata.Artist, Mode=TwoWay}" Margin="4"
-                                         p1:TextFieldAssist.Label="Artist" />
-                                <TextBox UseFloatingWatermark="True" Classes="dense clearButton"
-                                         Text="{CompiledBinding Metadata.RomanizedArtist, Mode=TwoWay}" Margin="4"
-                                         p1:TextFieldAssist.Label="Romanized Artist" />
+  <Grid RowDefinitions="Auto,Auto,*">
 
-                                <TextBox UseFloatingWatermark="True" Classes="dense clearButton"
-                                         Text="{CompiledBinding Metadata.Creator, Mode=TwoWay}" Margin="4"
-                                         p1:TextFieldAssist.Label="Creator" />
+    <!-- Header -->
+    <TextBlock
+      Grid.Row="0"
+      Text="Metadata Manager"
+      Classes="Headline5" />
 
-                                <TextBox UseFloatingWatermark="True" Classes="dense clearButton"
-                                         Text="{CompiledBinding Metadata.Source, Mode=TwoWay}" Margin="4"
-                                         p1:TextFieldAssist.Label="Source" />
+    <Separator Grid.Row="1" />
 
-                                <TextBox UseFloatingWatermark="True" Classes="dense clearButton"
-                                         MaxHeight="100" TextWrapping="Wrap" AcceptsReturn="True"
-                                         Text="{CompiledBinding Metadata.Tags, Mode=TwoWay}" Margin="4"
-                                         p1:TextFieldAssist.Label="Tags" />
+    <!-- Main scrollable content -->
+    <ScrollViewer Grid.Row="2">
+      <StackPanel Spacing="16">
 
-                                <TextBox UseFloatingWatermark="True" Classes="dense"
-                                         Text="{CompiledBinding Metadata.BeatmapId, Mode=TwoWay}" Margin="4"
-                                         p1:TextFieldAssist.Label="Beatmap ID" />
+        <!-- BEATMAP SELECTION CARD -->
+        <suki:GlassCard Margin="16" Padding="12" CornerRadius="16">
+          <StackPanel Spacing="8">
+            <TextBlock Text="Beatmap Selection" />
 
-                                <TextBox UseFloatingWatermark="True" Classes="dense"
-                                         Text="{CompiledBinding Metadata.BeatmapSetId, Mode=TwoWay}" Margin="4"
-                                         p1:TextFieldAssist.Label="Beatmap Set ID" />
-                            </StackPanel>
-                        </controls:Card>
-                        <controls:Card Grid.Column="1" Margin="16" CornerRadius="16">
-                            <StackPanel Margin="6">
-                                <TextBlock Text="General"></TextBlock>
-                                <Separator></Separator>
-                                <TextBox UseFloatingWatermark="True" Classes="dense"
-                                         Text="{CompiledBinding Metadata.PreviewTime, Mode=TwoWay}" Margin="4"
-                                         p1:TextFieldAssist.Label="Preview Time" />
-                                <TextBox UseFloatingWatermark="True" Classes="dense"
-                                         Text="{CompiledBinding Metadata.AudioFilename, Mode=TwoWay}" Margin="4"
-                                         p1:TextFieldAssist.Label="Audio File" />
+            <Grid ColumnDefinitions="*,Auto" VerticalAlignment="Center">
+              <TextBox
+                Watermark="Import metadata from..."
+                Text="{Binding OriginBeatmap.Path, Mode=TwoWay}"
+                HorizontalAlignment="Stretch"
+                VerticalAlignment="Center"
+                Margin="0,0,8,0" />
 
-
-                                <ToggleSwitch IsChecked="{CompiledBinding OverwriteBackground, Mode=TwoWay}"
-                                              Margin="4 20 4 20" Padding="10" HorizontalContentAlignment="Stretch"
-                                              Classes="LeftHeader"
-                                              Content="Overwrite background file for all difficulties" />
-
-                                <TextBox UseFloatingWatermark="True" Classes="dense"
-                                         IsVisible="{CompiledBinding OverwriteBackground}"
-                                         Text="{CompiledBinding Metadata.BackgroundFilename, Mode=TwoWay}" Margin="4"
-                                         p1:TextFieldAssist.Label="Background Image" />
-
-                                <ToggleSwitch IsChecked="{CompiledBinding OverwriteVideo, Mode=TwoWay}"
-                                              Margin="4 20 4 20" Padding="10" HorizontalContentAlignment="Stretch"
-                                              Classes="LeftHeader"
-                                              Content="Overwrite video for all difficulties" />
-
-                                <TextBox UseFloatingWatermark="True" Classes="dense"
-                                         IsVisible="{CompiledBinding OverwriteVideo}"
-                                         Text="{CompiledBinding Metadata.VideoOffset, Mode=TwoWay}" Margin="4"
-                                         p1:TextFieldAssist.Label="Video Offset" />
-
-                                <TextBox UseFloatingWatermark="True" Classes="dense"
-                                         IsVisible="{CompiledBinding OverwriteVideo}"
-                                         Text="{CompiledBinding Metadata.VideoFilename, Mode=TwoWay}" Margin="4"
-                                         p1:TextFieldAssist.Label="Video File" />
-
-                                <ToggleSwitch IsChecked="{CompiledBinding Metadata.WidescreenStoryboard, Mode=TwoWay}"
-                                              Margin="4 20 4 20" Padding="10" HorizontalContentAlignment="Stretch"
-                                              Classes="LeftHeader"
-                                              Content="Widescreen Support" />
-
-                                <ToggleSwitch IsChecked="{CompiledBinding Metadata.EpilepsyWarning, Mode=TwoWay}"
-                                              Margin="4 20 4 20" Padding="10" HorizontalContentAlignment="Stretch"
-                                              Classes="LeftHeader"
-                                              Content="Epilepsy Warning" />
-
-                                <ToggleSwitch IsChecked="{CompiledBinding Metadata.LetterboxInBreaks, Mode=TwoWay}"
-                                              Margin="4 20 4 20" Padding="10" HorizontalContentAlignment="Stretch"
-                                              Classes="LeftHeader"
-                                              Content="Letterbox in Breaks" />
-
-                                <ToggleSwitch IsChecked="{CompiledBinding Metadata.SamplesMatch, Mode=TwoWay}"
-                                              Margin="4 20 4 20" Padding="10" HorizontalContentAlignment="Stretch"
-                                              Classes="LeftHeader"
-                                              Content="Samples match playback rate" />
-                            </StackPanel>
-                        </controls:Card>
-                    </Grid>
-
-                    <Grid ColumnDefinitions="*, *">
-                        <controls:Card Grid.Column="0" Margin="16" CornerRadius="16">
-                            <StackPanel Margin="6">
-                                <TextBlock Text="Colours"></TextBlock>
-                                <Separator></Separator>
-                                <!-- Add toggles for slider track and border override and their colour pickers -->
-                                <ToggleSwitch IsChecked="{CompiledBinding SliderTrackOverride, Mode=TwoWay}"
-                                              Margin="4 20 4 20" Padding="10" HorizontalContentAlignment="Stretch"
-                                              Classes="LeftHeader"
-                                              Content="Override Slider Track" />
-
-                                <Grid Margin="16" ColumnDefinitions="*,Auto"
-                                      IsVisible="{CompiledBinding SliderTrackOverride}">
-                                    <TextBlock FontWeight="Bold" Text="Slider Track" TextAlignment="Left"
-                                               VerticalAlignment="Center" Grid.Column="0">
-                                    </TextBlock>
-                                    <ColorPicker VerticalAlignment="Center"
-                                                 Color="{CompiledBinding Metadata.SliderTrackColour, Mode=TwoWay, Converter={StaticResource AvaloniaColorToColorConverter}}"
-                                                 IsAlphaEnabled="False"
-                                                 IsAlphaVisible="False"
-                                                 Margin="8"
-                                                 Padding="4" CornerRadius="16"
-                                                 Grid.Column="1">
-                                        <ColorPicker.Styles>
-                                            <FluentTheme />
-                                        </ColorPicker.Styles>
-                                    </ColorPicker>
-                                </Grid>
-
-                                <ToggleSwitch IsChecked="{CompiledBinding SliderBorderOverride, Mode=TwoWay}"
-                                              Margin="4 20 4 20" Padding="10" HorizontalContentAlignment="Stretch"
-                                              Classes="LeftHeader"
-                                              Content="Override Slider Border" />
-                                <Grid Margin="16" ColumnDefinitions="*,Auto"
-                                      IsVisible="{CompiledBinding SliderBorderOverride}">
-                                    <TextBlock FontWeight="Bold" Text="Slider Border" HorizontalAlignment="Left"
-                                               VerticalAlignment="Center" Grid.Column="0">
-                                    </TextBlock>
-
-                                    <!-- Color Picker -->
-                                    <ColorPicker VerticalAlignment="Center"
-                                                 Grid.Column="1"
-                                                 Color="{CompiledBinding Metadata.SliderBorderColour, Mode=TwoWay, Converter={StaticResource AvaloniaColorToColorConverter}}"
-                                                 IsAlphaEnabled="False"
-                                                 IsAlphaVisible="False"
-                                                 Margin="8"
-                                                 Padding="4" CornerRadius="16">
-                                        <ColorPicker.Styles>
-                                            <FluentTheme />
-                                        </ColorPicker.Styles>
-                                    </ColorPicker>
-                                </Grid>
-                            </StackPanel>
-                        </controls:Card>
-                        <controls:Card Grid.Column="1" Margin="16" CornerRadius="16">
-                            <StackPanel Margin="6">
-                                <TextBlock Text="Combos"></TextBlock>
-                                <Separator></Separator>
-                                <ItemsControl ItemsSource="{CompiledBinding Metadata.Colours}">
-                                    <ItemsControl.ItemTemplate>
-                                        <DataTemplate>
-                                            <Grid Margin="16" ColumnDefinitions="*,Auto">
-                                                <TextBlock FontWeight="Bold"
-                                                           Text="{CompiledBinding Number, StringFormat=Combo {0}}"
-                                                           TextAlignment="Left" VerticalAlignment="Center">
-                                                </TextBlock>
-
-                                                <StackPanel Grid.Column="1" Orientation="Horizontal"
-                                                            VerticalAlignment="Center">
-                                                    <ColorPicker VerticalAlignment="Center"
-                                                                 Color="{CompiledBinding Colour, Mode=TwoWay, Converter={StaticResource AvaloniaColorToColorConverter}}"
-                                                                 IsAlphaEnabled="False"
-                                                                 IsAlphaVisible="False"
-                                                                 Margin="8"
-                                                                 Padding="4" CornerRadius="16">
-                                                        <ColorPicker.Styles>
-                                                            <FluentTheme />
-                                                        </ColorPicker.Styles>
-                                                    </ColorPicker>
-                                                    <Button
-                                                        Command="{CompiledBinding $parent[ItemsControl].((vm:MetadataManagerViewModel)DataContext).RemoveColourCommand}"
-                                                        CommandParameter="{CompiledBinding}"
-                                                        ToolTip.Tip="Click here to remove this colour from the list."
-                                                        Theme="{StaticResource MaterialFlatButton}"
-                                                        Padding="8" Margin="12" Grid.Column="1"
-                                                        VerticalAlignment="Center">
-                                                        <materialIcons:MaterialIcon Kind="Cancel" Width="24"
-                                                            Height="24" />
-                                                    </Button>
-
-                                                </StackPanel>
-                                            </Grid>
-                                        </DataTemplate>
-                                    </ItemsControl.ItemTemplate>
-                                </ItemsControl>
-                                <Button Command="{CompiledBinding AddColourCommand}"
-                                        ToolTip.Tip="Click here to add a new combo colour."
-                                        Theme="{StaticResource MaterialFlatButton}" Padding="8" Margin="12"
-                                        VerticalAlignment="Center">
-                                    <materialIcons:MaterialIcon Kind="Add" Width="24" Height="24"></materialIcons:MaterialIcon>
-                                </Button>
-                            </StackPanel>
-                        </controls:Card>
-
-                    </Grid>
-                    <controls:Card Margin="16" CornerRadius="16">
-                        <StackPanel Margin="6">
-                            <TextBlock Text="Options"></TextBlock>
-                            <Separator></Separator>
-                            <ToggleSwitch IsChecked="{CompiledBinding RemoveDuplicateTags, Mode=TwoWay}"
-                                          Margin="4 20 4 20" Padding="10" HorizontalContentAlignment="Stretch"
-                                          Classes="LeftHeader"
-                                          Content="Remove Duplicate Tags" />
-
-                            <ToggleSwitch IsChecked="{CompiledBinding ResetBeatmapIds, Mode=TwoWay}" Margin="4 20 4 20"
-                                          Padding="10" HorizontalContentAlignment="Stretch"
-                                          Classes="LeftHeader"
-                                          Content="Reset Beatmap IDs" />
-                        </StackPanel>
-
-                    </controls:Card>
-                </StackPanel>
-                <StackPanel Grid.Row="2">
-                    <Grid Margin="16" ColumnDefinitions="*,Auto">
-                        <Button Foreground="White" Height="48" Grid.Column="1"
-                                Command="{CompiledBinding ApplyMetadataCommand}"
-                                ToolTip.Tip="Click here to apply the metadata for the selected beatmaps."
-                                CornerRadius="16">
-                            <StackPanel Orientation="Horizontal">
-                                <materialIcons:MaterialIcon Width="24" Height="24" Kind="ContentSave"
-                                                            Margin="5 0">
-                                </materialIcons:MaterialIcon>
-                                <TextBlock FontWeight="Bold" FontSize="16" Text="Export Metadata"
-                                           VerticalAlignment="Center">
-                                </TextBlock>
-                            </StackPanel>
-                        </Button>
-                    </Grid>
-                </StackPanel>
+              <StackPanel Orientation="Horizontal" Spacing="8">
+                <Button
+                  Command="{Binding PickOriginFileCommand}"
+                  ToolTip.Tip="Select origin beatmap">
+                  <materialIcons:MaterialIcon Kind="FileSearchOutline" Width="24" Height="24" />
+                </Button>
+                <Button
+                  Command="{Binding SetOriginFromMemoryCommand}"
+                  ToolTip.Tip="Use currently‐selected osu! map">
+                  <materialIcons:MaterialIcon Kind="Import" Width="24" Height="24" />
+                </Button>
+                <Button
+                  Command="{Binding ImportMetadataCommand}"
+                  ToolTip.Tip="Import metadata"
+                  Padding="4,0">
+                  <StackPanel Orientation="Horizontal" Spacing="4">
+                    <materialIcons:MaterialIcon Kind="Download" Width="24" Height="24" />
+                    <TextBlock VerticalAlignment="Center" Text="Import" />
+                  </StackPanel>
+                </Button>
+              </StackPanel>
             </Grid>
-        </ScrollViewer>
-    </Grid>
+
+            <Grid ColumnDefinitions="*,Auto" VerticalAlignment="Center" Margin="0,12,0,0">
+              <TextBox
+                Watermark="Export metadata to..."
+                Text="{Binding DestinationBeatmaps[0].Path, Mode=TwoWay}"
+                HorizontalAlignment="Stretch"
+                VerticalAlignment="Center"
+                Margin="0,0,8,0" />
+              <StackPanel Orientation="Horizontal" Spacing="8">
+                <Button
+                  Command="{Binding PickDestinationFileCommand}"
+                  ToolTip.Tip="Select destination beatmap(s)">
+                  <materialIcons:MaterialIcon Kind="FileSearchOutline" Width="24" Height="24" />
+                </Button>
+                <Button
+                  Command="{Binding AddDestinationFromMemoryCommand}"
+                  ToolTip.Tip="Add currently‐selected osu! map">
+                  <materialIcons:MaterialIcon Kind="Import" Width="24" Height="24" />
+                </Button>
+              </StackPanel>
+            </Grid>
+
+            <ItemsControl
+              Margin="0,12,0,0"
+              IsVisible="{Binding HasMultiple}"
+              ItemsSource="{Binding AdditionalBeatmaps}">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                  <Grid ColumnDefinitions="*,Auto">
+                    <TextBox
+                      Text="{Binding Path, Mode=TwoWay}"
+                      HorizontalAlignment="Stretch" />
+                    <Button
+                      Command="{Binding DataContext.RemoveMapCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                      CommandParameter="{Binding Path}"
+                      ToolTip.Tip="Remove from list">
+                      <materialIcons:MaterialIcon Kind="Cancel" Width="24" Height="24" />
+                    </Button>
+                  </Grid>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+
+            <TextBlock
+              IsVisible="{Binding HasMultiple}"
+              Text="{Binding DestinationBeatmaps.Count, StringFormat=There are {0} selected beatmaps.}"
+              Margin="0,8,0,0" />
+
+          </StackPanel>
+        </suki:GlassCard>
+
+        <!-- METADATA & GENERAL SECTIONS -->
+        <Grid ColumnDefinitions="*,*" >
+
+          <suki:GlassCard Padding="12" CornerRadius="16">
+            <StackPanel Spacing="8">
+              <TextBlock Text="Metadata" />
+              <Separator />
+              <TextBox Watermark="Title" Text="{Binding Metadata.Title, Mode=TwoWay}" />
+              <TextBox Watermark="Romanized Title" Text="{Binding Metadata.RomanizedTitle, Mode=TwoWay}" />
+              <TextBox Watermark="Artist" Text="{Binding Metadata.Artist, Mode=TwoWay}" />
+              <TextBox Watermark="Romanized Artist" Text="{Binding Metadata.RomanizedArtist, Mode=TwoWay}" />
+              <TextBox Watermark="Creator" Text="{Binding Metadata.Creator, Mode=TwoWay}" />
+              <TextBox Watermark="Source" Text="{Binding Metadata.Source, Mode=TwoWay}" />
+              <TextBox Watermark="Tags" AcceptsReturn="True" TextWrapping="Wrap" Text="{Binding Metadata.Tags, Mode=TwoWay}" />
+              <TextBox Watermark="Beatmap ID" Text="{Binding Metadata.BeatmapId, Mode=TwoWay}" />
+              <TextBox Watermark="Beatmap Set ID" Text="{Binding Metadata.BeatmapSetId, Mode=TwoWay}" />
+            </StackPanel>
+          </suki:GlassCard>
+
+          <suki:GlassCard Padding="12" CornerRadius="16">
+            <StackPanel Spacing="8">
+              <TextBlock Text="General" />
+              <Separator />
+              <TextBox Watermark="Preview Time" Text="{Binding Metadata.PreviewTime, Mode=TwoWay}" />
+              <TextBox Watermark="Audio File" Text="{Binding Metadata.AudioFilename, Mode=TwoWay}" />
+              <ToggleSwitch IsChecked="{Binding OverwriteBackground, Mode=TwoWay}" Content="Overwrite background file for all difficulties" />
+              <TextBox IsVisible="{Binding OverwriteBackground}" Watermark="Background Image" Text="{Binding Metadata.BackgroundFilename, Mode=TwoWay}" />
+              <ToggleSwitch IsChecked="{Binding OverwriteVideo, Mode=TwoWay}" Content="Overwrite video for all difficulties" />
+              <TextBox IsVisible="{Binding OverwriteVideo}" Watermark="Video Offset" Text="{Binding Metadata.VideoOffset, Mode=TwoWay}" />
+              <TextBox IsVisible="{Binding OverwriteVideo}" Watermark="Video File" Text="{Binding Metadata.VideoFilename, Mode=TwoWay}" />
+              <ToggleSwitch IsChecked="{Binding Metadata.WidescreenStoryboard, Mode=TwoWay}" Content="Widescreen Support" />
+              <ToggleSwitch IsChecked="{Binding Metadata.EpilepsyWarning, Mode=TwoWay}" Content="Epilepsy Warning" />
+              <ToggleSwitch IsChecked="{Binding Metadata.LetterboxInBreaks, Mode=TwoWay}" Content="Letterbox in Breaks" />
+              <ToggleSwitch IsChecked="{Binding Metadata.SamplesMatch, Mode=TwoWay}" Content="Samples match playback rate" />
+            </StackPanel>
+          </suki:GlassCard>
+        </Grid>
+
+        <!-- COLOURS & COMBOS -->
+        <Grid ColumnDefinitions="*,*">
+
+          <suki:GlassCard Padding="12" CornerRadius="16">
+            <StackPanel Spacing="8">
+              <TextBlock Text="Colours" />
+              <Separator />
+              <ToggleSwitch IsChecked="{Binding SliderTrackOverride, Mode=TwoWay}" Content="Override Slider Track" />
+              <Grid ColumnDefinitions="*,Auto" IsVisible="{Binding SliderTrackOverride}" Margin="0,8,0,0">
+                <TextBlock FontWeight="Bold" Text="Slider Track" VerticalAlignment="Center" />
+                <ColorPicker VerticalAlignment="Center" Color="{Binding Metadata.SliderTrackColour, Converter={StaticResource AvaloniaColorToColorConverter}, Mode=TwoWay}" IsAlphaEnabled="False" IsAlphaVisible="False" Margin="8" Padding="4" CornerRadius="16" />
+              </Grid>
+              <ToggleSwitch IsChecked="{Binding SliderBorderOverride, Mode=TwoWay}" Content="Override Slider Border" />
+              <Grid ColumnDefinitions="*,Auto" IsVisible="{Binding SliderBorderOverride}" Margin="0,8,0,0">
+                <TextBlock FontWeight="Bold" Text="Slider Border" VerticalAlignment="Center" />
+                <ColorPicker VerticalAlignment="Center" Color="{Binding Metadata.SliderBorderColour, Converter={StaticResource AvaloniaColorToColorConverter}, Mode=TwoWay}" IsAlphaEnabled="False" IsAlphaVisible="False" Margin="8" Padding="4" CornerRadius="16" />
+              </Grid>
+            </StackPanel>
+          </suki:GlassCard>
+
+          <suki:GlassCard Padding="12" CornerRadius="16">
+            <StackPanel Spacing="8">
+              <TextBlock Text="Combos" />
+              <Separator />
+              <ItemsControl ItemsSource="{Binding Metadata.Colours}">
+                <ItemsControl.ItemTemplate>
+                  <DataTemplate>
+                    <Grid ColumnDefinitions="*,Auto">
+                      <TextBlock FontWeight="Bold" Text="{Binding Number, StringFormat=Combo {0}}" VerticalAlignment="Center" />
+                      <StackPanel Orientation="Horizontal" Spacing="8">
+                        <ColorPicker VerticalAlignment="Center" Color="{Binding Colour, Converter={StaticResource AvaloniaColorToColorConverter}, Mode=TwoWay}" IsAlphaEnabled="False" IsAlphaVisible="False" Margin="8" Padding="4" CornerRadius="16" />
+                        <Button Command="{Binding $parent[ItemsControl].((vm:HitSoundCopierViewModel)DataContext).RemoveMapCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}" ToolTip.Tip="Remove this colour">
+                          <materialIcons:MaterialIcon Kind="Cancel" Width="24" Height="24" />
+                        </Button>
+                      </StackPanel>
+                    </Grid>
+                  </DataTemplate>
+                </ItemsControl.ItemTemplate>
+              </ItemsControl>
+              <Button Command="{Binding AddColourCommand}" ToolTip.Tip="Add a new combo colour">
+                <materialIcons:MaterialIcon Kind="Add" Width="24" Height="24" />
+              </Button>
+            </StackPanel>
+          </suki:GlassCard>
+        </Grid>
+
+        <!-- OPTIONS -->
+        <suki:GlassCard Padding="12" CornerRadius="16">
+          <StackPanel Spacing="8">
+            <TextBlock Text="Options" />
+            <Separator />
+            <ToggleSwitch IsChecked="{Binding RemoveDuplicateTags, Mode=TwoWay}" Content="Remove Duplicate Tags" />
+            <ToggleSwitch IsChecked="{Binding ResetBeatmapIds, Mode=TwoWay}" Content="Reset Beatmap IDs" />
+          </StackPanel>
+        </suki:GlassCard>
+
+        <!-- EXPORT -->
+        <Grid HorizontalAlignment="Right" Margin="0,16,0,0">
+          <Button Command="{Binding ApplyMetadataCommand}" CornerRadius="16" Padding="12,6">
+            <StackPanel Orientation="Horizontal" Spacing="8">
+              <materialIcons:MaterialIcon Kind="ContentSave" Width="24" Height="24" />
+              <TextBlock VerticalAlignment="Center" FontWeight="Bold" FontSize="16" Text="Export Metadata" />
+            </StackPanel>
+          </Button>
+        </Grid>
+
+      </StackPanel>
+    </ScrollViewer>
+  </Grid>
 </UserControl>
