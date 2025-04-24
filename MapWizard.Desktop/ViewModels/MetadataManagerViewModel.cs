@@ -65,6 +65,11 @@ public partial class MetadataManagerViewModel(IFilesService filesService, IMetad
     private void RemoveMap(string path)
     {
         DestinationBeatmaps = new ObservableCollection<SelectedMap>(DestinationBeatmaps.Where(x => x.Path != path));
+               
+        if (DestinationBeatmaps.Count < 2)
+        {
+            HasMultiple = false;
+        }
     }
     
     [RelayCommand]

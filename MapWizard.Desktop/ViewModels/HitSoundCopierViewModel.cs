@@ -25,8 +25,9 @@ public partial class HitSoundCopierViewModel(
 
     [ObservableProperty] private SelectedMap _originBeatmap = new();
 
-    [ObservableProperty] private bool _hasMultiple;
-
+    [ObservableProperty]
+    private bool _hasMultiple = false;
+    
     [ObservableProperty] private bool _copySampleAndVolumeChanges = true;
 
     [ObservableProperty] private bool _overwriteMuting;
@@ -35,7 +36,9 @@ public partial class HitSoundCopierViewModel(
 
     [ObservableProperty] private int _leniency = 5;
 
-    [NotifyPropertyChangedFor(nameof(AdditionalBeatmaps))] [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(AdditionalBeatmaps))] 
+    [NotifyPropertyChangedFor(nameof(AdditionalBeatmaps))] 
+    [ObservableProperty]
     private ObservableCollection<SelectedMap> _destinationBeatmaps = [new SelectedMap()];
 
     public ObservableCollection<SelectedMap> AdditionalBeatmaps
@@ -54,6 +57,11 @@ public partial class HitSoundCopierViewModel(
     private void RemoveMap(string path)
     {
         DestinationBeatmaps = new ObservableCollection<SelectedMap>(DestinationBeatmaps.Where(x => x.Path != path));
+        
+        if (DestinationBeatmaps.Count < 2)
+        {
+            HasMultiple = false;
+        }
     }
 
     [RelayCommand]

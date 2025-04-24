@@ -1,14 +1,11 @@
-using System.Linq;
 using System.Threading.Tasks;
-using System.Timers;
-using System.Windows.Input;
-using Avalonia.Collections;
 using Avalonia.Controls;
 using Avalonia.Controls.Notifications;
+using Avalonia.Styling;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Material.Icons;
+using SukiUI;
 using SukiUI.Dialogs;
 using SukiUI.Toasts;
 using Velopack;
@@ -20,37 +17,42 @@ namespace MapWizard.Desktop.ViewModels
         public ISukiToastManager ToastManager { get; }
         public ISukiDialogManager DialogManager { get; }
 
-        private UpdateManager _updateManager;
-    
-        private readonly ViewModelBase[] _views;
+        private readonly UpdateManager _updateManager;
         
         public ViewModelBase HitSoundCopierViewModel { get; }
         public ViewModelBase MetadataManagerViewModel { get; }
         public ViewModelBase WelcomePageViewModel { get; }
 
+        [ObservableProperty]
+        private bool isDarkTheme;
+        
+        partial void OnIsDarkThemeChanged(bool value)
+        {
+            SukiTheme.GetInstance().ChangeBaseTheme(value ? ThemeVariant.Dark : ThemeVariant.Light);
+        }
+        
         public MainWindowViewModel(
-            WelcomePageViewModel wpVm,
-            HitSoundCopierViewModel hsVm,
-            MetadataManagerViewModel mmVm,
+            WelcomePageViewModel welcomePageViewModel,
+            HitSoundCopierViewModel hitSoundCopierViewModel,
+            MetadataManagerViewModel metadataManagerViewModel,
             UpdateManager updateManager,
             ISukiToastManager toastManager)
         {
             _updateManager = updateManager;
             ToastManager = toastManager;
             DialogManager = new SukiDialogManager();
-            HitSoundCopierViewModel = hsVm;
-            MetadataManagerViewModel = mmVm;
-            WelcomePageViewModel = wpVm;
+            HitSoundCopierViewModel = hitSoundCopierViewModel;
+            MetadataManagerViewModel = metadataManagerViewModel;
+            WelcomePageViewModel = welcomePageViewModel;
 
             Task.Run(CheckForUpdates);
         }
 
-      
         private async Task CheckForUpdates()
         {
 
             if (!_updateManager.IsInstalled)
-                return; // not an installed app
+                return;
 
             ToastManager.CreateToast().OfType(NotificationType.Information)
                 .WithLoadingState(true)
@@ -69,7 +71,7 @@ namespace MapWizard.Desktop.ViewModels
                 .WithTitle("Updates")
                 .WithContent($"New version {newVersion.BaseRelease?.Version} is available.")
                 .WithActionButtonNormal("Later", _ => { }, true)
-                .WithActionButton("Update", _ => ShowUpdateToastWithProgress(newVersion), true)
+                .WithActionButton("Update", _ => ShowUpdateToastWithProgress(newVersion).Wait(), true)
                 .Queue();
         }
 

@@ -4,6 +4,7 @@
     xmlns:sukiUi="clr-namespace:SukiUI;assembly=SukiUI"
     xmlns:local="clr-namespace:MapWizard.Desktop"
     xmlns:converters="clr-namespace:MapWizard.Desktop.Converters"
+    xmlns:materialIcons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
     x:Class="MapWizard.Desktop.App">
 
     <Application.DataTemplates>
@@ -11,8 +12,10 @@
     </Application.DataTemplates>
 
     <Application.Styles>
-        <sukiUi:SukiTheme ThemeColor="Blue" />
+        <FluentTheme />
         <StyleInclude Source="avares://Avalonia.Controls.ColorPicker/Themes/Fluent/Fluent.xaml" />
+        <sukiUi:SukiTheme Locale="en-US" ThemeColor="Blue" />
+        <materialIcons:MaterialIconStyles />
     </Application.Styles>
 
     <Application.Resources>

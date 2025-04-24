@@ -7,7 +7,9 @@
     xmlns:materialIcons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
     x:Class="MapWizard.Desktop.Views.MainWindow"
     x:DataType="vm:MainWindowViewModel"
+    IsMenuVisible="False"
     Title="MapWizard">
+    
 
     <suki:SukiWindow.DataTemplates>
         <DataTemplate DataType="{x:Type vm:WelcomePageViewModel}">
@@ -20,12 +22,40 @@
             <views:MetadataManagerView/>
         </DataTemplate>
     </suki:SukiWindow.DataTemplates>
-
+    
     <suki:SukiWindow.Hosts>
         <suki:SukiToastHost Manager="{Binding ToastManager}" Position="BottomRight" MaxToasts="3" />
+        <suki:SukiDialogHost Manager="{Binding DialogManager}"></suki:SukiDialogHost>
     </suki:SukiWindow.Hosts>
+    
+    
+    <suki:SukiWindow.LogoContent>
+        <Image
+            Source="/Assets/app-icon.ico"
+            MaxWidth="26"
+            Stretch="Uniform"
+            RenderOptions.BitmapInterpolationMode="HighQuality" 
+            />
+    </suki:SukiWindow.LogoContent>
+    
+     <suki:SukiWindow.MenuItems>
+         <MenuItem Header="File" Classes="Compact">
+             <MenuItem Header="Load Beatmap" Command="{Binding LoadBeatmapCommand}" />
+             <MenuItem Header="Exit" Command="{Binding ExitCommand}" />
+         </MenuItem>
+     </suki:SukiWindow.MenuItems>
+    
+    <suki:SukiWindow.RightWindowTitleBarControls>
+        <!-- Dark theme toggle -->
+        <ToggleButton Classes="Compact" 
+                      IsChecked="{Binding IsDarkTheme, Mode=TwoWay}" 
+                      ToolTip.Tip="Toggle dark theme">
+            <materialIcons:MaterialIcon Kind="ThemeLightDark" />
+        </ToggleButton>
+    </suki:SukiWindow.RightWindowTitleBarControls>
+        
 
-    <suki:SukiSideMenu IsSearchEnabled="True" >
+    <suki:SukiSideMenu IsSearchEnabled="False" >
         <suki:SukiSideMenu.Items>
             <suki:SukiSideMenuItem Header="Start" Classes="Compact">
                 <suki:SukiSideMenuItem.Icon>
