@@ -60,7 +60,7 @@ jobs:
           ./build-osx.sh ${{ github.ref_name }}
 
       - name: Upload Artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: MapWizard-${{ matrix.os }}
           path: |
