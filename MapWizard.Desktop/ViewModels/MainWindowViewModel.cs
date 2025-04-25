@@ -26,10 +26,10 @@ namespace MapWizard.Desktop.ViewModels
         public ViewModelBase WelcomePageViewModel { get; }
 
         [ObservableProperty]
-        private bool isDarkTheme;
+        private bool _isDarkTheme;
         
         [ObservableProperty]
-        private string version = "MapWizard-localdev";
+        private string _version = "MapWizard-localdev";
 
         [ObservableProperty] private MaterialIconKind themeToggleIcon;
         

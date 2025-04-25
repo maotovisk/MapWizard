@@ -7,8 +7,9 @@
     <ApplicationIcon>Assets/app-icon.ico</ApplicationIcon>
     <SelfContained>true</SelfContained>
     <LangVersion>latestmajor</LangVersion>
+    <Version>1.0.0</Version>
   </PropertyGroup>
-
+  
   <ItemGroup>
     <PackageReference Include="Avalonia" Version="11.2.8" />
     <PackageReference Include="Avalonia.Controls.ColorPicker" Version="11.2.8" />

@@ -1,0 +1,67 @@
+name: Release MapWizard
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+jobs:
+  build:
+    name: Build for ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Install vpk CLI
+        run: dotnet tool install -g vpk
+
+      - name: Add .NET tools to PATH
+        run: echo "${HOME}/.dotnet/tools" >> $GITHUB_PATH
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Run tests
+        run: dotnet test MapWizard.Tests/MapWizard.Tests.csproj --no-restore --verbosity normal
+
+      - name: Make platform script executable (Linux/macOS only)
+        if: runner.os != 'Windows'
+        run: |
+          chmod +x MapWizard.Desktop/build-linux.sh
+          chmod +x MapWizard.Desktop/build-osx.sh
+          chmod +x MapWizard.Desktop/build-win.sh
+
+      - name: Build with Velopack - Windows
+        if: runner.os == 'Windows'
+        run: |
+          cd MapWizard.Desktop
+          ./build-win.sh ${{ github.ref_name }}
+
+      - name: Build with Velopack - Linux
+        if: runner.os == 'Linux'
+        run: |
+          cd MapWizard.Desktop
+          ./build-linux.sh ${{ github.ref_name }}
+
+      - name: Build with Velopack - macOS
+        if: runner.os == 'macOS'
+        run: |
+          cd MapWizard.Desktop
+          ./build-osx.sh ${{ github.ref_name }}
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: MapWizard-${{ matrix.os }}
+          path: |
+            MapWizard.Desktop/releases/**/*
