@@ -1,3 +1,4 @@
+
 name: Release MapWizard
 
 on:
@@ -11,7 +12,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest]  # removed windows-latest
+        os: [ubuntu-latest, macos-latest]
 
     steps:
       - name: Checkout code
@@ -63,3 +64,31 @@ jobs:
           name: MapWizard-${{ matrix.os }}
           path: |
             MapWizard.Desktop/releases/**/*
+
+  upload-release-assets:
+    name: Attach artifacts to GitHub Release
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          name: MapWizard ${{ github.ref_name }}
+          tag_name: ${{ github.ref_name }}
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload binaries to release
+        run: |
+          for dir in MapWizard-*; do
+            for file in "$dir"/**/*; do
+              [ -f "$file" ] && gh release upload "$GITHUB_REF_NAME" "$file" --clobber
+            done
+          done
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
