@@ -11,7 +11,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
+        os: [ubuntu-latest, macos-latest]  # removed windows-latest
 
     steps:
       - name: Checkout code
@@ -39,24 +39,17 @@ jobs:
         run: echo "VERSION=${GITHUB_REF_NAME#v}" >> $GITHUB_ENV
 
       - name: Make platform script executable (Linux/macOS only)
-        if: runner.os != 'Windows'
         run: |
           chmod +x MapWizard.Desktop/build-linux.sh
           chmod +x MapWizard.Desktop/build-osx.sh
           chmod +x MapWizard.Desktop/build-win.sh
-
-      - name: Build with Velopack - Windows
-        if: runner.os == 'Windows'
-        shell: bash
-        run: |
-          cd MapWizard.Desktop
-          ./build-win.sh ${{ env.VERSION }}
 
       - name: Build with Velopack - Linux
         if: runner.os == 'Linux'
         run: |
           cd MapWizard.Desktop
           ./build-linux.sh ${{ env.VERSION }}
+          ./build-win.sh ${{ env.VERSION }}
 
       - name: Build with Velopack - macOS
         if: runner.os == 'macOS'
