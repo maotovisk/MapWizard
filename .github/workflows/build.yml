@@ -47,6 +47,7 @@ jobs:
 
       - name: Build with Velopack - Windows
         if: runner.os == 'Windows'
+        shell: bash
         run: |
           cd MapWizard.Desktop
           ./build-win.sh ${{ env.VERSION }}
@@ -64,7 +65,7 @@ jobs:
           ./build-osx.sh ${{ env.VERSION }}
 
       - name: Upload Artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v2
         with:
           name: MapWizard-${{ matrix.os }}
           path: |
