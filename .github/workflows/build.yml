@@ -40,7 +40,7 @@ jobs:
           chmod +x MapWizard.Desktop/build-linux.sh
           chmod +x MapWizard.Desktop/build-osx.sh
           chmod +x MapWizard.Desktop/build-win.sh
-
+          
       - name: Build with Velopack - Windows
         if: runner.os == 'Windows'
         run: |
@@ -60,7 +60,7 @@ jobs:
           ./build-osx.sh ${{ github.ref_name }}
 
       - name: Upload Artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v2
         with:
           name: MapWizard-${{ matrix.os }}
           path: |
