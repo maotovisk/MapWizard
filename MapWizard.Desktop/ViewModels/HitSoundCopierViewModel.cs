@@ -5,29 +5,29 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Avalonia.Controls.Notifications;
 using Avalonia.Platform.Storage;
-using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MapWizard.Desktop.Models;
 using MapWizard.Desktop.Services;
 using MapWizard.Tools.HitSoundCopier;
-using Material.Styles.Controls;
-using Material.Styles.Models;
+using SukiUI.Toasts;
 
 namespace MapWizard.Desktop.ViewModels;
 
 public partial class HitSoundCopierViewModel(
     IFilesService filesService,
     IHitSoundService hitSoundService,
-    IOsuMemoryReaderService osuMemoryReaderService) : ViewModelBase
+    IOsuMemoryReaderService osuMemoryReaderService,
+    ISukiToastManager toastManager) : ViewModelBase
 {
-    [ObservableProperty] private string _snackbarName = "SnackbarMainWindow";
 
     [ObservableProperty] private SelectedMap _originBeatmap = new();
 
-    [ObservableProperty] private bool _hasMultiple;
-
+    [ObservableProperty]
+    private bool _hasMultiple = false;
+    
     [ObservableProperty] private bool _copySampleAndVolumeChanges = true;
 
     [ObservableProperty] private bool _overwriteMuting;
@@ -36,7 +36,9 @@ public partial class HitSoundCopierViewModel(
 
     [ObservableProperty] private int _leniency = 5;
 
-    [NotifyPropertyChangedFor(nameof(AdditionalBeatmaps))] [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(AdditionalBeatmaps))] 
+    [NotifyPropertyChangedFor(nameof(AdditionalBeatmaps))] 
+    [ObservableProperty]
     private ObservableCollection<SelectedMap> _destinationBeatmaps = [new SelectedMap()];
 
     public ObservableCollection<SelectedMap> AdditionalBeatmaps
@@ -55,6 +57,11 @@ public partial class HitSoundCopierViewModel(
     private void RemoveMap(string path)
     {
         DestinationBeatmaps = new ObservableCollection<SelectedMap>(DestinationBeatmaps.Where(x => x.Path != path));
+        
+        if (DestinationBeatmaps.Count < 2)
+        {
+            HasMultiple = false;
+        }
     }
 
     [RelayCommand]
@@ -175,12 +182,12 @@ public partial class HitSoundCopierViewModel(
 
         if (destinationBeatmaps.Any(x => x.Path == currentBeatmap))
         {
-            SnackbarHost.Post(
-                new SnackbarModel(
-                    "This beatmap is already in the list.",
-                    TimeSpan.FromSeconds(8)),
-                SnackbarName,
-                DispatcherPriority.Normal);
+            toastManager.CreateToast()
+                .OfType(NotificationType.Error)
+                .WithTitle("Duplicate Beatmap")
+                .WithContent("This beatmap is already in the list.")
+                .Dismiss().After(TimeSpan.FromSeconds(8))
+                .Queue();
             return;
         }
 
@@ -203,23 +210,23 @@ public partial class HitSoundCopierViewModel(
 
         if (currentBeatmap.Status == ResultStatus.Error)
         {
-            SnackbarHost.Post(
-                new SnackbarModel(
-                    currentBeatmap.ErrorMessage ?? "Something went wrong while getting the beatmap path from memory.",
-                    TimeSpan.FromSeconds(8)),
-                SnackbarName,
-                DispatcherPriority.Normal);
+            toastManager.CreateToast()
+                .OfType(NotificationType.Error)
+                .WithTitle("Memory Error")
+                .WithContent(currentBeatmap.ErrorMessage ?? "Something went wrong while getting the beatmap path from memory.")
+                .Dismiss().After(TimeSpan.FromSeconds(8))
+                .Queue();
             return null;
         }
 
         if (string.IsNullOrEmpty(currentBeatmap.Value))
         {
-            SnackbarHost.Post(
-                new SnackbarModel(
-                    "No beatmap found in memory.",
-                    TimeSpan.FromSeconds(8)),
-                SnackbarName,
-                DispatcherPriority.Normal);
+            toastManager.CreateToast()
+                .OfType(NotificationType.Error)
+                .WithTitle("No Beatmap")
+                .WithContent("No beatmap found in memory.")
+                .Dismiss().After(TimeSpan.FromSeconds(8))
+                .Queue();
             return null;
         }
 
@@ -229,6 +236,7 @@ public partial class HitSoundCopierViewModel(
     [RelayCommand]
     private void CopyHitSounds()
     {
+        NotificationType type = NotificationType.Error;
         var message = string.Empty;
 
         var options = new HitSoundCopierOptions()
@@ -238,7 +246,7 @@ public partial class HitSoundCopierViewModel(
             Leniency = Leniency,
             OverwriteMuting = OverwriteMuting
         };
-
+        
         if (string.IsNullOrEmpty(OriginBeatmap.Path))
         {
             message = "Please select an origin beatmap!";
@@ -250,14 +258,15 @@ public partial class HitSoundCopierViewModel(
         else if (hitSoundService.CopyHitsoundsAsync(OriginBeatmap.Path,
                      DestinationBeatmaps.Select(x => x.Path).ToArray(), options))
         {
+            type = NotificationType.Success;
             message = $"HitSounds applied successfully to {DestinationBeatmaps.Count} beatmap(s)!";
         }
 
-        SnackbarHost.Post(
-            new SnackbarModel(
-                message,
-                TimeSpan.FromSeconds(8)),
-            SnackbarName,
-            DispatcherPriority.Normal);
+        toastManager.CreateToast()
+            .OfType(type)
+            .WithTitle("HitSound Copier")
+            .WithContent(message)
+            .Dismiss().After(TimeSpan.FromSeconds(8))
+            .Queue();
     }
 }
