@@ -23,4 +23,4 @@ dotnet publish -c Release --self-contained -r osx-x64 -o "$PUBLISH_DIR"
 
 echo ""
 echo "Building Velopack Release v$BUILD_VERSION"
-vpk [osx] pack -u MapWizard -v $BUILD_VERSION -o "$RELEASE_DIR" -p "$PUBLISH_DIR" 
+vpk [osx] pack -u MapWizard.Desktop --packTitle "MapWizard" -v $BUILD_VERSION -o "$RELEASE_DIR" -p "$PUBLISH_DIR" -e "MapWizard.Desktop" -i "$ICON_PATH" 
