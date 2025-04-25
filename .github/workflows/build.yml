@@ -69,6 +69,8 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     if: github.ref_type == 'tag'
+    permissions:
+      contents: write
     steps:
       - name: Download all artifacts
         uses: actions/download-artifact@v4
@@ -83,4 +85,4 @@ jobs:
           files: |
             MapWizard-*/**/*
         env:
-          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
