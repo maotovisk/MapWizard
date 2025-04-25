@@ -64,10 +64,11 @@ jobs:
           path: |
             MapWizard.Desktop/releases/**/*
 
-  upload-release-assets:
-    name: Attach artifacts to GitHub Release
+  release:
+    name: GitHub Release
     needs: build
     runs-on: ubuntu-latest
+    if: github.ref_type == 'tag'
     steps:
       - name: Download all artifacts
         uses: actions/download-artifact@v4
@@ -79,15 +80,7 @@ jobs:
           tag_name: ${{ github.ref_name }}
           draft: false
           prerelease: false
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Upload binaries to release
-        run: |
-          for dir in MapWizard-*; do
-            for file in "$dir"/**/*; do
-              [ -f "$file" ] && gh release upload "$GITHUB_REF_NAME" "$file" --clobber
-            done
-          done
+          files: |
+            MapWizard-*/**/*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
