@@ -1,4 +1,3 @@
-
 name: Release MapWizard
 
 on:
@@ -74,7 +73,7 @@ jobs:
         uses: actions/download-artifact@v4
 
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           name: MapWizard ${{ github.ref_name }}
           tag_name: ${{ github.ref_name }}
