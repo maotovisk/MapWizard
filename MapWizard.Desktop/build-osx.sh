@@ -13,7 +13,7 @@ fi
 BUILD_VERSION="$1"
 RELEASE_DIR="$SCRIPT_DIR/releases"
 PUBLISH_DIR="$SCRIPT_DIR/publish"
-ICON_PATH="$SCRIPT_DIR/Assets/app-icon.ico"
+ICON_PATH="$SCRIPT_DIR/Assets/app-icon.icns"
 
 echo "Cleaning up previous build..."
 dotnet clean
