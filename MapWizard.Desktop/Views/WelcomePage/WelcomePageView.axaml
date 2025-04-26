@@ -4,12 +4,14 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:vm="clr-namespace:MapWizard.Desktop.ViewModels"
+    xmlns:ia="clr-namespace:Avalonia.Xaml.Interactivity;assembly=Avalonia.Xaml.Interactivity"
     mc:Ignorable="d"
     d:DesignWidth="800"
     d:DesignHeight="450"
     x:Class="MapWizard.Desktop.Views.WelcomePageView"
     x:DataType="vm:WelcomePageViewModel"
     Padding="26">
+    
     <StackPanel
         VerticalAlignment="Center"
         HorizontalAlignment="Center"
