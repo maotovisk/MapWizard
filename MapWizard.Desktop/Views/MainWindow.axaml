@@ -98,7 +98,7 @@
                     </StackPanel>
                 </Button>
                 
-                <TextBlock Text="{Binding Version}"></TextBlock>
+                <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Text="{Binding Version}"></TextBlock>
             </StackPanel>
         </suki:SukiSideMenu.FooterContent>
     </suki:SukiSideMenu>

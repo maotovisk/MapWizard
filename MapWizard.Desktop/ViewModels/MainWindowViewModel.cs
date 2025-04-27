@@ -45,11 +45,12 @@ namespace MapWizard.Desktop.ViewModels
             HitSoundCopierViewModel hitSoundCopierViewModel,
             MetadataManagerViewModel metadataManagerViewModel,
             UpdateManager updateManager,
-            ISukiToastManager toastManager)
+            ISukiToastManager toastManager,
+            ISukiDialogManager dialogManager)
         {
             _updateManager = updateManager;
             ToastManager = toastManager;
-            DialogManager = new SukiDialogManager();
+            DialogManager = dialogManager;
             HitSoundCopierViewModel = hitSoundCopierViewModel;
             MetadataManagerViewModel = metadataManagerViewModel;
             WelcomePageViewModel = welcomePageViewModel;
@@ -74,65 +75,6 @@ namespace MapWizard.Desktop.ViewModels
                 IsDarkTheme = false;
                 ThemeToggleIcon = MaterialIconKind.WhiteBalanceSunny;
             }
-
-            Task.Run(CheckForUpdates);
-        }
-
-        private async Task CheckForUpdates()
-        {
-            if (!_updateManager.IsInstalled)
-                return;
-
-            ToastManager.CreateToast().OfType(NotificationType.Information)
-                .WithLoadingState(true)
-                .WithTitle("Updates")
-                .WithContent("Checking for updates...")
-                .Dismiss().After(TimeSpan.FromSeconds(8))
-                .Queue();
-
-            var newVersion = await _updateManager.CheckForUpdatesAsync();
-            if (newVersion == null)
-            {
-                return;
-            }
-            
-            ToastManager.CreateToast().OfType(NotificationType.Information)
-                .WithLoadingState(false)
-                .WithTitle("Updates")
-                .WithContent($"New version {newVersion.BaseRelease?.Version} is available.")
-                .WithActionButtonNormal("Later", _ => { }, true)
-                .WithActionButton("Update", _ => ShowUpdateToastWithProgress(newVersion).Wait(), true)
-                .Queue();
-        }
-
-        private async Task ShowUpdateToastWithProgress(UpdateInfo info)
-        {
-            var progress = new ProgressBar() { Value = 0, ShowProgressText = true };
-            var toast = ToastManager.CreateToast()
-                .WithTitle("Downloading Update...")
-                .WithContent(progress)
-                .Queue();
-
-            await _updateManager.DownloadUpdatesAsync(info, x =>
-            {
-                Dispatcher.UIThread.Invoke(() =>
-                {
-                    progress.Value = x;
-                    if (progress.Value < 100) return;
-                    ToastManager.Dismiss(toast);
-                });
-            });
-            
-            ToastManager.CreateToast()
-                .OfType(NotificationType.Success)
-                .WithTitle("Update Downloaded")
-                .WithContent("The update has been downloaded. Please restart the app to apply the update.")
-                .WithActionButton("Next Restart", _ => { _updateManager.WaitExitThenApplyUpdates(info); }, true)
-                .WithActionButtonNormal("Restart Now", _ =>
-                {
-                    _updateManager.ApplyUpdatesAndRestart(info);
-                }, true)
-                .Queue();
         }
 
         [RelayCommand]
