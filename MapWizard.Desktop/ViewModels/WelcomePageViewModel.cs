@@ -15,7 +15,21 @@ public partial class WelcomePageViewModel(ISukiDialogManager dialogManager, ISuk
     public string Message { get; set; } = "Welcome to MapWizard, select a tool to get started!";
     
     [ObservableProperty]
-    private bool _showUpdateToast;
+    private bool _showUpdateToast = false;
+    
+    private bool checkedOnce = false;
+    
+    [RelayCommand]
+    private void WindowStartup()
+    {
+        if (checkedOnce || !updateManager.IsInstalled)
+        {
+            return;
+        }
+        checkedOnce = true;
+        
+        CheckForUpdates();
+    }
     
     [RelayCommand]
     private void CheckForUpdates()
@@ -24,10 +38,12 @@ public partial class WelcomePageViewModel(ISukiDialogManager dialogManager, ISuk
         {
             dialogManager.CreateDialog()
                 .WithTitle("Update Check")
-                .WithContent("MapWizard is not installed. Please install it to check for updates.")
+                .WithContent("MapWizard is not installed. Please install it to check for updates.")     
+                .WithActionButton("Ok ", _ => { }, true) 
                 .TryShow();
             return;
         }
+
 
         toastManager.CreateToast().OfType(NotificationType.Information)
             .WithLoadingState(true)

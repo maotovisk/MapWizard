@@ -5,18 +5,24 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:vm="clr-namespace:MapWizard.Desktop.ViewModels"
     xmlns:ia="clr-namespace:Avalonia.Xaml.Interactivity;assembly=Avalonia.Xaml.Interactivity"
+    xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
     mc:Ignorable="d"
     d:DesignWidth="800"
     d:DesignHeight="450"
     x:Class="MapWizard.Desktop.Views.WelcomePageView"
     x:DataType="vm:WelcomePageViewModel"
     Padding="26">
-    
+    <Interaction.Behaviors>
+        <RoutedEventTriggerBehavior
+            RoutedEvent="{x:Static Control.LoadedEvent}">
+            <InvokeCommandAction
+                Command="{Binding WindowStartupCommand}"/>
+        </RoutedEventTriggerBehavior>
+    </Interaction.Behaviors>
     <StackPanel
         VerticalAlignment="Center"
         HorizontalAlignment="Center"
         Spacing="16">
-
         <Image
             Source="/Assets/app-icon.ico"
             MaxWidth="200"
@@ -26,6 +32,24 @@
             Text="{Binding Message}"
             FontSize="24"
             TextAlignment="Center" />
-
+        
+        <!-- check for updates button -->
+        <Button
+            Command="{Binding CheckForUpdatesCommand}"
+            HorizontalAlignment="Center"
+            Classes="Basic"
+            Width="200">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="6">
+                <avalonia:MaterialIcon Kind="Update" />
+                <TextBlock
+                    Text="Check for Updates"
+                    FontSize="16"
+                    VerticalAlignment="Center"
+                    HorizontalAlignment="Center" />
+            </StackPanel>
+           
+            
+        </Button>
+            
     </StackPanel>
 </UserControl>
