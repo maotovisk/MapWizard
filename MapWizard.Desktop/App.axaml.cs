@@ -24,7 +24,6 @@ public partial class App : Application
         BindingPlugins.DataValidators.RemoveAt(0);
         var collection = new ServiceCollection();
         collection.AddCommonServices();
-        // Creates a ServiceProvider containing services from the provided IServiceCollection
         var services = collection.BuildServiceProvider();
 
         var mainWindow = services.GetRequiredService<MainWindow>();

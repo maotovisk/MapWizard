@@ -2,9 +2,9 @@ using Avalonia.Controls;
 
 namespace MapWizard.Desktop.Views;
 
-public partial class MetadataManagerView : UserControl
+public partial class HitSoundCopierView : UserControl
 {
-    public MetadataManagerView()
+    public HitSoundCopierView()
     {
         InitializeComponent();
     }

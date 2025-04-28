@@ -1,0 +1,88 @@
+name: Release MapWizard
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+jobs:
+  build:
+    name: Build for ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Install vpk CLI
+        run: dotnet tool install -g vpk
+
+      - name: Add .NET tools to PATH
+        run: echo "${HOME}/.dotnet/tools" >> $GITHUB_PATH
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Run tests
+        run: dotnet test MapWizard.Tests/MapWizard.Tests.csproj --no-restore --verbosity normal
+
+      - name: Extract clean version
+        id: version
+        run: echo "VERSION=${GITHUB_REF_NAME#v}" >> $GITHUB_ENV
+
+      - name: Make platform script executable (Linux/macOS only)
+        run: |
+          chmod +x MapWizard.Desktop/build-linux.sh
+          chmod +x MapWizard.Desktop/build-osx.sh
+          chmod +x MapWizard.Desktop/build-win.sh
+
+      - name: Build with Velopack - Linux
+        if: runner.os == 'Linux'
+        run: |
+          cd MapWizard.Desktop
+          ./build-linux.sh ${{ env.VERSION }}
+          ./build-win.sh ${{ env.VERSION }}
+
+      - name: Build with Velopack - macOS
+        if: runner.os == 'macOS'
+        run: |
+          cd MapWizard.Desktop
+          ./build-osx.sh ${{ env.VERSION }}
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: MapWizard-${{ matrix.os }}
+          path: |
+            MapWizard.Desktop/releases/**/*
+
+  release:
+    name: GitHub Release
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.ref_type == 'tag'
+    permissions:
+      contents: write
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: MapWizard ${{ github.ref_name }}
+          tag_name: ${{ github.ref_name }}
+          draft: false
+          prerelease: false
+          files: |
+            MapWizard-*/**/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

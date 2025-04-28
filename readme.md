@@ -1,60 +1,84 @@
 # MapWizard 2
 
-A tool that aims to allow mappers copy the hitsounds of a beatmap difficulty to other difficulties on the set, manage metadata and more. This is a rewrite of the original [Map Wizard](https://github.com/maotovisk/map-wizard), previously made in Tauri and Svelte, now being rewritten in C# with .NET 9 and Avalonia.
+**A modern tool for osu! beatmap editing**, designed to streamline your workflow with features like hitsound transfer, metadata management, auto combo color generation, and map cleaning.
 
-<br/>
+> Rebuilt from the ground up in C# (.NET 9 + Avalonia) for speed, stability, and cross-platform support.
 
-<p align="right"><b>Current Status</b>: Working on Map Cleaner</p>
+[![GitHub release](https://img.shields.io/github/v/release/maotovisk/MapWizard?style=flat-square)](https://github.com/maotovisk/MapWizard/releases)
+![Platforms](https://img.shields.io/badge/platforms-Windows%20|%20Linux%20|%20macOS-blue?style=flat-square)
+![Status](https://img.shields.io/badge/status-Map%20Cleaner%20in%20Progress-yellow?style=flat-square)
+![Website(https://mapwizard.maot.dev)](https://img.shields.io/badge/website-mapwizard.maot.dev-blue?style=flat-square)
 
-## Project Goals
+---
 
-- Fully cross-platform (primary target is Linux, but should work on MacOS and Windows as well);
-- Hitsound Copier;
-- Metadata manager;
-- Auto generate combo color from BG;
-- Map cleaner.
+## Features
 
-## Requirements
+- **Cross-platform** – First-class Linux support, works on Windows and macOS  
+- **Hitsound Copier** – Quickly transfer hitsounds between difficulties  
+- **Metadata Manager** – Edit and sync beatmap metadata with ease  
+- **Auto Combo Colors** – Generate color schemes from background images  
+- **Map Cleaner** – Remove unused files and tidy up your beatmaps  
 
-- .NET 9 or above
+---
 
-## Installing
-We provide pre-built binaries for Linux and Windows. You can download it from the [releases page](
-https://github.com/maotovisk/MapWizard/releases). 
- 
-Thanks to the [Velopack](https://velopack.io/) project, it auto-updates and it's just a 1-click install.
+## Installation
 
-You can also get it from the [AUR](https://aur.archlinux.org/packages/mapwizard-git) with the package `mapwizard-git`
+### Pre-built Binaries
 
-## Building
+- **Windows / Linux** – [Grab the latest release](https://github.com/maotovisk/MapWizard/releases)  
+  *(Includes auto-update via [Velopack](https://velopack.io/))*  
+- **Arch Linux** – Install via the AUR:  
+  ```bash
+  yay -S mapwizard-git
+  ```
 
-1. Clone the repository
+### Building from Source
 
-```bash
-git clone https://github.com/maotovisk/MapWizard.git
-```
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/maotovisk/MapWizard.git
+   ```
+2. Run the app:
+   ```bash
+   dotnet run --project MapWizard.Desktop
+   ```
 
-2. Run the project
+> Requires [.NET 9](https://dotnet.microsoft.com/) or later
 
-```bash
-dotnet run --project MapWizard.Desktop
-```
+---
 
 ## Roadmap
 
-- [x] Implement the basic beatmap parser
-- [x] Implement the hitsound copier
-- [x] Implement the metadata manager
-- [ ] Implement the map cleaner
-- [ ] Implement the combo color generator
+| Status | Feature               |
+|--------|-----------------------|
+| ✅     | Beatmap parser         |
+| ✅     | Hitsound copier        |
+| ✅     | Metadata manager       |
+| 🚧     | Map cleaner            |
+| ⏳     | Combo color generator  |
 
-## References
+---
 
-- [Mapping Tools](https://github.com/olibomby/mapping_tools) by [OliBomby](https://github.com/olibomby) for the whole idea of the project and such a great toolset for mapping.
-- [Map Wizard](https://github.com/maotovisk/map-wizard) by [me](https://github.com/maotovisk) for the first implementation of the hitsound copier and metadata management stuff.
-- [osu! File Formats](https://osu.ppy.sh/help/wiki/osu!_File_Formats) for the .osu file format documentation.
-- [osu!](https://github.com/ppy/osu) for the osu! lazer project, which is a great reference for the new parser.
+## Credits
 
-## Contributing
+With thanks to:
 
-Feel free to contribute to this project. Any help is welcome.
+- [OliBomby's Mapping Tools](https://github.com/olibomby/mapping_tools) – for inspiration  
+- The original [Map Wizard](https://github.com/maotovisk/map-wizard) (Tauri/Svelte version)  
+- [osu! File Formats](https://osu.ppy.sh/help/wiki/osu!_File_Formats) – official documentation  
+- [ppy/osu](https://github.com/ppy/osu) – for reference and structure  
+- [OsuMemoryDataProvider](https://github.com/Piotrekol/ProcessMemoryDataFinder) - for memory reading on windows
+- [cosutrainer's osumem](https://github.com/hwsmm/cosutrainer) by hwsmm - for reference on memory reading on linux
+
+---
+
+## Contribute
+
+Contributions are welcome—feel free to open issues or submit pull requests!
+
+---
+
+<p align="center">
+  <em>Happy mapping!</em><br/>
+  <sub>Created with ❤️ by <a href="https://github.com/maotovisk">maotovisk</a></sub>
+</p>

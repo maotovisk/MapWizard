@@ -1,0 +1,175 @@
+<UserControl
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:materialIcons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+    xmlns:suki="clr-namespace:SukiUI.Controls;assembly=SukiUI"
+    mc:Ignorable="d"
+    d:DesignWidth="800"
+    d:DesignHeight="450"
+    x:Class="MapWizard.Desktop.Views.HitSoundCopierView"
+    xmlns:vm="clr-namespace:MapWizard.Desktop.ViewModels"
+    xmlns:viewModels="clr-namespace:MapWizard.Desktop.ViewModels"
+    xmlns:theme="https://github.com/kikipoulet/SukiUI"
+    x:DataType="viewModels:HitSoundCopierViewModel"
+    Padding="16">
+    <Grid RowDefinitions="Auto,Auto,*">
+        <Grid ColumnDefinitions="*, Auto" VerticalAlignment="Center">
+        <TextBlock
+            Grid.Row="0"
+            Text="Hitsound Copier"
+            FontSize="24"
+            FontWeight="Bold"
+            VerticalAlignment="Center"
+            Margin="16,0" />
+       
+        <Button Grid.Column="1"
+            Classes="Flat Large"
+            Command="{Binding CopyHitSoundsCommand}"
+            ToolTip.Tip="Copy the hitsounds">
+            <StackPanel Orientation="Horizontal" Spacing="8">
+                <materialIcons:MaterialIcon Kind="ContentSave" Width="24" Height="24" />
+                <TextBlock
+                    VerticalAlignment="Center"
+                    FontWeight="Bold"
+                    FontSize="16"
+                    Text="Copy Hitsounds" />
+            </StackPanel>
+        </Button>
+        </Grid>
+        <Separator Grid.Row="1" Margin="0 10 0 5" />
+
+        <ScrollViewer Grid.Row="2">
+            <StackPanel Spacing="16">
+                <suki:GlassCard
+                    Margin="8"
+                    Padding="12"
+                    CornerRadius="15">
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="Beatmap Selection" />
+                        <Separator />
+                        <Grid ColumnDefinitions="*,Auto" VerticalAlignment="Center">
+                            <TextBox
+                                theme:TextBoxExtensions.Prefix="From: "
+                                Watermark="Copy hitsounds from..."
+                                Text="{Binding OriginBeatmap.Path, Mode=TwoWay}"
+                                VerticalAlignment="Center"
+                                HorizontalAlignment="Stretch"
+                                Margin="0,0,8,0" />
+                            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
+                                <Button Classes="Basic" Command="{Binding PickOriginFileCommand}"
+                                        ToolTip.Tip="Select the beatmap you want to copy the hitsounds from.">
+                                    <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+                                        <materialIcons:MaterialIcon Kind="FileSearchOutline" Width="24" Height="24" />
+                                        <TextBlock VerticalAlignment="Center" Text="Open"></TextBlock>
+                                    </StackPanel>
+                                </Button>
+                                <Button Classes="Flat Rounded" Command="{Binding SetOriginFromMemoryCommand}"
+                                        ToolTip.Tip="Get the current beatmap selected in the osu! client.">
+                                    <StackPanel Orientation="Horizontal" Spacing="4">
+                                        <materialIcons:MaterialIcon Kind="Import" Width="24" Height="24" />
+                                        <TextBlock VerticalAlignment="Center" Text="Select current" />
+                                    </StackPanel>
+                                </Button>
+                            </StackPanel>
+                        </Grid>
+
+                        <Separator />
+                        <Grid ColumnDefinitions="*,Auto" VerticalAlignment="Center">
+                            <TextBox
+                                theme:TextBoxExtensions.Prefix="To: "
+                                Watermark="Copy hitsounds to..."
+                                Text="{Binding DestinationBeatmaps[0].Path, Mode=TwoWay}"
+                                VerticalAlignment="Center"
+                                HorizontalAlignment="Stretch"
+                                Margin="0,0,8,0" />
+                            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
+                                <Button IsVisible="{Binding HasMultiple}"
+                                        Command="{Binding RemoveMapCommand}"
+                                        CommandParameter="{Binding DestinationBeatmaps[0].Path}"
+                                        Classes="Basic"
+                                        ToolTip.Tip="Remove this beatmap from the list.">
+                                        <materialIcons:MaterialIcon Kind="Close" Width="24" Height="24" />
+                                </Button>
+                                <Button Classes="Basic" Command="{Binding PickDestinationFileCommand}"
+                                        ToolTip.Tip="Select the beatmap(s) you want to copy the hitsounds to.">
+                                    <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+                                        <materialIcons:MaterialIcon Kind="FileSearchOutline" Width="24" Height="24" />
+                                        <TextBlock VerticalAlignment="Center" Text="Open"></TextBlock>
+                                    </StackPanel>
+                                </Button>
+                                <Button Classes="Flat Rounded" Command="{Binding AddDestinationFromMemoryCommand}"
+                                        ToolTip.Tip="Add the current beatmap selected in the osu! client.">
+                                    <StackPanel Orientation="Horizontal" Spacing="4">
+                                        <materialIcons:MaterialIcon Kind="Import" Width="24" Height="24" />
+                                        <TextBlock VerticalAlignment="Center" Text="Add current" />
+                                    </StackPanel>
+                                </Button>
+                            </StackPanel>
+                        </Grid>
+                        <ItemsControl
+                            ItemsSource="{Binding AdditionalBeatmaps}"
+                            IsVisible="{Binding HasMultiple}"
+                            Margin="0,8,0,0">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid ColumnDefinitions="*,Auto">
+                                        <TextBox
+                                            Text="{Binding Path, Mode=TwoWay}"
+                                            HorizontalAlignment="Stretch" />
+                                        <Button Grid.Column="1"
+                                                Command="{Binding $parent[ItemsControl].((vm:HitSoundCopierViewModel)DataContext).RemoveMapCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                CommandParameter="{Binding Path}"
+                                                Classes="Basic"
+                                                ToolTip.Tip="Remove this beatmap from the list.">
+                                            <materialIcons:MaterialIcon Kind="Close" Width="24" Height="24" />
+                                        </Button>
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+
+                        <TextBlock
+                            IsVisible="{Binding HasMultiple}"
+                            Text="{Binding DestinationBeatmaps.Count, StringFormat=There are {0} selected beatmaps.}"
+                            Margin="0,8,0,0" />
+
+                    </StackPanel>
+                </suki:GlassCard>
+
+                <!-- Options & Slider -->
+                <suki:GlassCard
+                    Margin="8"
+                    Padding="12"
+                    CornerRadius="15">
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="Options" />
+                        <Separator />
+                        <Grid ColumnDefinitions="*,Auto">
+                            <TextBlock Text="Copy sampleset and volume changes"></TextBlock>
+                            <ToggleSwitch Grid.Column="1"
+                                          IsChecked="{Binding CopySampleAndVolumeChanges}" />
+                        </Grid>
+                        <Grid ColumnDefinitions="*,Auto" IsVisible="{Binding CopySampleAndVolumeChanges}">
+                            <TextBlock Text="Remove muting (5% greenlines)"></TextBlock>
+                            <ToggleSwitch Grid.Column="1"
+                                          IsChecked="{Binding OverwriteMuting}" />
+                        </Grid>
+                        <Grid ColumnDefinitions="*,Auto">
+                            <TextBlock Text="Copy slider-body hitsounds"></TextBlock>
+                            <ToggleSwitch
+                                Grid.Column="1"
+                                IsChecked="{Binding CopySliderBodySounds}" />
+                        </Grid>
+                        <Grid ColumnDefinitions="*,Auto">
+                            <TextBlock VerticalAlignment="Center">Leniency</TextBlock>
+                            <NumericUpDown Grid.Column="1" theme:NumericUpDownExtensions.Unit="ms"
+                                           Value="{Binding Leniency}" />
+                        </Grid>
+                    </StackPanel>
+                </suki:GlassCard>
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</UserControl>

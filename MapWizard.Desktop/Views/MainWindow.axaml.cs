@@ -1,55 +1,26 @@
+using System;
 using System.Threading.Tasks;
-using Avalonia.Controls;
 using Avalonia.Interactivity;
-using Avalonia.Threading;
-using CommunityToolkit.Mvvm.ComponentModel;
 using MapWizard.Desktop.ViewModels;
-using Material.Styles.Controls;
 using MsBox.Avalonia;
 using Velopack;
 using Velopack.Sources;
+using SukiUI.Controls;
+using SukiUI.Toasts;
 
-namespace MapWizard.Desktop.Views;
-
-public partial class MainWindow : Window
+namespace MapWizard.Desktop.Views
 {
-    public MainWindow(MainWindowViewModel viewModel)
+    public partial class MainWindow : SukiWindow
     {
-        DataContext = viewModel;
-        InitializeComponent();
-    }
-    
-    private static async Task UpdateMyApp()
-    {
-        var mgr = new UpdateManager(new GithubSource("https://github.com/maotovisk/MapWizard", null, false, null));
-        
-        if (!mgr.IsInstalled)
-            return; // app is not installed
-        
-        SnackbarHost.Post("Checking for updates...", "SnackbarMainWindow", DispatcherPriority.Normal);
-        
-        var newVersion = await mgr.CheckForUpdatesAsync();
-        if (newVersion == null)
+        public MainWindow(MainWindowViewModel viewModel)
         {
-            SnackbarHost.Post("You're running the latest version!", "SnackbarMainWindow", DispatcherPriority.Normal);
-            return;
+            InitializeComponent();
+            DataContext = viewModel;
         }
-        SnackbarHost.Post($"Update available, downloading version {newVersion.BaseRelease?.Version}...", "SnackbarMainWindow", DispatcherPriority.Normal);
-        
-        await mgr.DownloadUpdatesAsync(newVersion);
-        
-        var box = MessageBoxManager
-            .GetMessageBoxStandard("Update downloaded", "The update is downloaded, the application will restart to apply it.");
 
-        await box.ShowAsync();
-        
-        mgr.ApplyUpdatesAndRestart(newVersion);
-    }
-
-    protected override async void OnLoaded(RoutedEventArgs e)
-    {
-        base.OnLoaded(e);
-        
-        await UpdateMyApp();
+        protected override async void OnLoaded(RoutedEventArgs e)
+        {
+            base.OnLoaded(e);
+        }
     }
 }

@@ -1,56 +1,105 @@
-<Window xmlns="https://github.com/avaloniaui"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:materialIcons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
-        xmlns:vm="using:MapWizard.Desktop.ViewModels"
-        xmlns:dialogHost="clr-namespace:DialogHostAvalonia;assembly=DialogHost.Avalonia"
-        xmlns:controls="clr-namespace:Material.Styles.Controls;assembly=Material.Styles"
-        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-        x:Class="MapWizard.Desktop.Views.MainWindow"
-        x:DataType="vm:MainWindowViewModel"
-        Title="MapWizard">
-  <dialogHost:DialogHost>
-    <controls:SnackbarHost x:Name="SnackbarMainWindow" HostName="SnackbarMainWindow" SnackbarHorizontalAlignment="Right">
-      <Grid ColumnDefinitions="Auto,*">
-        <Grid Background="SteelBlue" Width="135">
-          <Border x:Name="Underline" Background="White" Width="4" Height="30" CornerRadius="2" Margin="0,0,4,0"
-                  VerticalAlignment="Top" HorizontalAlignment="Right"
-                  RenderTransform="{CompiledBinding SelectedIndex, Converter={StaticResource IndexToTransformConverter}}">
-            <Border.Transitions>
-              <Transitions>
-                <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.4" Easing="CircularEaseInOut"/>
-              </Transitions>
-            </Border.Transitions>
-          </Border>
-          
-          <ListBox ItemsSource="{CompiledBinding MenuItems}" 
-                   SelectedItem="{CompiledBinding SelectedMenuItem, Mode=TwoWay}" 
-                   BorderThickness="0" Padding="0" Margin="0">
-            <ListBox.ItemTemplate>
-              <DataTemplate>
-                <Grid Height="70" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="6,0">
-                  <Border Background="Transparent" Padding="0" Margin="0">
-                    <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center">
-                      <materialIcons:MaterialIcon Kind="{CompiledBinding Icon}" Width="16" Height="16" Margin="0,5"/>
-                      <TextBlock Text="{CompiledBinding Title}" FontSize="14" TextAlignment="Center" TextWrapping="Wrap"/>
-                    </StackPanel>
-                  </Border>
-                </Grid>
-              </DataTemplate>
-            </ListBox.ItemTemplate>
-          </ListBox>
-        </Grid>
+<suki:SukiWindow
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:vm="using:MapWizard.Desktop.ViewModels"
+    xmlns:views="clr-namespace:MapWizard.Desktop.Views"
+    xmlns:suki="clr-namespace:SukiUI.Controls;assembly=SukiUI"
+    xmlns:materialIcons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+    x:Class="MapWizard.Desktop.Views.MainWindow"
+    x:DataType="vm:MainWindowViewModel"
+    IsMenuVisible="False"
+    MinWidth="800"
+    MinHeight="600"
+    Title="MapWizard">
+    
 
-        <TransitioningContentControl Grid.Column="1" Content="{CompiledBinding CurrentView}">
-          <TransitioningContentControl.PageTransition>
-            <CompositePageTransition>
-              <CrossFade Duration="0:00:00.400" />
-              <PageSlide Duration="0:00:00.400" Orientation="Vertical" SlideInEasing="CircularEaseInOut" SlideOutEasing="CircularEaseInOut" />
-            </CompositePageTransition>
-          </TransitioningContentControl.PageTransition>
-        </TransitioningContentControl>
-      </Grid>
-    </controls:SnackbarHost>
-  </dialogHost:DialogHost>
-</Window>
+    <suki:SukiWindow.DataTemplates>
+        <DataTemplate DataType="{x:Type vm:WelcomePageViewModel}">
+            <views:WelcomePageView/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:HitSoundCopierViewModel}">
+            <views:HitSoundCopierView/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:MetadataManagerViewModel}">
+            <views:MetadataManagerView/>
+        </DataTemplate>
+    </suki:SukiWindow.DataTemplates>
+    
+    <suki:SukiWindow.Hosts>
+        <suki:SukiToastHost Manager="{Binding ToastManager}" Position="BottomRight" MaxToasts="3" />
+        <suki:SukiDialogHost Manager="{Binding DialogManager}"></suki:SukiDialogHost>
+    </suki:SukiWindow.Hosts>
+    
+    
+    <suki:SukiWindow.LogoContent>
+        <Image
+            Source="/Assets/app-icon.ico"
+            MaxWidth="26"
+            Stretch="Uniform"
+            RenderOptions.BitmapInterpolationMode="HighQuality" 
+            />
+    </suki:SukiWindow.LogoContent>
+    
+     <suki:SukiWindow.MenuItems>
+         <MenuItem Header="File" Classes="Compact">
+             <MenuItem Header="Load Beatmap" Command="{Binding LoadBeatmapCommand}" />
+             <MenuItem Header="Exit" Command="{Binding ExitCommand}" />
+         </MenuItem>
+     </suki:SukiWindow.MenuItems>
+    
+    <suki:SukiWindow.RightWindowTitleBarControls>
+        <!-- Dark theme toggle -->
+        <ToggleButton Classes="Compact" 
+                      IsChecked="{Binding IsDarkTheme, Mode=TwoWay}" 
+                      ToolTip.Tip="Toggle dark theme">
+            <materialIcons:MaterialIcon Kind="{Binding ThemeToggleIcon}" />
+        </ToggleButton>
+    </suki:SukiWindow.RightWindowTitleBarControls>
+        
+
+    <suki:SukiSideMenu IsSearchEnabled="False" >
+        <suki:SukiSideMenu.Items>
+            <suki:SukiSideMenuItem Header="Start" Classes="Compact">
+                <suki:SukiSideMenuItem.Icon>
+                    <materialIcons:MaterialIcon Kind="Home" />
+                </suki:SukiSideMenuItem.Icon>
+                <suki:SukiSideMenuItem.PageContent>
+                    <ContentControl Content="{Binding WelcomePageViewModel}" />
+                </suki:SukiSideMenuItem.PageContent>
+            </suki:SukiSideMenuItem>
+            <suki:SukiSideMenuItem Header="Hitsound Copier" Classes="Compact">
+                <suki:SukiSideMenuItem.Icon>
+                    <materialIcons:MaterialIcon Kind="ContentCopy" />
+                </suki:SukiSideMenuItem.Icon>
+                <suki:SukiSideMenuItem.PageContent>
+                    <ContentControl Content="{Binding HitSoundCopierViewModel}" />
+                </suki:SukiSideMenuItem.PageContent>
+            </suki:SukiSideMenuItem>
+            <suki:SukiSideMenuItem Header="Metadata Manager" Classes="Compact">
+                <suki:SukiSideMenuItem.Icon>
+                    <materialIcons:MaterialIcon Kind="FileDocumentMultiple" />
+                </suki:SukiSideMenuItem.Icon>
+                <suki:SukiSideMenuItem.PageContent>
+                    <ContentControl Content="{Binding MetadataManagerViewModel}" />
+                </suki:SukiSideMenuItem.PageContent>
+            </suki:SukiSideMenuItem>
+        </suki:SukiSideMenu.Items>
+        <suki:SukiSideMenu.FooterContent>
+            <StackPanel HorizontalAlignment="Center" Orientation="Vertical">
+                <Button Classes="Basic" 
+                        Command="{Binding OpenGithubCommand}" 
+                        CommandParameter="https://github.com/maotovisk/MapWizard"
+                        ToolTip.Tip="View on GitHub">
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <materialIcons:MaterialIcon Kind="Github" 
+                                                    Width="25" 
+                                                    Height="25" />
+                        <TextBlock Text="Github" VerticalAlignment="Center"></TextBlock>
+                    </StackPanel>
+                </Button>
+                
+                <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Text="{Binding Version}"></TextBlock>
+            </StackPanel>
+        </suki:SukiSideMenu.FooterContent>
+    </suki:SukiSideMenu>
+</suki:SukiWindow>

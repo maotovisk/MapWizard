@@ -12,7 +12,7 @@ using Velopack.Sources;
 
 namespace MapWizard.Desktop;
 
-sealed class Program
+internal static class Program
 {
     // Initialization code. Don't use any Avalonia, third-party APIs or any
     // SynchronizationContext-reliant code before AppMain is called: things aren't initialized
@@ -28,18 +28,19 @@ sealed class Program
     }
 
     // Avalonia configuration, don't remove; also used by visual designer.
-    public static AppBuilder BuildAvaloniaApp()
+    private static AppBuilder BuildAvaloniaApp()
         => AppBuilder.Configure<App>()
             .UsePlatformDetect()
             .WithInterFont()
             .With(new X11PlatformOptions()
             {
-                RenderingMode = new []
-                {                    
+                RenderingMode =
+                [
                     X11RenderingMode.Glx,
                     X11RenderingMode.Vulkan,
-                    X11RenderingMode.Software,
-                }
+                    X11RenderingMode.Software
+                ],
+                OverlayPopups = true
             })
             .LogToTrace();
     

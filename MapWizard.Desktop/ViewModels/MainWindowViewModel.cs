@@ -1,100 +1,107 @@
-using System.Linq;
-using System.Windows.Input;
-using Avalonia.Collections;
+using System;
+using System.Threading.Tasks;
+using Avalonia.Controls;
+using Avalonia.Controls.Notifications;
+using Avalonia.Styling;
+using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Material.Icons;
+using SukiUI;
+using SukiUI.Dialogs;
+using SukiUI.Toasts;
+using Velopack;
 
-namespace MapWizard.Desktop.ViewModels;
-public partial class MainWindowViewModel : ViewModelBase
+namespace MapWizard.Desktop.ViewModels
 {
-    [ObservableProperty]
-    private ViewModelBase _currentView;
-
-    [ObservableProperty]
-    private AvaloniaList<MenuItem> _menuItems;
-
-    private AvaloniaList<ViewModelBase> _views = [];
-
-    private MenuItem _selectedMenuItem;
-    public MenuItem SelectedMenuItem
+    public partial class MainWindowViewModel : ObservableObject
     {
-        get => _selectedMenuItem;
-        set
+        public ISukiToastManager ToastManager { get; }
+        public ISukiDialogManager DialogManager { get; }
+
+        private readonly UpdateManager _updateManager;
+        
+        public ViewModelBase HitSoundCopierViewModel { get; }
+        public ViewModelBase MetadataManagerViewModel { get; }
+        public ViewModelBase WelcomePageViewModel { get; }
+
+        [ObservableProperty]
+        private bool _isDarkTheme;
+        
+        [ObservableProperty]
+        private string _version = "MapWizard-localdev";
+
+        [ObservableProperty] private MaterialIconKind themeToggleIcon;
+        
+        partial void OnIsDarkThemeChanged(bool value)
         {
-            if (SetProperty(ref _selectedMenuItem, value))
+            SukiTheme.GetInstance().ChangeBaseTheme(value ? ThemeVariant.Dark : ThemeVariant.Light);
+            
+            ThemeToggleIcon = value ? MaterialIconKind.WeatherNight : MaterialIconKind.WhiteBalanceSunny;
+        }
+        
+        public MainWindowViewModel(
+            WelcomePageViewModel welcomePageViewModel,
+            HitSoundCopierViewModel hitSoundCopierViewModel,
+            MetadataManagerViewModel metadataManagerViewModel,
+            UpdateManager updateManager,
+            ISukiToastManager toastManager,
+            ISukiDialogManager dialogManager)
+        {
+            _updateManager = updateManager;
+            ToastManager = toastManager;
+            DialogManager = dialogManager;
+            HitSoundCopierViewModel = hitSoundCopierViewModel;
+            MetadataManagerViewModel = metadataManagerViewModel;
+            WelcomePageViewModel = welcomePageViewModel;
+            
+            // Set the version from the UpdateManager
+            if (updateManager.IsInstalled)
             {
-                foreach (var item in MenuItems)
-                    item.IsSelected = item == value;
+                Version = updateManager.CurrentVersion?.ToFullString() ?? "MapWizard-localdev";
+            }
+            else
+            {
+                Version = "MapWizard-localdev";
+            }
+            
+            if (SukiTheme.GetInstance().ActiveBaseTheme == ThemeVariant.Dark)
+            {
+                IsDarkTheme = true;
+                ThemeToggleIcon = MaterialIconKind.WeatherNight;
+            }
+            else
+            {
+                IsDarkTheme = false;
+                ThemeToggleIcon = MaterialIconKind.WhiteBalanceSunny;
+            }
+        }
 
-                value?.Command.Execute(null);
+        [RelayCommand]
+        private void OpenGithub()
+        {
+            var githubUrl = "https://github.com/maotovisk/MapWizard";
 
-                SelectedIndex = MenuItems.IndexOf(value);
+            var uri = new Uri(githubUrl);
+
+            if (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps)
+            {
+                System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+                {
+                    FileName = uri.ToString(),
+                    UseShellExecute = true
+                });
+            }
+            else
+            {
+                ToastManager.CreateToast()
+                    .OfType(NotificationType.Error)
+                    .WithTitle("Invalid URL")
+                    .WithContent("The URL is not valid.")
+                    .Dismiss().After(TimeSpan.FromSeconds(8))
+                    .Queue();
             }
         }
     }
-
-    [ObservableProperty]
-    private int _selectedIndex = 0;
-    
-    private void SetCurrentViewMenu(string viewName)
-    {
-        SelectedMenuItem = MenuItems.FirstOrDefault(x => x.Title == viewName);
-    }
-    
-    public MainWindowViewModel(HitsoundCopierViewModel hsVm, MetadataManagerViewModel mmVm, WelcomePageViewModel wpVm)
-    {
-        _views = 
-        [   
-            wpVm,
-            hsVm,
-            mmVm
-        ];
-        
-        CurrentView = wpVm;
-        
-        MenuItems = new AvaloniaList<MenuItem>
-        {
-            new MenuItem { Title = "Start", Icon = MaterialIconKind.Home, Command = ShowWelcomePageCommand },
-            new MenuItem { Title = "Hitsound Copier", Icon = MaterialIconKind.ContentCopy, Command = ShowHitsoundCopierCommand },
-            new MenuItem { Title = "Metadata Manager", Icon = MaterialIconKind.FileDocumentMultiple, Command = ShowMetadataManagerCommand }
-        };
-
-        SelectedMenuItem = MenuItems.FirstOrDefault();
-    }
-    
-    [RelayCommand]
-    private void ShowWelcomePage()
-    {
-        SetCurrentViewMenu("Start");
-        CurrentView = _views.First(x => x is WelcomePageViewModel);
-    }
-
-    [RelayCommand]
-    private void ShowHitsoundCopier()
-    {
-        SetCurrentViewMenu("Hitsound Copier");
-        CurrentView = _views.First(x => x is HitsoundCopierViewModel);
-    }
-    
-    [RelayCommand]
-    private void ShowMetadataManager()
-    {
-        SetCurrentViewMenu("Metadata Manager");
-        CurrentView = _views.First(x => x is MetadataManagerViewModel);
-    }
 }
 
-public class MenuItem : ViewModelBase
-{
-    public string Title { get; set; }
-    public MaterialIconKind Icon { get; set; }
-    public ICommand Command { get; set; }
-
-    private bool _isSelected;
-    public bool IsSelected
-    {
-        get => _isSelected;
-        set => SetProperty(ref _isSelected, value);
-    }
-}

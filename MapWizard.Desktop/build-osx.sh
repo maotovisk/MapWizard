@@ -13,12 +13,14 @@ fi
 BUILD_VERSION="$1"
 RELEASE_DIR="$SCRIPT_DIR/releases"
 PUBLISH_DIR="$SCRIPT_DIR/publish"
-ICON_PATH="$SCRIPT_DIR/Assets/app-icon.ico"
+ICON_PATH="$SCRIPT_DIR/Assets/app-icon.icns"
 
+echo "Cleaning up previous build..."
+dotnet clean
 echo ""
 echo "Compiling MapWizardDesktop with dotnet..."
 dotnet publish -c Release --self-contained -r osx-x64 -o "$PUBLISH_DIR"
 
 echo ""
 echo "Building Velopack Release v$BUILD_VERSION"
-vpk [osx] pack -u MapWizard -v $BUILD_VERSION -o "$RELEASE_DIR" -p "$PUBLISH_DIR" 
+vpk [osx] pack -u MapWizard.Desktop --packTitle "MapWizard" -v $BUILD_VERSION -o "$RELEASE_DIR" -p "$PUBLISH_DIR" -e "MapWizard.Desktop" -i "$ICON_PATH" 
