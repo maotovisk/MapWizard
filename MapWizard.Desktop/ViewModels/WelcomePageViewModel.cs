@@ -5,6 +5,7 @@ using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using SukiUI.Dialogs;
+using SukiUI.Enums;
 using SukiUI.Toasts;
 using Velopack;
 
@@ -62,8 +63,8 @@ public partial class WelcomePageViewModel(ISukiDialogManager dialogManager, ISuk
             .WithLoadingState(false)
             .WithTitle("Updates")
             .WithContent($"New version {newVersion.BaseRelease?.Version} is available.")
-            .WithActionButtonNormal("Later", _ => { }, true)
-            .WithActionButton("Update", _ => ShowUpdateToastWithProgress(newVersion), true)
+            .WithActionButton("Later", _ => { }, true, SukiButtonStyles.Flat)
+            .WithActionButton("Update", _ => ShowUpdateToastWithProgress(newVersion), true, SukiButtonStyles.Accent)
             .Queue();
     }
     
@@ -90,10 +91,10 @@ public partial class WelcomePageViewModel(ISukiDialogManager dialogManager, ISuk
             .WithTitle("Update Downloaded")
             .WithContent("The update has been downloaded. Please restart the app to apply the update.")
             .WithActionButton("Next Restart", _ => { updateManager.WaitExitThenApplyUpdates(info); }, true)
-            .WithActionButtonNormal("Restart Now", _ =>
+            .WithActionButton("Restart Now", _ =>
             {
                 updateManager.ApplyUpdatesAndRestart(info);
-            }, true)
+            }, true, SukiButtonStyles.Accent)
             .Queue();
     }
 }

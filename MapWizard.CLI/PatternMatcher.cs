@@ -1,84 +1,108 @@
+namespace MapWizard.CLI;
+
 public static class PatternMatcher
 {
-    public static List<Pattern> Find(List<int> sequence)
+    /// <summary>
+    /// Finds all repeated patterns (with at least 2 repetitions)
+    /// and returns a list of Pattern(Position, Sequence, Repetitions),
+    /// advancing in blocks to avoid overlapping.
+    /// </summary>
+    public static List<Pattern> Find(List<int> seq)
     {
-        List<Pattern> results = [];
+        var results = new List<Pattern>();
+        int i = 0;
 
-        var index = 0;
-        while (index < sequence.Count)
+        while (i < seq.Count)
         {
-            var pattern = Best(sequence, index);
-
-            if (pattern == null)
+            var (pattern, reps) = FindBestAtPosition(seq, i);
+            
+            if (reps < 2)
             {
-                index++;
-                continue;
+                i++;
             }
-
-            results.Add(pattern);
-            index += pattern.Length;
+            else
+            {
+                results.Add(new Pattern(pattern, reps, i));
+                i += pattern.Count * reps;
+            }
         }
 
         return results;
     }
 
-    private static Pattern? Best(List<int> sequence, int position)
+    /// <summary>
+    /// For a given start position, tests all pattern lengths
+    /// from 1 to half of the remaining sequence, and returns the one that
+    /// maximizes (reps * length).
+    /// </summary>
+    private static (List<int> pattern, int repetitions) FindBestAtPosition(List<int> seq, int start)
     {
-        Pattern? result = null;
+        int bestCoverage = 0;
+        List<int> bestPattern = null!;
+        int bestReps = 0;
 
-        for (var lenght = 1; lenght + position <= sequence.Count; lenght++)
+        int remaining = seq.Count - start;
+        int maxPatternLen = remaining;
+
+        for (int len = 1; len <= maxPatternLen; len++)
         {
-            var pattern = sequence[position..(position + lenght)];
-            var repetitions = Repetitions(sequence, position, pattern);
+            var pat = seq.GetRange(start, len);
 
-            if (result != null && repetitions * lenght > result.Repetitions * result.Length) continue;
-            
-            result = new(pattern, repetitions, (int)(repetitions * lenght), position);
+            int reps = 1;
+            while (start + (reps + 1) * len <= seq.Count
+                   && seq
+                       .GetRange(start + reps * len, len)
+                       .SequenceEqual(pat))
+            {
+                reps++;
+            }
+
+            if (reps >= 2)
+            {
+                int coverage = reps * len;
+                if (coverage > bestCoverage)
+                {
+                    bestCoverage = coverage;
+                    bestPattern = pat;
+                    bestReps = reps;
+                }
+            }
         }
 
-        return result;
-    }
+        if (bestPattern == null)
+            return (new List<int> { seq[start] }, 1);
 
-    private static double Repetitions(List<int> sequence, int patternIndex, List<int> pattern)
-    {
-        var position = patternIndex + pattern.Count;
-        var repetitions = 0;
-
-        while (position + pattern.Count <= sequence.Count)
-        {
-            if (!sequence[position..(position + pattern.Count)].SequenceEqual(pattern)) break;
-
-            repetitions++;
-            position += pattern.Count;
-        }
-
-        var partial = 0;
-
-        for (var index = 0; index < pattern.Count && index + position < sequence.Count; index++)
-        {
-            if (sequence[position + index] != pattern[index]) break;
-
-            partial++;
-        }
-
-        return repetitions + (double)partial / pattern.Count;
+        return (bestPattern, bestReps);
     }
 }
 
+// Pattern.cs
 public class Pattern
 {
-    // TODO: remove this
-    public List<int> Sequence { get; } 
-    
-    public double Repetitions { get; }
-    public int Length { get; }
+    /// <summary>
+    /// The unit pattern, without repetitions.
+    /// </summary>
+    public List<int> Sequence { get; }
+
+    /// <summary>
+    /// How many times this pattern appears consecutively.
+    /// </summary>
+    public int Repetitions { get; }
+
+    /// <summary>
+    /// Initial index of this pattern in the original sequence.
+    /// </summary>
     public int Position { get; }
 
-    public Pattern(List<int> pattern, double repetitions, int length, int position)
+    public Pattern(List<int> sequence, int repetitions, int position)
     {
-        Sequence = pattern;
+        Sequence = sequence;
         Repetitions = repetitions;
-        Length = length;
         Position = position;
     }
+
+    /// <summary>
+    /// How many elements in total this repeated block covers.
+    /// </summary>
+    public int MatchedLength => Sequence.Count * Repetitions;
 }

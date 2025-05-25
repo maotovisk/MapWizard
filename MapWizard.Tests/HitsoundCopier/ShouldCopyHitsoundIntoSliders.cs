@@ -26,7 +26,7 @@ public class ShouldCopyHitsoundIntoSliders
             CopySampleAndVolumeChanges = true,
             CopySliderBodySounds = true,
             Leniency = 5,
-            OvewriteEverything = true,
+            OverwriteEverything = true,
             OverwriteMuting = false
         };
         

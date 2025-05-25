@@ -127,7 +127,7 @@ public static class HitSoundCopier
             {
                 case Circle circle:
                     {
-                        if (options.OvewriteEverything) 
+                        if (options.OverwriteEverything) 
                         {
                             circle.HitSounds = (new HitSample(), []);
                         }
@@ -149,7 +149,7 @@ public static class HitSoundCopier
                     {
                         var currentHeadSound = hitSoundTimeline.GetSoundAtTime(slider.Time, options.Leniency);
                         
-                        if (options.OvewriteEverything)
+                        if (options.OverwriteEverything)
                         {
                             slider.HeadSounds = (new HitSample(), []);
                             slider.TailSounds = (new HitSample(), []);
@@ -167,7 +167,7 @@ public static class HitSoundCopier
                         // Update the repeats sounds
                         if (slider is { Slides: > 1 })
                         {
-                            if (slider.RepeatSounds == null || slider.RepeatSounds.Count != slider.Slides - 1 || options.OvewriteEverything)
+                            if (slider.RepeatSounds == null || slider.RepeatSounds.Count != slider.Slides - 1 || options.OverwriteEverything)
                             {
                                 slider.RepeatSounds = new List<(HitSample, List<HitSound>)>(new (HitSample, List<HitSound>)[slider.Slides - 1]);
                                 
@@ -212,7 +212,7 @@ public static class HitSoundCopier
                     }
                 case Spinner spinner:
                     {
-                        if (options.OvewriteEverything)
+                        if (options.OverwriteEverything)
                         {
                             spinner.HitSounds = (new HitSample(), []);
                         }
@@ -249,7 +249,7 @@ public static class HitSoundCopier
         {
             if (hitObject is not Slider slider) continue;
             
-            if (options.OvewriteEverything)
+            if (options.OverwriteEverything)
             {
                 slider.HitSounds = (new HitSample(), []);
             }
