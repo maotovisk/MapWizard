@@ -151,6 +151,11 @@
                             <ToggleSwitch Grid.Column="1"
                                           IsChecked="{Binding CopySampleAndVolumeChanges}" />
                         </Grid>
+                        <Grid ColumnDefinitions="*,Auto">
+                            <TextBlock Text="Overwrite Everything"></TextBlock>
+                            <ToggleSwitch Grid.Column="1"
+                                          IsChecked="{Binding OverwriteEverything}" />
+                        </Grid>
                         <Grid ColumnDefinitions="*,Auto" IsVisible="{Binding CopySampleAndVolumeChanges}">
                             <TextBlock Text="Remove muting (5% greenlines)"></TextBlock>
                             <ToggleSwitch Grid.Column="1"

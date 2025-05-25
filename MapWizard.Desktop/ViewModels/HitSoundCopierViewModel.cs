@@ -31,6 +31,8 @@ public partial class HitSoundCopierViewModel(
     [ObservableProperty] private bool _copySampleAndVolumeChanges = true;
 
     [ObservableProperty] private bool _overwriteMuting;
+    
+    [ObservableProperty] private bool _overwriteEverything = true;
 
     [ObservableProperty] private bool _copySliderBodySounds = true;
 
@@ -244,7 +246,8 @@ public partial class HitSoundCopierViewModel(
             CopySampleAndVolumeChanges = CopySampleAndVolumeChanges,
             CopySliderBodySounds = CopySliderBodySounds,
             Leniency = Leniency,
-            OverwriteMuting = OverwriteMuting
+            OverwriteMuting = OverwriteMuting,
+            OverwriteEverything = OverwriteEverything
         };
         
         if (string.IsNullOrEmpty(OriginBeatmap.Path))

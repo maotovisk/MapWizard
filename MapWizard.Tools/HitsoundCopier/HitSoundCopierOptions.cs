@@ -7,7 +7,7 @@ public class HitSoundCopierOptions
     */
     
     public bool CopySliderBodySounds = true;
-    public bool OvewriteEverything = true;
+    public bool OverwriteEverything = true;
     public bool CopySampleAndVolumeChanges = true;
     public bool OverwriteMuting = true;
     public int Leniency = 5;

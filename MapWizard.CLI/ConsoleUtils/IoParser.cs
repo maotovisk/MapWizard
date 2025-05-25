@@ -1,6 +1,6 @@
 namespace MapWizard.CLI.ConsoleUtils;
 
-public class IoParser
+public static class IoParser
 {
     public static bool ArgumentExists(string[] args, string argumentName)
     {
