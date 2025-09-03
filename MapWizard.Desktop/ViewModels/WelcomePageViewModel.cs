@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Controls.Notifications;
 using Avalonia.Threading;
@@ -14,87 +15,191 @@ namespace MapWizard.Desktop.ViewModels;
 public partial class WelcomePageViewModel(ISukiDialogManager dialogManager, ISukiToastManager toastManager, UpdateManager updateManager) : ViewModelBase
 {
     public string Message { get; set; } = "Welcome to MapWizard, select a tool to get started!";
-    
+
     [ObservableProperty]
     private bool _showUpdateToast = false;
-    
+
     private bool checkedOnce = false;
-    
+
+#if DEBUG
+    private const bool SimulateVelopackInDebug = true;
+#endif
+
     [RelayCommand]
-    private void WindowStartup()
+    private async Task WindowStartup()
     {
         if (checkedOnce || !updateManager.IsInstalled)
+            return;
+
+        checkedOnce = true;
+        await CheckForUpdates();
+    }
+
+    [RelayCommand]
+    private async Task CheckForUpdates()
+    {
+#if DEBUG
+        // Em Debug, se não estiver instalado, simula toda a experiência.
+        if (SimulateVelopackInDebug && !updateManager.IsInstalled)
         {
+            await CheckForUpdatesDebug();
             return;
         }
-        checkedOnce = true;
-        
-        CheckForUpdates();
-    }
-    
-    [RelayCommand]
-    private void CheckForUpdates()
-    {
+#endif
+
         if (!updateManager.IsInstalled)
         {
             dialogManager.CreateDialog()
                 .WithTitle("Update Check")
-                .WithContent("MapWizard is not installed. Please install it to check for updates.")     
-                .WithActionButton("Ok ", _ => { }, true) 
+                .WithContent("MapWizard is not installed. Please install it to check for updates.")
+                .WithActionButton("Ok ", _ => { }, true)
                 .TryShow();
             return;
         }
 
-
-        toastManager.CreateToast().OfType(NotificationType.Information)
+        var checkingToast = toastManager.CreateToast()
+            .OfType(NotificationType.Information)
             .WithLoadingState(true)
             .WithTitle("Updates")
             .WithContent("Checking for updates...")
-            .Dismiss().After(TimeSpan.FromSeconds(8))
             .Queue();
 
-        var newVersion = updateManager.CheckForUpdates();
-        if (newVersion == null)
+        UpdateInfo? newVersion = null;
+        try
         {
+            newVersion = await Task.Run(() => updateManager.CheckForUpdates());
+        }
+        catch (Exception ex)
+        {
+            toastManager.Dismiss(checkingToast);
+            toastManager.CreateToast()
+                .OfType(NotificationType.Error)
+                .WithTitle("Update error")
+                .WithContent(ex.Message)
+                .Dismiss().After(TimeSpan.FromSeconds(6))
+                .Queue();
             return;
         }
-            
+
+        toastManager.Dismiss(checkingToast);
+
+        if (newVersion == null)
+        {
+            toastManager.CreateToast()
+                .OfType(NotificationType.Information)
+                .WithTitle("Updates")
+                .WithContent("You are up to date.")
+                .Dismiss().After(TimeSpan.FromSeconds(4))
+                .Queue();
+            return;
+        }
+
         toastManager.CreateToast().OfType(NotificationType.Information)
             .WithLoadingState(false)
             .WithTitle("Updates")
             .WithContent($"New version {newVersion.BaseRelease?.Version} is available.")
             .WithActionButton("Later", _ => { }, true, SukiButtonStyles.Flat)
-            .WithActionButton("Update", _ => ShowUpdateToastWithProgress(newVersion), true, SukiButtonStyles.Accent)
+            .WithActionButton("Update", async void (_) =>
+            {
+                await ShowUpdateToastWithProgress(newVersion);
+            }, true, SukiButtonStyles.Accent)
             .Queue();
     }
-    
-    private void ShowUpdateToastWithProgress(UpdateInfo info)
+
+    private async Task ShowUpdateToastWithProgress(UpdateInfo info)
     {
-        var progress = new ProgressBar() { Value = 0, ShowProgressText = true };
-        var toast = toastManager.CreateToast()
+        var progress = new ProgressBar { Value = 0, ShowProgressText = true };
+        var downloadingToast = toastManager.CreateToast()
             .WithTitle("Downloading Update...")
             .WithContent(progress)
             .Queue();
 
-        updateManager.DownloadUpdates(info, x =>
+        try
         {
-            Dispatcher.UIThread.Invoke(() =>
+            await Task.Run(() => updateManager.DownloadUpdates(info, x =>
             {
-                progress.Value = x;
-                if (progress.Value < 100) return;
-                toastManager.Dismiss(toast);
-            });
-        });
-            
+                Dispatcher.UIThread.Post(() =>
+                {
+                    progress.Value = x;
+                });
+            }));
+        }
+        catch (Exception ex)
+        {
+            toastManager.Dismiss(downloadingToast);
+            toastManager.CreateToast()
+                .OfType(NotificationType.Error)
+                .WithTitle("Update error")
+                .WithContent(ex.Message)
+                .Dismiss().After(TimeSpan.FromSeconds(6))
+                .Queue();
+            return;
+        }
+
+        toastManager.Dismiss(downloadingToast);
+
         toastManager.CreateToast()
             .OfType(NotificationType.Success)
             .WithTitle("Update Downloaded")
             .WithContent("The update has been downloaded. Please restart the app to apply the update.")
             .WithActionButton("Next Restart", _ => { updateManager.WaitExitThenApplyUpdates(info); }, true)
-            .WithActionButton("Restart Now", _ =>
+            .WithActionButton("Restart Now", _ => { updateManager.ApplyUpdatesAndRestart(info); }, true, SukiButtonStyles.Accent)
+            .Queue();
+    }
+
+#if DEBUG
+    private async Task CheckForUpdatesDebug()
+    {
+        var checkingToast = toastManager.CreateToast()
+            .OfType(NotificationType.Information)
+            .WithLoadingState(true)
+            .WithTitle("Updates")
+            .WithContent("Checking for updates (debug)...")
+            .Queue();
+
+        // Atraso simulado da request
+        await Task.Delay(TimeSpan.FromSeconds(2));
+
+        toastManager.Dismiss(checkingToast);
+
+        toastManager.CreateToast().OfType(NotificationType.Information)
+            .WithTitle("Updates")
+            .WithContent("New version 9.9.9 (debug) is available.")
+            .WithActionButton("Later", _ => { }, true, SukiButtonStyles.Flat)
+            .WithActionButton("Update", async void (_) =>
             {
-                updateManager.ApplyUpdatesAndRestart(info);
+                await ShowUpdateToastWithProgressDebug();
             }, true, SukiButtonStyles.Accent)
             .Queue();
     }
+
+    private async Task ShowUpdateToastWithProgressDebug()
+    {
+        var progress = new ProgressBar { Value = 0, ShowProgressText = true };
+        var downloadingToast = toastManager.CreateToast()
+            .WithTitle("Downloading Update (debug)...")
+            .WithContent(progress)
+            .Queue();
+
+        // Simula download com progresso incremental e jitter
+        var rnd = new Random();
+        double val = 0;
+        while (val < 100)
+        {
+            await Task.Delay(180 + rnd.Next(0, 220));
+            val = Math.Min(100, val + rnd.Next(7, 16));
+            var v = val;
+            Dispatcher.UIThread.Post(() => progress.Value = v);
+        }
+
+        toastManager.Dismiss(downloadingToast);
+
+        toastManager.CreateToast()
+            .OfType(NotificationType.Success)
+            .WithTitle("Update Downloaded (debug)")
+            .WithContent("Simulated update is ready.")
+            .WithActionButton("Close", _ => { }, true, SukiButtonStyles.Flat)
+            .Queue();
+    }
+#endif
 }
