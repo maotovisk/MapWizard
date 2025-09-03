@@ -103,8 +103,8 @@ public class HitObject : IHitObject
     {
         StringBuilder builder = new();
 
-        builder.Append($"{Coordinates.X},{Coordinates.Y},");
-        builder.Append($"{Time.TotalMilliseconds.ToString(CultureInfo.InvariantCulture)},");
+        builder.Append($"{Helper.FormatCoord(Coordinates.X)},{Helper.FormatCoord(Coordinates.Y)},");
+        builder.Append($"{Helper.FormatTime(Time.TotalMilliseconds)},");
 
         var type = (int)Type;
 
@@ -116,7 +116,7 @@ public class HitObject : IHitObject
         type |= (int)ComboOffset << 4;
 
         builder.Append($"{type},");
-        builder.Append($"{Helper.EncodeHitSounds(HitSounds.Sounds)},");
+        builder.Append($"{Helper.EncodeHitSounds(HitSounds.Sounds)} ,".Replace(" ", string.Empty));
 
         builder.Append($"{HitSounds.SampleData.Encode()}");
 

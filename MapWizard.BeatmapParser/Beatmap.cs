@@ -104,6 +104,7 @@ public class Beatmap : IEncodable
         if (!lines[0].Contains("file format")) throw new Exception("Invalid file format.");
 
         var formatVersion = int.Parse(lines[0].Split("v")[1].Trim());
+        Helper.FormatVersion = formatVersion == 128 ? 128 : 14;
 
         foreach (var line in lines[1..])
         {
@@ -118,8 +119,6 @@ public class Beatmap : IEncodable
             }
         }
 
-        if (Helper.IsWithinPropertyQuantity<Beatmap>(sections.Count)) throw new Exception($"Invalid number of sections. Expected {typeof(Beatmap).GetProperties().Length} but got {sections.Count}.");
-
         var general = General.Decode(sections[$"{SectionType.General}"]);
         var editor = sections.ContainsKey($"{SectionType.Editor}") ? Editor.Decode(sections[$"{SectionType.Editor}"]) : null;
         var metadata = Metadata.Decode(sections[$"{SectionType.Metadata}"]);
@@ -127,7 +126,7 @@ public class Beatmap : IEncodable
         var colours = sections.ContainsKey($"{SectionType.Colours}") ? Colours.Decode(sections[$"{SectionType.Colours}"]) : null;
         var events = Events.Decode(sections[$"{SectionType.Events}"]);
         var timingPoints = sections.ContainsKey($"{SectionType.TimingPoints}") ? TimingPoints.Decode(sections[$"{SectionType.TimingPoints}"]) : null;
-        var hitObjects = HitObjects.Decode(sections[$"{SectionType.HitObjects}"], timingPoints ?? new TimingPoints(), difficulty);
+        var hitObjects = HitObjects.Decode(sections[$"{SectionType.HitObjects}"], timingPoints ?? new TimingPoints(), difficulty, formatVersion);
 
         return new Beatmap(
             formatVersion, metadata, general, editor, difficulty, colours, events, timingPoints, hitObjects
@@ -154,7 +153,11 @@ public class Beatmap : IEncodable
     {
         StringBuilder builder = new();
 
-        builder.AppendLine($"osu file format v14"); // we are only supporting v14
+        // INFO: we don't plan to support encoding for formats other than 14 and 128
+        var headerVersion = Version == 128 ? 128 : 14;
+        // Define contexto para formatação numérica conforme o header desejado
+        Helper.FormatVersion = headerVersion;
+        builder.AppendLine($"osu file format v{headerVersion}");
         builder.AppendLine();
 
         builder.AppendLine($"[{SectionType.General}]");

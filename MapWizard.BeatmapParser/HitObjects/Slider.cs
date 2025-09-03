@@ -118,16 +118,15 @@ public class Slider : HitObject
     /// <param name="split">The split hit object line.</param>
     /// <param name="timingPoints">The timing points.</param>
     /// <param name="difficulty">The difficulty.</param>
+    /// <param name="formatVersion">Beatmap format version (14 or 128).</param>
     /// <returns>The parsed slider hit object.</returns>
-    public static Slider Decode(List<string> split, TimingPoints timingPoints, Difficulty difficulty)
+    public static Slider Decode(List<string> split, TimingPoints timingPoints, Difficulty difficulty, int formatVersion)
     {
         // x,   y,  time,   type,   hitSound,   curveType|curvePoints,  slides, length, edgeSounds,     ,edgeSets   ,hitSample
         // 0    1   2       3       4           5                       6       7          	      8             9           10
         
         try
         {
-            if (split.Count > 11) throw new ArgumentException("Invalid slider hit object line.");
-
             if (split.Count < 8) throw new ArgumentException("Invalid slider hit object line.");
 
             List<(HitSample SampleData, List<HitSound> Sounds)> sliderHitSounds = [];
@@ -148,14 +147,31 @@ public class Slider : HitObject
                 sliderHitSounds = Enumerable.Repeat(baseObject.HitSounds, (int)uint.Parse(split[6]) + 1).ToList();
             }
             
+            // Handle per-segment curve types (B/L/C/P) mid-path; keep the first type as the slider's type for now.
+            var firstType = Helper.ParseCurveType(char.Parse(objectParams[0]));
+            List<Vector2> points = new();
+            for (int i = 1; i < objectParams.Length; i++)
+            {
+                var token = objectParams[i];
+                if (token.Length == 1 && "BCLP".Contains(token))
+                {
+                    // New segment type token in lazer (v128). We accept it but do not change the stored CurveType
+                    // to keep compatibility with existing model. Continue to the next token.
+                    continue;
+                }
+                var curvePoints = token.Split(':');
+                if (curvePoints.Length >= 2)
+                {
+                    points.Add(new Vector2(
+                        float.Parse(curvePoints[0], CultureInfo.InvariantCulture),
+                        float.Parse(curvePoints[1], CultureInfo.InvariantCulture)));
+                }
+            }
+
             return new Slider(baseObject)
             {
-                CurveType = Helper.ParseCurveType(char.Parse(objectParams[0])),
-                CurvePoints = objectParams.Skip(1).Select(x =>
-                {
-                    var curvePoints = x.Split(':');
-                    return new Vector2(float.Parse(curvePoints[0]), float.Parse(curvePoints[1]));
-                }).ToList(),
+                CurveType = firstType,
+                CurvePoints = points,
                 Slides = uint.Parse(split[6] == "NaN" ? "1" : split[6]),
                 Length = double.Parse(split[7] == "NaN" ? "0" : split[7], CultureInfo.InvariantCulture),
                 EndTime = Helper.CalculateEndTime(
@@ -187,8 +203,8 @@ public class Slider : HitObject
         // Indexes:  0  1   2      3        4           5                  6      7          8         9         10
         StringBuilder builder = new();
         
-        builder.Append($"{Coordinates.X},{Coordinates.Y},");
-        builder.Append($"{Time.TotalMilliseconds.ToString(CultureInfo.InvariantCulture)},");
+        builder.Append($"{Helper.FormatCoord(Coordinates.X)},{Helper.FormatCoord(Coordinates.Y)},");
+        builder.Append($"{Helper.FormatTime(Time.TotalMilliseconds)},");
 
         int type = (int)Type | (NewCombo ? 1 << 2 : 0) | ((int)ComboOffset << 4);
         builder.Append($"{type},");
@@ -196,7 +212,7 @@ public class Slider : HitObject
         // HitSound field
         builder.Append($"{Helper.EncodeHitSounds(HitSounds.Sounds)},");
 
-        builder.Append($"{Helper.EncodeCurveType(CurveType)}|{string.Join("|", CurvePoints.Select(p => $"{p.X}:{p.Y}"))},");
+        builder.Append($"{Helper.EncodeCurveType(CurveType)}|{string.Join("|", CurvePoints.Select(p => $"{Helper.FormatCoord(p.X)}:{Helper.FormatCoord(p.Y)}"))},");
 
         builder.Append($"{Slides},");
         builder.Append($"{Length.ToString(CultureInfo.InvariantCulture)}");

@@ -186,13 +186,11 @@ public class General
                     throw new Exception($"Invalid General section field: {line}");
                 }
 
-                general.Add(splitLine[0].Trim(), splitLine.Length != 1 ? splitLine[1].Trim() : string.Empty);
+                general[splitLine[0].Trim()] = splitLine.Length != 1 ? splitLine[1].Trim() : string.Empty;
             });
 
-            if (Helper.IsWithinPropertyQuantity<General>(general.Count))
-            {
-                throw new Exception("Invalid General section length. Missing properties: " + string.Join(", ", Helper.GetMissingPropertiesNames<General>(general.Keys)) + ".");
-            }
+            if (!general.ContainsKey("AudioFilename"))
+                throw new Exception("General section missing required field: AudioFilename");
 
             return new General(
                 audioFilename: general["AudioFilename"],

@@ -117,12 +117,13 @@ public class Metadata
                     throw new Exception("Invalid Metadata section field.");
                 }
 
-                metadata.Add(splitLine[0].Trim(), splitLine.Length != 1 ? splitLine[1].Trim() : string.Empty);
+                metadata[splitLine[0].Trim()] = splitLine.Length != 1 ? splitLine[1].Trim() : string.Empty;
             });
-
-            if (Helper.IsWithinPropertyQuantity<Metadata>(metadata.Count))
+            
+            foreach (var key in new[] { "Title", "Artist", "Creator", "Version" })
             {
-                throw new Exception("Invalid Metadata section length.");
+                if (!metadata.ContainsKey(key))
+                    throw new Exception($"Metadata section missing required field: {key}");
             }
 
             return new Metadata(

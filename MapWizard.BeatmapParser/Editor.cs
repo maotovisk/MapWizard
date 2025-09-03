@@ -61,13 +61,8 @@ public class Editor
                     throw new Exception("Invalid editor section field.");
                 }
 
-                editor.Add(splitLine[0].Trim(), splitLine.Length != 1 ? splitLine[1].Trim() : string.Empty);
+                editor[splitLine[0].Trim()] = splitLine.Length != 1 ? splitLine[1].Trim() : string.Empty;
             });
-
-            if (Helper.IsWithinPropertyQuantity<Editor>(editor.Count))
-            {
-                throw new Exception("Invalid Editor section length. Missing properties: " + string.Join(", ", Helper.GetMissingPropertiesNames<Editor>(editor.Keys)) + ".");
-            }
 
             editor.TryGetValue("Bookmarks", out var bookmarks);
 
@@ -75,8 +70,8 @@ public class Editor
                 bookmarks: bookmarks?.Split(',').Where(x => !string.IsNullOrEmpty(x)).Select(
                     x => TimeSpan.FromMilliseconds(double.Parse(x, CultureInfo.InvariantCulture))).ToList(),
                 distanceSpacing: editor.TryGetValue("DistanceSpacing", out string? value) ? double.Parse(value, CultureInfo.InvariantCulture) : 1.0,
-                beatDivisor: int.Parse(editor["BeatDivisor"]),
-                gridSize: int.Parse(editor["GridSize"]),
+                beatDivisor: editor.TryGetValue("BeatDivisor", out var beatDivisorStr) ? int.Parse(beatDivisorStr) : 4,
+                gridSize: editor.TryGetValue("GridSize", out var gridSizeStr) ? int.Parse(gridSizeStr) : 4,
                 timelineZoom: editor.TryGetValue("TimelineZoom", out var timelineZoom) ? double.Parse(timelineZoom, CultureInfo.InvariantCulture) : null
             );
         }
@@ -112,7 +107,7 @@ public class Editor
 
             if (prop.GetValue(this) is List<TimeSpan> bookmarks)
             {
-                builder.AppendLine($"{prop.Name}: {string.Join(',', bookmarks.Select(x => x.TotalMilliseconds.ToString(CultureInfo.InvariantCulture)))}");
+                builder.AppendLine($"{prop.Name}: {string.Join(',', bookmarks.Select(x => Helper.FormatTime(x.TotalMilliseconds)))}");
                 continue;
             }
 

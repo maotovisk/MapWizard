@@ -95,12 +95,13 @@ public class Difficulty
                     throw new Exception("Invalid difficulty section field.");
                 }
 
-                difficulty.Add(splitLine[0], splitLine.Length != 1 ? splitLine[1].Trim() : string.Empty);
+                difficulty[splitLine[0]] = splitLine.Length != 1 ? splitLine[1].Trim() : string.Empty;
             });
 
-            if (Helper.IsWithinPropertyQuantity<Difficulty>(difficulty.Count))
+            foreach (var key in new[] { "HPDrainRate", "CircleSize", "OverallDifficulty", "SliderMultiplier", "SliderTickRate" })
             {
-                throw new Exception("Invalid Difficulty section length. Missing properties: " + string.Join(", ", Helper.GetMissingPropertiesNames<Difficulty>(difficulty.Keys)) + ".");
+                if (!difficulty.ContainsKey(key))
+                    throw new Exception($"Difficulty section missing required field: {key}");
             }
 
             return new Difficulty(

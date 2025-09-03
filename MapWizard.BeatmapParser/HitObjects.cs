@@ -36,7 +36,7 @@ public class HitObjects
     /// <param name="timingPoints"></param>
     /// <param name="difficulty"></param>
     /// <returns></returns>
-    public static HitObjects Decode(List<string> lines, TimingPoints timingPoints, Difficulty difficulty)
+    public static HitObjects Decode(List<string> lines, TimingPoints timingPoints, Difficulty difficulty, int formatVersion)
     {
         List<IHitObject> result = [];
         try
@@ -51,7 +51,7 @@ public class HitObjects
                 IHitObject hitObject = type switch
                 {
                     HitObjectType.Circle => Circle.Decode(split),
-                    HitObjectType.Slider => Slider.Decode(split, timingPoints, difficulty),
+                    HitObjectType.Slider => Slider.Decode(split, timingPoints, difficulty, formatVersion),
                     HitObjectType.Spinner => Spinner.Decode(split),
                     _ => HitObject.Decode(split),
                 };
