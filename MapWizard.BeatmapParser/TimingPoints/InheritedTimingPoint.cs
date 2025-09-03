@@ -47,6 +47,7 @@ public class InheritedTimingPoint : TimingPoint
     /// <returns></returns>
     public string Encode(TimingPoints section)
     {
-        return $"{Time.TotalMilliseconds.ToString(CultureInfo.InvariantCulture)},{Math.Round(-100.0 / SliderVelocity, 13).ToString(CultureInfo.InvariantCulture)},{section.GetUninheritedTimingPointAt(Time.TotalMilliseconds)?.TimeSignature ?? 4},{(int)SampleSet},{SampleIndex},{Volume},{0},{Helper.EncodeEffects(Effects)}";
+        var sv = 100 / -SliderVelocity;
+        return $"{Helper.FormatTime(Time.TotalMilliseconds)},{ (Helper.FormatVersion == 128 ? sv : Math.Round(sv, 13)).ToString(CultureInfo.InvariantCulture)},{section.GetUninheritedTimingPointAt(Time.TotalMilliseconds)?.TimeSignature ?? 4},{(int)SampleSet},{SampleIndex},{Volume},{0},{Helper.EncodeEffects(Effects)}";
     }
 }

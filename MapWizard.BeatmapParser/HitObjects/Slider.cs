@@ -11,14 +11,15 @@ namespace MapWizard.BeatmapParser;
 public class Slider : HitObject
 {
     /// <summary>
-    /// Curve type of the slider.
+    /// Legacy single curve type (used only for v14 encode/decode).
     /// </summary>
-    public CurveType CurveType { get; set; }
+    public CurveType? LegacyCurveType { get; set; }
 
     /// <summary>
-    /// Points of the slider path.
+    /// Control points of the slider path. Points may optionally start a new segment (Type != null),
+    /// with optional Degree for B-spline.
     /// </summary>
-    public List<Vector2> CurvePoints { get; set; }
+    public List<CurvePoint> ControlPoints { get; set; }
 
     /// <summary>
     /// Number of repeats of the slider.
@@ -59,19 +60,17 @@ public class Slider : HitObject
     /// <param name="hitSounds"></param>
     /// <param name="newCombo"></param>
     /// <param name="comboOffset"></param>
-    /// <param name="curveType"></param>
-    /// <param name="curvePoints"></param>
+    /// <param name="controlPoints"></param>
     /// <param name="slides"></param>
     /// <param name="length"></param>
     /// <param name="endTime"></param>
     /// <param name="headSounds"></param>
     /// <param name="repeatSounds"></param>
     /// <param name="tailSounds"></param>
-    public Slider(Vector2 coordinates, TimeSpan time, HitObjectType type, (HitSample, List<HitSound>) hitSounds, bool newCombo, uint comboOffset, CurveType curveType, List<Vector2> curvePoints, uint slides, double length, TimeSpan endTime, (HitSample SampleData, List<HitSound> Sounds) headSounds, List<(HitSample SampleData, List<HitSound> Sounds)>? repeatSounds, (HitSample SampleData, List<HitSound> Sounds) tailSounds) :
+    public Slider(Vector2 coordinates, TimeSpan time, HitObjectType type, (HitSample, List<HitSound>) hitSounds, bool newCombo, uint comboOffset, List<CurvePoint> controlPoints, uint slides, double length, TimeSpan endTime, (HitSample SampleData, List<HitSound> Sounds) headSounds, List<(HitSample SampleData, List<HitSound> Sounds)>? repeatSounds, (HitSample SampleData, List<HitSound> Sounds) tailSounds) :
         base(coordinates, time, type, hitSounds, newCombo, comboOffset)
     {
-        CurveType = curveType;
-        CurvePoints = curvePoints;
+        ControlPoints = controlPoints;
         EndTime = endTime;
         Slides = slides;
         Length = length;
@@ -85,8 +84,8 @@ public class Slider : HitObject
     /// </summary>
     public Slider()
     {
-        CurveType = CurveType.Bezier;
-        CurvePoints = [];
+        LegacyCurveType = null;
+        ControlPoints = [];
         Slides = 1;
         Length = 0;
         EndTime = TimeSpan.FromSeconds(0);
@@ -105,11 +104,48 @@ public class Slider : HitObject
     /// <param name="baseObject">The base hit object to copy properties from.</param>
     private Slider(IHitObject baseObject) : base(baseObject.Coordinates, baseObject.Time, baseObject.Type, baseObject.HitSounds, baseObject.NewCombo, baseObject.ComboOffset)
     {
-        CurveType = CurveType.Bezier;
-        CurvePoints = [];
+        LegacyCurveType = null;
+        ControlPoints = [];
         Slides = 1;
         Length = 0;
         EndTime = Time;
+    }
+
+    private static (CurveType type, int? degree) ParseTypeToken(string token)
+    {
+        // Supports: C, L, P, B, B<degree>
+        if (string.IsNullOrEmpty(token)) throw new ArgumentException("Empty token");
+        char c = token[0];
+        switch (c)
+        {
+            case 'C': return (CurveType.Catmull, null);
+            case 'L': return (CurveType.Linear, null);
+            case 'P': return (CurveType.PerfectCurve, null);
+            case 'B':
+                if (token.Length > 1)
+                {
+                    if (int.TryParse(token[1..], NumberStyles.Integer, CultureInfo.InvariantCulture, out var deg) && deg > 0)
+                        return (CurveType.BSpline, deg);
+                }
+                // Bare 'B' -> Bezier
+                return (CurveType.Bezier, null);
+            default:
+                // Unknown letter: default to Bezier for safety
+                return (CurveType.Bezier, null);
+        }
+    }
+
+    private static string EncodeTypeToken(CurveType type, int? degree)
+    {
+        return type switch
+        {
+            CurveType.Catmull => "C",
+            CurveType.Linear => "L",
+            CurveType.PerfectCurve => "P",
+            CurveType.Bezier => "B",
+            CurveType.BSpline => degree.HasValue && degree.Value > 0 ? $"B{degree.Value}" : "B",
+            _ => "B"
+        };
     }
 
     /// <summary>
@@ -121,13 +157,8 @@ public class Slider : HitObject
     /// <returns>The parsed slider hit object.</returns>
     public static Slider Decode(List<string> split, TimingPoints timingPoints, Difficulty difficulty)
     {
-        // x,   y,  time,   type,   hitSound,   curveType|curvePoints,  slides, length, edgeSounds,     ,edgeSets   ,hitSample
-        // 0    1   2       3       4           5                       6       7          	      8             9           10
-        
         try
         {
-            if (split.Count > 11) throw new ArgumentException("Invalid slider hit object line.");
-
             if (split.Count < 8) throw new ArgumentException("Invalid slider hit object line.");
 
             List<(HitSample SampleData, List<HitSound> Sounds)> sliderHitSounds = [];
@@ -142,20 +173,77 @@ public class Slider : HitObject
             var objectParams = split[5].Split('|');
             var baseObject = HitObject.Decode(split);
 
-            // slider shorthand, should apply the base object hitsounds for all edges
             if (baseObject.HitSounds.Sounds.Count != 0 && split.Count == 8)
             {
                 sliderHitSounds = Enumerable.Repeat(baseObject.HitSounds, (int)uint.Parse(split[6]) + 1).ToList();
             }
             
+            List<CurvePoint> controlPoints = new();
+            CurveType? legacyCurveType = null;
+            (CurveType type, int? degree)? currentSegmentType = null;
+
+            int startIndex = 0;
+            if (objectParams.Length > 0 && !string.IsNullOrEmpty(objectParams[0]) && char.IsLetter(objectParams[0][0]))
+            {
+                // v14: first token is always a legacy curve type.
+                if (Helper.FormatVersion == 14)
+                {
+                    var (type, degree) = ParseTypeToken(objectParams[0]);
+                    legacyCurveType = type;
+                    currentSegmentType = (type, degree);
+                    startIndex = 1;
+                }
+                else
+                {
+                    // v128+: only populate legacyCurveType when there's an isolated type token at the beginning,
+                    // e.g. "L|L|..." or "P|L|...". That means the next token also starts with a letter.
+                    if (objectParams.Length > 1 && !string.IsNullOrEmpty(objectParams[1]) && char.IsLetter(objectParams[1][0]))
+                    {
+                        var (type, degree) = ParseTypeToken(objectParams[0]);
+                        legacyCurveType = type;
+                        currentSegmentType = (type, degree);
+                        startIndex = 1;
+                    }
+                }
+            }
+
+            for (int i = startIndex; i < objectParams.Length; i++)
+            {
+                var token = objectParams[i];
+                if (string.IsNullOrEmpty(token)) continue;
+
+                if (char.IsLetter(token[0]))
+                {
+                    currentSegmentType = ParseTypeToken(token);
+                    continue;
+                }
+
+                var parts = token.Split(':');
+                if (parts.Length < 2) continue;
+
+                if (!float.TryParse(parts[0], NumberStyles.Float, CultureInfo.InvariantCulture, out var x) ||
+                    !float.TryParse(parts[1], NumberStyles.Float, CultureInfo.InvariantCulture, out var y))
+                {
+                    continue;
+                }
+
+                var pos = new Vector2(x, y);
+
+                if (currentSegmentType.HasValue)
+                {
+                    controlPoints.Add(new CurvePoint(pos, currentSegmentType.Value.type, currentSegmentType.Value.degree));
+                    currentSegmentType = null;
+                }
+                else
+                {
+                    controlPoints.Add(new CurvePoint(pos));
+                }
+            }
+            
             return new Slider(baseObject)
             {
-                CurveType = Helper.ParseCurveType(char.Parse(objectParams[0])),
-                CurvePoints = objectParams.Skip(1).Select(x =>
-                {
-                    var curvePoints = x.Split(':');
-                    return new Vector2(float.Parse(curvePoints[0]), float.Parse(curvePoints[1]));
-                }).ToList(),
+                LegacyCurveType = legacyCurveType,
+                ControlPoints = controlPoints,
                 Slides = uint.Parse(split[6] == "NaN" ? "1" : split[6]),
                 Length = double.Parse(split[7] == "NaN" ? "0" : split[7], CultureInfo.InvariantCulture),
                 EndTime = Helper.CalculateEndTime(
@@ -187,8 +275,8 @@ public class Slider : HitObject
         // Indexes:  0  1   2      3        4           5                  6      7          8         9         10
         StringBuilder builder = new();
         
-        builder.Append($"{Coordinates.X},{Coordinates.Y},");
-        builder.Append($"{Time.TotalMilliseconds.ToString(CultureInfo.InvariantCulture)},");
+        builder.Append($"{Helper.FormatCoord(Coordinates.X)},{Helper.FormatCoord(Coordinates.Y)},");
+        builder.Append($"{Helper.FormatTime(Time.TotalMilliseconds)},");
 
         int type = (int)Type | (NewCombo ? 1 << 2 : 0) | ((int)ComboOffset << 4);
         builder.Append($"{type},");
@@ -196,7 +284,51 @@ public class Slider : HitObject
         // HitSound field
         builder.Append($"{Helper.EncodeHitSounds(HitSounds.Sounds)},");
 
-        builder.Append($"{Helper.EncodeCurveType(CurveType)}|{string.Join("|", CurvePoints.Select(p => $"{p.X}:{p.Y}"))},");
+        // Encode path
+        var pathBuilder = new StringBuilder();
+        if (Helper.FormatVersion == 14)
+        {
+            // v14 only supports a single type at the path start
+            var legacy = LegacyCurveType ?? inferLegacyTypeFromSegments();
+            pathBuilder.Append(Helper.EncodeCurveType(legacy));
+            foreach (var cp in ControlPoints)
+            {
+                pathBuilder.Append('|');
+                pathBuilder.Append($"{Helper.FormatCoord(cp.Position.X)}:{Helper.FormatCoord(cp.Position.Y)}");
+            }
+        }
+        else
+        {
+            // v128: support per-segment types and BSpline degree
+            bool first = true;
+            
+            //check if legacy type is set and first type are actually different
+            if (LegacyCurveType.HasValue)
+            {
+                pathBuilder.Append(Helper.EncodeCurveType(LegacyCurveType.Value));
+                pathBuilder.Append('|');
+            }
+            
+            foreach (var cp in ControlPoints)
+            {
+                if (cp.Type.HasValue)
+                {
+                    if (!first) pathBuilder.Append('|');
+                    pathBuilder.Append(EncodeTypeToken(cp.Type.Value, cp.Degree));
+                }
+                pathBuilder.Append('|');
+                pathBuilder.Append($"{Helper.FormatCoord(cp.Position.X)}:{Helper.FormatCoord(cp.Position.Y)}");
+                first = false;
+            }
+            // If no type token was present at all, prepend a legacy token for compatibility
+            if (!ControlPoints.Any(p => p.Type.HasValue))
+            {
+                pathBuilder.Insert(0, Helper.EncodeCurveType(LegacyCurveType ?? CurveType.Bezier) + "|");
+            }
+        }
+
+        builder.Append(pathBuilder.ToString());
+        builder.Append(',');
 
         builder.Append($"{Slides},");
         builder.Append($"{Length.ToString(CultureInfo.InvariantCulture)}");
@@ -290,6 +422,17 @@ public class Slider : HitObject
         }
         
         return builder.ToString();
+    }
+
+    private CurveType inferLegacyTypeFromSegments()
+    {
+        // Prefer first explicit type, otherwise fallback to Bezier
+        var first = ControlPoints.FirstOrDefault(p => p.Type.HasValue);
+        if (first.Type.HasValue)
+        {
+            return first.Type.Value == CurveType.BSpline && first.Degree.HasValue ? CurveType.Bezier : first.Type.Value;
+        }
+        return CurveType.Bezier;
     }
 
     /// <summary>

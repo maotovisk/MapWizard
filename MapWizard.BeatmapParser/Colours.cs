@@ -85,20 +85,25 @@ public class Colours
     public string Encode()
     {
         StringBuilder builder = new();
+        
+        var separator = Helper.FormatVersion == 128 ? ": " : " : ";
+        
+        var alpha = Helper.FormatVersion != 128 ? "" : ",255";
 
         Combos.ForEach(combo =>
         {
-            builder.AppendLine($"Combo{combo.Number} : {combo.Colour.R},{combo.Colour.G},{combo.Colour.B}");
+            builder.AppendLine($"Combo{combo.Number}{separator}{combo.Colour.R},{combo.Colour.G},{combo.Colour.B}{alpha}");
         });
         
         if (SliderBorder.HasValue)
         {
-            builder.AppendLine($"SliderBorder : {SliderBorder.Value.R},{SliderBorder.Value.G},{SliderBorder.Value.B}");
+            builder.AppendLine($"SliderBorder{separator}{SliderBorder.Value.R},{SliderBorder.Value.G},{SliderBorder.Value.B}{alpha}");
         }
         
         if (SliderTrackOverride.HasValue)
         {
-            builder.AppendLine($"SliderTrackOverride : {SliderTrackOverride.Value.R},{SliderTrackOverride.Value.G},{SliderTrackOverride.Value.B}");
+            builder.AppendLine($"SliderTrackOverride{separator}{SliderTrackOverride.Value.R},{SliderTrackOverride.Value.G},{SliderTrackOverride.Value.B}{alpha}");
+            
         }
         
         return builder.ToString();

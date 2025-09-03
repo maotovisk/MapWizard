@@ -104,6 +104,7 @@ public class Beatmap : IEncodable
         if (!lines[0].Contains("file format")) throw new Exception("Invalid file format.");
 
         var formatVersion = int.Parse(lines[0].Split("v")[1].Trim());
+        Helper.FormatVersion = formatVersion == 128 ? 128 : 14;
 
         foreach (var line in lines[1..])
         {
@@ -117,8 +118,6 @@ public class Beatmap : IEncodable
                 sections[currentSection].Add(currentSection == "Events" ? line : line.Trim());
             }
         }
-
-        if (Helper.IsWithinPropertyQuantity<Beatmap>(sections.Count)) throw new Exception($"Invalid number of sections. Expected {typeof(Beatmap).GetProperties().Length} but got {sections.Count}.");
 
         var general = General.Decode(sections[$"{SectionType.General}"]);
         var editor = sections.ContainsKey($"{SectionType.Editor}") ? Editor.Decode(sections[$"{SectionType.Editor}"]) : null;
@@ -154,7 +153,10 @@ public class Beatmap : IEncodable
     {
         StringBuilder builder = new();
 
-        builder.AppendLine($"osu file format v14"); // we are only supporting v14
+        // INFO: we don't plan to support encoding for formats other than 14 and 128
+        var headerVersion = Version == 128 ? 128 : 14;
+        Helper.FormatVersion = headerVersion;
+        builder.AppendLine($"osu file format v{headerVersion}");
         builder.AppendLine();
 
         builder.AppendLine($"[{SectionType.General}]");
@@ -168,15 +170,16 @@ public class Beatmap : IEncodable
 
         builder.AppendLine($"[{SectionType.Metadata}]");
         builder.AppendLine(Metadata.Encode());
-
+        
         builder.AppendLine($"[{SectionType.Difficulty}]");
         builder.AppendLine(Difficulty.Encode());
 
         builder.AppendLine($"[{SectionType.Events}]");
         if (Events.EventList.Count > 0)
             builder.AppendLine(Events.Encode());
-
-        builder.AppendLine();
+        
+        if (Helper.FormatVersion != 128)
+            builder.AppendLine();
 
         if (TimingPoints != null)
         {

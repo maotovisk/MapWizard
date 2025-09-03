@@ -30,12 +30,12 @@ public class HitObjects
     }
 
     /// <summary>
-    /// Converts a list of strings into a <see cref="HitObjects"/> object.
+    /// Decodes the provided list of hit object data strings into a <see cref="HitObjects"/> instance.
     /// </summary>
-    /// <param name="lines"></param>
-    /// <param name="timingPoints"></param>
-    /// <param name="difficulty"></param>
-    /// <returns></returns>
+    /// <param name="lines">A list of strings representing the raw hit object data.</param>
+    /// <param name="timingPoints">The timing points used to calculate timing-related properties for the hit objects.</param>
+    /// <param name="difficulty">The difficulty settings used to aid in decoding the hit objects.</param>
+    /// <returns>A <see cref="HitObjects"/> instance containing the parsed hit objects.</returns>
     public static HitObjects Decode(List<string> lines, TimingPoints timingPoints, Difficulty difficulty)
     {
         List<IHitObject> result = [];

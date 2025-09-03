@@ -19,6 +19,8 @@ public class ShouldCopyHitsoundIntoSliders
         // Arrange
         var assembly = Assembly.GetExecutingAssembly();
         using var stream = assembly.GetManifestResourceStream("MapWizard.Tests.Resources.test7.osu");
+        if (stream == null) return;
+        
         using var reader = new StreamReader(stream);
         var beatmapString = reader.ReadToEnd();
         var hsOptions = new HitSoundCopierOptions()

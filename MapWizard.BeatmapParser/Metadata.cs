@@ -33,15 +33,18 @@ public class Metadata
     /// </summary>
 
     public string Creator { get; set; }
+
     /// <summary>
     /// Difficulty name
     /// </summary>
 
     public string Version { get; set; }
+
     /// <summary>
     /// Original media the song was produced for
     /// </summary>
     public string Source { get; set; }
+
     /// <summary>
     /// Search terms for the map
     /// </summary>
@@ -70,7 +73,8 @@ public class Metadata
     /// <param name="tags"></param>
     /// <param name="beatmapId"></param>
     /// <param name="beatmapSetId"></param>
-    private Metadata(string title, string titleUnicode, string artist, string artistUnicode, string creator, string version, string source, List<string> tags, int beatmapId, int beatmapSetId)
+    private Metadata(string title, string titleUnicode, string artist, string artistUnicode, string creator,
+        string version, string source, List<string> tags, int beatmapId, int beatmapSetId)
     {
         Title = title;
         TitleUnicode = titleUnicode;
@@ -83,6 +87,7 @@ public class Metadata
         BeatmapID = beatmapId;
         BeatmapSetID = beatmapSetId;
     }
+
     /// <summary>
     /// Default constructor
     /// </summary>
@@ -117,19 +122,24 @@ public class Metadata
                     throw new Exception("Invalid Metadata section field.");
                 }
 
-                metadata.Add(splitLine[0].Trim(), splitLine.Length != 1 ? splitLine[1].Trim() : string.Empty);
+                metadata[splitLine[0].Trim()] = splitLine.Length != 1 ? splitLine[1].Trim() : string.Empty;
             });
 
-            if (Helper.IsWithinPropertyQuantity<Metadata>(metadata.Count))
+            foreach (var key in new[] { "Title", "Artist", "Creator", "Version" })
             {
-                throw new Exception("Invalid Metadata section length.");
+                if (!metadata.ContainsKey(key))
+                    throw new Exception($"Metadata section missing required field: {key}");
             }
 
             return new Metadata(
                 title: metadata["Title"],
-                titleUnicode: metadata.TryGetValue("TitleUnicode", out var titleUnicode) ? titleUnicode : metadata["Title"],
+                titleUnicode: metadata.TryGetValue("TitleUnicode", out var titleUnicode)
+                    ? titleUnicode
+                    : metadata["Title"],
                 artist: metadata["Artist"],
-                artistUnicode: metadata.TryGetValue("ArtistUnicode", out var artistUnicode) ? artistUnicode : metadata["Artist"],
+                artistUnicode: metadata.TryGetValue("ArtistUnicode", out var artistUnicode)
+                    ? artistUnicode
+                    : metadata["Artist"],
                 creator: metadata["Creator"],
                 version: metadata["Version"],
                 source: metadata.TryGetValue("Source", out var source) ? source : string.Empty,
@@ -155,26 +165,35 @@ public class Metadata
         foreach (var prop in typeof(Metadata).GetProperties())
         {
             if (prop.GetValue(this) is null) continue;
+            if (prop.GetValue(this) is string str && string.IsNullOrEmpty(str) && Helper.FormatVersion == 128) continue;
+            
+            var separator = Helper.FormatVersion == 128 ? ": " : ":";
 
             if (prop.Name == "Tags")
             {
-                builder.AppendLine($"{prop.Name}:{string.Join(' ', Tags)}");
+                builder.AppendLine($"{prop.Name}{separator}{string.Join(' ', Tags)}");
                 continue;
             }
+            
+            if (prop.Name == "BeatmapSetID" && BeatmapSetID == -1 && Helper.FormatVersion == 128)
+                continue;
+            
+            if (prop.Name == "BeatmapID" && BeatmapID == 0 && Helper.FormatVersion == 128)
+                continue;
 
             if (prop.GetValue(this) is bool boolValue)
             {
-                builder.AppendLine($"{prop.Name}:{(boolValue ? 1 : 0)}");
+                builder.AppendLine($"{prop.Name}{separator}{(boolValue ? 1 : 0)}");
                 continue;
             }
 
             if (prop.GetValue(this) is double doubleValue)
             {
-                builder.AppendLine($"{prop.Name}:{doubleValue.ToString(CultureInfo.InvariantCulture)}");
+                builder.AppendLine($"{prop.Name}{separator}{doubleValue.ToString(CultureInfo.InvariantCulture)}");
                 continue;
             }
 
-            builder.AppendLine($"{prop.Name}:{prop.GetValue(this)}");
+            builder.AppendLine($"{prop.Name}{separator}{prop.GetValue(this)}");
         }
 
         return builder.ToString();

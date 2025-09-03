@@ -55,7 +55,7 @@ public class UninheritedTimingPoint : TimingPoint
     /// <returns></returns>
     public string Encode()
     {
-        return $"{Time.TotalMilliseconds.ToString(CultureInfo.InvariantCulture)},{BeatLength.ToString("G", CultureInfo.InvariantCulture)},{TimeSignature},{(int)SampleSet},{SampleIndex},{Volume},{1},{Helper.EncodeEffects(Effects)}";
+        return $"{Helper.FormatTime(Time.TotalMilliseconds)},{BeatLength.ToString("G", CultureInfo.InvariantCulture)},{TimeSignature},{(int)SampleSet},{SampleIndex},{Volume},{1},{Helper.EncodeEffects(Effects)}";
     }
 
     /// <summary>

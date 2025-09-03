@@ -80,8 +80,8 @@ public class Spinner : HitObject
     {
         StringBuilder builder = new();
 
-        builder.Append($"{Coordinates.X},{Coordinates.Y},");
-        builder.Append($"{Time.TotalMilliseconds.ToString(CultureInfo.InvariantCulture)},");
+        builder.Append($"{Helper.FormatCoord(Coordinates.X)},{Helper.FormatCoord(Coordinates.Y)},");
+        builder.Append($"{Helper.FormatTime(Time.TotalMilliseconds)},");
 
         var type = (int)Type;
 
@@ -95,7 +95,7 @@ public class Spinner : HitObject
         builder.Append($"{type},");
         builder.Append($"{Helper.EncodeHitSounds(HitSounds.Sounds)},");
 
-        builder.Append($"{End.TotalMilliseconds.ToString(CultureInfo.InvariantCulture)},");
+        builder.Append($"{Helper.FormatTime(End.TotalMilliseconds)},");
 
         builder.Append($"{HitSounds.SampleData.Encode()}");
 

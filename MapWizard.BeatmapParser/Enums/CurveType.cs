@@ -16,6 +16,11 @@ public enum CurveType
     Bezier,
 
     /// <summary>
+    /// Represents a B-spline curve (Bezier generalisation with degree).
+    /// </summary>
+    BSpline,
+
+    /// <summary>
     /// Represents a linear curve.
     /// </summary>
     Linear,

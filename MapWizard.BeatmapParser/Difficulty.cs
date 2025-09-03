@@ -95,12 +95,13 @@ public class Difficulty
                     throw new Exception("Invalid difficulty section field.");
                 }
 
-                difficulty.Add(splitLine[0], splitLine.Length != 1 ? splitLine[1].Trim() : string.Empty);
+                difficulty[splitLine[0]] = splitLine.Length != 1 ? splitLine[1].Trim() : string.Empty;
             });
 
-            if (Helper.IsWithinPropertyQuantity<Difficulty>(difficulty.Count))
+            foreach (var key in new[] { "HPDrainRate", "CircleSize", "OverallDifficulty", "SliderMultiplier", "SliderTickRate" })
             {
-                throw new Exception("Invalid Difficulty section length. Missing properties: " + string.Join(", ", Helper.GetMissingPropertiesNames<Difficulty>(difficulty.Keys)) + ".");
+                if (!difficulty.ContainsKey(key))
+                    throw new Exception($"Difficulty section missing required field: {key}");
             }
 
             return new Difficulty(
@@ -126,23 +127,28 @@ public class Difficulty
     {
         StringBuilder builder = new();
 
-        foreach (var property in typeof(Difficulty).GetProperties())
+       foreach (var property in typeof(Difficulty).GetProperties())
         {
-            if (property.GetValue(this) is null) continue;
-
-            if (property.GetValue(this) is bool boolValue)
+            var value = property.GetValue(this);
+            if (value is null) continue;
+            
+            if (value is string str && string.IsNullOrEmpty(str) && Helper.FormatVersion == 128) continue;
+        
+            var separator = Helper.FormatVersion == 128 ? ": " : ":";
+        
+            if (value is bool boolValue)
             {
-                builder.AppendLine($"{property.Name}:{(boolValue ? 1 : 0)}");
+                builder.AppendLine($"{property.Name}{separator}{(boolValue ? 1 : 0)}");
                 continue;
             }
-
-            if (property.GetValue(this) is double doubleValue)
+        
+            if (value is double doubleValue)
             {
-                builder.AppendLine($"{property.Name}:{doubleValue.ToString(CultureInfo.InvariantCulture)}");
+                builder.AppendLine($"{property.Name}{separator}{doubleValue.ToString(CultureInfo.InvariantCulture)}");
                 continue;
             }
-
-            builder.AppendLine($"{property.Name}:{property.GetValue(this)}");
+        
+            builder.AppendLine($"{property.Name}{separator}{value}");
         }
 
         return builder.ToString();

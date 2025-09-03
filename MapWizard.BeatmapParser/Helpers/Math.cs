@@ -1,3 +1,4 @@
+using System.Globalization;
 
 namespace MapWizard.BeatmapParser;
 /// <summary>
@@ -5,6 +6,29 @@ namespace MapWizard.BeatmapParser;
 /// </summary>
 public partial class Helper
 {
+    /// <summary>
+    /// Versão de formatação alvo para encode (14 = stable, 128 = lazer).
+    /// </summary>
+    public static int FormatVersion { get; set; } = 14;
+
+    /// <summary>
+    /// Formata valores de tempo (ms) conforme a versão alvo.
+    /// v14: trunca para inteiro. v128: preserva alta precisão.
+    /// </summary>
+    public static string FormatTime(double milliseconds)
+        => FormatVersion == 128
+            ? milliseconds.ToString(CultureInfo.InvariantCulture)
+            : Math.Truncate(milliseconds).ToString(CultureInfo.InvariantCulture);
+
+    /// <summary>
+    /// Formata coordenadas X/Y conforme a versão alvo.
+    /// v14: arredonda para inteiro. v128: preserva alta precisão.
+    /// </summary>
+    public static string FormatCoord(float value)
+        => FormatVersion == 128
+            ? value.ToString(CultureInfo.InvariantCulture)
+            : Math.Round(value).ToString(CultureInfo.InvariantCulture);
+
     /// <summary>
     /// Clamps a millisecond value to the valid <see cref="TimeSpan"/> range.
     /// </summary>

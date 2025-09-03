@@ -98,6 +98,9 @@ public class Colour : ICommand
 
         if (EndColour != null) sb.Append($",{EndColour?.R},{EndColour?.G},{EndColour?.B}");
 
+        if (Helper.FormatVersion == 128)
+            sb.Append(",255");
+
         return sb.ToString();
 
     }
