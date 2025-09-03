@@ -84,11 +84,12 @@ public class Beatmap : IEncodable
     }
 
     /// <summary>
-    /// Decodes a dictionary of sections into a <see cref="Beatmap"/>.
-    /// For now only version 14 is supported.
+    /// Decodes the contents of a .osu beatmap file into a <see cref="Beatmap"/> instance.
+    /// Currently supports format version 14.
     /// </summary>
-    /// <param name="beatmapString"></param>
-    /// <returns></returns>
+    /// <param name="beatmapString">The full textual contents of the .osu file.</param>
+    /// <returns>A populated <see cref="Beatmap"/> object.</returns>
+    /// <exception cref="Exception">Thrown if the input is empty, the format is invalid, or required sections are missing.</exception>
     public static Beatmap Decode(string beatmapString)
     {
         var lines = beatmapString.Split(["\r\n", "\n"], StringSplitOptions.None)
@@ -134,18 +135,21 @@ public class Beatmap : IEncodable
     }
 
     /// <summary>
-    /// Converts a .osu file into a <see cref="Beatmap"/> object.
+    /// Reads a .osu file from disk and decodes it into a <see cref="Beatmap"/> instance.
     /// </summary>
-    /// <param name="path">Path of the beatmap</param>
-    /// <returns>Dictionary of sections</returns>
-    /// <exception cref="Exception"></exception>
+    /// <param name="path">The file path to the .osu beatmap.</param>
+    /// <returns>A populated <see cref="Beatmap"/> object.</returns>
+    /// <exception cref="Exception">Thrown if the file cannot be read or its contents are invalid.</exception>
     public static Beatmap Decode(FileInfo path) => Decode(File.ReadAllText(path.FullName));
 
 
     /// <summary>
-    /// 
+    /// Encodes the current instance of the <see cref="Beatmap"/> into a string that conforms
+    /// to the osu file format specification.
     /// </summary>
-    /// <returns></returns>
+    /// <returns>
+    /// A string representation of the beatmap in the osu file format.
+    /// </returns>
     public string Encode()
     {
         StringBuilder builder = new();
@@ -195,51 +199,51 @@ public class Beatmap : IEncodable
     }
 
     /// <summary>
-    /// Gets the uninherited timing point at the specified time.
+    /// Gets the uninherited timing point active at the specified time.
     /// </summary>
-    /// <param name="time"></param>
-    /// <returns></returns>
+    /// <param name="time">The time in milliseconds.</param>
+    /// <returns>The matching <see cref="UninheritedTimingPoint"/> if one exists; otherwise, null.</returns>
     public UninheritedTimingPoint? GetUninheritedTimingPointAt(double time)
     {
         return TimingPoints?.GetUninheritedTimingPointAt(time);
     }
 
     /// <summary>
-    /// Gets the inherited timing point at the specified time.
+    /// Gets the inherited timing point (green line) active at the specified time.
     /// </summary>
-    /// <param name="time"></param>
-    /// <returns></returns>
+    /// <param name="time">The time in milliseconds.</param>
+    /// <returns>The matching <see cref="InheritedTimingPoint"/> if one exists; otherwise, null.</returns>
     public InheritedTimingPoint? GetInheritedTimingPointAt(double time)
     {
         return TimingPoints?.GetInheritedTimingPointAt(time);
     }
 
     /// <summary>
-    /// Returns the volume at the specified time.
+    /// Gets the effective volume at the specified time, based on the active timing point.
     /// </summary>
-    /// <param name="time"></param>
-    /// <returns></returns>
+    /// <param name="time">The time in milliseconds.</param>
+    /// <returns>The volume as a percentage (0–100). Defaults to 100 if no timing point exists.</returns>
     public uint GetVolumeAt(double time)
     {
         return TimingPoints?.GetVolumeAt(time) ?? (uint)100;
     }
 
     /// <summary>
-    /// Returns the BPM at the specified time.
+    /// Gets the effective BPM at the specified time.
     /// </summary>
-    /// <param name="time"></param>
-    /// <returns></returns>
+    /// <param name="time">The time in milliseconds.</param>
+    /// <returns>The BPM value as a double. Defaults to 120 if no timing point exists.</returns>
     public double GetBpmAt(double time)
     {
         return TimingPoints?.GetBpmAt(time) ?? 120;
     }
 
     /// <summary>
-    /// Gets the hit object at a specific time.
+    /// Gets the hit object occurring at or near the specified time.
     /// </summary>
-    /// <param name="time"></param>
-    /// <param name="leniency"></param>
-    /// <returns></returns>
+    /// <param name="time">The time in milliseconds.</param>
+    /// <param name="leniency">The allowed time difference in milliseconds when matching the object (default is 2 ms).</param>
+    /// <returns>The matching <see cref="IHitObject"/> if found; otherwise, null.</returns>
     public IHitObject? GetHitObjectAt(double time, int leniency = 2)
     {
         return HitObjects.GetHitObjectAt(time, leniency);

@@ -22,10 +22,10 @@ public class Spinner : HitObject
     /// <param name="type">The type of the spinner.</param>
     /// <param name="hitSounds">The list of hit sounds associated with the spinner.</param>
     /// <param name="newCombo">A value indicating whether the spinner starts a new combo.</param>
-    /// <param name="comboColour">The color of the combo associated with the spinner.</param>
+    /// <param name="comboOffset">The color of the combo associated with the spinner.</param>
     /// <param name="end">The end time of the spinner.</param>
-    private Spinner(Vector2 coordinates, TimeSpan time, HitObjectType type, (HitSample, List<HitSound>) hitSounds, bool newCombo, uint comboColour, TimeSpan end)
-    : base(coordinates, time, type, hitSounds, newCombo, comboColour)
+    private Spinner(Vector2 coordinates, TimeSpan time, HitObjectType type, (HitSample, List<HitSound>) hitSounds, bool newCombo, uint comboOffset, TimeSpan end)
+    : base(coordinates, time, type, hitSounds, newCombo, comboOffset)
     {
         End = end;
     }
@@ -41,7 +41,7 @@ public class Spinner : HitObject
     /// Initializes a new instance of the <see cref="Spinner"/> class.
     /// </summary>
     /// <param name="baseObject"></param>
-    public Spinner(IHitObject baseObject) : base(baseObject.Coordinates, baseObject.Time, baseObject.Type, baseObject.HitSounds, baseObject.NewCombo, baseObject.ComboColour)
+    public Spinner(IHitObject baseObject) : base(baseObject.Coordinates, baseObject.Time, baseObject.Type, baseObject.HitSounds, baseObject.NewCombo, baseObject.ComboOffset)
     {
         End = new TimeSpan();
     }
@@ -49,8 +49,8 @@ public class Spinner : HitObject
     /// <summary>
     /// Converts a list of strings into a <see cref="Spinner"/> object.
     /// </summary>
-    /// <param name="splitData"></param>
-    /// <returns></returns>
+    /// <param name="splitData">The list of strings containing the spinner data, split by commas.</param>
+    /// <returns>A <see cref="Spinner"/> instance representing the parsed spinner.</returns>
     public new static Spinner Decode(List<string> splitData)
     {
         try
@@ -62,7 +62,7 @@ public class Spinner : HitObject
                 type: Helper.ParseHitObjectType(int.Parse(splitData[3])),
                 hitSounds: !hasHitSample ? (new HitSample(), Helper.ParseHitSounds(int.Parse(splitData[4]))) : (HitSample.Decode(splitData.Last()), Helper.ParseHitSounds(int.Parse(splitData[4]))),
                 newCombo: (int.Parse(splitData[3]) & (1 << 2)) != 0,
-                comboColour: (uint)((int.Parse(splitData[3]) & (1 << 4 | 1 << 5 | 1 << 6)) >> 4),
+                comboOffset: (uint)((int.Parse(splitData[3]) & (1 << 4 | 1 << 5 | 1 << 6)) >> 4),
                 end: TimeSpan.FromMilliseconds(double.Parse(splitData[5], CultureInfo.InvariantCulture))
             );
         }
@@ -75,7 +75,7 @@ public class Spinner : HitObject
     /// <summary>
     /// Encodes the spinner hit object into a string.
     /// </summary>
-    /// <returns></returns>
+    /// <returns>A string representation of the spinner hit object.</returns>
     public new string Encode()
     {
         StringBuilder builder = new();
@@ -90,7 +90,7 @@ public class Spinner : HitObject
             type |= 1 << 2;
         }
 
-        type |= (int)ComboColour << 4;
+        type |= (int)ComboOffset << 4;
 
         builder.Append($"{type},");
         builder.Append($"{Helper.EncodeHitSounds(HitSounds.Sounds)},");

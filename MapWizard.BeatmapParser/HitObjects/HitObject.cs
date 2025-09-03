@@ -35,7 +35,7 @@ public class HitObject : IHitObject
     /// <summary>
     /// Gets or sets the color of the combo associated with the hit object.
     /// </summary>
-    public uint ComboColour { get; set; }
+    public uint ComboOffset { get; set; }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="HitObject"/> class.
@@ -45,15 +45,15 @@ public class HitObject : IHitObject
     /// <param name="type">The type of the hit object.</param>
     /// <param name="hitSounds">The list of hit sounds associated with the hit object.</param>
     /// <param name="newCombo">A value indicating whether the hit object starts a new combo.</param>
-    /// <param name="comboColour">The color of the combo associated with the hit object.</param>
-    protected HitObject(Vector2 coordinates, TimeSpan time, HitObjectType type, (HitSample, List<HitSound>) hitSounds, bool newCombo, uint comboColour)
+    /// <param name="comboOffset">The color of the combo associated with the hit object.</param>
+    protected HitObject(Vector2 coordinates, TimeSpan time, HitObjectType type, (HitSample, List<HitSound>) hitSounds, bool newCombo, uint comboOffset)
     {
         Coordinates = coordinates;
         Type = type;
         Time = time;
         HitSounds = hitSounds;
         NewCombo = newCombo;
-        ComboColour = comboColour;
+        ComboOffset = comboOffset;
     }
 
     /// <summary>
@@ -66,18 +66,17 @@ public class HitObject : IHitObject
         Time = TimeSpan.FromSeconds(0);
         HitSounds = (new HitSample(), []);
         NewCombo = false;
-        ComboColour = 0;
+        ComboOffset = 0;
     }
 
     /// <summary>
     /// Parses a hit object from a string.
     /// </summary>
-    /// <param name="splitData"></param>
-    /// <returns></returns>
+    /// <param name="splitData">The string containing the hit object data, split by commas. The format is as follows:
+    /// X,Y,Time,Type,HitSound[,HitSample]</param>
+    /// <returns>A <see cref="HitObject"/> instance representing the parsed hit object.</returns>
     public static HitObject Decode(List<string> splitData)
     {
-        // x,   y,  time,   type, hitSound, objectParams, hitSample
-        // 0    1   2       3     4         5            6
         try
         {
             var hasHitSample = splitData.Last().Contains(':');
@@ -87,7 +86,7 @@ public class HitObject : IHitObject
                 type: Helper.ParseHitObjectType(int.Parse(splitData[3])),
                 hitSounds: !hasHitSample ? (new HitSample(), Helper.ParseHitSounds(int.Parse(splitData[4]))) : (HitSample.Decode(splitData.Last()), Helper.ParseHitSounds(int.Parse(splitData[4]))),
                 newCombo: (int.Parse(splitData[3]) & (1 << 2)) != 0,
-                comboColour: (uint)((int.Parse(splitData[3]) & (1 << 4 | 1 << 5 | 1 << 6)) >> 4)
+                comboOffset: (uint)((int.Parse(splitData[3]) & (1 << 4 | 1 << 5 | 1 << 6)) >> 4)
             );
         }
         catch (Exception ex)
@@ -114,7 +113,7 @@ public class HitObject : IHitObject
             type |= 1 << 2;
         }
 
-        type |= (int)ComboColour << 4;
+        type |= (int)ComboOffset << 4;
 
         builder.Append($"{type},");
         builder.Append($"{Helper.EncodeHitSounds(HitSounds.Sounds)},");

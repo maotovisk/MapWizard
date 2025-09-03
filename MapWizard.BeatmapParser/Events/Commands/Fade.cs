@@ -4,48 +4,57 @@ using System.Text;
 namespace MapWizard.BeatmapParser;
 
 /// <summary>
-/// 
+/// Represents the Fade command in a beatmap, allowing for fade-in and fade-out effects
+/// with specified easing, timing, and opacity values.
 /// </summary>
 public class Fade : ICommand
 {
     /// <summary>
-    /// 
+    /// Gets the specific type of the command, represented by the <see cref="CommandType"/> enumeration.
+    /// This property identifies the nature of the command, such as Fade, Move, Scale, or other supported
+    /// command types in the beatmap.
     /// </summary>
     public CommandType Type { get; init; } = CommandType.Fade;
 
     /// <summary>
-    /// 
+    /// Specifies the easing type to be applied during the interpolation process
+    /// within a command. The <see cref="Easing"/> enumeration determines the
+    /// nature of transition, such as linear scaling or more complex easing
+    /// curves like Bounce, Elastic, or Quadratic, affecting how a value
+    /// progresses over time.
     /// </summary>
     public Easing Easing { get; set; }
 
     /// <summary>
-    /// 
+    /// Gets or sets the start time of the fade command in the beatmap.
+    /// This property defines the timestamp at which the fade effect begins.
     /// </summary>
     public TimeSpan? StartTime { get; set; }
 
     /// <summary>
-    /// 
+    /// Gets or sets the end time of the fade command. This property represents the time
+    /// at which the fade effect concludes, measured in a <see cref="TimeSpan"/>.
     /// </summary>
     public TimeSpan? EndTime { get; set; }
 
     /// <summary>
-    /// 
+    /// Gets or sets the starting opacity value for the fade effect.
+    /// This property defines the initial transparency level of the object,
+    /// where 0 represents fully transparent and 1 represents fully opaque.
     /// </summary>
     public double? StartOpacity { get; set; }
 
     /// <summary>
-    /// 
+    /// Gets or sets the final opacity value of the fade effect in the beatmap.
+    /// This property defines the opacity level at the end of the fade command,
+    /// ranging from 0 (completely invisible) to 1 (fully visible).
     /// </summary>
     public double? EndOpacity { get; set; }
 
     /// <summary>
-    /// 
+    /// Represents a command for applying a fade effect in a beatmap.
+    /// The fade effect transitions the opacity of an object over time.
     /// </summary>
-    /// <param name="easing"></param>
-    /// <param name="startTime"></param>
-    /// <param name="endTime"></param>
-    /// <param name="startOpacity"></param>
-    /// <param name="endOpacity"></param>
     private Fade(
         Easing easing,
         TimeSpan? startTime,
@@ -62,12 +71,11 @@ public class Fade : ICommand
     }
 
     /// <summary>
-    /// 
+    /// Decodes a string representation of a fade command into a <see cref="Fade"/> object.
+    /// The method parses the provided line to extract parameters like easing, time span, and opacity values.
     /// </summary>
-    /// <param name="result"></param>
-    /// <param name="parsedCommands"></param>
-    /// <param name="command"></param>
-    /// <returns></returns>
+    /// <param name="line">The string containing the encoded fade command. Expected format: "_F,(easing),(starttime),(endtime),(start_opacity),(end_opacity)".</param>
+    /// <returns>A <see cref="Fade"/> object containing the parsed command parameters.</returns>
     public static Fade Decode(string line)
     {
         // _F,(easing),(starttime),(endtime),(start_opacity),(end_opacity)
@@ -85,9 +93,13 @@ public class Fade : ICommand
     }
 
     /// <summary>
-    /// 
+    /// Encodes the properties of the <see cref="Fade"/> command into a string representation
+    /// that complies with the osu! file format. The generated string includes information
+    /// about easing type, timing, and opacity values for fade-in and fade-out effects.
     /// </summary>
-    /// <returns></returns>
+    /// <returns>
+    /// A string representation of the <see cref="Fade"/> command, formatted for use in beatmaps.
+    /// </returns>
     public string Encode()
     {
         StringBuilder sb = new();

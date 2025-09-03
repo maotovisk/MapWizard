@@ -58,7 +58,7 @@ public class Slider : HitObject
     /// <param name="type"></param>
     /// <param name="hitSounds"></param>
     /// <param name="newCombo"></param>
-    /// <param name="comboColour"></param>
+    /// <param name="comboOffset"></param>
     /// <param name="curveType"></param>
     /// <param name="curvePoints"></param>
     /// <param name="slides"></param>
@@ -67,8 +67,8 @@ public class Slider : HitObject
     /// <param name="headSounds"></param>
     /// <param name="repeatSounds"></param>
     /// <param name="tailSounds"></param>
-    public Slider(Vector2 coordinates, TimeSpan time, HitObjectType type, (HitSample, List<HitSound>) hitSounds, bool newCombo, uint comboColour, CurveType curveType, List<Vector2> curvePoints, uint slides, double length, TimeSpan endTime, (HitSample SampleData, List<HitSound> Sounds) headSounds, List<(HitSample SampleData, List<HitSound> Sounds)>? repeatSounds, (HitSample SampleData, List<HitSound> Sounds) tailSounds) :
-        base(coordinates, time, type, hitSounds, newCombo, comboColour)
+    public Slider(Vector2 coordinates, TimeSpan time, HitObjectType type, (HitSample, List<HitSound>) hitSounds, bool newCombo, uint comboOffset, CurveType curveType, List<Vector2> curvePoints, uint slides, double length, TimeSpan endTime, (HitSample SampleData, List<HitSound> Sounds) headSounds, List<(HitSample SampleData, List<HitSound> Sounds)>? repeatSounds, (HitSample SampleData, List<HitSound> Sounds) tailSounds) :
+        base(coordinates, time, type, hitSounds, newCombo, comboOffset)
     {
         CurveType = curveType;
         CurvePoints = curvePoints;
@@ -96,14 +96,14 @@ public class Slider : HitObject
         Coordinates = new Vector2();
         Time = TimeSpan.FromSeconds(0);
         NewCombo = false;
-        ComboColour = 0;
+        ComboOffset = 0;
     }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="Slider"/> class.
     /// </summary>
-    /// <param name="baseObject"></param>
-    private Slider(IHitObject baseObject) : base(baseObject.Coordinates, baseObject.Time, baseObject.Type, baseObject.HitSounds, baseObject.NewCombo, baseObject.ComboColour)
+    /// <param name="baseObject">The base hit object to copy properties from.</param>
+    private Slider(IHitObject baseObject) : base(baseObject.Coordinates, baseObject.Time, baseObject.Type, baseObject.HitSounds, baseObject.NewCombo, baseObject.ComboOffset)
     {
         CurveType = CurveType.Bezier;
         CurvePoints = [];
@@ -115,10 +115,10 @@ public class Slider : HitObject
     /// <summary>
     /// Parses a slider hit object from a split hitObject line.
     /// </summary>
-    /// <param name="split"></param>
-    /// <param name="timingPoints"></param>
-    /// <param name="difficulty"></param>
-    /// <returns></returns>
+    /// <param name="split">The split hit object line.</param>
+    /// <param name="timingPoints">The timing points.</param>
+    /// <param name="difficulty">The difficulty.</param>
+    /// <returns>The parsed slider hit object.</returns>
     public static Slider Decode(List<string> split, TimingPoints timingPoints, Difficulty difficulty)
     {
         // x,   y,  time,   type,   hitSound,   curveType|curvePoints,  slides, length, edgeSounds,     ,edgeSets   ,hitSample
@@ -179,7 +179,7 @@ public class Slider : HitObject
     /// <summary>
     /// Encodes the hit object into a string.
     /// </summary>
-    /// <returns></returns>
+    /// <returns>A string containing the encoded hit object line.</returns>
     public new string Encode()
     {
         // Format:
@@ -190,7 +190,7 @@ public class Slider : HitObject
         builder.Append($"{Coordinates.X},{Coordinates.Y},");
         builder.Append($"{Time.TotalMilliseconds.ToString(CultureInfo.InvariantCulture)},");
 
-        int type = (int)Type | (NewCombo ? 1 << 2 : 0) | ((int)ComboColour << 4);
+        int type = (int)Type | (NewCombo ? 1 << 2 : 0) | ((int)ComboOffset << 4);
         builder.Append($"{type},");
 
         // HitSound field

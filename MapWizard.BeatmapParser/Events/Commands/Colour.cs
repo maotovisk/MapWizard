@@ -6,48 +6,49 @@ using System.Text;
 namespace MapWizard.BeatmapParser;
 
 /// <summary>
-/// 
+/// Defines a colour transformation command in a beatmap, supporting properties such as easing, timing, and color values.
 /// </summary>
 public class Colour : ICommand
 {
     /// <summary>
-    /// 
+    /// Specifies the type of a command within the beatmap, identifying its category
+    /// or the specific kind of transformation it performs.
     /// </summary>
     public CommandType Type { get; init; } = CommandType.Colour;
 
     /// <summary>
-    /// 
+    /// Defines the interpolation behavior between keyframes in an animation, specifying
+    /// how the transition progresses over time through various predefined easing functions.
     /// </summary>
     public Easing Easing { get; set; }
 
     /// <summary>
-    /// 
+    /// Represents the start time of the colour transformation command within the beatmap,
+    /// indicating the point in time at which the transformation begins.
     /// </summary>
     public TimeSpan? StartTime { get; set; }
 
     /// <summary>
-    /// 
+    /// Represents the optional end time of the colour transformation command, indicating
+    /// when the transformation is completed within the beatmap timeline.
     /// </summary>
     public TimeSpan? EndTime { get; set; }
 
     /// <summary>
-    /// 
+    /// Represents the initial color value used in a color transformation command,
+    /// defining the starting point for the color transition within the beatmap.
     /// </summary>
     public Color? StartColour { get; set; }
 
     /// <summary>
-    /// 
+    /// Represents the target colour at the end time of the colour transformation command in a beatmap.
+    /// This property defines the final RGB values the object transitions to during the command duration.
     /// </summary>
     public Color? EndColour { get; set; }
 
     /// <summary>
-    /// 
+    /// Represents a colour command in a beatmap with specific easing and timing characteristics.
     /// </summary>
-    /// <param name="easing"></param>
-    /// <param name="startTime"></param>
-    /// <param name="endTime"></param>
-    /// <param name="startColour"></param>
-    /// <param name="endColour"></param>
     private Colour(
         Easing easing,
         TimeSpan? startTime,
@@ -64,12 +65,10 @@ public class Colour : ICommand
     }
 
     /// <summary>
-    /// 
+    /// Decodes a given line of text into a <see cref="Colour"/> command with its associated easing, timing, and colour parameters.
     /// </summary>
-    /// <param name="result"></param>
-    /// <param name="parsedCommands"></param>
-    /// <param name="command"></param>
-    /// <returns></returns>
+    /// <param name="line">The line of text representing the colour command in the beatmap file format.</param>
+    /// <returns>A <see cref="Colour"/> object initialized with easing, timing, and colour data parsed from the provided line of text.</returns>
     public static Colour Decode(string line)
     {
         // _C,(easing),(starttime),(endtime),(start_r),(start_g),(start_b),(end_r),(end_g),(end_b)
@@ -86,9 +85,9 @@ public class Colour : ICommand
     }
 
     /// <summary>
-    /// 
+    /// Encodes the colour transformation command into a formatted string that adheres to the osu! file format specification.
     /// </summary>
-    /// <returns></returns>
+    /// <returns>A string representation of the colour command, including easing, timing, and color values.</returns>
     public string Encode()
     {
         StringBuilder sb = new();

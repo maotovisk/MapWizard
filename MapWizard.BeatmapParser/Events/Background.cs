@@ -6,27 +6,29 @@ using System.Text;
 namespace MapWizard.BeatmapParser;
 
 /// <summary>
-/// 
+/// Represents a background event in a beatmap.
+/// This is the event used to set the beatmap background image.
 /// </summary>
 public class Background : IEvent, IHasCommands
 {
     /// <summary>
-    /// 
+    /// Specifies the type of the event. This property determines the category of the event,
+    /// such as background, video, sprite, or other supported event types within the beatmap.
     /// </summary>
     public EventType Type { get; init; } = EventType.Background;
 
     /// <summary>
-    ///  Time of the event.
+    /// The start time of the background event. It doesn't really is used for anything.
     /// </summary>
     public TimeSpan StartTime { get; set; }
 
     /// <summary>
-    /// 
+    /// Represents the file name of the background image.
     /// </summary>
     public string Filename { get; set; }
 
     /// <summary>
-    /// 
+    /// Represents the offset for the background in the beatmap file. Not really used for anything.
     /// </summary>
     public Vector2? Offset { get; set; }
 
@@ -34,7 +36,8 @@ public class Background : IEvent, IHasCommands
 
 
     /// <summary>
-    /// 
+    /// Represents a background event in a beatmap.
+    /// This event is used for setting the background image of the beatmap.
     /// </summary>
     private Background()
     {
@@ -43,10 +46,10 @@ public class Background : IEvent, IHasCommands
     }
 
     /// <summary>
-    /// 
+    /// Represents a background event in a beatmap.
+    /// This event is used to define and encode the background image of a beatmap,
+    /// along with its associated properties such as filename, offset, and commands.
     /// </summary>
-    /// <param name="filename"></param>
-    /// <param name="offset"></param>
     public Background(string filename, Vector2? offset = null)
     {
         StartTime = TimeSpan.FromMilliseconds(0);
@@ -56,11 +59,9 @@ public class Background : IEvent, IHasCommands
     }
 
     /// <summary>
-    /// 
+    /// Represents a background event in a beatmap.
+    /// This is the event used to set the beatmap background image.
     /// </summary>
-    /// <param name="time"></param>
-    /// <param name="filename"></param>
-    /// <param name="offset"></param>
     private Background(TimeSpan time, string filename, Vector2? offset = null)
     {
         StartTime = time;
@@ -70,9 +71,11 @@ public class Background : IEvent, IHasCommands
     }
 
     /// <summary>
-    /// 
+    /// Encodes the background event and its associated commands into a string representation.
+    /// The encoded string includes information such as the event type, start time, filename,
+    /// optional offset, and encoded commands formatted for output.
     /// </summary>
-    /// <returns></returns>
+    /// <returns>A string representation of the encoded background event.</returns>
     public string Encode()
     {
         StringBuilder sb = new();
@@ -94,14 +97,18 @@ public class Background : IEvent, IHasCommands
     }
 
     /// <summary>
-    /// 
+    /// Decodes a line representing a background event in a beatmap
+    /// and creates a <see cref="Background"/> instance from it.
     /// </summary>
-    /// <param name="line"></param>
-    /// <returns></returns>
-    /// <exception cref="Exception"></exception>
+    /// <param name="line">The raw string representing the background event, typically in the format "0,0,filename,xOffset,yOffset".</param>
+    /// <returns>
+    /// A <see cref="Background"/> object initialized with the parsed data from the input string.
+    /// </returns>
+    /// <exception cref="Exception">
+    /// Thrown when the input line cannot be successfully parsed into a valid <see cref="Background"/> object.
+    /// </exception>
     public static Background Decode(string line)
     {
-        // 0,0,filename,xOffset,yOffset
         try
         {
             var args = line.Trim().Split(',');
