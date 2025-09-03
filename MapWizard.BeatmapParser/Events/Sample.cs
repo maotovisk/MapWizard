@@ -4,38 +4,38 @@ using System.Text;
 namespace MapWizard.BeatmapParser;
 
 /// <summary>
-/// 
+/// Represents a Sample event in a beatmap, implementing the IEvent interface.
 /// </summary>
 public class Sample : IEvent
 {
     /// <summary>
-    /// 
+    /// Gets the type of the event, represented as an <see cref="EventType"/>.
     /// </summary>
     public EventType Type { get; init; } = EventType.Sample;
 
     /// <summary>
-    ///  Time of the event.
+    /// Gets or sets the start time of the sample event,
+    /// represented as a <see cref="TimeSpan"/>.
     /// </summary>
     public TimeSpan StartTime { get; set; }
 
     /// <summary>
-    ///  Time of the event.
+    /// Gets or sets the layer in which the sample event is positioned. Defaults to Background.
+    /// See <see cref="Layer"/> for more information.
     /// </summary>
     public Layer Layer { get; set; }
 
     /// <summary>
-    /// 
+    /// Gets or sets the file path associated with the sample event.
+    /// Represents the location of the audio file used in the beatmap.
     /// </summary>
     public string FilePath { get; set; }
 
     /// <summary>
-    /// 
+    /// Gets or sets the volume of the sample event, represented as an integer value.
     /// </summary>
     public int Volume { get; set; }
-
-    /// <summary>
-    /// 
-    /// </summary>
+    
     private Sample()
     {
         StartTime = TimeSpan.FromMilliseconds(0);
@@ -43,14 +43,7 @@ public class Sample : IEvent
         FilePath = string.Empty;
         Volume = 100;
     }
-
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="startTime"></param>
-    /// <param name="layer"></param>
-    /// <param name="filePath"></param>
-    /// <param name="volume"></param>
+    
     private Sample(
         TimeSpan startTime,
         Layer layer,
@@ -64,9 +57,9 @@ public class Sample : IEvent
     }
 
     /// <summary>
-    /// 
+    /// Encodes the sample event into a string representation following the osu! beatmap file format.
     /// </summary>
-    /// <returns></returns>
+    /// <returns>A string that represents the encoded sample event, including its type, start time, layer, file path, and volume.</returns>
     public string Encode()
     {
         StringBuilder sb = new StringBuilder();
@@ -83,11 +76,11 @@ public class Sample : IEvent
     }
 
     /// <summary>
-    /// 
+    /// Decodes a string representation of a sample event into a <see cref="Sample"/> object.
     /// </summary>
-    /// <param name="line"></param>
-    /// <returns></returns>
-    /// <exception cref="Exception"></exception>
+    /// <param name="line">The string representation of the sample event, typically in the osu! beatmap file format.</param>
+    /// <returns>A <see cref="Sample"/> object parsed from the input string.</returns>
+    /// <exception cref="Exception">Thrown when the input string does not match the expected format or contains invalid data.</exception>
     public static Sample Decode(string line)
     {
         // Sample,<time>,<layer_num>,"<filepath>",<volume>

@@ -35,8 +35,8 @@ public interface IHitObject : IEncodable
     public bool NewCombo { get; set; }
 
     /// <summary>
-    /// Represents the combo color attribute of the hit object, determining its visual appearance in gameplay.
+    /// Represents the combo colour offset of the hit object.
     /// </summary>
-    public uint ComboColour { get; set; }
+    public uint ComboOffset { get; set; }
 
 }

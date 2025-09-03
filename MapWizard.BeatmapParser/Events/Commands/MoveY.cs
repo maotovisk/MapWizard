@@ -1,52 +1,51 @@
 using System.Globalization;
-using System.Numerics;
 using System.Text;
 
 namespace MapWizard.BeatmapParser;
 
 /// <summary>
-/// 
+/// Represents a command to move an object along the Y-axis in a beatmap.
 /// </summary>
 public class MoveY : ICommand
 {
     /// <summary>
-    /// 
+    /// Gets the type of the command, which is MoveY.
     /// </summary>
     public CommandType Type { get; init; } = CommandType.MoveY;
 
     /// <summary>
-    /// 
+    /// Gets or sets the easing function used for the movement.
     /// </summary>
     public Easing Easing { get; set; }
 
     /// <summary>
-    /// 
+    /// Gets or sets the start time of the movement.
     /// </summary>
     public TimeSpan? StartTime { get; set; }
 
     /// <summary>
-    /// 
+    /// Gets or sets the end time of the movement.
     /// </summary>
     public TimeSpan? EndTime { get; set; }
 
     /// <summary>
-    /// 
+    /// Gets or sets the starting Y-coordinate of the movement.
     /// </summary>
     public double? StartY { get; set; }
 
     /// <summary>
-    /// 
+    /// Gets or sets the ending Y-coordinate of the movement.
     /// </summary>
     public double? EndY { get; set; }
 
     /// <summary>
-    /// 
+    /// Initializes a new instance of the <see cref="MoveY"/> class.
     /// </summary>
-    /// <param name="easing"></param>
-    /// <param name="startTime"></param>
-    /// <param name="endTime"></param>
-    /// <param name="startY"></param>
-    /// <param name="endY"></param>
+    /// <param name="easing">The easing function used for the movement.</param>
+    /// <param name="startTime">The start time of the movement.</param>
+    /// <param name="endTime">The end time of the movement.</param>
+    /// <param name="startY">The starting Y-coordinate of the movement.</param>
+    /// <param name="endY">The ending Y-coordinate of the movement.</param>
     private MoveY(
         Easing easing,
         TimeSpan? startTime,
@@ -63,15 +62,13 @@ public class MoveY : ICommand
     }
 
     /// <summary>
-    /// 
+    /// Decodes a string representation of a MoveY command into a <see cref="MoveY"/> object.
     /// </summary>
-    /// <param name="result"></param>
-    /// <param name="parsedCommands"></param>
-    /// <param name="command"></param>
-    /// <returns></returns>
+    /// <param name="line">The string representation of the command.</param>
+    /// <returns>A <see cref="MoveY"/> object representing the command.</returns>
     public static MoveY Decode(string line)
     {
-        //M,(easing),(starttime),(endtime),(start_Y),(end_Y)
+        // M,(easing),(starttime),(endtime),(start_Y),(end_Y)
 
         var commandSplit = line.Trim().Split(',');
         Easing easing = commandSplit.Length > 1 ? (Easing)Enum.Parse(typeof(Easing), commandSplit[1]) : Easing.Linear;
@@ -84,9 +81,9 @@ public class MoveY : ICommand
     }
 
     /// <summary>
-    /// 
+    /// Encodes the current <see cref="MoveY"/> object into its string representation.
     /// </summary>
-    /// <returns></returns>
+    /// <returns>A string representation of the MoveY command.</returns>
     public string Encode()
     {
         StringBuilder sb = new();

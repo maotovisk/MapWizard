@@ -1,7 +1,7 @@
 namespace MapWizard.BeatmapParser;
 
 /// <summary>
-/// 
+/// Represents the type of an event in a beatmap. Each event type corresponds to a specific type of element or action within the beatmap.
 /// </summary>
 public enum EventType : int
 {

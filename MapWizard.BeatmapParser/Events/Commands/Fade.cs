@@ -26,33 +26,35 @@ public class Fade : ICommand
     public Easing Easing { get; set; }
 
     /// <summary>
-    /// 
+    /// Gets or sets the start time of the fade command in the beatmap.
+    /// This property defines the timestamp at which the fade effect begins.
     /// </summary>
     public TimeSpan? StartTime { get; set; }
 
     /// <summary>
-    /// 
+    /// Gets or sets the end time of the fade command. This property represents the time
+    /// at which the fade effect concludes, measured in a <see cref="TimeSpan"/>.
     /// </summary>
     public TimeSpan? EndTime { get; set; }
 
     /// <summary>
-    /// 
+    /// Gets or sets the starting opacity value for the fade effect.
+    /// This property defines the initial transparency level of the object,
+    /// where 0 represents fully transparent and 1 represents fully opaque.
     /// </summary>
     public double? StartOpacity { get; set; }
 
     /// <summary>
-    /// 
+    /// Gets or sets the final opacity value of the fade effect in the beatmap.
+    /// This property defines the opacity level at the end of the fade command,
+    /// ranging from 0 (completely invisible) to 1 (fully visible).
     /// </summary>
     public double? EndOpacity { get; set; }
 
     /// <summary>
-    /// 
+    /// Represents a command for applying a fade effect in a beatmap.
+    /// The fade effect transitions the opacity of an object over time.
     /// </summary>
-    /// <param name="easing"></param>
-    /// <param name="startTime"></param>
-    /// <param name="endTime"></param>
-    /// <param name="startOpacity"></param>
-    /// <param name="endOpacity"></param>
     private Fade(
         Easing easing,
         TimeSpan? startTime,
@@ -69,12 +71,11 @@ public class Fade : ICommand
     }
 
     /// <summary>
-    /// 
+    /// Decodes a string representation of a fade command into a <see cref="Fade"/> object.
+    /// The method parses the provided line to extract parameters like easing, time span, and opacity values.
     /// </summary>
-    /// <param name="result"></param>
-    /// <param name="parsedCommands"></param>
-    /// <param name="command"></param>
-    /// <returns></returns>
+    /// <param name="line">The string containing the encoded fade command. Expected format: "_F,(easing),(starttime),(endtime),(start_opacity),(end_opacity)".</param>
+    /// <returns>A <see cref="Fade"/> object containing the parsed command parameters.</returns>
     public static Fade Decode(string line)
     {
         // _F,(easing),(starttime),(endtime),(start_opacity),(end_opacity)
@@ -92,9 +93,13 @@ public class Fade : ICommand
     }
 
     /// <summary>
-    /// 
+    /// Encodes the properties of the <see cref="Fade"/> command into a string representation
+    /// that complies with the osu! file format. The generated string includes information
+    /// about easing type, timing, and opacity values for fade-in and fade-out effects.
     /// </summary>
-    /// <returns></returns>
+    /// <returns>
+    /// A string representation of the <see cref="Fade"/> command, formatted for use in beatmaps.
+    /// </returns>
     public string Encode()
     {
         StringBuilder sb = new();

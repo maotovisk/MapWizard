@@ -64,8 +64,17 @@ public class Animation : Sprite
     }
 
     /// <summary>
-    /// 
+    /// Represents an animated sprite within a specified layer, supporting frame-based animation,
+    /// frame delay, and looping behavior.
     /// </summary>
+    /// <remarks>
+    /// The Animation class extends the Sprite class by providing additional properties and methods
+    /// specific to animations, such as frame count, frame delay, and loop type. It also overrides
+    /// encoding and decoding functionality to handle animation-specific details.
+    /// </remarks>
+    /// <param name="FrameCount">The total number of frames in the animation.</param>
+    /// <param name="FrameDelay">The duration between each frame of the animation.</param>
+    /// <param name="Looptype">Defines the looping behavior for the animation, such as looping indefinitely or once.</param>
     private Animation() : base()
     {
         FrameCount = 0;
@@ -74,9 +83,15 @@ public class Animation : Sprite
     }
 
     /// <summary>
-    /// 
+    /// Encodes the animation's properties and associated commands into a formatted string representation.
     /// </summary>
-    /// <returns></returns>
+    /// <remarks>
+    /// The output string is formatted according to the structure required for representing animations in the beatmap.
+    /// It includes details such as the animation event type, layer, origin, file path, position, frame count,
+    /// frame delay, loop type, and commands associated with the animation. Commands are serialized and appended
+    /// to the string, with appropriate indentation for hierarchical representations.
+    /// </remarks>
+    /// <returns>A string that represents the serialized form of the animation, including its properties and commands.</returns>
     public new string Encode()
     {
         if (Commands.Count == 0) return $"{EventType.Animation},{(int)Layer},{(int)Origin},{FilePath},{Position.X.ToString(CultureInfo.InvariantCulture)},{Position.Y.ToString(CultureInfo.InvariantCulture)},{FrameCount},{FrameDelay},{Looptype}";
@@ -93,14 +108,16 @@ public class Animation : Sprite
     }
 
     /// <summary>
-    /// 
+    /// Decodes a string representation of an animation into an <see cref="Animation"/> object by parsing
+    /// relevant properties such as layer, origin, file path, position, frame count, frame delay, and loop type.
     /// </summary>
-    /// <returns></returns>
+    /// <param name="line">The encoded string representation of the animation, structured as a comma-separated list
+    /// containing animation properties.</param>
+    /// <returns>An <see cref="Animation"/> object constructed from the decoded string.</returns>
+    /// <exception cref="FormatException">Thrown when the provided string contains invalid or improperly formatted data.</exception>
+    /// <exception cref="ArgumentException">Thrown when an invalid loop type is provided in the string.</exception>
     public new static Animation Decode(string line)
     {
-        // Animation,(layer),(origin),"(filepath)",(x),(y),
-        // (frameCount),(frameDelay),(looptype)
-
         var lineSplit = line.Trim().Split(',');
 
         var result = new Animation

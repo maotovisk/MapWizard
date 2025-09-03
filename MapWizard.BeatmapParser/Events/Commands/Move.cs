@@ -5,48 +5,55 @@ using System.Text;
 namespace MapWizard.BeatmapParser;
 
 /// <summary>
-/// 
+/// Represents a move command in the beatmap parser.
+/// This command specifies the motion or transformation
+/// from a start position to an end position over a period of time,
+/// with an easing function determining the interpolation.
 /// </summary>
 public class Move : ICommand
 {
     /// <summary>
-    /// 
+    /// Defines the type of the command associated with the <see cref="Move"/> class.
+    /// This property is initialized to the value <see cref="CommandType.Move"/>,
+    /// representing a move command in the beatmap parser.
     /// </summary>
     public CommandType Type { get; init; } = CommandType.Move;
 
     /// <summary>
-    /// 
+    /// Specifies the easing function used to interpolate the motion or transformation
+    /// associated with the <see cref="Move"/> command.
+    /// The <see cref="Easing"/> enumeration determines the nature of transition,
     /// </summary>
     public Easing Easing { get; set; }
 
     /// <summary>
-    /// 
+    /// Specifies the start time of the command event represented as a nullable <see cref="TimeSpan"/>.
+    /// This property denotes when the move command should begin execution within the beatmap timeline.
     /// </summary>
     public TimeSpan? StartTime { get; set; }
 
     /// <summary>
-    /// 
+    /// Gets or sets the end time of the move command.
+    /// This property indicates the timestamp at which the motion or transformation
+    /// reaches its final position, marking the conclusion of the specified time interval.
     /// </summary>
     public TimeSpan? EndTime { get; set; }
 
     /// <summary>
-    /// 
+    /// Specifies the starting position of the move command in a 2D coordinate system.
+    /// This property denotes the initial coordinates of the motion before any transformations or interpolation occur.
     /// </summary>
     public Vector2? StartPosition { get; set; }
 
     /// <summary>
-    /// 
+    /// Specifies the final position of the move command in a 2D coordinate system.
+    /// This property represents the target destination towards which the transformation is applied.
     /// </summary>
     public Vector2? EndPosition { get; set; }
 
     /// <summary>
-    /// 
+    /// Represents a movement command with specified easing, timing, and positional properties.
     /// </summary>
-    /// <param name="easing"></param>
-    /// <param name="startTime"></param>
-    /// <param name="endTime"></param>
-    /// <param name="startPosition"></param>
-    /// <param name="endPosition"></param>
     private Move(
         Easing easing,
         TimeSpan? startTime,
@@ -63,17 +70,15 @@ public class Move : ICommand
     }
 
     /// <summary>
-    /// 
+    /// Decodes a line of text into a <see cref="Move"/> command by parsing its easing, timing,
+    /// and positional properties as specified in the input string.
     /// </summary>
-    /// <param name="result"></param>
-    /// <param name="parsedCommands"></param>
-    /// <param name="command"></param>
-    /// <returns></returns>
+    /// <param name="line">The input string representing the move command to decode.
+    /// Expected format: "M,(easing),(starttime),(endtime),(start_x),(start_y),(end_x),(end_y)".</param>
+    /// <returns>A new <see cref="Move"/> instance containing the easing, timing,
+    /// and positional data extracted from the input string.</returns>
     public static Move Decode(string line)
     {
-        //M,(easing),(starttime),(endtime),(start_x),(start_y),(end_x),(end_y)
-        //M,19,266294,269294,320,240,280.61,24
-
         var commandSplit = line.Trim().Split(',');
 
         Easing easing = commandSplit.Length > 1 ? (Easing)Enum.Parse(typeof(Easing), commandSplit[1]) : Easing.Linear;
@@ -88,9 +93,13 @@ public class Move : ICommand
     }
 
     /// <summary>
-    /// 
+    /// Encodes the Move command into a string representation that complies with the osu! file format.
+    /// The output string contains the command type, easing, timing, and positional attributes where applicable.
     /// </summary>
-    /// <returns></returns>
+    /// <returns>
+    /// A string representing the Move command, including its type, easing function, start time, end time,
+    /// and start and end positions if specified.
+    /// </returns>
     public string Encode()
     {
         StringBuilder sb = new();
