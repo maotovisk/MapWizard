@@ -24,7 +24,7 @@ public partial class Helper
     /// Formata coordenadas X/Y conforme a versão alvo.
     /// v14: arredonda para inteiro. v128: preserva alta precisão.
     /// </summary>
-    public static string FormatCoord(double value)
+    public static string FormatCoord(float value)
         => FormatVersion == 128
             ? value.ToString(CultureInfo.InvariantCulture)
             : Math.Round(value).ToString(CultureInfo.InvariantCulture);

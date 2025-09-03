@@ -1,13 +1,22 @@
+using MapWizard.BeatmapParser;
 using MapWizard.CLI.ConsoleUtils;
 using MapWizard.Services;
 using MapWizard.Tools.HitSoundCopier;
 
 namespace MapWizard.CLI;
 
-class Program
+static class Program
 {
     static void Main(string[] args)
-    {   
+    {
+        var testString = "/home/maoto/projects/HitsoundCopier/MapWizard.Tests/Resources/test9.osu";
+
+        var beatmap =
+            Beatmap.Decode(File.ReadAllText("/home/maoto/projects/HitsoundCopier/MapWizard.Tests/Resources/test9.osu"));
+
+        beatmap.Encode();
+
+        return;
         // Create a new instance of the HitSoundService
         var hitSoundService = new HitSoundService();
         

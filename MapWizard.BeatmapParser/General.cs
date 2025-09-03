@@ -228,6 +228,8 @@ public class General
         foreach (var prop in typeof(General).GetProperties())
         {
             if (prop.GetValue(this) is null) continue;
+            
+            if (prop.GetValue(this) is string str && string.IsNullOrEmpty(str) && Helper.FormatVersion == 128) continue;
 
             if (prop.GetValue(this) is bool boolValue)
             {

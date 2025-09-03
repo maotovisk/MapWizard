@@ -48,8 +48,8 @@ public class TimingPoints
             {
                 var split = line.Split(',');
 
-                var time = double.Parse(split[0], NumberStyles.Float, CultureInfo.InvariantCulture);
-                var beatLength = double.Parse(split[1], NumberStyles.Float, CultureInfo.InvariantCulture);
+                var time = double.Parse(split[0], CultureInfo.InvariantCulture);
+                var beatLength = double.Parse(split[1], CultureInfo.InvariantCulture);
                 var timeSignature = split.Length >= 3 ? int.Parse(split[2]) : 4;
                 var sampleSet = split.Length >= 4 ? (SampleSet)Enum.Parse(typeof(SampleSet), split[3]) : SampleSet.Normal;
                 var sampleIndex = split.Length >= 5 ? uint.Parse(split[4]) : 0;
@@ -73,7 +73,7 @@ public class TimingPoints
                 }
                 else
                 {
-                    var sliderVelocity = beatLength < 0 ? 100 / -beatLength : 1;
+                    var sliderVelocity = beatLength < 0 ? 100.0 / -beatLength : 1;
                     timingPoint = new InheritedTimingPoint(
                         time: Helper.ClampTimeSpan(time),
                         sampleSet: sampleSet,

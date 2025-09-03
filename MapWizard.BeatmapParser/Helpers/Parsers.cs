@@ -99,7 +99,7 @@ public partial class Helper
     public static CurveType ParseCurveType(char c) => c switch
     {
         'C' => CurveType.Catmull,
-        'B' => CurveType.Bezier,
+        'B' => CurveType.Bezier, 
         'L' => CurveType.Linear,
         _ => CurveType.PerfectCurve
     };

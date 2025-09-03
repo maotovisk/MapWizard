@@ -85,7 +85,10 @@ public class Video : IEvent, IHasCommands
     public string Encode()
     {
         StringBuilder sb = new();
-        sb.Append($"{(int)Type},{StartTime.TotalMilliseconds},{FilePath}");
+        if (Helper.FormatVersion != 128)
+            sb.Append($"{(int)Type},{StartTime.TotalMilliseconds},{FilePath}");
+        else
+            sb.Append($"{Type.ToString()},{StartTime.TotalMilliseconds},{FilePath}");
         if (Offset != null)
         {
             sb.Append(',');

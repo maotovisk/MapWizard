@@ -133,8 +133,8 @@ public class Events
     public string Encode()
     {
         StringBuilder builder = new();
-
-        builder.AppendLine("//Background and Video events");
+        if (Helper.FormatVersion != 128)
+            builder.AppendLine("//Background and Video events");
 
         var backgroundEvents = EventList.OfType<Background>().ToList();
         foreach (var backgroundEvent in backgroundEvents) builder.AppendLine(backgroundEvent.Encode());
@@ -142,30 +142,37 @@ public class Events
         var videoEvents = EventList.OfType<Video>().ToList();
         foreach (var videoEvent in videoEvents) builder.AppendLine(videoEvent.Encode());
 
-        builder.AppendLine("//Break Periods");
+        if (Helper.FormatVersion != 128)
+            builder.AppendLine("//Break Periods");
         var breakEvents = EventList.OfType<Break>().ToList();
         foreach (var breakEvent in breakEvents) builder.AppendLine(breakEvent.Encode());
 
         var layeredEvents = EventList.OfType<ILayeredEvent>().ToList();
 
-        builder.AppendLine("//Storyboard Layer 0 (Background)");
+        if (Helper.FormatVersion != 128)
+            builder.AppendLine("//Storyboard Layer 0 (Background)");
         foreach (var eventItem in layeredEvents.Where(x => x.Layer == Layer.Background)) EncodeEvent((IEvent)eventItem, builder);
 
-        builder.AppendLine("//Storyboard Layer 1 (Fail)");
+        if (Helper.FormatVersion != 128)
+            builder.AppendLine("//Storyboard Layer 1 (Fail)");
         foreach (var eventItem in layeredEvents.Where(x => x.Layer == Layer.Fail)) EncodeEvent((IEvent)eventItem, builder);
 
-        builder.AppendLine("//Storyboard Layer 2 (Pass)");
+        if (Helper.FormatVersion != 128)
+            builder.AppendLine("//Storyboard Layer 2 (Pass)");
         foreach (var eventItem in layeredEvents.Where(x => x.Layer == Layer.Pass)) EncodeEvent((IEvent)eventItem, builder);
 
-        builder.AppendLine("//Storyboard Layer 3 (Foreground)");
+        if (Helper.FormatVersion != 128)
+            builder.AppendLine("//Storyboard Layer 3 (Foreground)");
         foreach (var eventItem in layeredEvents.Where(x => x.Layer == Layer.Foreground)) EncodeEvent((IEvent)eventItem, builder);
 
-        builder.AppendLine("//Storyboard Layer 4 (Overlay)");
+        if (Helper.FormatVersion != 128)
+            builder.AppendLine("//Storyboard Layer 4 (Overlay)");
         foreach (var eventItem in layeredEvents.Where(x => x.Layer == Layer.Overlay)) EncodeEvent((IEvent)eventItem, builder);
 
         var sampleEvents = EventList.OfType<Sample>().ToList();
-
-        builder.Append("//Storyboard Sound Samples");
+        
+        if (Helper.FormatVersion != 128)
+            builder.Append("//Storyboard Sound Samples");
         foreach (var eventItem in sampleEvents) EncodeEvent((IEvent)eventItem, builder);
 
         return builder.ToString();

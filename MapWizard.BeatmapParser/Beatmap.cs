@@ -126,7 +126,7 @@ public class Beatmap : IEncodable
         var colours = sections.ContainsKey($"{SectionType.Colours}") ? Colours.Decode(sections[$"{SectionType.Colours}"]) : null;
         var events = Events.Decode(sections[$"{SectionType.Events}"]);
         var timingPoints = sections.ContainsKey($"{SectionType.TimingPoints}") ? TimingPoints.Decode(sections[$"{SectionType.TimingPoints}"]) : null;
-        var hitObjects = HitObjects.Decode(sections[$"{SectionType.HitObjects}"], timingPoints ?? new TimingPoints(), difficulty, formatVersion);
+        var hitObjects = HitObjects.Decode(sections[$"{SectionType.HitObjects}"], timingPoints ?? new TimingPoints(), difficulty);
 
         return new Beatmap(
             formatVersion, metadata, general, editor, difficulty, colours, events, timingPoints, hitObjects
@@ -155,7 +155,6 @@ public class Beatmap : IEncodable
 
         // INFO: we don't plan to support encoding for formats other than 14 and 128
         var headerVersion = Version == 128 ? 128 : 14;
-        // Define contexto para formatação numérica conforme o header desejado
         Helper.FormatVersion = headerVersion;
         builder.AppendLine($"osu file format v{headerVersion}");
         builder.AppendLine();
@@ -171,15 +170,16 @@ public class Beatmap : IEncodable
 
         builder.AppendLine($"[{SectionType.Metadata}]");
         builder.AppendLine(Metadata.Encode());
-
+        
         builder.AppendLine($"[{SectionType.Difficulty}]");
         builder.AppendLine(Difficulty.Encode());
 
         builder.AppendLine($"[{SectionType.Events}]");
         if (Events.EventList.Count > 0)
             builder.AppendLine(Events.Encode());
-
-        builder.AppendLine();
+        
+        if (Helper.FormatVersion != 128)
+            builder.AppendLine();
 
         if (TimingPoints != null)
         {
