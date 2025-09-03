@@ -170,7 +170,7 @@ public class General
     /// Parses a list of General lines into a new <see cref="General"/> class.
     /// </summary>
     /// <param name="section"></param>
-    /// <returns></returns>
+    /// <returns>A populated <see cref="General"/> instance parsed from the provided section lines.</returns>
     public static General Decode(List<string> section)
     {
         Dictionary<string, string> general = [];
@@ -222,7 +222,7 @@ public class General
     /// <summary>
     /// Encodes the <see cref="General"/> class into a string.
     /// </summary>
-    /// <returns></returns>
+    /// <returns>A string containing the encoded General section lines, each terminated with a newline.</returns>
     public string Encode()
     {
         StringBuilder builder = new();

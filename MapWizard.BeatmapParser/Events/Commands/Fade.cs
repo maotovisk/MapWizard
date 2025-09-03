@@ -4,17 +4,24 @@ using System.Text;
 namespace MapWizard.BeatmapParser;
 
 /// <summary>
-/// 
+/// Represents the Fade command in a beatmap, allowing for fade-in and fade-out effects
+/// with specified easing, timing, and opacity values.
 /// </summary>
 public class Fade : ICommand
 {
     /// <summary>
-    /// 
+    /// Gets the specific type of the command, represented by the <see cref="CommandType"/> enumeration.
+    /// This property identifies the nature of the command, such as Fade, Move, Scale, or other supported
+    /// command types in the beatmap.
     /// </summary>
     public CommandType Type { get; init; } = CommandType.Fade;
 
     /// <summary>
-    /// 
+    /// Specifies the easing type to be applied during the interpolation process
+    /// within a command. The <see cref="Easing"/> enumeration determines the
+    /// nature of transition, such as linear scaling or more complex easing
+    /// curves like Bounce, Elastic, or Quadratic, affecting how a value
+    /// progresses over time.
     /// </summary>
     public Easing Easing { get; set; }
 

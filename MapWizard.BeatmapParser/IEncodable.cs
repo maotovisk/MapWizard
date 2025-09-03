@@ -8,6 +8,6 @@ public interface IEncodable
     /// <summary>
     /// Encodes the object into a string that complies with the osu! file format.
     /// </summary>
-    /// <returns></returns>
+    /// <returns>The encoded section as a string, formatted according to the osu! file specification.</returns>
     public string Encode();
 }

@@ -20,33 +20,31 @@ public static class ServiceCollectionExtensions
     
     public static void AddCommonServices(this IServiceCollection collection)
     {
-        // Register ViewModels
+        // ViewModels
         collection.AddTransient<HitSoundCopierViewModel>();
         collection.AddTransient<MetadataManagerViewModel>();
         collection.AddTransient<WelcomePageViewModel>();
         collection.AddTransient<MainWindowViewModel>();
 
-        // Register Views
+        // Views
         collection.AddTransient<HitSoundCopierView>();
         collection.AddTransient<MetadataManagerView>();
         collection.AddTransient<WelcomePageView>();
-
-        // Register MainWindow
+        
+        // Other stuff
         collection.AddSingleton<MainWindow>();
         
-        // Register Lazy<TopLevel> so it can be injected lazily
+        // INFO: this is required for Some services that need to open native dialog/toasts/parent windows.
+        // Removing it may cause some issues.
         collection.AddSingleton<Lazy<TopLevel>>(provider => new Lazy<TopLevel>(provider.GetRequiredService<MainWindow>));
 
-        // Register FilesService with TopLevel
         collection.AddScoped<IFilesService, FilesService>();
         collection.AddScoped<IMetadataManagerService, MetadataManagerService>();
         collection.AddScoped<IHitSoundService, HitSoundService>();
         collection.AddScoped<IOsuMemoryReaderService, OsuMemoryReaderService>();
         
-        // Register new UpdateManager from Velopack
         collection.AddSingleton<UpdateManager>(provider => new UpdateManager(_githubSource));
         
-        // Register ToastManager and DialogManager from SukiUI
         collection.AddSingleton<ISukiToastManager, SukiToastManager>();
         collection.AddSingleton<ISukiDialogManager, SukiDialogManager>();
     }

@@ -46,7 +46,7 @@ public class Colours
     /// Parses a list of Colours lines into a new <see cref="Colours"/> class.
     /// </summary>
     /// <param name="section"></param>
-    /// <returns></returns>
+    /// <returns>A populated <see cref="Colours"/> instance parsed from the provided section lines.</returns>
     public static Colours Decode(List<string> section)
     {
         Colours result = new();
@@ -81,7 +81,7 @@ public class Colours
     /// <summary>
     /// Encodes the <see cref="Colours"/> class into a string.
     /// </summary>
-    /// <returns></returns>
+    /// <returns>A string containing the encoded Colours section lines, each terminated with a newline.</returns>
     public string Encode()
     {
         StringBuilder builder = new();

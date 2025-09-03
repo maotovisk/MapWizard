@@ -33,8 +33,8 @@ public class TimingPoints
     /// <summary>
     /// Parses a list of TimingPoints lines into a new <see cref="TimingPoints"/> class.
     /// </summary>
-    /// <param name="section"></param>
-    /// <returns></returns>
+    /// <param name="section">The raw lines from the [TimingPoints] section of an osu file.</param>
+    /// <returns>A populated <see cref="TimingPoints"/> instance containing the parsed timing point objects.</returns>
     public static TimingPoints Decode(List<string> section)
     {
         // Timing point structure:
@@ -98,7 +98,7 @@ public class TimingPoints
     /// <summary>
     /// Encodes the <see cref="TimingPoints"/> class into a string.
     /// </summary>
-    /// <returns></returns>
+    /// <returns>A newline-separated string where each line is an encoded timing point suitable for the [TimingPoints] section.</returns>
     public string Encode()
     {
         StringBuilder builder = new();
@@ -120,10 +120,10 @@ public class TimingPoints
 
 
     /// <summary>
-    /// Gets the timing point at the specified time.
+    /// Gets the uninherited timing point active at the specified time.
     /// </summary>
-    /// <param name="time"></param>
-    /// <returns></returns>
+    /// <param name="time">The time in milliseconds.</param>
+    /// <returns>The latest <see cref="UninheritedTimingPoint"/> whose timestamp is less than or equal to the provided time; otherwise null if none exist.</returns>
     public UninheritedTimingPoint? GetUninheritedTimingPointAt(double time)
     {
         if (TimingPointList.Count == 0) return null;
@@ -133,10 +133,12 @@ public class TimingPoints
     }
 
     /// <summary>
-    /// Gets the timing point at the specified time.
+    /// Gets the inherited timing point (green line) active at the specified time.
     /// </summary>
-    /// <param name="time"></param>
-    /// <returns></returns>
+    /// <param name="time">The time in milliseconds.</param>
+    /// <returns>
+    /// The matching <see cref="InheritedTimingPoint"/> if one is active at the provided time and is valid relative to the last uninherited timing point; otherwise null.
+    /// </returns>
     public InheritedTimingPoint? GetInheritedTimingPointAt(double time)
     {
         if (TimingPointList.Count == 0) return null;
@@ -166,8 +168,8 @@ public class TimingPoints
     /// <summary>
     /// Returns the volume at the specified time.
     /// </summary>
-    /// <param name="time"></param>
-    /// <returns></returns>
+    /// <param name="time">Time in milliseconds.</param>
+    /// <returns>The volume (0–100) defined by the most recent timing point at or before the provided time; defaults to 100 if no timing points exist.</returns>
     public uint GetVolumeAt(double time)
     {
         var timingPoint = TimingPointList.LastOrDefault(x => x.Time.TotalMilliseconds <= time);
@@ -178,8 +180,8 @@ public class TimingPoints
     /// Returns the BPM at the specified time.
     /// Defaults to 120 BPM if no timing point is found.
     /// </summary>
-    /// <param name="time"></param>\
-    /// <returns></returns>
+    /// <param name="time">Time in milliseconds.</param>
+    /// <returns>The BPM computed from the most recent uninherited timing point; returned value is 60000 / beatLength.</returns>
     public double GetBpmAt(double time)
     {
         var timingPoint = GetUninheritedTimingPointAt(time);
@@ -189,8 +191,8 @@ public class TimingPoints
     /// <summary>
     /// Returns the slider velocity at the specified time.
     /// </summary>
-    /// <param name="time"></param>
-    /// <returns></returns>
+    /// <param name="time">Time in milliseconds.</param>
+    /// <returns>The slider velocity defined by the active inherited timing point, or 1 if none exist.</returns>
     public double GetSliderVelocityAt(double time)
     {
         var timingPoint = GetInheritedTimingPointAt(time);
@@ -198,10 +200,10 @@ public class TimingPoints
     }
 
     /// <summary>
-    /// Gets the timing point at the specified time.
+    /// Gets the timing points at or before the specified time, ordered by inheritance and then by time.
     /// </summary>
-    /// <param name="time"></param>
-    /// <returns></returns>
+    /// <param name="time">Time in milliseconds.</param>
+    /// <returns>A list of matching <see cref="TimingPoint"/> objects. Returns an empty list if none match.</returns>
     public List<TimingPoint> GetTimingPointsAt(double time)
     {
         var matchingTimingPoints = TimingPointList.Where(x => x.Time.TotalMilliseconds <= time)
