@@ -9,14 +9,6 @@ static class Program
 {
     static void Main(string[] args)
     {
-        var testString = "/home/maoto/projects/HitsoundCopier/MapWizard.Tests/Resources/test9.osu";
-
-        var beatmap =
-            Beatmap.Decode(File.ReadAllText("/home/maoto/projects/HitsoundCopier/MapWizard.Tests/Resources/test9.osu"));
-
-        beatmap.Encode();
-
-        return;
         // Create a new instance of the HitSoundService
         var hitSoundService = new HitSoundService();
         
