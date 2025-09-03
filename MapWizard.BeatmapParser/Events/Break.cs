@@ -67,8 +67,6 @@ public class Break : IEvent
     /// <exception cref="Exception">Thrown when the input string is improperly formatted or parsing fails.</exception>
     public static Break Decode(string line)
     {
-        // 2,startTime,endTime
-
         try
         {
             var args = line.Trim().Split(',');
