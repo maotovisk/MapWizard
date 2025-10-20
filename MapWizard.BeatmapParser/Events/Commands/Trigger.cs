@@ -10,6 +10,9 @@ namespace MapWizard.BeatmapParser;
 /// </summary>
 public class Trigger : ICommand, IHasCommands
 {
+    private double _startMilliseconds;
+    private double _endMilliseconds;
+
     /// <summary>
     /// Gets the type of the command, which corresponds to the predefined
     /// command types in the <see cref="CommandType"/> enum. This property
@@ -30,13 +33,21 @@ public class Trigger : ICommand, IHasCommands
     /// represented as a <see cref="TimeSpan"/>. This property defines the exact
     /// time at which the actions defined by the trigger will begin.
     /// </summary>
-    public TimeSpan StartTime { get; set; }
+    public TimeSpan StartTime
+    {
+        get => TimeSpan.FromMilliseconds(_startMilliseconds);
+        set => _startMilliseconds = value.TotalMilliseconds;
+    }
 
     /// <summary>
     /// Gets or sets the end time of the trigger, which specifies the time at which
     /// the associated actions or commands cease within a beatmap.
     /// </summary>
-    public TimeSpan EndTime { get; set; }
+    public TimeSpan EndTime
+    {
+        get => TimeSpan.FromMilliseconds(_endMilliseconds);
+        set => _endMilliseconds = value.TotalMilliseconds;
+    }
 
     /// <summary>
     /// Gets or sets the collection of commands associated with this object.
@@ -49,11 +60,11 @@ public class Trigger : ICommand, IHasCommands
     /// Represents a Trigger command that defines an action or group of actions
     /// occurring within a specific time frame in a beatmap.
     /// </summary>
-    private Trigger(string triggerType, TimeSpan startTime, TimeSpan endTime, List<ICommand> commands)
+    private Trigger(string triggerType, double startMilliseconds, double endMilliseconds, List<ICommand> commands)
     {
         TriggerType = triggerType;
-        StartTime = startTime;
-        EndTime = endTime;
+        _startMilliseconds = startMilliseconds;
+        _endMilliseconds = endMilliseconds;
         Commands = commands;
     }
 
@@ -69,11 +80,14 @@ public class Trigger : ICommand, IHasCommands
 
         var commandSplit = line.Trim().Split(',');
 
+        var start = double.Parse(commandSplit[2], CultureInfo.InvariantCulture);
+        var end = double.Parse(commandSplit[3], CultureInfo.InvariantCulture);
+
         return new Trigger
         (
             triggerType: commandSplit[1],
-            startTime: TimeSpan.FromMilliseconds(int.Parse(commandSplit[2])),
-            endTime: TimeSpan.FromMilliseconds(int.Parse(commandSplit[3])),
+            startMilliseconds: start,
+            endMilliseconds: end,
             commands: []
         );
     }
@@ -88,10 +102,10 @@ public class Trigger : ICommand, IHasCommands
     /// </returns>
     public string Encode()
     {
-        if (Commands.Count == 0) return $"T,{TriggerType},{StartTime.TotalMilliseconds.ToString(CultureInfo.InvariantCulture)},{EndTime.TotalMilliseconds.ToString(CultureInfo.InvariantCulture)}";
+        if (Commands.Count == 0) return $"T,{TriggerType},{_startMilliseconds.ToString(CultureInfo.InvariantCulture)},{_endMilliseconds.ToString(CultureInfo.InvariantCulture)}";
 
         StringBuilder builder = new();
-        builder.AppendLine($"T,{TriggerType},{StartTime.TotalMilliseconds.ToString(CultureInfo.InvariantCulture)},{EndTime.TotalMilliseconds.ToString(CultureInfo.InvariantCulture)}");
+        builder.AppendLine($"T,{TriggerType},{_startMilliseconds.ToString(CultureInfo.InvariantCulture)},{_endMilliseconds.ToString(CultureInfo.InvariantCulture)}");
 
         foreach (var command in Commands[..^1])
         {

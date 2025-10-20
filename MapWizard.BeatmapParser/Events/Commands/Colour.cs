@@ -10,6 +10,9 @@ namespace MapWizard.BeatmapParser;
 /// </summary>
 public class Colour : ICommand
 {
+    private double? _startMilliseconds;
+    private double? _endMilliseconds;
+
     /// <summary>
     /// Specifies the type of a command within the beatmap, identifying its category
     /// or the specific kind of transformation it performs.
@@ -26,13 +29,21 @@ public class Colour : ICommand
     /// Represents the start time of the colour transformation command within the beatmap,
     /// indicating the point in time at which the transformation begins.
     /// </summary>
-    public TimeSpan? StartTime { get; set; }
+    public TimeSpan? StartTime
+    {
+        get => _startMilliseconds.HasValue ? TimeSpan.FromMilliseconds(_startMilliseconds.Value) : null;
+        set => _startMilliseconds = value?.TotalMilliseconds;
+    }
 
     /// <summary>
     /// Represents the optional end time of the colour transformation command, indicating
     /// when the transformation is completed within the beatmap timeline.
     /// </summary>
-    public TimeSpan? EndTime { get; set; }
+    public TimeSpan? EndTime
+    {
+        get => _endMilliseconds.HasValue ? TimeSpan.FromMilliseconds(_endMilliseconds.Value) : null;
+        set => _endMilliseconds = value?.TotalMilliseconds;
+    }
 
     /// <summary>
     /// Represents the initial color value used in a color transformation command,
@@ -51,15 +62,15 @@ public class Colour : ICommand
     /// </summary>
     private Colour(
         Easing easing,
-        TimeSpan? startTime,
-        TimeSpan? endTime,
+        double? startMilliseconds,
+        double? endMilliseconds,
         Color? startColour,
         Color? endColour
     )
     {
         Easing = easing;
-        StartTime = startTime;
-        EndTime = endTime;
+        _startMilliseconds = startMilliseconds;
+        _endMilliseconds = endMilliseconds;
         StartColour = startColour;
         EndColour = endColour;
     }
@@ -76,8 +87,8 @@ public class Colour : ICommand
         var commandSplit = line.Trim().Split(',');
 
         Easing easing = commandSplit.Length > 1 ? (Easing)Enum.Parse(typeof(Easing), commandSplit[1]) : Easing.Linear;
-        TimeSpan? startTime = commandSplit.Length > 2 && !string.IsNullOrEmpty(commandSplit[2]) ? TimeSpan.FromMilliseconds(int.Parse(commandSplit[2])) : null;
-        TimeSpan? endTime = commandSplit.Length > 3 && !string.IsNullOrEmpty(commandSplit[3]) ? TimeSpan.FromMilliseconds(int.Parse(commandSplit[3])) : null;
+        double? startTime = commandSplit.Length > 2 && !string.IsNullOrEmpty(commandSplit[2]) ? double.Parse(commandSplit[2], CultureInfo.InvariantCulture) : null;
+        double? endTime = commandSplit.Length > 3 && !string.IsNullOrEmpty(commandSplit[3]) ? double.Parse(commandSplit[3], CultureInfo.InvariantCulture) : null;
         Color? startColour = commandSplit.Length > 4 && !string.IsNullOrEmpty(commandSplit[4]) ? Helper.ParseColorFromUnknownString(string.Join(',', commandSplit[4], commandSplit[5], commandSplit[6])) : null;
         Color? endColour = commandSplit.Length > 7 && !string.IsNullOrEmpty(commandSplit[7]) ? Helper.ParseColorFromUnknownString(string.Join(',', commandSplit[7], commandSplit[8], commandSplit[9])) : null;
 
@@ -91,7 +102,7 @@ public class Colour : ICommand
     public string Encode()
     {
         StringBuilder sb = new();
-        sb.Append($"C,{(int)Easing},{StartTime?.TotalMilliseconds.ToString(CultureInfo.InvariantCulture) ?? string.Empty},{EndTime?.TotalMilliseconds.ToString(CultureInfo.InvariantCulture) ?? string.Empty}");
+        sb.Append($"C,{(int)Easing},{_startMilliseconds?.ToString(CultureInfo.InvariantCulture) ?? string.Empty},{_endMilliseconds?.ToString(CultureInfo.InvariantCulture) ?? string.Empty}");
 
         if (StartColour != null) sb.Append($",{StartColour?.R},{StartColour?.G},{StartColour?.B}");
         else sb.Append(",,,");

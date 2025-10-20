@@ -37,8 +37,20 @@ public partial class Helper
     public static TimeSpan ClampTimeSpan(double value)
     {
         if (TimeSpan.MaxValue.TotalMilliseconds < value) return TimeSpan.MaxValue;
-        
+
         return TimeSpan.MinValue.TotalMilliseconds > value ? TimeSpan.MinValue : TimeSpan.FromMilliseconds(value);
+    }
+
+    /// <summary>
+    /// Clamps a millisecond value to the valid <see cref="TimeSpan"/> range, preserving double precision.
+    /// </summary>
+    /// <param name="value">Value in milliseconds.</param>
+    /// <returns>The original value clamped to <see cref="TimeSpan.MinValue"/> and <see cref="TimeSpan.MaxValue"/> bounds.</returns>
+    public static double ClampMilliseconds(double value)
+    {
+        if (value > TimeSpan.MaxValue.TotalMilliseconds) return TimeSpan.MaxValue.TotalMilliseconds;
+        if (value < TimeSpan.MinValue.TotalMilliseconds) return TimeSpan.MinValue.TotalMilliseconds;
+        return value;
     }
 
 

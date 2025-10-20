@@ -10,6 +10,9 @@ namespace MapWizard.BeatmapParser;
 /// </summary>
 public class Rotate : ICommand
 {
+    private double? _startMilliseconds;
+    private double? _endMilliseconds;
+
     /// <summary>
     /// Gets the type of the command represented by this property.
     /// </summary>
@@ -53,7 +56,11 @@ public class Rotate : ICommand
     /// A <see cref="TimeSpan"/> representing the time at which the rotation command
     /// starts, or null if no start time is defined.
     /// </value>
-    public TimeSpan? StartTime { get; set; }
+    public TimeSpan? StartTime
+    {
+        get => _startMilliseconds.HasValue ? TimeSpan.FromMilliseconds(_startMilliseconds.Value) : null;
+        set => _startMilliseconds = value?.TotalMilliseconds;
+    }
 
     /// <summary>
     /// Gets or sets the end time of the rotation command.
@@ -68,7 +75,11 @@ public class Rotate : ICommand
     /// A <see cref="TimeSpan?"/> value that indicates the time, in milliseconds, at
     /// which the rotation command finishes. Returns null if no end time is specified.
     /// </value>
-    public TimeSpan? EndTime { get; set; }
+    public TimeSpan? EndTime
+    {
+        get => _endMilliseconds.HasValue ? TimeSpan.FromMilliseconds(_endMilliseconds.Value) : null;
+        set => _endMilliseconds = value?.TotalMilliseconds;
+    }
 
     /// <summary>
     /// Gets or sets the initial rotation value for a rotate command.
@@ -104,15 +115,15 @@ public class Rotate : ICommand
     /// </summary>
     private Rotate(
         Easing easing,
-        TimeSpan? startTime,
-        TimeSpan? endTime,
+        double? startMilliseconds,
+        double? endMilliseconds,
         double? startRotate,
         double? endRotate
     )
     {
         Easing = easing;
-        StartTime = startTime;
-        EndTime = endTime;
+        _startMilliseconds = startMilliseconds;
+        _endMilliseconds = endMilliseconds;
         StartRotate = startRotate;
         EndRotate = endRotate;
     }
@@ -130,8 +141,8 @@ public class Rotate : ICommand
         return new Rotate
         (
             easing: (Easing)Enum.Parse(typeof(Easing), commandSplit[1]),
-            startTime: commandSplit.Length > 2 && !string.IsNullOrEmpty(commandSplit[2]) ? TimeSpan.FromMilliseconds(int.Parse(commandSplit[2])) : null,
-            endTime: commandSplit.Length > 3 && !string.IsNullOrEmpty(commandSplit[3]) ? TimeSpan.FromMilliseconds(int.Parse(commandSplit[3])) : null,
+            startMilliseconds: commandSplit.Length > 2 && !string.IsNullOrEmpty(commandSplit[2]) ? double.Parse(commandSplit[2], CultureInfo.InvariantCulture) : null,
+            endMilliseconds: commandSplit.Length > 3 && !string.IsNullOrEmpty(commandSplit[3]) ? double.Parse(commandSplit[3], CultureInfo.InvariantCulture) : null,
             startRotate: commandSplit.Length > 4 && !string.IsNullOrEmpty(commandSplit[4]) ? double.Parse(commandSplit[4], CultureInfo.InvariantCulture) : null,
             endRotate: commandSplit.Length > 5 && !string.IsNullOrEmpty(commandSplit[5]) ? double.Parse(commandSplit[5], CultureInfo.InvariantCulture) : null
         );
@@ -149,9 +160,9 @@ public class Rotate : ICommand
         sb.Append("R,");
         sb.Append((int)Easing);
         sb.Append(',');
-        sb.Append(StartTime?.TotalMilliseconds.ToString(CultureInfo.InvariantCulture) ?? string.Empty);
+        sb.Append(_startMilliseconds?.ToString(CultureInfo.InvariantCulture) ?? string.Empty);
         sb.Append(',');
-        sb.Append(EndTime?.TotalMilliseconds.ToString(CultureInfo.InvariantCulture) ?? string.Empty);
+        sb.Append(_endMilliseconds?.ToString(CultureInfo.InvariantCulture) ?? string.Empty);
         sb.Append(',');
         sb.Append(StartRotate?.ToString(CultureInfo.InvariantCulture) ?? string.Empty);
         if (EndRotate == null) return sb.ToString();

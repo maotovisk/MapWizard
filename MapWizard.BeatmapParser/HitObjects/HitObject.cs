@@ -9,6 +9,8 @@ namespace MapWizard.BeatmapParser;
 /// </summary>
 public class HitObject : IHitObject
 {
+    private double _timeMilliseconds;
+
     /// <summary>
     /// Gets or sets the coordinates of the hit object.
     /// </summary>
@@ -16,7 +18,11 @@ public class HitObject : IHitObject
     /// <summary>
     /// Gets or sets the time at which the hit object appears in the beatmap.
     /// </summary>
-    public TimeSpan Time { get; set; }
+    public TimeSpan Time
+    {
+        get => TimeSpan.FromMilliseconds(_timeMilliseconds);
+        set => _timeMilliseconds = value.TotalMilliseconds;
+    }
     /// <summary>
     /// Gets or sets the type of the hit object.
     /// </summary>
@@ -46,14 +52,29 @@ public class HitObject : IHitObject
     /// <param name="hitSounds">The list of hit sounds associated with the hit object.</param>
     /// <param name="newCombo">A value indicating whether the hit object starts a new combo.</param>
     /// <param name="comboOffset">The color of the combo associated with the hit object.</param>
-    protected HitObject(Vector2 coordinates, TimeSpan time, HitObjectType type, (HitSample, List<HitSound>) hitSounds, bool newCombo, uint comboOffset)
+    protected HitObject(Vector2 coordinates, double timeMilliseconds, HitObjectType type, (HitSample, List<HitSound>) hitSounds, bool newCombo, uint comboOffset)
     {
         Coordinates = coordinates;
         Type = type;
-        Time = time;
+        _timeMilliseconds = timeMilliseconds;
         HitSounds = hitSounds;
         NewCombo = newCombo;
         ComboOffset = comboOffset;
+    }
+
+    protected HitObject(Vector2 coordinates, TimeSpan time, HitObjectType type, (HitSample, List<HitSound>) hitSounds, bool newCombo, uint comboOffset)
+        : this(coordinates, time.TotalMilliseconds, type, hitSounds, newCombo, comboOffset)
+    {
+    }
+
+    protected HitObject(HitObject other)
+    {
+        Coordinates = other.Coordinates;
+        Type = other.Type;
+        _timeMilliseconds = other._timeMilliseconds;
+        HitSounds = other.HitSounds;
+        NewCombo = other.NewCombo;
+        ComboOffset = other.ComboOffset;
     }
 
     /// <summary>
@@ -63,10 +84,16 @@ public class HitObject : IHitObject
     {
         Coordinates = new();
         Type = HitObjectType.Circle;
-        Time = TimeSpan.FromSeconds(0);
+        _timeMilliseconds = 0;
         HitSounds = (new HitSample(), []);
         NewCombo = false;
         ComboOffset = 0;
+    }
+
+    internal double TimeMilliseconds
+    {
+        get => _timeMilliseconds;
+        set => _timeMilliseconds = value;
     }
 
     /// <summary>
@@ -80,9 +107,11 @@ public class HitObject : IHitObject
         try
         {
             var hasHitSample = splitData.Last().Contains(':');
+            var timeMilliseconds = double.Parse(splitData[2], CultureInfo.InvariantCulture);
+
             return new HitObject(
                 coordinates: new Vector2(float.Parse(splitData[0], CultureInfo.InvariantCulture), float.Parse(splitData[1], CultureInfo.InvariantCulture)),
-                time: TimeSpan.FromMilliseconds(double.Parse(splitData[2], CultureInfo.InvariantCulture)),
+                timeMilliseconds: timeMilliseconds,
                 type: Helper.ParseHitObjectType(int.Parse(splitData[3])),
                 hitSounds: !hasHitSample ? (new HitSample(), Helper.ParseHitSounds(int.Parse(splitData[4]))) : (HitSample.Decode(splitData.Last()), Helper.ParseHitSounds(int.Parse(splitData[4]))),
                 newCombo: (int.Parse(splitData[3]) & (1 << 2)) != 0,
@@ -104,7 +133,7 @@ public class HitObject : IHitObject
         StringBuilder builder = new();
 
         builder.Append($"{Helper.FormatCoord(Coordinates.X)},{Helper.FormatCoord(Coordinates.Y)},");
-        builder.Append($"{Helper.FormatTime(Time.TotalMilliseconds)},");
+        builder.Append($"{Helper.FormatTime(_timeMilliseconds)},");
 
         var type = (int)Type;
 

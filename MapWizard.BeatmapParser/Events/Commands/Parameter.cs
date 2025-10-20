@@ -10,6 +10,9 @@ namespace MapWizard.BeatmapParser;
 /// </summary>
 public class Parameter : ICommand
 {
+    private double? _startMilliseconds;
+    private double? _endMilliseconds;
+
     /// <summary>
     /// Represents the specific type of command associated with the parameter.
     /// This property is initialized to the default value of <see cref="CommandType.Parameter"/>.
@@ -27,14 +30,22 @@ public class Parameter : ICommand
     /// Represents the starting time of the parameter command in a beatmap.
     /// This property is optional and specifies the time at which the parameter effect begins.
     /// </summary>
-    public TimeSpan? StartTime { get; set; }
+    public TimeSpan? StartTime
+    {
+        get => _startMilliseconds.HasValue ? TimeSpan.FromMilliseconds(_startMilliseconds.Value) : null;
+        set => _startMilliseconds = value?.TotalMilliseconds;
+    }
 
     /// <summary>
     /// Represents the end time of a command in the beatmap, indicating when the effect
     /// or parameter transition associated with the command ends.
     /// This property is nullable, as not all commands require an explicit end time.
     /// </summary>
-    public TimeSpan? EndTime { get; set; }
+    public TimeSpan? EndTime
+    {
+        get => _endMilliseconds.HasValue ? TimeSpan.FromMilliseconds(_endMilliseconds.Value) : null;
+        set => _endMilliseconds = value?.TotalMilliseconds;
+    }
 
     /// <summary>
     /// Gets or sets the name of the parameter being applied.
@@ -48,14 +59,14 @@ public class Parameter : ICommand
     /// </summary>
     private Parameter(
         Easing easing,
-        TimeSpan? startTime,
-        TimeSpan? endTime,
+        double? startMilliseconds,
+        double? endMilliseconds,
         ParameterName parameterName
     )
     {
         Easing = easing;
-        StartTime = startTime;
-        EndTime = endTime;
+        _startMilliseconds = startMilliseconds;
+        _endMilliseconds = endMilliseconds;
         ParameterName = parameterName;
     }
 
@@ -69,8 +80,8 @@ public class Parameter : ICommand
         var commandSplit = line.Trim().Split(',');
 
         Easing easing = commandSplit.Length > 1 ? (Easing)Enum.Parse(typeof(Easing), commandSplit[1]) : Easing.Linear;
-        TimeSpan? startTime = commandSplit.Length > 2 && !string.IsNullOrEmpty(commandSplit[2]) ? TimeSpan.FromMilliseconds(int.Parse(commandSplit[2])) : null;
-        TimeSpan? endTime = commandSplit.Length > 3 && !string.IsNullOrEmpty(commandSplit[3]) ? TimeSpan.FromMilliseconds(int.Parse(commandSplit[3])) : null;
+        double? startTime = commandSplit.Length > 2 && !string.IsNullOrEmpty(commandSplit[2]) ? double.Parse(commandSplit[2], CultureInfo.InvariantCulture) : null;
+        double? endTime = commandSplit.Length > 3 && !string.IsNullOrEmpty(commandSplit[3]) ? double.Parse(commandSplit[3], CultureInfo.InvariantCulture) : null;
         ParameterName parameterName = commandSplit[4].Last() switch
         {
             'A' => ParameterName.AdditiveBlending,
@@ -94,9 +105,9 @@ public class Parameter : ICommand
         sb.Append("P,");
         sb.Append((int)Easing);
         sb.Append(',');
-        sb.Append(StartTime?.TotalMilliseconds.ToString(CultureInfo.InvariantCulture) ?? string.Empty);
+        sb.Append(_startMilliseconds?.ToString(CultureInfo.InvariantCulture) ?? string.Empty);
         sb.Append(',');
-        sb.Append(EndTime?.TotalMilliseconds.ToString(CultureInfo.InvariantCulture) ?? string.Empty);
+        sb.Append(_endMilliseconds?.ToString(CultureInfo.InvariantCulture) ?? string.Empty);
         sb.Append(',');
         sb.Append((char)(int)ParameterName);
         return sb.ToString();

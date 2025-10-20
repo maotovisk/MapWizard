@@ -9,6 +9,8 @@ namespace MapWizard.BeatmapParser;
 /// </summary>
 public class Loop : ICommand, IHasCommands
 {
+    private double _startMilliseconds;
+
     /// <summary>
     /// Specifies the command type for the loop instance.
     /// This property is used to identify the loop as a specific command type
@@ -22,7 +24,11 @@ public class Loop : ICommand, IHasCommands
     /// This property defines the initial point in time where the loop begins execution.
     /// It is expressed as a TimeSpan value.
     /// </summary>
-    public TimeSpan StartTime { get; set; }
+    public TimeSpan StartTime
+    {
+        get => TimeSpan.FromMilliseconds(_startMilliseconds);
+        set => _startMilliseconds = value.TotalMilliseconds;
+    }
 
     /// <summary>
     /// Represents the number of repetitions for the Loop instance.
@@ -43,9 +49,9 @@ public class Loop : ICommand, IHasCommands
     /// starting from a specified time. The loop has a start time, a number of iterations,
     /// and a list of commands to execute during each iteration.
     /// </summary>
-    private Loop(TimeSpan startTime, uint count, List<ICommand> commands)
+    private Loop(double startMilliseconds, uint count, List<ICommand> commands)
     {
-        StartTime = startTime;
+        _startMilliseconds = startMilliseconds;
         Count = count;
         Commands = commands;
     }
@@ -63,9 +69,11 @@ public class Loop : ICommand, IHasCommands
 
         var commandSplit = line.Trim().Split(',');
 
+        var start = double.Parse(commandSplit[1], CultureInfo.InvariantCulture);
+
         return new Loop
         (
-            startTime: TimeSpan.FromMilliseconds(int.Parse(commandSplit[1])),
+            startMilliseconds: start,
             count: uint.Parse(commandSplit[2]),
             commands: []
         );
@@ -80,10 +88,10 @@ public class Loop : ICommand, IHasCommands
     /// in the osu! file format.</returns>
     public string Encode()
     {
-        if (Commands.Count == 0) return $"L,{StartTime.TotalMilliseconds.ToString(CultureInfo.InvariantCulture)},{Count}";
+        if (Commands.Count == 0) return $"L,{_startMilliseconds.ToString(CultureInfo.InvariantCulture)},{Count}";
 
         StringBuilder builder = new();
-        builder.AppendLine($"L,{StartTime.TotalMilliseconds.ToString(CultureInfo.InvariantCulture)},{Count}");
+        builder.AppendLine($"L,{_startMilliseconds.ToString(CultureInfo.InvariantCulture)},{Count}");
 
         foreach (var command in Commands[..^1])
         {
@@ -94,7 +102,6 @@ public class Loop : ICommand, IHasCommands
         return builder.ToString();
     }
 }
-
 
 
 

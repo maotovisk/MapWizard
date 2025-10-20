@@ -6,8 +6,14 @@ namespace MapWizard.BeatmapParser;
 /// <summary> Represents a editor section</summary>
 public class Editor
 {
+    private List<double>? _bookmarkMilliseconds;
+
     /// <summary> Time in milliseconds of bookmarks. </summary>
-    public List<TimeSpan>? Bookmarks { get; set; }
+    public List<TimeSpan>? Bookmarks
+    {
+        get => _bookmarkMilliseconds?.Select(TimeSpan.FromMilliseconds).ToList();
+        set => _bookmarkMilliseconds = value?.Select(x => x.TotalMilliseconds).ToList();
+    }
 
     /// <summary> Distance snap multiplier. </summary>
     public double DistanceSpacing { get; set; }
@@ -29,9 +35,9 @@ public class Editor
     /// <param name="beatDivisor"></param>
     /// <param name="gridSize"></param>
     /// <param name="timelineZoom"></param>
-    private Editor(List<TimeSpan>? bookmarks, double distanceSpacing, int beatDivisor, int gridSize, double? timelineZoom)
+    private Editor(List<double>? bookmarks, double distanceSpacing, int beatDivisor, int gridSize, double? timelineZoom)
     {
-        Bookmarks = bookmarks;
+        _bookmarkMilliseconds = bookmarks;
         DistanceSpacing = distanceSpacing;
         BeatDivisor = beatDivisor;
         GridSize = gridSize;
@@ -68,7 +74,7 @@ public class Editor
 
             return new Editor(
                 bookmarks: bookmarks?.Split(',').Where(x => !string.IsNullOrEmpty(x)).Select(
-                    x => TimeSpan.FromMilliseconds(double.Parse(x, CultureInfo.InvariantCulture))).ToList(),
+                    x => double.Parse(x, CultureInfo.InvariantCulture)).ToList(),
                 distanceSpacing: editor.TryGetValue("DistanceSpacing", out string? value) ? double.Parse(value, CultureInfo.InvariantCulture) : 1.0,
                 beatDivisor: editor.TryGetValue("BeatDivisor", out var beatDivisorStr) ? int.Parse(beatDivisorStr) : 4,
                 gridSize: editor.TryGetValue("GridSize", out var gridSizeStr) ? int.Parse(gridSizeStr) : 4,
@@ -106,9 +112,9 @@ public class Editor
                 continue;
             }
 
-            if (prop.GetValue(this) is List<TimeSpan> bookmarks)
+            if (prop.Name == nameof(Bookmarks) && _bookmarkMilliseconds is not null)
             {
-                builder.AppendLine($"{prop.Name}: {string.Join(',', bookmarks.Select(x => Helper.FormatTime(x.TotalMilliseconds)))}");
+                builder.AppendLine($"{prop.Name}: {string.Join(',', _bookmarkMilliseconds.Select(Helper.FormatTime))}");
                 continue;
             }
 

@@ -33,6 +33,17 @@ public class InheritedTimingPoint : TimingPoint
         SliderVelocity = sliderVelocity;
     }
 
+    public InheritedTimingPoint(
+        double timeMilliseconds,
+        SampleSet sampleSet,
+        uint sampleIndex,
+        uint volume,
+        List<Effect> effects,
+        double sliderVelocity) : base(timeMilliseconds, sampleSet, sampleIndex, volume, effects)
+    {
+        SliderVelocity = sliderVelocity;
+    }
+
     /// <summary>
     /// Initializes a new instance of the <see cref="InheritedTimingPoint"/> class.
     /// </summary>
@@ -48,6 +59,6 @@ public class InheritedTimingPoint : TimingPoint
     public string Encode(TimingPoints section)
     {
         var sv = 100 / -SliderVelocity;
-        return $"{Helper.FormatTime(Time.TotalMilliseconds)},{ (Helper.FormatVersion == 128 ? sv : Math.Round(sv, 13)).ToString(CultureInfo.InvariantCulture)},{section.GetUninheritedTimingPointAt(Time.TotalMilliseconds)?.TimeSignature ?? 4},{(int)SampleSet},{SampleIndex},{Volume},{0},{Helper.EncodeEffects(Effects)}";
+        return $"{Helper.FormatTime(TimeMilliseconds)},{ (Helper.FormatVersion == 128 ? sv : Math.Round(sv, 13)).ToString(CultureInfo.InvariantCulture)},{section.GetUninheritedTimingPointAt(TimeMilliseconds)?.TimeSignature ?? 4},{(int)SampleSet},{SampleIndex},{Volume},{0},{Helper.EncodeEffects(Effects)}";
     }
 }

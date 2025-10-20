@@ -11,6 +11,8 @@ namespace MapWizard.BeatmapParser;
 /// </summary>
 public class Video : IEvent, IHasCommands
 {
+    private double _startMilliseconds;
+
     /// <summary>
     /// Indicates the specific type of the event, as defined by the EventType enumeration.
     /// See <see cref="EventType"/> for more information.
@@ -20,7 +22,11 @@ public class Video : IEvent, IHasCommands
     /// <summary>
     ///  Time of the event.
     /// </summary>
-    public TimeSpan StartTime { get; set; }
+    public TimeSpan StartTime
+    {
+        get => TimeSpan.FromMilliseconds(_startMilliseconds);
+        set => _startMilliseconds = value.TotalMilliseconds;
+    }
 
     /// <summary>
     /// Represents the file path of the video associated with the event.
@@ -45,7 +51,7 @@ public class Video : IEvent, IHasCommands
     /// </summary>
     private Video()
     {
-        StartTime = TimeSpan.FromMilliseconds(0);
+        _startMilliseconds = 0;
         FilePath = string.Empty;
         Commands = [];
     }
@@ -56,7 +62,7 @@ public class Video : IEvent, IHasCommands
     /// </summary>
     private Video(string filename, Vector2? offset = null)
     {
-        StartTime = TimeSpan.FromMilliseconds(0);
+        _startMilliseconds = 0;
         FilePath = filename;
         Offset = offset;
         Commands = [];
@@ -68,7 +74,15 @@ public class Video : IEvent, IHasCommands
     /// </summary>
     private Video(TimeSpan time, string filename, Vector2? offset = null)
     {
-        StartTime = time;
+        _startMilliseconds = time.TotalMilliseconds;
+        FilePath = filename;
+        Offset = offset;
+        Commands = [];
+    }
+
+    private Video(double timeMilliseconds, string filename, Vector2? offset = null)
+    {
+        _startMilliseconds = timeMilliseconds;
         FilePath = filename;
         Offset = offset;
         Commands = [];
@@ -86,9 +100,9 @@ public class Video : IEvent, IHasCommands
     {
         StringBuilder sb = new();
         if (Helper.FormatVersion != 128)
-            sb.Append($"{(int)Type},{StartTime.TotalMilliseconds},{FilePath}");
+            sb.Append($"{(int)Type},{_startMilliseconds},{FilePath}");
         else
-            sb.Append($"{Type.ToString()},{StartTime.TotalMilliseconds},{FilePath}");
+            sb.Append($"{Type.ToString()},{_startMilliseconds},{FilePath}");
         if (Offset != null)
         {
             sb.Append(',');
@@ -123,10 +137,11 @@ public class Video : IEvent, IHasCommands
         try
         {
             var args = line.Trim().Split(',');
+            var start = double.Parse(args[1], CultureInfo.InvariantCulture);
             return new Video
             (
+                timeMilliseconds: start,
                 filename: args[2],
-                time: TimeSpan.FromMilliseconds(double.Parse(args[1], CultureInfo.InvariantCulture)),
                 offset: args.Length == 4 ? new Vector2(float.Parse(args[3], CultureInfo.InvariantCulture), float.Parse(args[4], CultureInfo.InvariantCulture)) : null
             );
         }

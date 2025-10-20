@@ -49,6 +49,7 @@ public class TimingPoints
                 var split = line.Split(',');
 
                 var time = double.Parse(split[0], CultureInfo.InvariantCulture);
+                var clampedTime = Helper.ClampMilliseconds(time);
                 var beatLength = double.Parse(split[1], CultureInfo.InvariantCulture);
                 var timeSignature = split.Length >= 3 ? int.Parse(split[2]) : 4;
                 var sampleSet = split.Length >= 4 ? (SampleSet)Enum.Parse(typeof(SampleSet), split[3]) : SampleSet.Normal;
@@ -62,7 +63,7 @@ public class TimingPoints
                 if (timingChange)
                 {
                     timingPoint = new UninheritedTimingPoint(
-                        time: Helper.ClampTimeSpan(time),
+                        timeMilliseconds: clampedTime,
                         beatLength: beatLength,
                         timeSignature: timeSignature,
                         sampleSet: sampleSet,
@@ -75,7 +76,7 @@ public class TimingPoints
                 {
                     var sliderVelocity = beatLength < 0 ? 100.0 / -beatLength : 1;
                     timingPoint = new InheritedTimingPoint(
-                        time: Helper.ClampTimeSpan(time),
+                        timeMilliseconds: clampedTime,
                         sampleSet: sampleSet,
                         sampleIndex: sampleIndex,
                         volume: volume,
@@ -128,7 +129,7 @@ public class TimingPoints
     {
         if (TimingPointList.Count == 0) return null;
 
-        var matchingTimingPoints = TimingPointList.OfType<UninheritedTimingPoint>().ToList().Where(x => x.Time.TotalMilliseconds <= time).ToList();
+        var matchingTimingPoints = TimingPointList.OfType<UninheritedTimingPoint>().ToList().Where(x => x.TimeMilliseconds <= time).ToList();
         return matchingTimingPoints.Count == 0 ? null : matchingTimingPoints.Last();
     }
 
@@ -145,14 +146,14 @@ public class TimingPoints
 
         var matchingInheritedTimingPoints = TimingPointList
             .OfType<InheritedTimingPoint>()
-            .Where(x => x.Time.TotalMilliseconds <= time)
+            .Where(x => x.TimeMilliseconds <= time)
             .ToList();
 
         var closestInheritedTimingPoint = matchingInheritedTimingPoints.LastOrDefault();
 
         var matchingUninheritedTimingPoints = TimingPointList
             .OfType<UninheritedTimingPoint>()
-            .Where(x => x.Time.TotalMilliseconds <= time)
+            .Where(x => x.TimeMilliseconds <= time)
             .ToList();
 
         var closestUninheritedTimingPoint = matchingUninheritedTimingPoints.LastOrDefault();
@@ -162,7 +163,7 @@ public class TimingPoints
             return closestInheritedTimingPoint;
         }
 
-        return closestInheritedTimingPoint.Time >= closestUninheritedTimingPoint.Time ? closestInheritedTimingPoint : null;
+        return closestInheritedTimingPoint.TimeMilliseconds >= closestUninheritedTimingPoint.TimeMilliseconds ? closestInheritedTimingPoint : null;
     }
 
     /// <summary>
@@ -172,7 +173,7 @@ public class TimingPoints
     /// <returns>The volume (0–100) defined by the most recent timing point at or before the provided time; defaults to 100 if no timing points exist.</returns>
     public uint GetVolumeAt(double time)
     {
-        var timingPoint = TimingPointList.LastOrDefault(x => x.Time.TotalMilliseconds <= time);
+        var timingPoint = TimingPointList.LastOrDefault(x => x.TimeMilliseconds <= time);
         return timingPoint?.Volume ?? 100;
     }
 
@@ -206,9 +207,9 @@ public class TimingPoints
     /// <returns>A list of matching <see cref="TimingPoint"/> objects. Returns an empty list if none match.</returns>
     public List<TimingPoint> GetTimingPointsAt(double time)
     {
-        var matchingTimingPoints = TimingPointList.Where(x => x.Time.TotalMilliseconds <= time)
+        var matchingTimingPoints = TimingPointList.Where(x => x.TimeMilliseconds <= time)
         .OrderByDescending(x => x is InheritedTimingPoint)
-        .ThenBy(x => x.Time)
+        .ThenBy(x => x.TimeMilliseconds)
         .ToList();
 
         return matchingTimingPoints.Count == 0 ? [] : matchingTimingPoints;

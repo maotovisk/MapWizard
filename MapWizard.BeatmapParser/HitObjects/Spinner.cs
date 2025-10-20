@@ -9,10 +9,22 @@ namespace MapWizard.BeatmapParser;
 /// </summary>
 public class Spinner : HitObject
 {
+    private double _endMilliseconds;
+
     /// <summary>
     /// Gets or sets the end time of the spinner.
     /// </summary>
-    public TimeSpan End { get; set; }
+    public TimeSpan End
+    {
+        get => TimeSpan.FromMilliseconds(_endMilliseconds);
+        set => _endMilliseconds = value.TotalMilliseconds;
+    }
+
+    internal double EndMilliseconds
+    {
+        get => _endMilliseconds;
+        set => _endMilliseconds = value;
+    }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="Spinner"/> class.
@@ -24,26 +36,26 @@ public class Spinner : HitObject
     /// <param name="newCombo">A value indicating whether the spinner starts a new combo.</param>
     /// <param name="comboOffset">The color of the combo associated with the spinner.</param>
     /// <param name="end">The end time of the spinner.</param>
-    private Spinner(Vector2 coordinates, TimeSpan time, HitObjectType type, (HitSample, List<HitSound>) hitSounds, bool newCombo, uint comboOffset, TimeSpan end)
-    : base(coordinates, time, type, hitSounds, newCombo, comboOffset)
+    private Spinner(Vector2 coordinates, double timeMilliseconds, HitObjectType type, (HitSample, List<HitSound>) hitSounds, bool newCombo, uint comboOffset, double endMilliseconds)
+        : base(coordinates, timeMilliseconds, type, hitSounds, newCombo, comboOffset)
     {
-        End = end;
+        _endMilliseconds = endMilliseconds;
     }
     /// <summary>
     /// Initializes a new instance of the <see cref="Spinner"/> class.
     /// </summary>
     public Spinner()
     {
-        End = new TimeSpan();
+        _endMilliseconds = 0;
     }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="Spinner"/> class.
     /// </summary>
     /// <param name="baseObject"></param>
-    public Spinner(IHitObject baseObject) : base(baseObject.Coordinates, baseObject.Time, baseObject.Type, baseObject.HitSounds, baseObject.NewCombo, baseObject.ComboOffset)
+    public Spinner(HitObject baseObject) : base(baseObject)
     {
-        End = new TimeSpan();
+        _endMilliseconds = 0;
     }
 
     /// <summary>
@@ -56,14 +68,17 @@ public class Spinner : HitObject
         try
         {
             var hasHitSample = splitData.Last().Contains(":");
+            var timeMilliseconds = double.Parse(splitData[2], CultureInfo.InvariantCulture);
+            var endMilliseconds = double.Parse(splitData[5], CultureInfo.InvariantCulture);
+
             return new Spinner(
                 coordinates: new Vector2(float.Parse(splitData[0], CultureInfo.InvariantCulture), float.Parse(splitData[1], CultureInfo.InvariantCulture)),
-                time: TimeSpan.FromMilliseconds(double.Parse(splitData[2], CultureInfo.InvariantCulture)),
+                timeMilliseconds: timeMilliseconds,
                 type: Helper.ParseHitObjectType(int.Parse(splitData[3])),
                 hitSounds: !hasHitSample ? (new HitSample(), Helper.ParseHitSounds(int.Parse(splitData[4]))) : (HitSample.Decode(splitData.Last()), Helper.ParseHitSounds(int.Parse(splitData[4]))),
                 newCombo: (int.Parse(splitData[3]) & (1 << 2)) != 0,
                 comboOffset: (uint)((int.Parse(splitData[3]) & (1 << 4 | 1 << 5 | 1 << 6)) >> 4),
-                end: TimeSpan.FromMilliseconds(double.Parse(splitData[5], CultureInfo.InvariantCulture))
+                endMilliseconds: endMilliseconds
             );
         }
         catch (Exception ex)
@@ -81,7 +96,7 @@ public class Spinner : HitObject
         StringBuilder builder = new();
 
         builder.Append($"{Helper.FormatCoord(Coordinates.X)},{Helper.FormatCoord(Coordinates.Y)},");
-        builder.Append($"{Helper.FormatTime(Time.TotalMilliseconds)},");
+        builder.Append($"{Helper.FormatTime(TimeMilliseconds)},");
 
         var type = (int)Type;
 
@@ -95,7 +110,7 @@ public class Spinner : HitObject
         builder.Append($"{type},");
         builder.Append($"{Helper.EncodeHitSounds(HitSounds.Sounds)},");
 
-        builder.Append($"{Helper.FormatTime(End.TotalMilliseconds)},");
+        builder.Append($"{Helper.FormatTime(_endMilliseconds)},");
 
         builder.Append($"{HitSounds.SampleData.Encode()}");
 

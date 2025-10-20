@@ -8,6 +8,8 @@ namespace MapWizard.BeatmapParser;
 /// </summary>
 public class Sample : IEvent
 {
+    private double _startMilliseconds;
+
     /// <summary>
     /// Gets the type of the event, represented as an <see cref="EventType"/>.
     /// </summary>
@@ -17,7 +19,11 @@ public class Sample : IEvent
     /// Gets or sets the start time of the sample event,
     /// represented as a <see cref="TimeSpan"/>.
     /// </summary>
-    public TimeSpan StartTime { get; set; }
+    public TimeSpan StartTime
+    {
+        get => TimeSpan.FromMilliseconds(_startMilliseconds);
+        set => _startMilliseconds = value.TotalMilliseconds;
+    }
 
     /// <summary>
     /// Gets or sets the layer in which the sample event is positioned. Defaults to Background.
@@ -38,19 +44,19 @@ public class Sample : IEvent
     
     private Sample()
     {
-        StartTime = TimeSpan.FromMilliseconds(0);
+        _startMilliseconds = 0;
         Layer = Layer.Background;
         FilePath = string.Empty;
         Volume = 100;
     }
-    
+
     private Sample(
-        TimeSpan startTime,
+        double startMilliseconds,
         Layer layer,
         string filePath,
         int volume)
     {
-        StartTime = startTime;
+        _startMilliseconds = startMilliseconds;
         Layer = layer;
         FilePath = filePath;
         Volume = volume;
@@ -65,7 +71,7 @@ public class Sample : IEvent
         StringBuilder sb = new StringBuilder();
         sb.Append($"{(int)EventType.Sample}");
         sb.Append(',');
-        sb.Append(StartTime.TotalMilliseconds.ToString(CultureInfo.InvariantCulture));
+        sb.Append(_startMilliseconds.ToString(CultureInfo.InvariantCulture));
         sb.Append(',');
         sb.Append(Layer);
         sb.Append(',');
@@ -87,9 +93,10 @@ public class Sample : IEvent
         try
         {
             var args = line.Trim().Split(',');
+            var start = double.Parse(args[1], CultureInfo.InvariantCulture);
             return new Sample
             (
-                startTime: TimeSpan.FromMilliseconds(int.Parse(args[1])),
+                startMilliseconds: start,
                 layer: (Layer)Enum.Parse(typeof(Layer), args[2]),
                 filePath: args[3],
                 volume: args.Length > 4 ? int.Parse(args[4]) : 100

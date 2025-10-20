@@ -114,9 +114,9 @@ public class HitObjects
         {
             switch (obj)
             {
-                case Circle circle when Math.Abs(circle.Time.TotalMilliseconds - time) <= leniency:
+                case Circle circle when Math.Abs(circle.TimeMilliseconds - time) <= leniency:
                     return circle;
-                case Slider slider when Math.Abs(slider.Time.TotalMilliseconds - time) <= leniency || Math.Abs(slider.EndTime.TotalMilliseconds - time) <= leniency:
+                case Slider slider when Math.Abs(slider.TimeMilliseconds - time) <= leniency || Math.Abs(slider.EndTime.TotalMilliseconds - time) <= leniency:
                     return slider;
                 case Slider slider:
                     {
@@ -130,7 +130,7 @@ public class HitObjects
 
                         break;
                     }
-                case Spinner spinner when Math.Abs(spinner.End.TotalMilliseconds - time) <= leniency:
+                case Spinner spinner when Math.Abs(spinner.EndMilliseconds - time) <= leniency:
                     return spinner;
             }
         }
