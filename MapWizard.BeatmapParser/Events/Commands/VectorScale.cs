@@ -10,6 +10,9 @@ namespace MapWizard.BeatmapParser;
 /// </summary>
 public class VectorScale : ICommand
 {
+    private double? _startMilliseconds;
+    private double? _endMilliseconds;
+
     /// <summary>
     /// Represents the specific command type for the current instance of ICommand.
     /// Defines the behavior and purpose of the command, which in this case is set to VectorScale.
@@ -26,13 +29,21 @@ public class VectorScale : ICommand
     /// Defines the starting time of the vector scaling command in a beatmap.
     /// This property represents the moment when the scaling transition begins, measured as a nullable TimeSpan.
     /// </summary>
-    public TimeSpan? StartTime { get; set; }
+    public TimeSpan? StartTime
+    {
+        get => _startMilliseconds.HasValue ? TimeSpan.FromMilliseconds(_startMilliseconds.Value) : null;
+        set => _startMilliseconds = value?.TotalMilliseconds;
+    }
 
     /// <summary>
     /// Represents the optional end time of the vector scaling command.
     /// Determines the time at which the scaling operation concludes.
     /// </summary>
-    public TimeSpan? EndTime { get; set; }
+    public TimeSpan? EndTime
+    {
+        get => _endMilliseconds.HasValue ? TimeSpan.FromMilliseconds(_endMilliseconds.Value) : null;
+        set => _endMilliseconds = value?.TotalMilliseconds;
+    }
 
     /// <summary>
     /// Defines the starting vector scale for a scaling operation.
@@ -52,15 +63,15 @@ public class VectorScale : ICommand
     /// </summary>
     private VectorScale(
         Easing easing,
-        TimeSpan? startTime,
-        TimeSpan? endTime,
+        double? startMilliseconds,
+        double? endMilliseconds,
         Vector2? startVectorScale,
         Vector2? endVectorScale
     )
     {
         Easing = easing;
-        StartTime = startTime;
-        EndTime = endTime;
+        _startMilliseconds = startMilliseconds;
+        _endMilliseconds = endMilliseconds;
         StartVectorScale = startVectorScale;
         EndVectorScale = endVectorScale;
     }
@@ -77,8 +88,8 @@ public class VectorScale : ICommand
         var commandSplit = line.Trim().Split(',');
 
         Easing easing = commandSplit.Length > 1 ? (Easing)Enum.Parse(typeof(Easing), commandSplit[1]) : Easing.Linear;
-        TimeSpan? startTime = commandSplit.Length > 2 && !string.IsNullOrEmpty(commandSplit[2]) ? TimeSpan.FromMilliseconds(int.Parse(commandSplit[2])) : null;
-        TimeSpan? endTime = commandSplit.Length > 3 && !string.IsNullOrEmpty(commandSplit[3]) ? TimeSpan.FromMilliseconds(int.Parse(commandSplit[3])) : null;
+        double? startTime = commandSplit.Length > 2 && !string.IsNullOrEmpty(commandSplit[2]) ? double.Parse(commandSplit[2], CultureInfo.InvariantCulture) : null;
+        double? endTime = commandSplit.Length > 3 && !string.IsNullOrEmpty(commandSplit[3]) ? double.Parse(commandSplit[3], CultureInfo.InvariantCulture) : null;
         Vector2? startVectorScale = commandSplit.Length > 5 && !string.IsNullOrEmpty(commandSplit[4]) && !string.IsNullOrEmpty(commandSplit[5]) ?
             new Vector2(float.Parse(commandSplit[4], CultureInfo.InvariantCulture), float.Parse(commandSplit[5], CultureInfo.InvariantCulture)) : null;
         Vector2? endVectorScale = commandSplit.Length > 7 && !string.IsNullOrEmpty(commandSplit[6]) && !string.IsNullOrEmpty(commandSplit[7]) ?
@@ -96,7 +107,7 @@ public class VectorScale : ICommand
     public string Encode()
     {
         StringBuilder sb = new();
-        sb.Append($"V,{(int)Easing},{StartTime?.TotalMilliseconds.ToString(CultureInfo.InvariantCulture) ?? string.Empty},{EndTime?.TotalMilliseconds.ToString(CultureInfo.InvariantCulture) ?? string.Empty}");
+        sb.Append($"V,{(int)Easing},{_startMilliseconds?.ToString(CultureInfo.InvariantCulture) ?? string.Empty},{_endMilliseconds?.ToString(CultureInfo.InvariantCulture) ?? string.Empty}");
 
         if (StartVectorScale != null) sb.Append($",{StartVectorScale?.X.ToString(CultureInfo.InvariantCulture)},{StartVectorScale?.Y.ToString(CultureInfo.InvariantCulture)}");
         else sb.Append(",,");

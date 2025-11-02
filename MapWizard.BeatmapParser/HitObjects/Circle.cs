@@ -31,7 +31,7 @@ public class Circle : HitObject
     /// Initializes a new instance of the Circle class.
     /// </summary>
     /// <param name="baseObject">The base hit object to copy properties from.</param>
-    private Circle(IHitObject baseObject) : base(baseObject.Coordinates, baseObject.Time, baseObject.Type, baseObject.HitSounds, baseObject.NewCombo, baseObject.ComboOffset)
+    private Circle(HitObject baseObject) : base(baseObject)
     {
     }
 
@@ -42,6 +42,7 @@ public class Circle : HitObject
     /// <returns></returns>
     public new static Circle Decode(List<string> splitData)
     {
-        return new Circle(HitObject.Decode(splitData));
+        var baseObject = HitObject.Decode(splitData);
+        return new Circle(baseObject);
     }
 }

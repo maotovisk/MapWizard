@@ -11,6 +11,8 @@ namespace MapWizard.BeatmapParser;
 /// </summary>
 public class Background : IEvent, IHasCommands
 {
+    private double _startMilliseconds;
+
     /// <summary>
     /// Specifies the type of the event. This property determines the category of the event,
     /// such as background, video, sprite, or other supported event types within the beatmap.
@@ -20,7 +22,11 @@ public class Background : IEvent, IHasCommands
     /// <summary>
     /// The start time of the background event. It doesn't really is used for anything.
     /// </summary>
-    public TimeSpan StartTime { get; set; }
+    public TimeSpan StartTime
+    {
+        get => TimeSpan.FromMilliseconds(_startMilliseconds);
+        set => _startMilliseconds = value.TotalMilliseconds;
+    }
 
     /// <summary>
     /// Represents the file name of the background image.
@@ -52,7 +58,7 @@ public class Background : IEvent, IHasCommands
     /// </summary>
     public Background(string filename, Vector2? offset = null)
     {
-        StartTime = TimeSpan.FromMilliseconds(0);
+        _startMilliseconds = 0;
         Filename = filename;
         Offset = offset;
         Commands = [];
@@ -62,9 +68,9 @@ public class Background : IEvent, IHasCommands
     /// Represents a background event in a beatmap.
     /// This is the event used to set the beatmap background image.
     /// </summary>
-    private Background(TimeSpan time, string filename, Vector2? offset = null)
+    private Background(double timeMilliseconds, string filename, Vector2? offset = null)
     {
-        StartTime = time;
+        _startMilliseconds = timeMilliseconds;
         Filename = filename;
         Offset = offset;
         Commands = [];
@@ -80,7 +86,7 @@ public class Background : IEvent, IHasCommands
     {
         StringBuilder sb = new();
 
-        sb.Append($"{(int)Type},{StartTime.TotalMilliseconds.ToString(CultureInfo.InvariantCulture)},{Filename}");
+        sb.Append($"{(int)Type},{_startMilliseconds.ToString(CultureInfo.InvariantCulture)},{Filename}");
 
         if (Offset != null) sb.Append($",{Offset?.X.ToString(CultureInfo.InvariantCulture)},{Offset?.Y.ToString(CultureInfo.InvariantCulture)}");
 
@@ -112,10 +118,11 @@ public class Background : IEvent, IHasCommands
         try
         {
             var args = line.Trim().Split(',');
+            var start = double.Parse(args[1], CultureInfo.InvariantCulture);
             return new Background
             (
+                timeMilliseconds: start,
                 filename: args[2],
-                time: TimeSpan.FromMilliseconds(float.Parse(args[1], CultureInfo.InvariantCulture)),
                 offset: args.Length >= 4 ? new Vector2(float.Parse(args[3], CultureInfo.InvariantCulture), float.Parse(args[4], CultureInfo.InvariantCulture)) : null
             );
         }

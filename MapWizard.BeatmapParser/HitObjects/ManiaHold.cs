@@ -35,7 +35,7 @@ public class ManiaHold : HitObject
     /// Initializes a new instance of the <see cref="ManiaHold"/> class.
     /// </summary>
     /// <param name="baseObject"></param>
-    public ManiaHold(HitObject baseObject) : base(baseObject.Coordinates, baseObject.Time, baseObject.Type, baseObject.HitSounds, baseObject.NewCombo, baseObject.ComboOffset)
+    public ManiaHold(HitObject baseObject) : base(baseObject)
     {
     }
 }

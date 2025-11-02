@@ -8,6 +8,9 @@ namespace MapWizard.BeatmapParser;
 /// </summary>
 public class Break : IEvent
 {
+    private double _startMilliseconds;
+    private double _endMilliseconds;
+
     /// <summary>
     /// Represents the <see cref="EventType"/> of the event, indicating the category or nature of the beatmap event.
     /// </summary>
@@ -16,20 +19,28 @@ public class Break : IEvent
     /// <summary>
     /// The start time of the break period.
     /// </summary>
-    public TimeSpan StartTime { get; set;}
+    public TimeSpan StartTime
+    {
+        get => TimeSpan.FromMilliseconds(_startMilliseconds);
+        set => _startMilliseconds = value.TotalMilliseconds;
+    }
 
     /// <summary>
     /// The end time of the break period.
     /// </summary>
-    public TimeSpan EndTime { get; set; }
+    public TimeSpan EndTime
+    {
+        get => TimeSpan.FromMilliseconds(_endMilliseconds);
+        set => _endMilliseconds = value.TotalMilliseconds;
+    }
 
     /// <summary>
     /// Represents a break event in a beatmap. A break defines a period during which gameplay is paused.
     /// </summary>
-    private Break(TimeSpan startTime, TimeSpan endTime)
+    private Break(double startMilliseconds, double endMilliseconds)
     {
-        StartTime = startTime;
-        EndTime = endTime;
+        _startMilliseconds = startMilliseconds;
+        _endMilliseconds = endMilliseconds;
     }
 
     /// <summary>
@@ -38,7 +49,7 @@ public class Break : IEvent
     private Break()
     {
         StartTime = TimeSpan.FromMilliseconds(0);
-        EndTime = TimeSpan.FromMilliseconds(0);
+        _endMilliseconds = 0;
     }
 
     /// <summary>
@@ -52,9 +63,9 @@ public class Break : IEvent
         StringBuilder sb = new StringBuilder();
         sb.Append($"{(int)EventType.Break}");
         sb.Append(',');
-        sb.Append(StartTime.TotalMilliseconds.ToString(CultureInfo.InvariantCulture));
+        sb.Append(_startMilliseconds.ToString(CultureInfo.InvariantCulture));
         sb.Append(',');
-        sb.Append(EndTime.TotalMilliseconds.ToString(CultureInfo.InvariantCulture));
+        sb.Append(_endMilliseconds.ToString(CultureInfo.InvariantCulture));
         return sb.ToString();
     }
 
@@ -70,11 +81,9 @@ public class Break : IEvent
         try
         {
             var args = line.Trim().Split(',');
-            return new Break
-            (
-                startTime: TimeSpan.FromMilliseconds(int.Parse(args[1])),
-                endTime: TimeSpan.FromMilliseconds(int.Parse(args[2]))
-            );
+            var start = double.Parse(args[1], CultureInfo.InvariantCulture);
+            var end = double.Parse(args[2], CultureInfo.InvariantCulture);
+            return new Break(startMilliseconds: start, endMilliseconds: end);
         }
         catch (Exception ex)
         {

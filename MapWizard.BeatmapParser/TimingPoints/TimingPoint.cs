@@ -5,10 +5,16 @@ namespace MapWizard.BeatmapParser;
 /// </summary>
 public class TimingPoint
 {
+    private double _timeMilliseconds;
+
     /// <summary>
     /// Gets or sets the start time timing point of the beatmap.
     /// </summary>
-    public TimeSpan Time { get; set; }
+    public TimeSpan Time
+    {
+        get => TimeSpan.FromMilliseconds(_timeMilliseconds);
+        set => _timeMilliseconds = value.TotalMilliseconds;
+    }
 
     /// <summary>
     /// Gets or sets the sample set of objects in the beatmap.
@@ -38,13 +44,18 @@ public class TimingPoint
     /// <param name="sampleIndex"></param>
     /// <param name="volume"></param>
     /// <param name="effects"></param>
-    public TimingPoint(TimeSpan time, SampleSet sampleSet, uint sampleIndex, uint volume, List<Effect> effects)
+    protected TimingPoint(double timeMilliseconds, SampleSet sampleSet, uint sampleIndex, uint volume, List<Effect> effects)
     {
-        Time = time;
+        _timeMilliseconds = timeMilliseconds;
         SampleSet = sampleSet;
         SampleIndex = sampleIndex;
         Volume = volume;
         Effects = effects;
+    }
+
+    public TimingPoint(TimeSpan time, SampleSet sampleSet, uint sampleIndex, uint volume, List<Effect> effects)
+        : this(time.TotalMilliseconds, sampleSet, sampleIndex, volume, effects)
+    {
     }
 
     /// <summary>
@@ -52,10 +63,16 @@ public class TimingPoint
     /// </summary>
     public TimingPoint()
     {
-        Time = TimeSpan.Zero;
+        _timeMilliseconds = 0;
         SampleSet = SampleSet.Default;
         SampleIndex = 0;
         Volume = 0;
         Effects = [];
+    }
+
+    internal double TimeMilliseconds
+    {
+        get => _timeMilliseconds;
+        set => _timeMilliseconds = value;
     }
 }

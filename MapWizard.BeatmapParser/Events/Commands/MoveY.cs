@@ -8,6 +8,9 @@ namespace MapWizard.BeatmapParser;
 /// </summary>
 public class MoveY : ICommand
 {
+    private double? _startMilliseconds;
+    private double? _endMilliseconds;
+
     /// <summary>
     /// Gets the type of the command, which is MoveY.
     /// </summary>
@@ -21,12 +24,20 @@ public class MoveY : ICommand
     /// <summary>
     /// Gets or sets the start time of the movement.
     /// </summary>
-    public TimeSpan? StartTime { get; set; }
+    public TimeSpan? StartTime
+    {
+        get => _startMilliseconds.HasValue ? TimeSpan.FromMilliseconds(_startMilliseconds.Value) : null;
+        set => _startMilliseconds = value?.TotalMilliseconds;
+    }
 
     /// <summary>
     /// Gets or sets the end time of the movement.
     /// </summary>
-    public TimeSpan? EndTime { get; set; }
+    public TimeSpan? EndTime
+    {
+        get => _endMilliseconds.HasValue ? TimeSpan.FromMilliseconds(_endMilliseconds.Value) : null;
+        set => _endMilliseconds = value?.TotalMilliseconds;
+    }
 
     /// <summary>
     /// Gets or sets the starting Y-coordinate of the movement.
@@ -48,15 +59,15 @@ public class MoveY : ICommand
     /// <param name="endY">The ending Y-coordinate of the movement.</param>
     private MoveY(
         Easing easing,
-        TimeSpan? startTime,
-        TimeSpan? endTime,
+        double? startMilliseconds,
+        double? endMilliseconds,
         double? startY,
         double? endY
     )
     {
         Easing = easing;
-        StartTime = startTime;
-        EndTime = endTime;
+        _startMilliseconds = startMilliseconds;
+        _endMilliseconds = endMilliseconds;
         StartY = startY;
         EndY = endY;
     }
@@ -72,8 +83,8 @@ public class MoveY : ICommand
 
         var commandSplit = line.Trim().Split(',');
         Easing easing = commandSplit.Length > 1 ? (Easing)Enum.Parse(typeof(Easing), commandSplit[1]) : Easing.Linear;
-        TimeSpan? startTime = commandSplit.Length > 2 && !string.IsNullOrEmpty(commandSplit[2]) ? TimeSpan.FromMilliseconds(int.Parse(commandSplit[2])) : null;
-        TimeSpan? endTime = commandSplit.Length > 3 && !string.IsNullOrEmpty(commandSplit[3]) ? TimeSpan.FromMilliseconds(int.Parse(commandSplit[3])) : null;
+        double? startTime = commandSplit.Length > 2 && !string.IsNullOrEmpty(commandSplit[2]) ? double.Parse(commandSplit[2], CultureInfo.InvariantCulture) : null;
+        double? endTime = commandSplit.Length > 3 && !string.IsNullOrEmpty(commandSplit[3]) ? double.Parse(commandSplit[3], CultureInfo.InvariantCulture) : null;
         double? startY = commandSplit.Length > 4 && !string.IsNullOrEmpty(commandSplit[4]) ? double.Parse(commandSplit[4], CultureInfo.InvariantCulture) : null;
         double? endY = commandSplit.Length > 5 && !string.IsNullOrEmpty(commandSplit[5]) ? double.Parse(commandSplit[5], CultureInfo.InvariantCulture) : null;
 
@@ -90,9 +101,9 @@ public class MoveY : ICommand
         sb.Append("MY,");
         sb.Append((int)Easing);
         sb.Append(',');
-        sb.Append(StartTime?.TotalMilliseconds.ToString(CultureInfo.InvariantCulture) ?? string.Empty);
+        sb.Append(_startMilliseconds?.ToString(CultureInfo.InvariantCulture) ?? string.Empty);
         sb.Append(',');
-        sb.Append(EndTime?.TotalMilliseconds.ToString(CultureInfo.InvariantCulture) ?? string.Empty);
+        sb.Append(_endMilliseconds?.ToString(CultureInfo.InvariantCulture) ?? string.Empty);
         sb.Append(',');
         sb.Append(StartY?.ToString(CultureInfo.InvariantCulture) ?? string.Empty);
 

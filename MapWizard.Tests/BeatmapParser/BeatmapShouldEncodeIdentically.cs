@@ -1,10 +1,37 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Collections.Generic;
+using System.Reflection;
 using MapWizard.BeatmapParser;
 
 namespace MapWizard.Tests.BeatmapParser;
 
 public class BeatmapShouldEncodeIdentically
 {
+    private static List<string> GetSectionLines(string content, string sectionName)
+    {
+        var lines = content.Split(new[] { "\r\n", "\n" }, StringSplitOptions.None);
+        var start = Array.FindIndex(lines, l => l.Trim().Equals($"[{sectionName}]", StringComparison.OrdinalIgnoreCase));
+        if (start == -1) return new List<string>();
+
+        List<string> sectionLines = [];
+        for (int i = start + 1; i < lines.Length; i++)
+        {
+            var line = lines[i];
+            if (line.StartsWith('[')) break;
+            if (string.IsNullOrWhiteSpace(line)) continue;
+            sectionLines.Add(line.Trim());
+        }
+
+        return sectionLines;
+    }
+
+    private static void AssertSectionEquals(string original, string encoded, string sectionName)
+    {
+        var origSection = GetSectionLines(original, sectionName);
+        var encSection = GetSectionLines(encoded, sectionName);
+        Assert.Equal(origSection, encSection);
+    }
+
     [Fact]
     public void Encode_InputIsBeatmapString_ReturnsTrue()
     {
@@ -96,65 +123,12 @@ public class BeatmapShouldEncodeIdentically
         var encodedBeatmap = beatmap.Encode();
 
         // Assert
-        static List<string> GetSectionLines(string content, string sectionName)
-        {
-            var lines = content.Split(new[] {"\r\n", "\n"}, StringSplitOptions.None).ToList();
-            var start = lines.FindIndex(l => l.Trim().Equals($"[{sectionName}]"));
-            if (start == -1) return new List<string>();
-            var res = new List<string>();
-            for (int i = start + 1; i < lines.Count; i++)
-            {
-                var line = lines[i];
-                if (line.StartsWith('[')) break;
-                if (string.IsNullOrWhiteSpace(line)) continue;
-                res.Add(line.Trim());
-            }
-            return res;
-        }
-        // Ensure general section matches exactly
-        var origGeneral = GetSectionLines(beatmapString, "General");
-        var encGeneral = GetSectionLines(encodedBeatmap, "General");
-        Assert.Equal(origGeneral, encGeneral);
-        
-        // Ensure editor section matches exactly
-        var origEditor = GetSectionLines(beatmapString, "Editor");
-        var encEditor = GetSectionLines(encodedBeatmap, "Editor");
-        
-        // Ensure colours section matches exactly
-        var origColours = GetSectionLines(beatmapString, "Colours");
-        var encColours = GetSectionLines(encodedBeatmap, "Colours");
-        Assert.Equal(origColours, encColours);
-
-        // Ensure metadata section matches exactly
-        var origMeta = GetSectionLines(beatmapString, "Metadata");
-        var encMeta = GetSectionLines(encodedBeatmap, "Metadata");
-        Assert.Equal(origMeta, encMeta);
-        
-        // Ensure timing section matches exactly
-        var origTiming = GetSectionLines(beatmapString, "TimingPoints");
-        var encTiming = GetSectionLines(encodedBeatmap, "TimingPoints");
-
-        static List<string> NormalizeTiming(List<string> lines) => lines.Select(l =>
-        {
-            var idx = l.IndexOf(',');
-            return idx >= 0 ? l.Substring(idx + 1) : l;
-        }).ToList();
-
-        Assert.Equal(NormalizeTiming(origTiming), NormalizeTiming(encTiming));
-        
-        var origHits = GetSectionLines(beatmapString, "HitObjects");
-        var encHits = GetSectionLines(encodedBeatmap, "HitObjects");
-
-        static List<string> NormalizeHitObjects(List<string> lines) => lines.Select(l =>
-        {
-            var parts = l.Split(',');
-            if (parts.Length <= 3) return l.Trim();
-            var list = parts.ToList();
-            list.RemoveAt(2); // remove the time field
-            return string.Join(",", list).Trim();
-        }).ToList();
-
-        Assert.Equal(NormalizeHitObjects(origHits), NormalizeHitObjects(encHits));
+        AssertSectionEquals(beatmapString, encodedBeatmap, "General");
+        AssertSectionEquals(beatmapString, encodedBeatmap, "Editor");
+        AssertSectionEquals(beatmapString, encodedBeatmap, "Colours");
+        AssertSectionEquals(beatmapString, encodedBeatmap, "Metadata");
+        AssertSectionEquals(beatmapString, encodedBeatmap, "TimingPoints");
+        AssertSectionEquals(beatmapString, encodedBeatmap, "HitObjects");
     }
     
     [Fact]
@@ -173,64 +147,11 @@ public class BeatmapShouldEncodeIdentically
         var encodedBeatmap = beatmap.Encode();
 
         // Assert
-        static List<string> GetSectionLines(string content, string sectionName)
-        {
-            var lines = content.Split(new[] {"\r\n", "\n"}, StringSplitOptions.None).ToList();
-            var start = lines.FindIndex(l => l.Trim().Equals($"[{sectionName}]"));
-            if (start == -1) return new List<string>();
-            var res = new List<string>();
-            for (int i = start + 1; i < lines.Count; i++)
-            {
-                var line = lines[i];
-                if (line.StartsWith('[')) break;
-                if (string.IsNullOrWhiteSpace(line)) continue;
-                res.Add(line.Trim());
-            }
-            return res;
-        }
-        // Ensure general section matches exactly
-        var origGeneral = GetSectionLines(beatmapString, "General");
-        var encGeneral = GetSectionLines(encodedBeatmap, "General");
-        Assert.Equal(origGeneral, encGeneral);
-        
-        // Ensure editor section matches exactly
-        var origEditor = GetSectionLines(beatmapString, "Editor");
-        var encEditor = GetSectionLines(encodedBeatmap, "Editor");
-        
-        // Ensure colours section matches exactly
-        var origColours = GetSectionLines(beatmapString, "Colours");
-        var encColours = GetSectionLines(encodedBeatmap, "Colours");
-        Assert.Equal(origColours, encColours);
-
-        // Ensure metadata section matches exactly
-        var origMeta = GetSectionLines(beatmapString, "Metadata");
-        var encMeta = GetSectionLines(encodedBeatmap, "Metadata");
-        Assert.Equal(origMeta, encMeta);
-        
-        // Ensure timing section matches exactly
-        var origTiming = GetSectionLines(beatmapString, "TimingPoints");
-        var encTiming = GetSectionLines(encodedBeatmap, "TimingPoints");
-
-        static List<string> NormalizeTiming(List<string> lines) => lines.Select(l =>
-        {
-            var idx = l.IndexOf(',');
-            return idx >= 0 ? l.Substring(idx + 1) : l;
-        }).ToList();
-
-        Assert.Equal(NormalizeTiming(origTiming), NormalizeTiming(encTiming));
-        
-        var origHits = GetSectionLines(beatmapString, "HitObjects");
-        var encHits = GetSectionLines(encodedBeatmap, "HitObjects");
-
-        static List<string> NormalizeHitObjects(List<string> lines) => lines.Select(l =>
-        {
-            var parts = l.Split(',');
-            if (parts.Length <= 3) return l.Trim();
-            var list = parts.ToList();
-            list.RemoveAt(2); // remove the time field
-            return string.Join(",", list).Trim();
-        }).ToList();
-
-        Assert.Equal(NormalizeHitObjects(origHits), NormalizeHitObjects(encHits));
+        AssertSectionEquals(beatmapString, encodedBeatmap, "General");
+        AssertSectionEquals(beatmapString, encodedBeatmap, "Editor");
+        AssertSectionEquals(beatmapString, encodedBeatmap, "Colours");
+        AssertSectionEquals(beatmapString, encodedBeatmap, "Metadata");
+        AssertSectionEquals(beatmapString, encodedBeatmap, "TimingPoints");
+        AssertSectionEquals(beatmapString, encodedBeatmap, "HitObjects");
     }
 }

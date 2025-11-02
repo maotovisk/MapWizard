@@ -12,6 +12,9 @@ namespace MapWizard.BeatmapParser;
 /// </summary>
 public class Move : ICommand
 {
+    private double? _startMilliseconds;
+    private double? _endMilliseconds;
+
     /// <summary>
     /// Defines the type of the command associated with the <see cref="Move"/> class.
     /// This property is initialized to the value <see cref="CommandType.Move"/>,
@@ -30,14 +33,22 @@ public class Move : ICommand
     /// Specifies the start time of the command event represented as a nullable <see cref="TimeSpan"/>.
     /// This property denotes when the move command should begin execution within the beatmap timeline.
     /// </summary>
-    public TimeSpan? StartTime { get; set; }
+    public TimeSpan? StartTime
+    {
+        get => _startMilliseconds.HasValue ? TimeSpan.FromMilliseconds(_startMilliseconds.Value) : null;
+        set => _startMilliseconds = value?.TotalMilliseconds;
+    }
 
     /// <summary>
     /// Gets or sets the end time of the move command.
     /// This property indicates the timestamp at which the motion or transformation
     /// reaches its final position, marking the conclusion of the specified time interval.
     /// </summary>
-    public TimeSpan? EndTime { get; set; }
+    public TimeSpan? EndTime
+    {
+        get => _endMilliseconds.HasValue ? TimeSpan.FromMilliseconds(_endMilliseconds.Value) : null;
+        set => _endMilliseconds = value?.TotalMilliseconds;
+    }
 
     /// <summary>
     /// Specifies the starting position of the move command in a 2D coordinate system.
@@ -56,15 +67,15 @@ public class Move : ICommand
     /// </summary>
     private Move(
         Easing easing,
-        TimeSpan? startTime,
-        TimeSpan? endTime,
+        double? startMilliseconds,
+        double? endMilliseconds,
         Vector2? startPosition,
         Vector2? endPosition
     )
     {
         Easing = easing;
-        StartTime = startTime;
-        EndTime = endTime;
+        _startMilliseconds = startMilliseconds;
+        _endMilliseconds = endMilliseconds;
         StartPosition = startPosition;
         EndPosition = endPosition;
     }
@@ -82,8 +93,8 @@ public class Move : ICommand
         var commandSplit = line.Trim().Split(',');
 
         Easing easing = commandSplit.Length > 1 ? (Easing)Enum.Parse(typeof(Easing), commandSplit[1]) : Easing.Linear;
-        TimeSpan? startTime = commandSplit.Length > 2 && !string.IsNullOrEmpty(commandSplit[2]) ? TimeSpan.FromMilliseconds(int.Parse(commandSplit[2])) : null;
-        TimeSpan? endTime = commandSplit.Length > 3 && !string.IsNullOrEmpty(commandSplit[3]) ? TimeSpan.FromMilliseconds(int.Parse(commandSplit[3])) : null;
+        double? startTime = commandSplit.Length > 2 && !string.IsNullOrEmpty(commandSplit[2]) ? double.Parse(commandSplit[2], CultureInfo.InvariantCulture) : null;
+        double? endTime = commandSplit.Length > 3 && !string.IsNullOrEmpty(commandSplit[3]) ? double.Parse(commandSplit[3], CultureInfo.InvariantCulture) : null;
         Vector2? startPosition = commandSplit.Length > 5 && !string.IsNullOrEmpty(commandSplit[4]) && !string.IsNullOrEmpty(commandSplit[5]) ?
             new Vector2(float.Parse(commandSplit[4], CultureInfo.InvariantCulture), float.Parse(commandSplit[5], CultureInfo.InvariantCulture)) : null;
         Vector2? endPosition = commandSplit.Length > 7 && !string.IsNullOrEmpty(commandSplit[6]) && !string.IsNullOrEmpty(commandSplit[7]) ?
@@ -106,9 +117,9 @@ public class Move : ICommand
         sb.Append("M,");
         sb.Append((int)Easing);
         sb.Append(',');
-        sb.Append(StartTime?.TotalMilliseconds.ToString(CultureInfo.InvariantCulture) ?? string.Empty);
+        sb.Append(_startMilliseconds?.ToString(CultureInfo.InvariantCulture) ?? string.Empty);
         sb.Append(',');
-        sb.Append(EndTime?.TotalMilliseconds.ToString(CultureInfo.InvariantCulture) ?? string.Empty);
+        sb.Append(_endMilliseconds?.ToString(CultureInfo.InvariantCulture) ?? string.Empty);
         if (StartPosition != null)
         {
             sb.Append(',');

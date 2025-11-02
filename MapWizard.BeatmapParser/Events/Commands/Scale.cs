@@ -9,6 +9,9 @@ namespace MapWizard.BeatmapParser;
 /// </summary>
 public class Scale : ICommand
 {
+    private double? _startMilliseconds;
+    private double? _endMilliseconds;
+
     /// <summary>
     /// Gets the type of the command represented by this instance.
     /// This property is used to specify the behavior or action
@@ -28,13 +31,21 @@ public class Scale : ICommand
     /// This property defines the point in time at which the scale adjustment begins,
     /// represented as a nullable <see cref="TimeSpan"/>.
     /// </summary>
-    public TimeSpan? StartTime { get; set; }
+    public TimeSpan? StartTime
+    {
+        get => _startMilliseconds.HasValue ? TimeSpan.FromMilliseconds(_startMilliseconds.Value) : null;
+        set => _startMilliseconds = value?.TotalMilliseconds;
+    }
 
     /// <summary>
     /// Gets or sets the end time of the scale transformation command.
     /// This property defines the time at which the scaling operation finishes.
     /// </summary>
-    public TimeSpan? EndTime { get; set; }
+    public TimeSpan? EndTime
+    {
+        get => _endMilliseconds.HasValue ? TimeSpan.FromMilliseconds(_endMilliseconds.Value) : null;
+        set => _endMilliseconds = value?.TotalMilliseconds;
+    }
 
     /// <summary>
     /// Gets or sets the starting scale value of the transformation.
@@ -55,15 +66,15 @@ public class Scale : ICommand
     /// </summary>
     private Scale(
         Easing easing,
-        TimeSpan? startTime,
-        TimeSpan? endTime,
+        double? startMilliseconds,
+        double? endMilliseconds,
         double? startScale,
         double? endScale
     )
     {
         Easing = easing;
-        StartTime = startTime;
-        EndTime = endTime;
+        _startMilliseconds = startMilliseconds;
+        _endMilliseconds = endMilliseconds;
         StartScale = startScale;
         EndScale = endScale;
     }
@@ -84,8 +95,8 @@ public class Scale : ICommand
 
 
         Easing easing = commandSplit.Length > 1 ? (Easing)Enum.Parse(typeof(Easing), commandSplit[1]) : Easing.Linear;
-        TimeSpan? startTime = commandSplit.Length > 2 && !string.IsNullOrEmpty(commandSplit[2]) ? TimeSpan.FromMilliseconds(int.Parse(commandSplit[2])) : null;
-        TimeSpan? endTime = commandSplit.Length > 3 && !string.IsNullOrEmpty(commandSplit[3]) ? TimeSpan.FromMilliseconds(int.Parse(commandSplit[3])) : null;
+        double? startTime = commandSplit.Length > 2 && !string.IsNullOrEmpty(commandSplit[2]) ? double.Parse(commandSplit[2], CultureInfo.InvariantCulture) : null;
+        double? endTime = commandSplit.Length > 3 && !string.IsNullOrEmpty(commandSplit[3]) ? double.Parse(commandSplit[3], CultureInfo.InvariantCulture) : null;
         double? startScale = commandSplit.Length > 4 && !string.IsNullOrEmpty(commandSplit[4]) ? double.Parse(commandSplit[4], CultureInfo.InvariantCulture) : null;
         double? endScale = commandSplit.Length > 5 && !string.IsNullOrEmpty(commandSplit[5]) ? double.Parse(commandSplit[5], CultureInfo.InvariantCulture) : null;
 
@@ -107,9 +118,9 @@ public class Scale : ICommand
         sb.Append("S,");
         sb.Append((int)Easing);
         sb.Append(',');
-        sb.Append(StartTime?.TotalMilliseconds.ToString(CultureInfo.InvariantCulture) ?? "");
+        sb.Append(_startMilliseconds?.ToString(CultureInfo.InvariantCulture) ?? "");
         sb.Append(',');
-        sb.Append(EndTime?.TotalMilliseconds.ToString(CultureInfo.InvariantCulture) ?? "");
+        sb.Append(_endMilliseconds?.ToString(CultureInfo.InvariantCulture) ?? "");
         sb.Append(',');
         sb.Append(StartScale?.ToString(CultureInfo.InvariantCulture) ?? "");
 

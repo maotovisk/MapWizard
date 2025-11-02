@@ -9,6 +9,8 @@ namespace MapWizard.BeatmapParser;
 /// </summary>
 public class Animation : Sprite
 {
+    private double _frameDelayMilliseconds;
+
     /// <summary>
     /// Gets or sets the number of frames in the animation.
     /// Determines the total count of sequential images that compose the animation.
@@ -19,7 +21,11 @@ public class Animation : Sprite
     /// Gets or sets the delay between consecutive frames in the animation.
     /// Specifies the time duration for which each frame is displayed.
     /// </summary>
-    public TimeSpan FrameDelay { get; set; }
+    public TimeSpan FrameDelay
+    {
+        get => TimeSpan.FromMilliseconds(_frameDelayMilliseconds);
+        set => _frameDelayMilliseconds = value.TotalMilliseconds;
+    }
 
     /// <summary>
     /// Gets or sets the type of loop behavior for the animation.
@@ -53,13 +59,13 @@ public class Animation : Sprite
         string filePath,
         Vector2 position,
         uint frameCount,
-        TimeSpan frameDelay,
+        double frameDelayMilliseconds,
         LoopType looptype,
         List<ICommand>? commands = null
     ) : base(layer, origin, filePath, position, commands)
     {
         FrameCount = frameCount;
-        FrameDelay = frameDelay;
+        _frameDelayMilliseconds = frameDelayMilliseconds;
         Looptype = looptype;
     }
 
@@ -78,7 +84,7 @@ public class Animation : Sprite
     private Animation() : base()
     {
         FrameCount = 0;
-        FrameDelay = TimeSpan.FromMilliseconds(0);
+        _frameDelayMilliseconds = 0;
         Looptype = LoopType.LoopForever;
     }
 
@@ -94,9 +100,9 @@ public class Animation : Sprite
     /// <returns>A string that represents the serialized form of the animation, including its properties and commands.</returns>
     public new string Encode()
     {
-        if (Commands.Count == 0) return $"{EventType.Animation},{(int)Layer},{(int)Origin},{FilePath},{Position.X.ToString(CultureInfo.InvariantCulture)},{Position.Y.ToString(CultureInfo.InvariantCulture)},{FrameCount},{FrameDelay},{Looptype}";
+        if (Commands.Count == 0) return $"{EventType.Animation},{(int)Layer},{(int)Origin},{FilePath},{Position.X.ToString(CultureInfo.InvariantCulture)},{Position.Y.ToString(CultureInfo.InvariantCulture)},{FrameCount},{_frameDelayMilliseconds.ToString(CultureInfo.InvariantCulture)},{Looptype}";
         StringBuilder builder = new();
-        builder.AppendLine($"{EventType.Animation},{(int)Layer},{(int)Origin},{FilePath},{Position.X.ToString(CultureInfo.InvariantCulture)},{Position.Y.ToString(CultureInfo.InvariantCulture)},{FrameCount},{FrameDelay},{Looptype}");
+        builder.AppendLine($"{EventType.Animation},{(int)Layer},{(int)Origin},{FilePath},{Position.X.ToString(CultureInfo.InvariantCulture)},{Position.Y.ToString(CultureInfo.InvariantCulture)},{FrameCount},{_frameDelayMilliseconds.ToString(CultureInfo.InvariantCulture)},{Looptype}");
         foreach (var command in Commands[..^1])
         {
             builder.AppendLine(command is IHasCommands ? string.Join(Environment.NewLine, command.Encode().Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries).Select(line => " " + line)) : " " + command.Encode());
@@ -127,7 +133,7 @@ public class Animation : Sprite
             filePath: lineSplit[3],
             position: new Vector2(float.Parse(lineSplit[4], CultureInfo.InvariantCulture), float.Parse(lineSplit[5], CultureInfo.InvariantCulture)),
             frameCount: uint.Parse(lineSplit[6]),
-            frameDelay: TimeSpan.FromMilliseconds(double.Parse(lineSplit[7], CultureInfo.InvariantCulture)),
+            frameDelayMilliseconds: double.Parse(lineSplit[7], CultureInfo.InvariantCulture),
             looptype: lineSplit.Length > 8 ? (LoopType)Enum.Parse(typeof(LoopType), lineSplit[8] ?? throw new Exception("Invalid looptype")) : LoopType.LoopForever
         );
 

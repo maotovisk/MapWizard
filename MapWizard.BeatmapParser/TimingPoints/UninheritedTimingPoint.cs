@@ -40,6 +40,19 @@ public class UninheritedTimingPoint : TimingPoint
         TimeSignature = timeSignature;
     }
 
+    public UninheritedTimingPoint(
+        double timeMilliseconds,
+        SampleSet sampleSet,
+        uint sampleIndex,
+        uint volume,
+        List<Effect> effects,
+        double beatLength,
+        int timeSignature) : base(timeMilliseconds, sampleSet, sampleIndex, volume, effects)
+    {
+        BeatLength = beatLength;
+        TimeSignature = timeSignature;
+    }
+
     /// <summary>
     /// Initializes a new instance of the <see cref="UninheritedTimingPoint"/> class.
     /// </summary>
@@ -55,7 +68,7 @@ public class UninheritedTimingPoint : TimingPoint
     /// <returns></returns>
     public string Encode()
     {
-        return $"{Helper.FormatTime(Time.TotalMilliseconds)},{BeatLength.ToString("G", CultureInfo.InvariantCulture)},{TimeSignature},{(int)SampleSet},{SampleIndex},{Volume},{1},{Helper.EncodeEffects(Effects)}";
+        return $"{Helper.FormatTime(TimeMilliseconds)},{BeatLength.ToString("G", CultureInfo.InvariantCulture)},{TimeSignature},{(int)SampleSet},{SampleIndex},{Volume},{1},{Helper.EncodeEffects(Effects)}";
     }
 
     /// <summary>

@@ -9,6 +9,9 @@ namespace MapWizard.BeatmapParser;
 /// </summary>
 public class Fade : ICommand
 {
+    private double? _startMilliseconds;
+    private double? _endMilliseconds;
+
     /// <summary>
     /// Gets the specific type of the command, represented by the <see cref="CommandType"/> enumeration.
     /// This property identifies the nature of the command, such as Fade, Move, Scale, or other supported
@@ -29,13 +32,21 @@ public class Fade : ICommand
     /// Gets or sets the start time of the fade command in the beatmap.
     /// This property defines the timestamp at which the fade effect begins.
     /// </summary>
-    public TimeSpan? StartTime { get; set; }
+    public TimeSpan? StartTime
+    {
+        get => _startMilliseconds.HasValue ? TimeSpan.FromMilliseconds(_startMilliseconds.Value) : null;
+        set => _startMilliseconds = value?.TotalMilliseconds;
+    }
 
     /// <summary>
     /// Gets or sets the end time of the fade command. This property represents the time
     /// at which the fade effect concludes, measured in a <see cref="TimeSpan"/>.
     /// </summary>
-    public TimeSpan? EndTime { get; set; }
+    public TimeSpan? EndTime
+    {
+        get => _endMilliseconds.HasValue ? TimeSpan.FromMilliseconds(_endMilliseconds.Value) : null;
+        set => _endMilliseconds = value?.TotalMilliseconds;
+    }
 
     /// <summary>
     /// Gets or sets the starting opacity value for the fade effect.
@@ -57,15 +68,15 @@ public class Fade : ICommand
     /// </summary>
     private Fade(
         Easing easing,
-        TimeSpan? startTime,
-        TimeSpan? endTime,
+        double? startMilliseconds,
+        double? endMilliseconds,
         double? startOpacity,
         double? endOpacity
     )
     {
         Easing = easing;
-        StartTime = startTime;
-        EndTime = endTime;
+        _startMilliseconds = startMilliseconds;
+        _endMilliseconds = endMilliseconds;
         StartOpacity = startOpacity;
         EndOpacity = endOpacity;
     }
@@ -85,8 +96,8 @@ public class Fade : ICommand
         return new Fade
         (
             easing: (Easing)Enum.Parse(typeof(Easing), commandSplit[1]),
-            startTime: commandSplit.Length > 2 && !string.IsNullOrEmpty(commandSplit[2]) ? TimeSpan.FromMilliseconds(int.Parse(commandSplit[2])) : null,
-            endTime: commandSplit.Length > 3 && !string.IsNullOrEmpty(commandSplit[3]) ? TimeSpan.FromMilliseconds(int.Parse(commandSplit[3])) : null,
+            startMilliseconds: commandSplit.Length > 2 && !string.IsNullOrEmpty(commandSplit[2]) ? double.Parse(commandSplit[2], CultureInfo.InvariantCulture) : null,
+            endMilliseconds: commandSplit.Length > 3 && !string.IsNullOrEmpty(commandSplit[3]) ? double.Parse(commandSplit[3], CultureInfo.InvariantCulture) : null,
             startOpacity: commandSplit.Length > 4 && !string.IsNullOrEmpty(commandSplit[4]) ? double.Parse(commandSplit[4], CultureInfo.InvariantCulture) : null,
             endOpacity: commandSplit.Length > 5 && !string.IsNullOrEmpty(commandSplit[5]) ? double.Parse(commandSplit[5], CultureInfo.InvariantCulture) : null
         );
@@ -106,9 +117,9 @@ public class Fade : ICommand
         sb.Append("F,");
         sb.Append((int)Easing);
         sb.Append(',');
-        sb.Append(StartTime?.TotalMilliseconds.ToString(CultureInfo.InvariantCulture) ?? string.Empty);
+        sb.Append(_startMilliseconds?.ToString(CultureInfo.InvariantCulture) ?? string.Empty);
         sb.Append(',');
-        sb.Append(EndTime?.TotalMilliseconds.ToString(CultureInfo.InvariantCulture) ?? string.Empty);
+        sb.Append(_endMilliseconds?.ToString(CultureInfo.InvariantCulture) ?? string.Empty);
         sb.Append(',');
         sb.Append(StartOpacity?.ToString(CultureInfo.InvariantCulture) ?? string.Empty);
 

@@ -102,7 +102,7 @@ public class Slider : HitObject
     /// Initializes a new instance of the <see cref="Slider"/> class.
     /// </summary>
     /// <param name="baseObject">The base hit object to copy properties from.</param>
-    private Slider(IHitObject baseObject) : base(baseObject.Coordinates, baseObject.Time, baseObject.Type, baseObject.HitSounds, baseObject.NewCombo, baseObject.ComboOffset)
+    private Slider(HitObject baseObject) : base(baseObject)
     {
         LegacyCurveType = null;
         ControlPoints = [];
@@ -247,9 +247,9 @@ public class Slider : HitObject
                 Slides = uint.Parse(split[6] == "NaN" ? "1" : split[6]),
                 Length = double.Parse(split[7] == "NaN" ? "0" : split[7], CultureInfo.InvariantCulture),
                 EndTime = Helper.CalculateEndTime(
-                    sliderMultiplier: difficulty.SliderMultiplier * timingPoints.GetSliderVelocityAt(double.Parse(split[2], CultureInfo.InvariantCulture)),
-                    beatLength: timingPoints.GetUninheritedTimingPointAt(double.Parse(split[2], CultureInfo.InvariantCulture))?.BeatLength ?? 500,
-                    startTime: TimeSpan.FromMilliseconds(double.Parse(split[2], CultureInfo.InvariantCulture)),
+                    sliderMultiplier: difficulty.SliderMultiplier * timingPoints.GetSliderVelocityAt(baseObject.TimeMilliseconds),
+                    beatLength: timingPoints.GetUninheritedTimingPointAt(baseObject.TimeMilliseconds)?.BeatLength ?? 500,
+                    startTime: baseObject.Time,
                     pixelLength: double.Parse(split[7] == "NaN" ? "0" : split[7], CultureInfo.InvariantCulture),
                     repeats: int.Parse(split[6] == "NaN" ? "1" : split[6])
                 ),
@@ -276,7 +276,7 @@ public class Slider : HitObject
         StringBuilder builder = new();
         
         builder.Append($"{Helper.FormatCoord(Coordinates.X)},{Helper.FormatCoord(Coordinates.Y)},");
-        builder.Append($"{Helper.FormatTime(Time.TotalMilliseconds)},");
+        builder.Append($"{Helper.FormatTime(TimeMilliseconds)},");
 
         int type = (int)Type | (NewCombo ? 1 << 2 : 0) | ((int)ComboOffset << 4);
         builder.Append($"{type},");
