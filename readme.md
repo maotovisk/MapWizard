@@ -2,7 +2,7 @@
 
 **A modern tool for osu! beatmap editing**, designed to streamline your workflow with features like hitsound transfer, metadata management, auto combo color generation, and map cleaning.
 
-> Rebuilt from the ground up in C# (.NET 9 + Avalonia) for speed, stability, and cross-platform support.
+> Rebuilt from the ground up in C# (.NET 10 + Avalonia) for speed, stability, and cross-platform support.
 
 [![GitHub release](https://img.shields.io/github/v/release/maotovisk/MapWizard?style=flat-square)](https://github.com/maotovisk/MapWizard/releases)
 ![Platforms](https://img.shields.io/badge/platforms-Windows%20|%20Linux%20|%20macOS-blue?style=flat-square)
