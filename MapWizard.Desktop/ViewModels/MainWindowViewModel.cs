@@ -5,6 +5,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Material.Icons;
 using SukiUI;
+using SukiUI.Controls;
 using SukiUI.Dialogs;
 using SukiUI.Toasts;
 using Velopack;
@@ -98,6 +99,11 @@ namespace MapWizard.Desktop.ViewModels
                     .Dismiss().After(TimeSpan.FromSeconds(8))
                     .Queue();
             }
+        }
+
+        [RelayCommand]
+        private void OpenHitsoundCopier()
+        {
         }
     }
 }

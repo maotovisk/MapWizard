@@ -5,13 +5,14 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:vm="clr-namespace:MapWizard.Desktop.ViewModels"
     xmlns:ia="clr-namespace:Avalonia.Xaml.Interactivity;assembly=Avalonia.Xaml.Interactivity"
+    xmlns:suki="clr-namespace:SukiUI.Controls;assembly=SukiUI"
     xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
     mc:Ignorable="d"
     d:DesignWidth="800"
     d:DesignHeight="450"
     x:Class="MapWizard.Desktop.Views.WelcomePageView"
     x:DataType="vm:WelcomePageViewModel"
-    Padding="26">
+    Padding="24">
     <Interaction.Behaviors>
         <RoutedEventTriggerBehavior
             RoutedEvent="{x:Static Control.LoadedEvent}">
@@ -19,37 +20,119 @@
                 Command="{Binding WindowStartupCommand}"/>
         </RoutedEventTriggerBehavior>
     </Interaction.Behaviors>
-    <StackPanel
-        VerticalAlignment="Center"
-        HorizontalAlignment="Center"
-        Spacing="16">
-        <Image
-            Source="/Assets/app-icon.ico"
-            MaxWidth="200"
-            Stretch="Uniform" />
 
-        <TextBlock
-            Text="{Binding Message}"
-            FontSize="24"
-            TextAlignment="Center" />
-        
-        <!-- check for updates button -->
-        <Button
-            Command="{Binding CheckForUpdatesCommand}"
-            HorizontalAlignment="Center"
-            Classes="Basic"
-            Width="200">
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="6">
-                <avalonia:MaterialIcon Kind="Update" />
-                <TextBlock
-                    Text="Check for Updates"
-                    FontSize="16"
-                    VerticalAlignment="Center"
-                    HorizontalAlignment="Center" />
-            </StackPanel>
-           
-            
-        </Button>
-            
-    </StackPanel>
+    <ScrollViewer>
+        <StackPanel Spacing="16">
+            <suki:GlassCard Padding="18" CornerRadius="16">
+                <Grid ColumnDefinitions="Auto,*,Auto">
+                    <Border Background="{DynamicResource ThemeAccentBrush}" Opacity="0.12" Padding="10" CornerRadius="12" Margin="0,0,16,0">
+                        <Image
+                            Source="/Assets/app-icon.ico"
+                            Width="88"
+                            Height="88"
+                            Stretch="Uniform"
+                            RenderOptions.BitmapInterpolationMode="HighQuality" />
+                    </Border>
+
+                    <StackPanel Grid.Column="1" Spacing="6" Margin="0,0,16,0">
+                        <TextBlock Text="Welcome to MapWizard" FontSize="24" FontWeight="Bold" />
+                        <TextBlock Text="{Binding Message}" FontSize="15" TextWrapping="Wrap" />
+                        <TextBlock Text="Pick a tool to jump straight into your mapping workflow. Everything you need is one click away." />
+
+                        <StackPanel Orientation="Horizontal" Spacing="10">
+                            <Button
+                                Classes="Flat Rounded"
+                                Command="{Binding CheckForUpdatesCommand}">
+                                <StackPanel Orientation="Horizontal" Spacing="6">
+                                    <avalonia:MaterialIcon Kind="Update" />
+                                    <TextBlock VerticalAlignment="Center" Text="Check for updates" />
+                                </StackPanel>
+                            </Button>
+                        </StackPanel>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="2" Spacing="4" VerticalAlignment="Center">
+                        <TextBlock Text="Quick status" FontWeight="Bold" />
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <avalonia:MaterialIcon Kind="InformationOutline" />
+                            <TextBlock Text="2 core tools ready" />
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <avalonia:MaterialIcon Kind="Update" />
+                            <TextBlock Text="Update checks available" />
+                        </StackPanel>
+                    </StackPanel>
+                </Grid>
+            </suki:GlassCard>
+
+            <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto">
+                <suki:GlassCard Grid.Column="0" Padding="14" CornerRadius="14" Margin="0,0,12,12">
+                    <StackPanel Spacing="8">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <avalonia:MaterialIcon Kind="ContentCopy" Width="24" Height="24" />
+                            <TextBlock Text="Hitsound Copier" FontSize="18" FontWeight="Bold" />
+                        </StackPanel>
+                        <TextBlock Text="Copy your hitsounds from one difficulty to another." TextWrapping="Wrap" />
+                        <StackPanel Spacing="4">
+                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                <avalonia:MaterialIcon Kind="LightningBolt" />
+                                <TextBlock Text="Import from the current osu! map or pick a file." />
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                <avalonia:MaterialIcon Kind="ArrowRightThin" />
+                                <TextBlock Text="Copy to one or many target difficulties in one action." />
+                            </StackPanel>
+                        </StackPanel>
+                    </StackPanel>
+                </suki:GlassCard>
+
+                <suki:GlassCard Grid.Column="1" Padding="14" CornerRadius="14" Margin="0,0,0,12">
+                    <StackPanel Spacing="8">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <avalonia:MaterialIcon Kind="FileDocumentMultiple" Width="24" Height="24" />
+                            <TextBlock Text="Metadata Manager" FontSize="18" FontWeight="Bold" />
+                        </StackPanel>
+                        <TextBlock Text="Keep map info consistent across a set. Import once, push everywhere, and avoid manual edits." TextWrapping="Wrap" />
+                        <StackPanel Spacing="4">
+                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                <avalonia:MaterialIcon Kind="DatabaseSync" />
+                                <TextBlock Text="Edit titles, artists, sources, preview time, and more in one place." />
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                <avalonia:MaterialIcon Kind="CheckCircleOutline" />
+                                <TextBlock Text="Overwrite backgrounds or videos across difficulties intentionally." />
+                            </StackPanel>
+                        </StackPanel>
+                    </StackPanel>
+                </suki:GlassCard>
+
+                <suki:GlassCard Grid.Row="1" Grid.ColumnSpan="2" Padding="14" CornerRadius="14">
+                    <StackPanel Spacing="8">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <avalonia:MaterialIcon Kind="RocketLaunch" Width="22" Height="22" />
+                            <TextBlock Text="Getting started" FontSize="16" FontWeight="Bold" />
+                        </StackPanel>
+                        <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto">
+                            <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="8" Margin="0,0,10,8">
+                                <avalonia:MaterialIcon Kind="Home" />
+                                <TextBlock Text="Use the sidebar to jump between tools anytime." TextWrapping="Wrap" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" Margin="0,0,0,8">
+                                <avalonia:MaterialIcon Kind="FolderOpenOutline" />
+                                <TextBlock Text="Pick your beatmap files first for smoother importing." TextWrapping="Wrap" />
+                            </StackPanel>
+                            <StackPanel Grid.Row="1" Grid.Column="0" Orientation="Horizontal" Spacing="8" Margin="0,0,10,0">
+                                <avalonia:MaterialIcon Kind="Update" />
+                                <TextBlock Text="Run an update check before big sessions." TextWrapping="Wrap" />
+                            </StackPanel>
+                            <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" Spacing="8">
+                                <avalonia:MaterialIcon Kind="CommentQuoteOutline" />
+                                <TextBlock Text="Need help? Open the wiki or reach us on GitHub." TextWrapping="Wrap" />
+                            </StackPanel>
+                        </Grid>
+                    </StackPanel>
+                </suki:GlassCard>
+            </Grid>
+        </StackPanel>
+    </ScrollViewer>
 </UserControl>
