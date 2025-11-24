@@ -1,8 +1,6 @@
-﻿using System;
-using System.Drawing;
-using System.IO;
+﻿using System.Drawing;
 using System.Linq;
-using MapWizard.BeatmapParser;
+using BeatmapParser.Colours;
 using MapWizard.Desktop.Models;
 using MapWizard.Tools.MetadataManager;
 

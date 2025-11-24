@@ -1,5 +1,5 @@
 using System.Drawing;
-using MapWizard.BeatmapParser;
+using BeatmapParser.Colours;
 
 namespace MapWizard.Tools.MetadataManager;
 

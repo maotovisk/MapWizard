@@ -10,7 +10,9 @@ using Avalonia.Controls.Notifications;
 using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using MapWizard.BeatmapParser;
+using BeatmapParser;
+using BeatmapParser.Enums.Storyboard;
+using BeatmapParser.Events;
 using MapWizard.Desktop.Models;
 using MapWizard.Desktop.Services;
 using MapWizard.Tools.MetadataManager;
@@ -102,16 +104,16 @@ public partial class MetadataManagerViewModel(
 
             Metadata = new AvaloniaBeatmapMetadata
             {
-                Title = originMetadata.Metadata.TitleUnicode,
-                RomanizedTitle = originMetadata.Metadata.Title,
-                Artist = originMetadata.Metadata.ArtistUnicode,
-                RomanizedArtist = originMetadata.Metadata.Artist,
-                Creator = originMetadata.Metadata.Creator,
-                Source = originMetadata.Metadata.Source,
-                Tags = string.Join(" ", originMetadata.Metadata.Tags),
-                BeatmapId = originMetadata.Metadata.BeatmapID,
-                BeatmapSetId = originMetadata.Metadata.BeatmapSetID,
-                AudioFilename = originMetadata.General.AudioFilename,
+                Title = originMetadata.MetadataSection.TitleUnicode,
+                RomanizedTitle = originMetadata.MetadataSection.Title,
+                Artist = originMetadata.MetadataSection.ArtistUnicode,
+                RomanizedArtist = originMetadata.MetadataSection.Artist,
+                Creator = originMetadata.MetadataSection.Creator,
+                Source = originMetadata.MetadataSection.Source,
+                Tags = string.Join(" ", originMetadata.MetadataSection.Tags),
+                BeatmapId = originMetadata.MetadataSection.BeatmapID,
+                BeatmapSetId = originMetadata.MetadataSection.BeatmapSetID,
+                AudioFilename = originMetadata.GeneralSection.AudioFilename,
                 BackgroundFilename = originMetadata.Events.GetBackgroundImage() ?? string.Empty,
                 VideoFilename =
                     originMetadata.Events.EventList.Where(x => x.Type == EventType.Video).Select(x => x as Video)
@@ -121,11 +123,11 @@ public partial class MetadataManagerViewModel(
                 Colours = comboColourList,
                 SliderTrackColour = originMetadata.Colours?.SliderTrackOverride,
                 SliderBorderColour = originMetadata.Colours?.SliderBorder,
-                PreviewTime = originMetadata.General.PreviewTime ?? -1,
-                WidescreenStoryboard = originMetadata.General.WidescreenStoryboard ?? false,
-                LetterboxInBreaks = originMetadata.General.LetterboxInBreaks ?? false,
-                EpilepsyWarning = originMetadata.General.EpilepsyWarning ?? false,
-                SamplesMatch = originMetadata.General.SamplesMatchPlaybackRate ?? false,
+                PreviewTime = originMetadata.GeneralSection.PreviewTime ?? -1,
+                WidescreenStoryboard = originMetadata.GeneralSection.WidescreenStoryboard ?? false,
+                LetterboxInBreaks = originMetadata.GeneralSection.LetterboxInBreaks ?? false,
+                EpilepsyWarning = originMetadata.GeneralSection.EpilepsyWarning ?? false,
+                SamplesMatch = originMetadata.GeneralSection.SamplesMatchPlaybackRate ?? false,
             };
             SliderBorderOverride = Metadata.SliderBorderColour != null;
             SliderTrackOverride = Metadata.SliderTrackColour != null;

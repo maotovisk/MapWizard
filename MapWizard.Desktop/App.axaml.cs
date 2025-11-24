@@ -1,12 +1,8 @@
-using System;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Data.Core.Plugins;
 using Avalonia.Markup.Xaml;
-using Avalonia.Rendering;
 using MapWizard.Desktop.DependencyInjection;
-using MapWizard.Desktop.Services;
-using MapWizard.Desktop.ViewModels;
 using MapWizard.Desktop.Views;
 using Microsoft.Extensions.DependencyInjection;
 

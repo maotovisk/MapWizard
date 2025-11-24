@@ -1,5 +1,6 @@
-using System.Drawing;
-using MapWizard.BeatmapParser;
+using BeatmapParser;
+using BeatmapParser.Enums.Storyboard;
+using BeatmapParser.Events;
 
 namespace MapWizard.Tools.MetadataManager;
 
@@ -15,25 +16,25 @@ public static class MetadataManager
                 var beatmap = Beatmap.Decode(beatmapText);
                 
                 // Metadata field
-                beatmap.Metadata.Artist = metadata.RomanizedArtist;
-                beatmap.Metadata.ArtistUnicode = metadata.Artist;
-                beatmap.Metadata.Title = metadata.RomanizedTitle;
-                beatmap.Metadata.TitleUnicode = metadata.Title;
-                beatmap.Metadata.Creator = metadata.Creator;
-                beatmap.Metadata.Source = metadata.Source;
-                beatmap.Metadata.Tags = metadata.Tags.Split(' ').ToList();
-                beatmap.Metadata.BeatmapID = metadata.BeatmapId;
-                beatmap.Metadata.BeatmapSetID = metadata.BeatmapSetId;
+                beatmap.MetadataSection.Artist = metadata.RomanizedArtist;
+                beatmap.MetadataSection.ArtistUnicode = metadata.Artist;
+                beatmap.MetadataSection.Title = metadata.RomanizedTitle;
+                beatmap.MetadataSection.TitleUnicode = metadata.Title;
+                beatmap.MetadataSection.Creator = metadata.Creator;
+                beatmap.MetadataSection.Source = metadata.Source;
+                beatmap.MetadataSection.Tags = metadata.Tags.Split(' ').ToList();
+                beatmap.MetadataSection.BeatmapID = metadata.BeatmapId;
+                beatmap.MetadataSection.BeatmapSetID = metadata.BeatmapSetId;
                 
                 // General field
                 if (options.OverwriteAudio)
-                    beatmap.General.AudioFilename = metadata.AudioFilename;
+                    beatmap.GeneralSection.AudioFilename = metadata.AudioFilename;
                 
-                beatmap.General.PreviewTime = metadata.PreviewTime;
-                beatmap.General.SamplesMatchPlaybackRate = metadata.SamplesMatch;
-                beatmap.General.LetterboxInBreaks = metadata.LetterboxInBreaks;
-                beatmap.General.EpilepsyWarning = metadata.EpilepsyWarning;
-                beatmap.General.WidescreenStoryboard = metadata.WidescreenStoryboard;
+                beatmap.GeneralSection.PreviewTime = metadata.PreviewTime;
+                beatmap.GeneralSection.SamplesMatchPlaybackRate = metadata.SamplesMatch;
+                beatmap.GeneralSection.LetterboxInBreaks = metadata.LetterboxInBreaks;
+                beatmap.GeneralSection.EpilepsyWarning = metadata.EpilepsyWarning;
+                beatmap.GeneralSection.WidescreenStoryboard = metadata.WidescreenStoryboard;
                 
                 // Events field
                 if (options.OverwriteBackground)

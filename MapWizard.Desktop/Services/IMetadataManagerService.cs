@@ -1,6 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-using MapWizard.Desktop.Models;
+﻿using MapWizard.Desktop.Models;
 using MapWizard.Tools.MetadataManager;
 
 namespace MapWizard.Desktop.Services;
