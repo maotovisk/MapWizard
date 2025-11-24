@@ -1,4 +1,4 @@
-using MapWizard.BeatmapParser;
+using BeatmapParser.Enums;
 
 namespace MapWizard.Tools.HitSoundCopier;
 

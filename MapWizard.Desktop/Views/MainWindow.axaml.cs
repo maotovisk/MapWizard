@@ -1,12 +1,10 @@
-using System;
-using System.Threading.Tasks;
 using Avalonia.Interactivity;
+using Avalonia.Media;
 using MapWizard.Desktop.ViewModels;
-using MsBox.Avalonia;
-using Velopack;
-using Velopack.Sources;
+using SukiUI;
 using SukiUI.Controls;
-using SukiUI.Toasts;
+using SukiUI.Enums;
+using SukiUI.Models;
 
 namespace MapWizard.Desktop.Views
 {
@@ -16,6 +14,12 @@ namespace MapWizard.Desktop.Views
         {
             InitializeComponent();
             DataContext = viewModel;
+
+            BackgroundStyle = SukiBackgroundStyle.GradientDarker;
+            
+            var mapWizardTheme = new SukiColorTheme("MapWizard", Colors.DarkSlateBlue, Colors.OrangeRed);
+            SukiTheme.GetInstance().AddColorTheme(mapWizardTheme);
+            SukiTheme.GetInstance().ChangeColorTheme(mapWizardTheme);
         }
 
         protected override async void OnLoaded(RoutedEventArgs e)

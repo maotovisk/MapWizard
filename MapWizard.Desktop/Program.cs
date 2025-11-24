@@ -1,14 +1,6 @@
 ﻿using Avalonia;
 using System;
-using System.Threading.Tasks;
-using Avalonia.Media;
-using Avalonia.Media.Imaging;
-using Avalonia.OpenGL.Egl;
-using Avalonia.Rendering;
-using Avalonia.Rendering.Composition;
-using Avalonia.Vulkan;
 using Velopack;
-using Velopack.Sources;
 
 namespace MapWizard.Desktop;
 

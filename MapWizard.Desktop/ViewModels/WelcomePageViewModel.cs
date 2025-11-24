@@ -97,12 +97,13 @@ public partial class WelcomePageViewModel(ISukiDialogManager dialogManager, ISuk
         toastManager.CreateToast().OfType(NotificationType.Information)
             .WithLoadingState(false)
             .WithTitle("Updates")
-            .WithContent($"New version {newVersion.BaseRelease?.Version} is available.")
+            .WithContent($"New version {newVersion.TargetFullRelease.Version} is available.")
             .WithActionButton("Later", _ => { }, true, SukiButtonStyles.Flat)
-            .WithActionButton("Update", async void (_) =>
-            {
-                await ShowUpdateToastWithProgress(newVersion);
-            }, true, SukiButtonStyles.Accent)
+            .WithActionButton("Update",
+                _ =>
+                {
+                    Task.Run(() => ShowUpdateToastWithProgress(newVersion));
+                }, true, SukiButtonStyles.Accent)
             .Queue();
     }
 

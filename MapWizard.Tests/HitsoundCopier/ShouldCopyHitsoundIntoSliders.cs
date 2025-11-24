@@ -1,5 +1,5 @@
 using System.Reflection;
-using MapWizard.BeatmapParser;
+using BeatmapParser;
 using MapWizard.Tools.HitSoundCopier;
 
 namespace MapWizard.Tests.HitsoundCopier;

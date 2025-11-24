@@ -1,9 +1,6 @@
 ﻿using System.ComponentModel;
 using System.Drawing;
-using System.Numerics;
 using Avalonia.Collections;
-using CommunityToolkit.Mvvm.ComponentModel;
-using MapWizard.BeatmapParser;
 
 namespace MapWizard.Desktop.Models;
 

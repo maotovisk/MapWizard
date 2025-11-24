@@ -1,9 +1,6 @@
 using System;
-using System.Threading.Tasks;
-using Avalonia.Controls;
 using Avalonia.Controls.Notifications;
 using Avalonia.Styling;
-using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Material.Icons;

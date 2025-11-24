@@ -1,4 +1,3 @@
-using System.Threading.Tasks;
 using MapWizard.Tools.HitSoundCopier;
 
 namespace MapWizard.Desktop.Services;

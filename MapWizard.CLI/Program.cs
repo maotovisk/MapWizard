@@ -1,4 +1,3 @@
-using MapWizard.BeatmapParser;
 using MapWizard.CLI.ConsoleUtils;
 using MapWizard.Services;
 using MapWizard.Tools.HitSoundCopier;

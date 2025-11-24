@@ -1,4 +1,4 @@
-using MapWizard.BeatmapParser;
+using BeatmapParser;
 namespace MapWizard.CLI.ParserCompliancy;
 
 /// <summary>

@@ -1,4 +1,8 @@
-using MapWizard.BeatmapParser;
+using BeatmapParser;
+using BeatmapParser.Enums;
+using BeatmapParser.HitObjects;
+using BeatmapParser.HitObjects.HitSounds;
+using BeatmapParser.TimingPoints;
 using MapWizard.Tools.Helpers;
 
 namespace MapWizard.Tools.HitSoundCopier;
