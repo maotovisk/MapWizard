@@ -62,6 +62,7 @@ public partial class WelcomePageViewModel(ISukiDialogManager dialogManager, ISuk
             .WithLoadingState(true)
             .WithTitle("Updates")
             .WithContent("Checking for updates...")
+            .Dismiss().ByClicking()
             .Queue();
 
         UpdateInfo? newVersion = null;
@@ -76,6 +77,7 @@ public partial class WelcomePageViewModel(ISukiDialogManager dialogManager, ISuk
                 .OfType(NotificationType.Error)
                 .WithTitle("Update error")
                 .WithContent(ex.Message)
+                .Dismiss().ByClicking()
                 .Dismiss().After(TimeSpan.FromSeconds(6))
                 .Queue();
             return;
@@ -89,6 +91,7 @@ public partial class WelcomePageViewModel(ISukiDialogManager dialogManager, ISuk
                 .OfType(NotificationType.Information)
                 .WithTitle("Updates")
                 .WithContent("You are up to date.")
+                .Dismiss().ByClicking()
                 .Dismiss().After(TimeSpan.FromSeconds(4))
                 .Queue();
             return;
@@ -104,6 +107,7 @@ public partial class WelcomePageViewModel(ISukiDialogManager dialogManager, ISuk
                 {
                     Task.Run(() => ShowUpdateToastWithProgress(newVersion));
                 }, true, SukiButtonStyles.Accent)
+            .Dismiss().ByClicking()
             .Queue();
     }
 
@@ -113,6 +117,7 @@ public partial class WelcomePageViewModel(ISukiDialogManager dialogManager, ISuk
         var downloadingToast = toastManager.CreateToast()
             .WithTitle("Downloading Update...")
             .WithContent(progress)
+            .Dismiss().ByClicking()
             .Queue();
 
         try
@@ -132,6 +137,7 @@ public partial class WelcomePageViewModel(ISukiDialogManager dialogManager, ISuk
                 .OfType(NotificationType.Error)
                 .WithTitle("Update error")
                 .WithContent(ex.Message)
+                .Dismiss().ByClicking()
                 .Dismiss().After(TimeSpan.FromSeconds(6))
                 .Queue();
             return;
@@ -145,6 +151,7 @@ public partial class WelcomePageViewModel(ISukiDialogManager dialogManager, ISuk
             .WithContent("The update has been downloaded. Please restart the app to apply the update.")
             .WithActionButton("Next Restart", _ => { updateManager.WaitExitThenApplyUpdates(info); }, true)
             .WithActionButton("Restart Now", _ => { updateManager.ApplyUpdatesAndRestart(info); }, true, SukiButtonStyles.Accent)
+            .Dismiss().ByClicking()
             .Queue();
     }
 
@@ -156,6 +163,7 @@ public partial class WelcomePageViewModel(ISukiDialogManager dialogManager, ISuk
             .WithLoadingState(true)
             .WithTitle("Updates")
             .WithContent("Checking for updates (debug)...")
+            .Dismiss().ByClicking()
             .Queue();
 
         // Atraso simulado da request
@@ -171,6 +179,7 @@ public partial class WelcomePageViewModel(ISukiDialogManager dialogManager, ISuk
             {
                 await ShowUpdateToastWithProgressDebug();
             }, true, SukiButtonStyles.Accent)
+            .Dismiss().ByClicking()
             .Queue();
     }
 
@@ -180,6 +189,7 @@ public partial class WelcomePageViewModel(ISukiDialogManager dialogManager, ISuk
         var downloadingToast = toastManager.CreateToast()
             .WithTitle("Downloading Update (debug)...")
             .WithContent(progress)
+            .Dismiss().ByClicking()
             .Queue();
 
         // Simula download com progresso incremental e jitter
@@ -200,6 +210,7 @@ public partial class WelcomePageViewModel(ISukiDialogManager dialogManager, ISuk
             .WithTitle("Update Downloaded (debug)")
             .WithContent("Simulated update is ready.")
             .WithActionButton("Close", _ => { }, true, SukiButtonStyles.Flat)
+            .Dismiss().ByClicking()
             .Queue();
     }
 #endif

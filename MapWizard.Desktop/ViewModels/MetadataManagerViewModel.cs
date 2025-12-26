@@ -82,6 +82,7 @@ public partial class MetadataManagerViewModel(
                 .OfType(NotificationType.Error)
                 .WithTitle("Import Error")
                 .WithContent("Please select an origin beatmap!")
+                .Dismiss().ByClicking()
                 .Dismiss().After(TimeSpan.FromSeconds(8))
                 .Queue();
 
@@ -136,6 +137,7 @@ public partial class MetadataManagerViewModel(
                 .OfType(NotificationType.Success)
                 .WithTitle("Import Success")
                 .WithContent("Successfully imported metadata!")
+                .Dismiss().ByClicking()
                 .Dismiss().After(TimeSpan.FromSeconds(8))
                 .Queue();
         }
@@ -147,6 +149,7 @@ public partial class MetadataManagerViewModel(
                 .OfType(NotificationType.Error)
                 .WithTitle("Import Error")
                 .WithContent("Failed to import metadata!")
+                .Dismiss().ByClicking()
                 .Dismiss().After(TimeSpan.FromSeconds(8))
                 .Queue();
         }
@@ -188,6 +191,7 @@ public partial class MetadataManagerViewModel(
                 .OfType(NotificationType.Error)
                 .WithTitle("Duplicate Beatmap")
                 .WithContent("This beatmap is already in the list.")
+                .Dismiss().ByClicking()
                 .Dismiss().After(TimeSpan.FromSeconds(8))
                 .Queue();
 
@@ -217,6 +221,7 @@ public partial class MetadataManagerViewModel(
                 .OfType(NotificationType.Error)
                 .WithTitle("Memory Error")
                 .WithContent("Failed to get beatmap from memory.")
+                .Dismiss().ByClicking()
                 .Dismiss().After(TimeSpan.FromSeconds(8))
                 .Queue();
             return null;
@@ -228,6 +233,7 @@ public partial class MetadataManagerViewModel(
                 .OfType(NotificationType.Error)
                 .WithTitle("No Beatmap")
                 .WithContent("No beatmap is currently loaded.")
+                .Dismiss().ByClicking()
                 .Dismiss().After(TimeSpan.FromSeconds(8))
                 .Queue();
             return null;
@@ -404,6 +410,7 @@ public partial class MetadataManagerViewModel(
             .OfType(type)
             .WithTitle("Metadata Export")
             .WithContent(message)
+            .Dismiss().ByClicking()
             .Dismiss().After(TimeSpan.FromSeconds(8))
             .Queue();
     }
