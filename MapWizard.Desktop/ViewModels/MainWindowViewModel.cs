@@ -96,6 +96,7 @@ namespace MapWizard.Desktop.ViewModels
                     .OfType(NotificationType.Error)
                     .WithTitle("Invalid URL")
                     .WithContent("The URL is not valid.")
+                    .Dismiss().ByClicking()
                     .Dismiss().After(TimeSpan.FromSeconds(8))
                     .Queue();
             }
