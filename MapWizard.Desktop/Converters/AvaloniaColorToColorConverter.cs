@@ -8,7 +8,7 @@ namespace MapWizard.Desktop.Converters;
 public class AvaloniaColorToColorConverter : IValueConverter
 {
     // Convert System.Drawing.Color to Avalonia.Media.Color
-    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
         if (value is Color systemColor)
         {
@@ -19,7 +19,7 @@ public class AvaloniaColorToColorConverter : IValueConverter
     }
 
     // Convert Avalonia.Media.Color to System.Drawing.Color
-    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
         if (value is Avalonia.Media.Color avaloniaColor)
         {

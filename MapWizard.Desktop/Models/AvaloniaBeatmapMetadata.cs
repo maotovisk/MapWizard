@@ -51,7 +51,7 @@ public class AvaloniaBeatmapMetadata : INotifyPropertyChanged
         }
     }
     
-    public event PropertyChangedEventHandler PropertyChanged;
+    public event PropertyChangedEventHandler? PropertyChanged;
 
     protected void OnPropertyChanged(string name)
     {
@@ -83,7 +83,7 @@ public class AvaloniaComboColour : INotifyPropertyChanged
         }
     }
 
-    public event PropertyChangedEventHandler PropertyChanged;
+    public event PropertyChangedEventHandler? PropertyChanged;
 
     protected void OnPropertyChanged(string name)
     {
