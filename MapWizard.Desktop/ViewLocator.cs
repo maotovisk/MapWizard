@@ -17,16 +17,14 @@ public class ViewLocator : IDataTemplate
         if (data is null)
             return null;
 
-        var name = data.GetType().FullName!.Replace("ViewModel", "View", StringComparison.Ordinal);
-#pragma warning disable IL2057 // Unrecognized value passed to the parameter of method. It's not possible to guarantee the availability of the target type.
-        var type = Type.GetType(name);
-#pragma warning restore IL2057 // Unrecognized value passed to the parameter of method. It's not possible to guarantee the availability of the target type.
+        string name = data.GetType().FullName!.Replace("ViewModel", "View", StringComparison.Ordinal);
+        Type? type = Type.GetType(name);
 
         if (type != null && data is ViewModelBase)
         {
             // pass the data context to the view directly at construction
             
-            var control = (Control)Activator.CreateInstance(type, data);
+            Control? control = (Control?)Activator.CreateInstance(type, data);
             
             return control;
         }
@@ -44,30 +42,18 @@ public class ViewLocator : IDataTemplate
     /// </summary>
     /// <param name="vm">The ViewModel representing a View</param>
     /// <returns>The View that matches the ViewModel. Null is no match found</returns>
-    public static Window ResolveViewFromViewModel<T>(T vm) where T : ViewModelBase
+    public static Window? ResolveViewFromViewModel<T>(T vm) where T : ViewModelBase
     {
-        var name = vm.GetType().AssemblyQualifiedName!.Replace("ViewModel", "View");
-#pragma warning disable IL2057 // Unrecognized value passed to the parameter of method. It's not possible to guarantee the availability of the target type.
-        var type = Type.GetType(name);
-#pragma warning restore IL2057 // Unrecognized value passed to the parameter of method. It's not possible to guarantee the availability of the target type.
-#pragma warning disable CS8603 // Possible null reference return.
-#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
-        return type != null ? (Window)Activator.CreateInstance(type) : null;
-#pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
-#pragma warning restore CS8603 // Possible null reference return.
+        string name = vm.GetType().AssemblyQualifiedName!.Replace("ViewModel", "View");
+        Type? type = Type.GetType(name);
+        return type != null ? (Window?)Activator.CreateInstance(type) : null;
     }
     
-    public static UserControl ResolveControlViewFromViewModel<T>(T vm) where T : ViewModelBase
+    public static UserControl? ResolveControlViewFromViewModel<T>(T vm) where T : ViewModelBase
     {
-        var name = vm.GetType().AssemblyQualifiedName!.Replace("ViewModel", "View");
-#pragma warning disable IL2057 // Unrecognized value passed to the parameter of method. It's not possible to guarantee the availability of the target type.
-        var type = Type.GetType(name);
-#pragma warning restore IL2057 // Unrecognized value passed to the parameter of method. It's not possible to guarantee the availability of the target type.
-#pragma warning disable CS8603 // Possible null reference return.
-#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
-        return type != null ? (UserControl)Activator.CreateInstance(type) : null;
-#pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
-#pragma warning restore CS8603 // Possible null reference return.
+        string name = vm.GetType().AssemblyQualifiedName!.Replace("ViewModel", "View");
+        Type? type = Type.GetType(name);
+        return type != null ? (UserControl?)Activator.CreateInstance(type) : null;
     }
 
     private static IEnumerable<Window> Windows =>

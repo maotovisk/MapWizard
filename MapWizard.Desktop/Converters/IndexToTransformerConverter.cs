@@ -11,7 +11,7 @@ public class IndexToTransformConverter : IValueConverter
     public double ButtonHeight { get; set; } = 86;
     public double CaretHeight { get; set; } = 30;
 
-    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
         if (value is int index)
         {
@@ -21,6 +21,6 @@ public class IndexToTransformConverter : IValueConverter
         }
         return "translateY(0px)";
     }
-    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) 
+    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) 
         => BindingOperations.DoNothing;
 }
