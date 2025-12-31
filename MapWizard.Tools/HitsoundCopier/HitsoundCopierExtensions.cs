@@ -30,7 +30,7 @@ public static class HitsoundCopierExtensions
             };
         }
         
-          /// <summary>
+        /// <summary>
         /// Applies a HitSound Timeline to the HitObjects section.
         /// </summary>
         /// <param name="hitSoundTimeline"></param>
@@ -191,8 +191,7 @@ public static class HitsoundCopierExtensions
 
         /// <summary>
         /// Applies a SampleSetTimeline to the timing points
-        /// </summary>\
-        /// <param name="origin"></param>
+        /// </summary>
         /// <param name="timeline"></param>
         /// <param name="options"></param>
         public void ApplySampleTimeline(SampleSetTimeline timeline, HitSoundCopierOptions options)
