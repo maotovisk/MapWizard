@@ -1,4 +1,6 @@
-namespace MapWizard.Tools.HitSoundCopier;
+using MapWizard.Tools.HitSoundCopier.Event;
+
+namespace MapWizard.Tools.HitSoundCopier.Timeline;
 
 /// <summary>
 /// Represents a timeline of hit sounds.

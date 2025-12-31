@@ -7,9 +7,9 @@ public static class IoParser
         return args.Contains(argumentName);
     }
     
-    public static string GetArgumentValue(string[] args, string argumentName)
+    public static string? GetArgumentValue(string[] args, string argumentName)
     {
-        for (int i = 0; i < args.Length; i++)
+        for (var i = 0; i < args.Length; i++)
         {
             if (args[i] == argumentName && i + 1 < args.Length)
             {

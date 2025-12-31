@@ -8,7 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="MapWizard.BeatmapParser" Version="1.0.1" />
+    <PackageReference Include="MapWizard.BeatmapParser" Version="1.0.3" />
   </ItemGroup>
 
 </Project>
