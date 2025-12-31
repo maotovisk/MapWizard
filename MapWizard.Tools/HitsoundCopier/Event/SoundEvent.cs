@@ -1,6 +1,6 @@
 using BeatmapParser.Enums;
 
-namespace MapWizard.Tools.HitSoundCopier;
+namespace MapWizard.Tools.HitSoundCopier.Event;
 
 /// <summary>
 /// Represents a timeline of hitsounds.
