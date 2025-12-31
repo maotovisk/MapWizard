@@ -19,12 +19,58 @@ public static class HitSoundCopier
     /// <param name="options">Options for the hit sound copying.</param>
     public static Beatmap CopyFromBeatmap(Beatmap source, Beatmap target, HitSoundCopierOptions options)
     {
+        if (source.TimingPoints == null) return target;
+        
+       var (hitSoundTimeLine, sliderBodyTimeline) = BuildHitSoundTimelines(source);
+
+        ApplyNonDraggableHitSounds(ref target, hitSoundTimeline: hitSoundTimeLine, options);
+        
+        if (options.CopySliderBodySounds)
+            ApplyDraggableHitSounds(ref target, sliderBodyTimeline, options);
+        
+        var sampleSetTimeline = BuildSampleSetTimeline(source);
+
+        ApplySampleTimeline(ref target, sampleSetTimeline, options);
+
+        target.TimingPoints?.TimingPointList = TimingPointHelper.RemoveRedundantGreenLines(target.TimingPoints);
+        
+        return target;
+    }
+
+    private static SampleSetTimeline BuildSampleSetTimeline(Beatmap origin)
+    {
+        if (origin.TimingPoints == null) return new SampleSetTimeline();
+        
+        var sampleSetTimeline = new SampleSetTimeline();
+
+        foreach (var timingPoint in origin.TimingPoints.TimingPointList)
+        {
+            var currentSampleSet = sampleSetTimeline.GetSampleAtExactTime(timingPoint.Time.TotalMilliseconds);
+  
+            if (currentSampleSet == null)
+            {
+                currentSampleSet = new SampleSetEvent(timingPoint.Time.TotalMilliseconds, timingPoint.SampleSet, (int)timingPoint.SampleIndex, timingPoint.Volume);
+                sampleSetTimeline.HitSamples.Add(currentSampleSet);
+            }
+            else
+            {
+                if (timingPoint is not InheritedTimingPoint) continue;
+                
+                currentSampleSet.Sample = timingPoint.SampleSet;
+                currentSampleSet.Index = (int)timingPoint.SampleIndex;
+                currentSampleSet.Volume = timingPoint.Volume;
+            }
+        }
+
+        return sampleSetTimeline;
+    }
+
+    private static (SoundTimeline clickable, SoundTimeline draggable) BuildHitSoundTimelines(Beatmap origin)
+    {
         SoundTimeline hitSoundTimeLine = new();
         SoundTimeline sliderBodyTimeline = new();
-
-        if (source.TimingPoints == null) return target;
-
-        foreach (var hitObject in source.HitObjects.Objects)
+        
+        foreach (var hitObject in origin.HitObjects.Objects)
         {
             switch (hitObject)
             {
@@ -72,47 +118,10 @@ public static class HitSoundCopier
                 }
             }
         }
-
-        ApplyNonDraggableHitSounds(ref target, hitSoundTimeline: hitSoundTimeLine, options);
         
-        if (options.CopySliderBodySounds)
-            ApplyDraggableHitSounds(ref target, sliderBodyTimeline, options);
-
-
-        // Get sample set events
-        var sampleSetTimeline = new SampleSetTimeline();
-
-        foreach (var timingPoint in source.TimingPoints.TimingPointList)
-        {
-            var currentSampleSet = sampleSetTimeline.GetSampleAtExactTime(timingPoint.Time.TotalMilliseconds);
-  
-            if (currentSampleSet == null)
-            {
-                currentSampleSet = new SampleSetEvent(timingPoint.Time.TotalMilliseconds, timingPoint.SampleSet, (int)timingPoint.SampleIndex, timingPoint.Volume);
-                sampleSetTimeline.HitSamples.Add(currentSampleSet);
-            }
-            else
-            {
-                if (timingPoint is not InheritedTimingPoint) continue;
-                
-                currentSampleSet.Sample = timingPoint.SampleSet;
-                currentSampleSet.Index = (int)timingPoint.SampleIndex;
-                currentSampleSet.Volume = timingPoint.Volume;
-            }
-        }
-
-
-        ApplySampleTimeline(ref target, sampleSetTimeline, options);
-        
-        if (target.TimingPoints != null)
-            target.TimingPoints.TimingPointList = TimingPointHelper.RemoveRedundantGreenLines(target.TimingPoints);
-        
-
-        // avoid any potential issues with race conditions
-        return target;
-    }
-
-
+        return (hitSoundTimeLine, sliderBodyTimeline);
+    } 
+    
     /// <summary>
     /// Applies a HitSound Timeline to the HitObjects section.
     /// </summary>
