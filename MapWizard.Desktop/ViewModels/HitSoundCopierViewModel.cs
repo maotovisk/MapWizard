@@ -188,6 +188,7 @@ public partial class HitSoundCopierViewModel(
                 .OfType(NotificationType.Error)
                 .WithTitle("Duplicate Beatmap")
                 .WithContent("This beatmap is already in the list.")
+                .Dismiss().ByClicking()
                 .Dismiss().After(TimeSpan.FromSeconds(8))
                 .Queue();
             return;
@@ -216,6 +217,7 @@ public partial class HitSoundCopierViewModel(
                 .OfType(NotificationType.Error)
                 .WithTitle("Memory Error")
                 .WithContent(currentBeatmap.ErrorMessage ?? "Something went wrong while getting the beatmap path from memory.")
+                .Dismiss().ByClicking()
                 .Dismiss().After(TimeSpan.FromSeconds(8))
                 .Queue();
             return null;
@@ -227,6 +229,7 @@ public partial class HitSoundCopierViewModel(
                 .OfType(NotificationType.Error)
                 .WithTitle("No Beatmap")
                 .WithContent("No beatmap found in memory.")
+                .Dismiss().ByClicking()
                 .Dismiss().After(TimeSpan.FromSeconds(8))
                 .Queue();
             return null;
@@ -269,6 +272,7 @@ public partial class HitSoundCopierViewModel(
             .OfType(type)
             .WithTitle("HitSound Copier")
             .WithContent(message)
+            .Dismiss().ByClicking()
             .Dismiss().After(TimeSpan.FromSeconds(8))
             .Queue();
     }
