@@ -17,10 +17,11 @@ public static class HitSoundCopier
     {
         if (source.TimingPoints == null) return target;
         
-        // This is a "Timeline" of the sound events in the source beatmap,
-        // For now this will generate basically the sounds to be 
-        // applied. When a mania beatmap is the origin, we
-        // generate the "merged" sound event.
+        // This is a timeline map of the sound events in the source beatmap,
+        // For now this will generate basically the sounds to be applied. 
+        // When a mania beatmap is the origin, we generate the "merged"
+        // sound events. This will also generate the files needed for
+        // sample "blending"
         var hitSoundTimeline = source.BuildTimeline();
         
         target.ApplyNonDraggableHitSounds(hitSoundTimeline: hitSoundTimeline.NonDraggableSoundTimeline, options);
