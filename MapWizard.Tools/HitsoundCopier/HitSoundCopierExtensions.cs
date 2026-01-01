@@ -11,13 +11,13 @@ public static class HitSoundCopierExtensions
 {
     extension(Beatmap origin)
     {
-        public HitsoundTimeline BuildTimeline()
+        public HitSoundTimeline BuildTimeline()
         {
             return origin.GeneralSection.Mode switch
             {
-                Ruleset.Osu => HitsoundTimeline.BuildStandardTimeline(origin),
-                Ruleset.Mania => HitsoundTimeline.BuildManiaSoundTimelines(origin),
-                _ => new HitsoundTimeline()
+                Ruleset.Osu => HitSoundTimeline.BuildStandardTimeline(origin),
+                Ruleset.Mania => HitSoundTimeline.BuildManiaSoundTimelines(origin),
+                _ => new HitSoundTimeline()
             };
         }
         

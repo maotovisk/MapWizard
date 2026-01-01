@@ -5,21 +5,21 @@ using MapWizard.Tools.HitSoundCopier.Event;
 
 namespace MapWizard.Tools.HitSoundCopier.Timeline;
 
-public class HitsoundTimeline
+public class HitSoundTimeline
 {
     public SoundTimeline DraggableSoundTimeline { get; set; } = new();
     public SoundTimeline NonDraggableSoundTimeline { get; set; } = new();
     public SampleSetTimeline SampleSetTimeline { get; set; } = new();
     
-    public static HitsoundTimeline BuildManiaSoundTimelines(Beatmap origin)
+    public static HitSoundTimeline BuildManiaSoundTimelines(Beatmap origin)
     {
         //TODO(maot): Implement Mania Hitsounds
-        return new HitsoundTimeline();
+        return new HitSoundTimeline();
     }
 
-    public static HitsoundTimeline BuildStandardTimeline(Beatmap origin)
+    public static HitSoundTimeline BuildStandardTimeline(Beatmap origin)
     {
-        if (origin.TimingPoints == null) return new HitsoundTimeline();
+        if (origin.TimingPoints == null) return new HitSoundTimeline();
         
         var sampleSetTimeline = new SampleSetTimeline();
         var hitSoundTimeLine = new SoundTimeline(); 
@@ -93,7 +93,7 @@ public class HitsoundTimeline
             }
         }
 
-        return new HitsoundTimeline
+        return new HitSoundTimeline
         {
             DraggableSoundTimeline = sliderBodyTimeline,
             NonDraggableSoundTimeline = hitSoundTimeLine,
