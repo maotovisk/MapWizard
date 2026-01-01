@@ -1,8 +1,4 @@
 using BeatmapParser;
-using BeatmapParser.Enums;
-using BeatmapParser.HitObjects;
-using BeatmapParser.HitObjects.HitSounds;
-using BeatmapParser.TimingPoints;
 using MapWizard.Tools.Helpers;
 
 namespace MapWizard.Tools.HitSoundCopier;
@@ -25,20 +21,14 @@ public static class HitSoundCopier
         // For now this will generate basically the sounds to be 
         // applied. When a mania beatmap is the origin, we
         // generate the "merged" sound event.
-        var (hitSoundTimeLine, sliderBodyTimeline) = source.BuildHitSoundTimelines();
+        var hitSoundTimeline = source.BuildTimeline();
         
-        target.ApplyNonDraggableHitSounds(hitSoundTimeline: hitSoundTimeLine, options);
+        target.ApplyNonDraggableHitSounds(hitSoundTimeline: hitSoundTimeline.NonDraggableSoundTimeline, options);
         
         if (options.CopySliderBodySounds)
-            target.ApplyDraggableHitSounds(sliderBodyTimeline, options);
-        
-        // This is basically the same thing as above, but for the sample sets.
-        // When using a mania beatmap as the origin, we take the merged info
-        // so we can generate the merged sample sets to be used with the
-        // merged sounds.
-        var sampleSetTimeline = source.BuildSampleSetTimeline();
+            target.ApplyDraggableHitSounds(hitSoundTimeline.DraggableSoundTimeline, options);
 
-        target.ApplySampleTimeline(sampleSetTimeline, options);
+        target.ApplySampleTimeline(hitSoundTimeline.SampleSetTimeline, options);
 
         target.TimingPoints?.TimingPointList = TimingPointHelper.RemoveRedundantGreenLines(target.TimingPoints);
         
