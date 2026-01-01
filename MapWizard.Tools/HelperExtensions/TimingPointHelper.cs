@@ -1,7 +1,7 @@
 using BeatmapParser.Sections;
 using BeatmapParser.TimingPoints;
 
-namespace MapWizard.Tools.Helpers;
+namespace MapWizard.Tools.HelperExtensions;
 
 public static class TimingPointHelper
 {
@@ -10,7 +10,7 @@ public static class TimingPointHelper
     /// </summary>
     /// <param name="timingPointsSection"></param>
     /// <returns></returns>
-    public static List<TimingPoint> RemoveRedundantGreenLines(TimingPointsSection timingPointsSection)
+    public static void RemoveRedundantGreenLines(this TimingPointsSection timingPointsSection)
     {
         var inheritedTimingPoints = timingPointsSection.TimingPointList.Where(x => x is InheritedTimingPoint).OrderBy(x => x.Time.TotalMilliseconds).ToList();
         
@@ -45,6 +45,7 @@ public static class TimingPointHelper
                 timingPointsToRemove.Add(inheritedTimingPoint);
             }
         }
-        return timingPointsSection.TimingPointList.Except(timingPointsToRemove).ToList();
+        
+        timingPointsSection.TimingPointList = timingPointsSection.TimingPointList.Except(timingPointsToRemove).ToList();
     }
 }

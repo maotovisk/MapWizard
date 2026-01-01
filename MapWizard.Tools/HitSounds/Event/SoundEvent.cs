@@ -1,6 +1,6 @@
 using BeatmapParser.Enums;
 
-namespace MapWizard.Tools.HitSoundCopier.Event;
+namespace MapWizard.Tools.HitSounds.Event;
 
 /// <summary>
 /// Represents a timeline of hitsounds.
@@ -34,7 +34,7 @@ public class SoundEvent()
     /// <param name="hitSounds">The list of hit sounds for the sound event.</param>
     /// <param name="normalSample">The normal sample set for the sound event.</param>
     /// <param name="additionSample">The addition sample set for the sound event.</param>
-    public SoundEvent(TimeSpan time, List<HitSound> hitSounds, SampleSet normalSample, SampleSet additionSample)
+    public SoundEvent(TimeSpan time, List<BeatmapParser.Enums.HitSound> hitSounds, SampleSet normalSample, SampleSet additionSample)
         : this()
     {
         Time = time;

@@ -1,11 +1,11 @@
 using System.Reflection;
 using BeatmapParser;
-using MapWizard.Tools.HitSoundCopier;
+using MapWizard.Tools.HitSounds.Copier;
 
-namespace MapWizard.Tests.HitsoundCopier;
+namespace MapWizard.Tests.HitSoundCopier;
 
 
-public class ShouldCopyHitsoundIntoSliders
+public class HitSoundCopierIntegrationTests
 {
     [Fact] public void CopyHsIntoSliders_InputIsCircleOnlyDiff_ReturnsTrue()
     {
@@ -35,7 +35,7 @@ public class ShouldCopyHitsoundIntoSliders
         // Act
         var beatmap = Beatmap.Decode(beatmapString);
         
-        var copyedBeatmap = HitSoundCopier.CopyFromBeatmap(beatmap, beatmap, hsOptions);
+        var copyedBeatmap = Tools.HitSounds.Copier.HitSoundCopier.CopyFromBeatmap(beatmap, beatmap, hsOptions);
         
         var encodedBeatmap = copyedBeatmap.Encode();
         

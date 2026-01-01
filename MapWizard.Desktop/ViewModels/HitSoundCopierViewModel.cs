@@ -11,7 +11,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MapWizard.Desktop.Models;
 using MapWizard.Desktop.Services;
-using MapWizard.Tools.HitSoundCopier;
+using MapWizard.Tools.HitSounds.Copier;
 using SukiUI.Toasts;
 
 namespace MapWizard.Desktop.ViewModels;
