@@ -1,4 +1,4 @@
-namespace MapWizard.Tools.HitSoundCopier;
+namespace MapWizard.Tools.HitSounds.Copier;
 
 public class HitSoundCopierOptions
 {

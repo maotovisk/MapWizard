@@ -3,9 +3,10 @@ using BeatmapParser.Enums;
 using BeatmapParser.HitObjects;
 using BeatmapParser.HitObjects.HitSounds;
 using BeatmapParser.TimingPoints;
-using MapWizard.Tools.HitSoundCopier.Timeline;
+using MapWizard.Tools.HitSounds.Copier;
+using MapWizard.Tools.HitSounds.Timeline;
 
-namespace MapWizard.Tools.HitSoundCopier;
+namespace MapWizard.Tools.HitSounds.Extensions;
 
 public static class HitSoundCopierExtensions
 {
@@ -80,7 +81,7 @@ public static class HitSoundCopierExtensions
                             {
                                 if (slider.RepeatSounds == null || slider.RepeatSounds.Count != slider.Slides - 1 || options.OverwriteEverything)
                                 {
-                                    slider.RepeatSounds = [..new (HitSample, List<HitSound>)[slider.Slides - 1]];
+                                    slider.RepeatSounds = [..new (HitSample, List<BeatmapParser.Enums.HitSound>)[slider.Slides - 1]];
                                     
                                     for (var i = 0; i < slider.Slides - 1; i++)
                                     {

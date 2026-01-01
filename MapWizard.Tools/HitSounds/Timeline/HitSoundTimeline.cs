@@ -1,9 +1,9 @@
 using BeatmapParser;
 using BeatmapParser.HitObjects;
 using BeatmapParser.TimingPoints;
-using MapWizard.Tools.HitSoundCopier.Event;
+using MapWizard.Tools.HitSounds.Event;
 
-namespace MapWizard.Tools.HitSoundCopier.Timeline;
+namespace MapWizard.Tools.HitSounds.Timeline;
 
 public class HitSoundTimeline
 {

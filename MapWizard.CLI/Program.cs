@@ -1,6 +1,7 @@
 using MapWizard.CLI.ConsoleUtils;
+using MapWizard.CLI.Services;
 using MapWizard.Services;
-using MapWizard.Tools.HitSoundCopier;
+using MapWizard.Tools.HitSounds.Copier;
 
 namespace MapWizard.CLI;
 

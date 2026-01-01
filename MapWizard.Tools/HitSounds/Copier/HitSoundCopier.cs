@@ -1,7 +1,8 @@
 using BeatmapParser;
-using MapWizard.Tools.Helpers;
+using MapWizard.Tools.HelperExtensions;
+using MapWizard.Tools.HitSounds.Extensions;
 
-namespace MapWizard.Tools.HitSoundCopier;
+namespace MapWizard.Tools.HitSounds.Copier;
 /// <summary>
 /// Class to copy hit sounds from one beatmap to others.
 /// </summary>
@@ -31,7 +32,7 @@ public static class HitSoundCopier
 
         target.ApplySampleTimeline(hitSoundTimeline.SampleSetTimeline, options);
 
-        target.TimingPoints?.TimingPointList = TimingPointHelper.RemoveRedundantGreenLines(target.TimingPoints);
+        target.TimingPoints?.RemoveRedundantGreenLines();
         
         return target;
     }

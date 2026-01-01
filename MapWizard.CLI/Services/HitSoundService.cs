@@ -1,6 +1,6 @@
-using MapWizard.Tools.HitSoundCopier;
+using MapWizard.Tools.HitSounds.Copier;
 
-namespace MapWizard.Services;
+namespace MapWizard.CLI.Services;
 
 public class HitSoundService
 {

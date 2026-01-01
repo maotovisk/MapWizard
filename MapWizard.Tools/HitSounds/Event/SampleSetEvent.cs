@@ -1,6 +1,6 @@
 using BeatmapParser.Enums;
 
-namespace MapWizard.Tools.HitSoundCopier.Event;
+namespace MapWizard.Tools.HitSounds.Event;
 
 /// <summary>
 /// Class to store a sample set event.

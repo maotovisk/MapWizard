@@ -1,4 +1,4 @@
-using MapWizard.Tools.HitSoundCopier;
+using MapWizard.Tools.HitSounds.Copier;
 
 namespace MapWizard.Desktop.Services;
 
