@@ -2,34 +2,37 @@ namespace MapWizard.CLI.ConsoleUtils;
 
 public static class IoParser
 {
-    public static bool ArgumentExists(string[] args, string argumentName)
+    extension(string[] args)
     {
-        return args.Contains(argumentName);
-    }
-    
-    public static string? GetArgumentValue(string[] args, string argumentName)
-    {
-        for (var i = 0; i < args.Length; i++)
+        public bool ArgumentExists(string argumentName)
         {
-            if (args[i] == argumentName && i + 1 < args.Length)
-            {
-                return args[i + 1];
-            }
+            return args.Contains(argumentName);
         }
 
-        return null;
-    }
-    
-    public static string GetArgumentValue(string[] args, string argumentName, string defaultValue)
-    {
-        for (int i = 0; i < args.Length; i++)
+        public string? GetArgumentValue(string argumentName)
         {
-            if (args[i] == argumentName && i + 1 < args.Length)
+            for (var i = 0; i < args.Length; i++)
             {
-                return args[i + 1];
+                if (args[i] == argumentName && i + 1 < args.Length)
+                {
+                    return args[i + 1];
+                }
             }
+
+            return null;
         }
 
-        return defaultValue;
+        public string GetArgumentValue(string argumentName, string defaultValue)
+        {
+            for (int i = 0; i < args.Length; i++)
+            {
+                if (args[i] == argumentName && i + 1 < args.Length)
+                {
+                    return args[i + 1];
+                }
+            }
+
+            return defaultValue;
+        }
     }
 }
