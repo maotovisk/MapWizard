@@ -249,4 +249,28 @@ public static class HitSoundCopierExtensions
             }
         }
     }
+    
+    public static string ConvertToSampleName(this (SampleSet sampleSet, HitSound sound, int index) sampleInfo)
+    {
+        var (sampleset, sound, index) = sampleInfo;
+        var baseName = sampleset switch
+        {
+            SampleSet.Normal => "normal",
+            SampleSet.Soft => "soft",
+            SampleSet.Drum => "drum",
+            _ => "normal"
+        };
+
+        var suffix = sound switch
+        {
+            HitSound.Whistle => "-hitwhistle",
+            HitSound.Finish => "-hitfinish",
+            HitSound.Clap => "-hitclap",
+            _ => "-hitnormal",
+        };
+        
+        var indexSuffix = index > 1 ? $"{index}" : "";
+
+        return $"{baseName}{suffix}{indexSuffix}";
+    }
 }
