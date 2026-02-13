@@ -3,6 +3,7 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Data.Core.Plugins;
 using Avalonia.Markup.Xaml;
 using MapWizard.Desktop.DependencyInjection;
+using MapWizard.Desktop.Services;
 using MapWizard.Desktop.Views;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -21,6 +22,7 @@ public partial class App : Application
         var collection = new ServiceCollection();
         collection.AddCommonServices();
         var services = collection.BuildServiceProvider();
+        services.GetRequiredService<IThemeService>().Initialize();
 
         var mainWindow = services.GetRequiredService<MainWindow>();
 

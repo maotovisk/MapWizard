@@ -1,11 +1,10 @@
 using System;
 using Avalonia.Controls.Notifications;
-using Avalonia.Styling;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Material.Icons;
-using SukiUI;
-using SukiUI.Controls;
+using MapWizard.Desktop.Enums;
+using MapWizard.Desktop.Services;
 using SukiUI.Dialogs;
 using SukiUI.Toasts;
 using Velopack;
@@ -17,69 +16,145 @@ namespace MapWizard.Desktop.ViewModels
         public ISukiToastManager ToastManager { get; }
         public ISukiDialogManager DialogManager { get; }
 
-        private readonly UpdateManager _updateManager;
-        
+        private readonly IThemeService _themeService;
+        private bool _isUpdatingFromThemeService;
+
         public ViewModelBase HitSoundCopierViewModel { get; }
         public ViewModelBase MetadataManagerViewModel { get; }
         public ViewModelBase WelcomePageViewModel { get; }
+        public ViewModelBase SettingsViewModel { get; }
 
         [ObservableProperty]
         private bool _isDarkTheme;
-        
+
         [ObservableProperty]
         private string _version = "MapWizard-localdev";
 
-        [ObservableProperty] private MaterialIconKind themeToggleIcon;
-        
+        [ObservableProperty]
+        private MaterialIconKind _themeToggleIcon;
+
+        [ObservableProperty]
+        private ViewModelBase _currentPageViewModel;
+
+        [ObservableProperty]
+        private bool _isWelcomeSelected;
+
+        [ObservableProperty]
+        private bool _isHitSoundCopierSelected;
+
+        [ObservableProperty]
+        private bool _isMetadataManagerSelected;
+
+        [ObservableProperty]
+        private bool _isSettingsSelected;
+
         partial void OnIsDarkThemeChanged(bool value)
         {
-            SukiTheme.GetInstance().ChangeBaseTheme(value ? ThemeVariant.Dark : ThemeVariant.Light);
-            
             ThemeToggleIcon = value ? MaterialIconKind.WeatherNight : MaterialIconKind.WhiteBalanceSunny;
+            if (_isUpdatingFromThemeService)
+            {
+                return;
+            }
+
+            _themeService.SetDarkTheme(value);
         }
-        
+
         public MainWindowViewModel(
             WelcomePageViewModel welcomePageViewModel,
             HitSoundCopierViewModel hitSoundCopierViewModel,
             MetadataManagerViewModel metadataManagerViewModel,
+            SettingsViewModel settingsViewModel,
+            IThemeService themeService,
             UpdateManager updateManager,
             ISukiToastManager toastManager,
             ISukiDialogManager dialogManager)
         {
-            _updateManager = updateManager;
+            _themeService = themeService;
             ToastManager = toastManager;
             DialogManager = dialogManager;
             HitSoundCopierViewModel = hitSoundCopierViewModel;
             MetadataManagerViewModel = metadataManagerViewModel;
             WelcomePageViewModel = welcomePageViewModel;
-            
-            // Set the version from the UpdateManager
-            if (updateManager.IsInstalled)
+            SettingsViewModel = settingsViewModel;
+            CurrentPageViewModel = WelcomePageViewModel;
+
+            Version = updateManager.IsInstalled
+                ? updateManager.CurrentVersion?.ToFullString() ?? "MapWizard-localdev"
+                : "MapWizard-localdev";
+
+            _themeService.DarkThemeChanged += OnDarkThemeChanged;
+            UpdateThemeState(_themeService.IsDarkTheme);
+
+            SetPage(NavigationPage.Welcome);
+            settingsViewModel.Initialize();
+        }
+
+        public void NavigateToWelcome() => SetPage(NavigationPage.Welcome);
+
+        public void NavigateToHitSoundCopier() => SetPage(NavigationPage.HitSoundCopier);
+
+        public void NavigateToMetadataManager() => SetPage(NavigationPage.MetadataManager);
+
+        public void NavigateToSettings() => SetPage(NavigationPage.Settings);
+
+        private void SetPage(NavigationPage page)
+        {
+            CurrentPageViewModel = page switch
             {
-                Version = updateManager.CurrentVersion?.ToFullString() ?? "MapWizard-localdev";
-            }
-            else
-            {
-                Version = "MapWizard-localdev";
-            }
-            
-            if (SukiTheme.GetInstance().ActiveBaseTheme == ThemeVariant.Dark)
-            {
-                IsDarkTheme = true;
-                ThemeToggleIcon = MaterialIconKind.WeatherNight;
-            }
-            else
-            {
-                IsDarkTheme = false;
-                ThemeToggleIcon = MaterialIconKind.WhiteBalanceSunny;
-            }
+                NavigationPage.Welcome => WelcomePageViewModel,
+                NavigationPage.HitSoundCopier => HitSoundCopierViewModel,
+                NavigationPage.MetadataManager => MetadataManagerViewModel,
+                NavigationPage.Settings => SettingsViewModel,
+                _ => WelcomePageViewModel
+            };
+
+            IsWelcomeSelected = page == NavigationPage.Welcome;
+            IsHitSoundCopierSelected = page == NavigationPage.HitSoundCopier;
+            IsMetadataManagerSelected = page == NavigationPage.MetadataManager;
+            IsSettingsSelected = page == NavigationPage.Settings;
+        }
+
+        private void OnDarkThemeChanged(object? sender, bool isDarkTheme)
+        {
+            UpdateThemeState(isDarkTheme);
+        }
+
+        private void UpdateThemeState(bool isDarkTheme)
+        {
+            _isUpdatingFromThemeService = true;
+            ThemeToggleIcon = isDarkTheme ? MaterialIconKind.WeatherNight : MaterialIconKind.WhiteBalanceSunny;
+            IsDarkTheme = isDarkTheme;
+            _isUpdatingFromThemeService = false;
+        }
+
+        [RelayCommand]
+        private void OpenWelcome()
+        {
+            SetPage(NavigationPage.Welcome);
+        }
+
+        [RelayCommand]
+        private void OpenHitSoundCopier()
+        {
+            SetPage(NavigationPage.HitSoundCopier);
+        }
+
+        [RelayCommand]
+        private void OpenMetadataManager()
+        {
+            SetPage(NavigationPage.MetadataManager);
+        }
+
+        [RelayCommand]
+        private void OpenSettings()
+        {
+            SetPage(NavigationPage.Settings);
         }
 
         [RelayCommand]
         private void OpenGithub()
         {
             var githubUrl = "https://github.com/maotovisk/MapWizard";
-
             var uri = new Uri(githubUrl);
 
             if (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps)
@@ -101,11 +176,5 @@ namespace MapWizard.Desktop.ViewModels
                     .Queue();
             }
         }
-
-        [RelayCommand]
-        private void OpenHitsoundCopier()
-        {
-        }
     }
 }
-

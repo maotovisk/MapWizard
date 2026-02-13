@@ -24,12 +24,14 @@ public static class ServiceCollectionExtensions
         collection.AddTransient<HitSoundCopierViewModel>();
         collection.AddTransient<MetadataManagerViewModel>();
         collection.AddTransient<WelcomePageViewModel>();
+        collection.AddTransient<SettingsViewModel>();
         collection.AddTransient<MainWindowViewModel>();
 
         // Views
         collection.AddTransient<HitSoundCopierView>();
         collection.AddTransient<MetadataManagerView>();
         collection.AddTransient<WelcomePageView>();
+        collection.AddTransient<SettingsView>();
         
         // Other stuff
         collection.AddSingleton<MainWindow>();
@@ -42,6 +44,8 @@ public static class ServiceCollectionExtensions
         collection.AddScoped<IMetadataManagerService, MetadataManagerService>();
         collection.AddScoped<IHitSoundService, HitSoundService>();
         collection.AddScoped<IOsuMemoryReaderService, OsuMemoryReaderService>();
+        collection.AddSingleton<ISettingsService, SettingsService>();
+        collection.AddSingleton<IThemeService, ThemeService>();
         
         collection.AddSingleton<UpdateManager>(provider => new UpdateManager(_githubSource));
         

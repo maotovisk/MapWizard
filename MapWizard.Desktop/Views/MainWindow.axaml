@@ -11,95 +11,192 @@
     MinWidth="800"
     MinHeight="600"
     Title="MapWizard">
-    
 
     <suki:SukiWindow.DataTemplates>
         <DataTemplate DataType="{x:Type vm:WelcomePageViewModel}">
-            <views:WelcomePageView/>
+            <views:WelcomePageView />
         </DataTemplate>
         <DataTemplate DataType="{x:Type vm:HitSoundCopierViewModel}">
-            <views:HitSoundCopierView/>
+            <views:HitSoundCopierView />
         </DataTemplate>
         <DataTemplate DataType="{x:Type vm:MetadataManagerViewModel}">
-            <views:MetadataManagerView/>
+            <views:MetadataManagerView />
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:SettingsViewModel}">
+            <views:SettingsView />
         </DataTemplate>
     </suki:SukiWindow.DataTemplates>
-    
+
     <suki:SukiWindow.Hosts>
         <suki:SukiToastHost Manager="{Binding ToastManager}" Position="BottomRight" MaxToasts="3" />
         <suki:SukiDialogHost Manager="{Binding DialogManager}"></suki:SukiDialogHost>
     </suki:SukiWindow.Hosts>
-    
-    
-    <suki:SukiWindow.LogoContent>
-        <Image
-            Source="/Assets/app-icon.ico"
-            MaxWidth="26"
-            Stretch="Uniform"
-            RenderOptions.BitmapInterpolationMode="HighQuality" 
-            />
-    </suki:SukiWindow.LogoContent>
-    
-     <suki:SukiWindow.MenuItems>
-         <MenuItem Header="File" Classes="Compact">
-             <MenuItem Header="Load Beatmap" Command="{Binding LoadBeatmapCommand}" />
-             <MenuItem Header="Exit" Command="{Binding ExitCommand}" />
-         </MenuItem>
-     </suki:SukiWindow.MenuItems>
-    
-    <suki:SukiWindow.RightWindowTitleBarControls>
-        <!-- Dark theme toggle -->
-        <ToggleButton Classes="Compact" 
-                      IsChecked="{Binding IsDarkTheme, Mode=TwoWay}" 
-                      ToolTip.Tip="Toggle dark theme">
-            <materialIcons:MaterialIcon Kind="{Binding ThemeToggleIcon}" />
-        </ToggleButton>
-    </suki:SukiWindow.RightWindowTitleBarControls>
-        
 
-    <suki:SukiSideMenu IsSearchEnabled="False" >
-        <suki:SukiSideMenu.Items>
-            <suki:SukiSideMenuItem Header="Start" Classes="Compact">
-                <suki:SukiSideMenuItem.Icon>
-                    <materialIcons:MaterialIcon Kind="Home" />
-                </suki:SukiSideMenuItem.Icon>
-                <suki:SukiSideMenuItem.PageContent>
-                    <ContentControl Content="{Binding WelcomePageViewModel}" />
-                </suki:SukiSideMenuItem.PageContent>
-            </suki:SukiSideMenuItem>
-            <suki:SukiSideMenuItem Header="Hitsound Copier" Classes="Compact">
-                <suki:SukiSideMenuItem.Icon>
-                    <materialIcons:MaterialIcon Kind="ContentCopy" />
-                </suki:SukiSideMenuItem.Icon>
-                <suki:SukiSideMenuItem.PageContent>
-                    <ContentControl Content="{Binding HitSoundCopierViewModel}" />
-                </suki:SukiSideMenuItem.PageContent>
-            </suki:SukiSideMenuItem>
-            <suki:SukiSideMenuItem Header="Metadata Manager" Classes="Compact">
-                <suki:SukiSideMenuItem.Icon>
-                    <materialIcons:MaterialIcon Kind="FileDocumentMultiple" />
-                </suki:SukiSideMenuItem.Icon>
-                <suki:SukiSideMenuItem.PageContent>
-                    <ContentControl Content="{Binding MetadataManagerViewModel}" />
-                </suki:SukiSideMenuItem.PageContent>
-            </suki:SukiSideMenuItem>
-        </suki:SukiSideMenu.Items>
-        <suki:SukiSideMenu.FooterContent>
-            <StackPanel HorizontalAlignment="Center" Orientation="Vertical">
-                <Button Classes="Basic" 
-                        Command="{Binding OpenGithubCommand}" 
-                        CommandParameter="https://github.com/maotovisk/MapWizard"
-                        ToolTip.Tip="View on GitHub">
-                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <materialIcons:MaterialIcon Kind="Github" 
-                                                    Width="25" 
-                                                    Height="25" />
-                        <TextBlock Text="Github" VerticalAlignment="Center"></TextBlock>
-                    </StackPanel>
-                </Button>
-                
-                <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Text="{Binding Version}"></TextBlock>
-            </StackPanel>
-        </suki:SukiSideMenu.FooterContent>
-    </suki:SukiSideMenu>
+    <suki:SukiWindow.LogoContent>
+        <Image Source="/Assets/app-icon.ico"
+               MaxWidth="26"
+               Stretch="Uniform"
+               RenderOptions.BitmapInterpolationMode="HighQuality" />
+    </suki:SukiWindow.LogoContent>
+
+    <suki:SukiWindow.MenuItems>
+        <MenuItem Header="File" Classes="Compact">
+            <MenuItem Header="Load Beatmap" Command="{Binding LoadBeatmapCommand}" />
+            <MenuItem Header="Exit" Command="{Binding ExitCommand}" />
+        </MenuItem>
+    </suki:SukiWindow.MenuItems>
+
+    <suki:SukiWindow.RightWindowTitleBarControls>
+        <StackPanel Orientation="Horizontal" Spacing="8">
+            <Button Classes="Basic Compact"
+                    Command="{Binding OpenGithubCommand}"
+                    ToolTip.Tip="View on GitHub">
+                <materialIcons:MaterialIcon Kind="Github" />
+            </Button>
+            <ToggleButton Classes="Compact"
+                          IsChecked="{Binding IsDarkTheme, Mode=TwoWay}"
+                          ToolTip.Tip="Toggle dark theme">
+                <materialIcons:MaterialIcon Kind="{Binding ThemeToggleIcon}" />
+            </ToggleButton>
+        </StackPanel>
+    </suki:SukiWindow.RightWindowTitleBarControls>
+
+    <Grid ColumnDefinitions="102,*">
+        <suki:GlassCard Grid.Column="0" Classes="Accent" Margin="8,8,8,8" Padding="4,10" CornerRadius="16">
+            <Grid RowDefinitions="Auto,*,Auto">
+                <StackPanel Grid.Row="0" Spacing="8" HorizontalAlignment="Center">
+                    <Button Classes="Flat Compact"
+                            Background="Transparent"
+                            BorderThickness="0"
+                            Padding="0"
+                            MinWidth="0"
+                            Width="82"
+                            Foreground="{DynamicResource SukiText}"
+                            HorizontalContentAlignment="Center"
+                            Command="{Binding OpenWelcomeCommand}">
+                        <StackPanel Spacing="4" HorizontalAlignment="Center">
+                            <Grid Width="44" Height="30">
+                                <Border CornerRadius="15"
+                                        Background="{DynamicResource ThemeAccentBrush}"
+                                        Opacity="0.20"
+                                        IsVisible="{Binding IsWelcomeSelected}" />
+                                <materialIcons:MaterialIcon Kind="Home"
+                                                            Foreground="{DynamicResource SukiText}"
+                                                            HorizontalAlignment="Center"
+                                                            VerticalAlignment="Center" />
+                            </Grid>
+                            <TextBlock Text="Start"
+                                       Width="68"
+                                       FontSize="11"
+                                       Foreground="{DynamicResource SukiText}"
+                                       HorizontalAlignment="Center"
+                                       TextAlignment="Center"
+                                       TextWrapping="Wrap" />
+                        </StackPanel>
+                    </Button>
+
+                    <Button Classes="Flat Compact"
+                            Background="Transparent"
+                            BorderThickness="0"
+                            Padding="0"
+                            MinWidth="0"
+                            Width="82"
+                            Foreground="{DynamicResource SukiText}"
+                            HorizontalContentAlignment="Center"
+                            Command="{Binding OpenHitSoundCopierCommand}">
+                        <StackPanel Spacing="4" HorizontalAlignment="Center">
+                            <Grid Width="44" Height="30">
+                                <Border CornerRadius="15"
+                                        Background="{DynamicResource ThemeAccentBrush}"
+                                        Opacity="0.20"
+                                        IsVisible="{Binding IsHitSoundCopierSelected}" />
+                                <materialIcons:MaterialIcon Kind="ContentCopy"
+                                                            Foreground="{DynamicResource SukiText}"
+                                                            HorizontalAlignment="Center"
+                                                            VerticalAlignment="Center" />
+                            </Grid>
+                            <TextBlock Text="Hitsound Copier"
+                                       Width="68"
+                                       FontSize="11"
+                                       Foreground="{DynamicResource SukiText}"
+                                       HorizontalAlignment="Center"
+                                       TextAlignment="Center"
+                                       TextWrapping="Wrap" />
+                        </StackPanel>
+                    </Button>
+
+                    <Button Classes="Flat Compact"
+                            Background="Transparent"
+                            BorderThickness="0"
+                            Padding="0"
+                            MinWidth="0"
+                            Width="82"
+                            Foreground="{DynamicResource SukiText}"
+                            HorizontalContentAlignment="Center"
+                            Command="{Binding OpenMetadataManagerCommand}">
+                        <StackPanel Spacing="4" HorizontalAlignment="Center">
+                            <Grid Width="44" Height="30">
+                                <Border CornerRadius="15"
+                                        Background="{DynamicResource ThemeAccentBrush}"
+                                        Opacity="0.20"
+                                        IsVisible="{Binding IsMetadataManagerSelected}" />
+                                <materialIcons:MaterialIcon Kind="FileDocumentMultiple"
+                                                            Foreground="{DynamicResource SukiText}"
+                                                            HorizontalAlignment="Center"
+                                                            VerticalAlignment="Center" />
+                            </Grid>
+                            <TextBlock Text="Metadata Manager"
+                                       Width="68"
+                                       FontSize="11"
+                                       Foreground="{DynamicResource SukiText}"
+                                       HorizontalAlignment="Center"
+                                       TextAlignment="Center"
+                                       TextWrapping="Wrap" />
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+
+                <StackPanel Grid.Row="2" Spacing="8" HorizontalAlignment="Center">
+                    <Button Classes="Flat Compact"
+                            Background="Transparent"
+                            BorderThickness="0"
+                            Padding="0"
+                            MinWidth="0"
+                            Width="82"
+                            Foreground="{DynamicResource SukiText}"
+                            HorizontalContentAlignment="Center"
+                            Command="{Binding OpenSettingsCommand}">
+                        <StackPanel Spacing="4" HorizontalAlignment="Center">
+                            <Grid Width="44" Height="30">
+                                <Border CornerRadius="15"
+                                        Background="{DynamicResource ThemeAccentBrush}"
+                                        Opacity="0.20"
+                                        IsVisible="{Binding IsSettingsSelected}" />
+                                <materialIcons:MaterialIcon Kind="Cog"
+                                                            Foreground="{DynamicResource SukiText}"
+                                                            HorizontalAlignment="Center"
+                                                            VerticalAlignment="Center" />
+                            </Grid>
+                            <TextBlock Text="Settings"
+                                       Width="68"
+                                       FontSize="11"
+                                       Foreground="{DynamicResource SukiText}"
+                                       HorizontalAlignment="Center"
+                                       TextAlignment="Center"
+                                       TextWrapping="Wrap" />
+                        </StackPanel>
+                    </Button>
+
+                    <TextBlock Text="{Binding Version}"
+                               Width="68"
+                               TextAlignment="Center"
+                               TextWrapping="Wrap"
+                               FontSize="10"
+                               Foreground="{DynamicResource SukiLowText}" />
+                </StackPanel>
+            </Grid>
+        </suki:GlassCard>
+
+        <ContentControl Grid.Column="1" Content="{Binding CurrentPageViewModel}" />
+    </Grid>
 </suki:SukiWindow>
