@@ -1,0 +1,44 @@
+<UserControl
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:vm="clr-namespace:MapWizard.Desktop.ViewModels"
+    xmlns:suki="clr-namespace:SukiUI.Controls;assembly=SukiUI"
+    xmlns:objectModel="clr-namespace:System.Collections.ObjectModel;assembly=System.ObjectModel"
+    x:Class="MapWizard.Desktop.Views.SettingsView"
+    x:DataType="vm:SettingsViewModel"
+    d:DesignWidth="800"
+    d:DesignHeight="450"
+    mc:Ignorable="d"
+    Padding="24">
+    <suki:SettingsLayout>
+        <suki:SettingsLayout.Items>
+            <objectModel:ObservableCollection x:TypeArguments="suki:SettingsLayoutItem">
+                <suki:SettingsLayoutItem Header="General">
+                    <suki:SettingsLayoutItem.Content>
+                            <Grid ColumnDefinitions="*,Auto" VerticalAlignment="Center">
+                                <StackPanel Spacing="4">
+                                    <TextBlock Text="Dark Theme" FontWeight="Bold" />
+                                    <TextBlock Text="Switch between light and dark while keeping the MapWizard custom color theme."
+                                               TextWrapping="Wrap" />
+                                </StackPanel>
+                                <ToggleSwitch Grid.Column="1"
+                                              IsChecked="{Binding IsDarkTheme, Mode=TwoWay}"
+                                              HorizontalAlignment="Right" />
+                            </Grid>
+                    </suki:SettingsLayoutItem.Content>
+                </suki:SettingsLayoutItem>
+
+                <suki:SettingsLayoutItem Header="Information">
+                    <suki:SettingsLayoutItem.Content>
+                        <Grid ColumnDefinitions="*,Auto" VerticalAlignment="Center">
+                            <TextBlock Text="Config Directory:" />
+                            <TextBlock Grid.Column="1" Text="{Binding ConfigDirectoryPath}" FontWeight="Bold" />
+                        </Grid>
+                    </suki:SettingsLayoutItem.Content>
+                </suki:SettingsLayoutItem>
+            </objectModel:ObservableCollection>
+        </suki:SettingsLayout.Items>
+    </suki:SettingsLayout>
+</UserControl>

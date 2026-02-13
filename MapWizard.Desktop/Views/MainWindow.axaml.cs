@@ -1,30 +1,49 @@
 using Avalonia.Interactivity;
-using Avalonia.Media;
+using MapWizard.Desktop.Services;
 using MapWizard.Desktop.ViewModels;
-using SukiUI;
 using SukiUI.Controls;
 using SukiUI.Enums;
-using SukiUI.Models;
 
 namespace MapWizard.Desktop.Views
 {
-    public partial class MainWindow : SukiWindow
+public partial class MainWindow : SukiWindow
     {
-        public MainWindow(MainWindowViewModel viewModel)
+        private readonly IThemeService _themeService;
+
+        public MainWindow(MainWindowViewModel viewModel, IThemeService themeService)
         {
             InitializeComponent();
             DataContext = viewModel;
-
-            BackgroundStyle = SukiBackgroundStyle.GradientDarker;
-            
-            var mapWizardTheme = new SukiColorTheme("MapWizard", Colors.DarkSlateBlue, Colors.OrangeRed);
-            SukiTheme.GetInstance().AddColorTheme(mapWizardTheme);
-            SukiTheme.GetInstance().ChangeColorTheme(mapWizardTheme);
+            _themeService = themeService;
+            _themeService.DarkThemeChanged += OnDarkThemeChanged;
+            UpdateBackgroundStyle(_themeService.IsDarkTheme);
         }
 
-        protected override async void OnLoaded(RoutedEventArgs e)
+        protected override void OnLoaded(RoutedEventArgs e)
         {
             base.OnLoaded(e);
+            _themeService.Initialize();
+            UpdateBackgroundStyle(_themeService.IsDarkTheme);
+        }
+
+        private MainWindowViewModel ViewModel => (MainWindowViewModel)DataContext!;
+
+        public void NavigateToStart() => ViewModel.NavigateToWelcome();
+
+        public void NavigateToHitSoundCopier() => ViewModel.NavigateToHitSoundCopier();
+
+        public void NavigateToMetadataManager() => ViewModel.NavigateToMetadataManager();
+
+        public void NavigateToSettings() => ViewModel.NavigateToSettings();
+
+        private void OnDarkThemeChanged(object? sender, bool isDarkTheme)
+        {
+            UpdateBackgroundStyle(isDarkTheme);
+        }
+
+        private void UpdateBackgroundStyle(bool isDarkTheme)
+        {
+            BackgroundStyle = isDarkTheme ? SukiBackgroundStyle.GradientDarker : SukiBackgroundStyle.Gradient;
         }
     }
 }
