@@ -1,0 +1,148 @@
+name: MapWizard Pre-release
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  prepare:
+    name: Prepare Pre-release
+    runs-on: ubuntu-latest
+    outputs:
+      should_release: ${{ steps.metadata.outputs.should_release }}
+      reason: ${{ steps.metadata.outputs.reason }}
+      next_version: ${{ steps.metadata.outputs.next_version }}
+      tag_name: ${{ steps.metadata.outputs.tag_name }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Compute tag/version metadata
+        id: metadata
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          git fetch --tags --force
+
+          date_stamp="$(date -u +%Y%m%d)"
+          tag_name="pre-${date_stamp}"
+
+          latest_stable_tag="$(git tag -l 'v[0-9]*.[0-9]*.[0-9]*' --sort=-v:refname | head -n 1)"
+          if [[ -z "${latest_stable_tag}" ]]; then
+            base_version="0.1.0"
+          else
+            base_version="${latest_stable_tag#v}"
+          fi
+
+          IFS='.' read -r major minor patch <<< "${base_version}"
+          next_patch=$((patch + 1))
+          next_version="${major}.${minor}.${next_patch}-pre.${date_stamp}"
+
+          if git rev-parse -q --verify "refs/tags/${tag_name}" >/dev/null; then
+            should_release="false"
+            reason="Skipping: tag ${tag_name} already exists."
+          else
+            should_release="true"
+            reason="No existing tag for ${tag_name}."
+          fi
+
+          echo "next_version=${next_version}" >> "$GITHUB_OUTPUT"
+          echo "tag_name=${tag_name}" >> "$GITHUB_OUTPUT"
+          echo "should_release=${should_release}" >> "$GITHUB_OUTPUT"
+          echo "reason=${reason}" >> "$GITHUB_OUTPUT"
+
+
+  build:
+    name: Build for ${{ matrix.os }}
+    needs: prepare
+    if: needs.prepare.outputs.should_release == 'true'
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Install vpk CLI
+        run: dotnet tool install -g vpk
+
+      - name: Add .NET tools to PATH
+        run: echo "${HOME}/.dotnet/tools" >> $GITHUB_PATH
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Run tests
+        run: dotnet test MapWizard.Tests/MapWizard.Tests.csproj --no-restore --verbosity normal
+
+      - name: Make platform script executable
+        run: |
+          chmod +x MapWizard.Desktop/build-linux.sh
+          chmod +x MapWizard.Desktop/build-osx.sh
+          chmod +x MapWizard.Desktop/build-win.sh
+
+      - name: Build with Velopack - Linux and Windows
+        if: runner.os == 'Linux'
+        run: |
+          cd MapWizard.Desktop
+          ./build-linux.sh ${{ needs.prepare.outputs.next_version }}
+          ./build-win.sh ${{ needs.prepare.outputs.next_version }}
+
+      - name: Build with Velopack - macOS
+        if: runner.os == 'macOS'
+        run: |
+          cd MapWizard.Desktop
+          ./build-osx.sh ${{ needs.prepare.outputs.next_version }}
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: MapWizard-Pre-${{ matrix.os }}
+          path: |
+            MapWizard.Desktop/releases/**/*
+
+  release:
+    name: Publish GitHub Pre-release
+    needs: [prepare, build]
+    if: needs.prepare.outputs.should_release == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+
+      - name: Create pre-release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: MapWizard pre-release ${{ needs.prepare.outputs.next_version }}
+          tag_name: ${{ needs.prepare.outputs.tag_name }}
+          target_commitish: ${{ github.sha }}
+          draft: false
+          prerelease: true
+          files: |
+            MapWizard-Pre-*/**/*
+          body: |
+            Automated pre-release from `${{ github.ref_name }}`.
+            Version: `${{ needs.prepare.outputs.next_version }}`
+
+  skipped:
+    name: Skip Pre-release
+    needs: prepare
+    if: needs.prepare.outputs.should_release != 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Explain skip
+        run: echo "${{ needs.prepare.outputs.reason }}"

@@ -17,6 +17,7 @@
             <objectModel:ObservableCollection x:TypeArguments="suki:SettingsLayoutItem">
                 <suki:SettingsLayoutItem Header="General">
                     <suki:SettingsLayoutItem.Content>
+                        <StackPanel Spacing="20">
                             <Grid ColumnDefinitions="*,Auto" VerticalAlignment="Center">
                                 <StackPanel Spacing="4">
                                     <TextBlock Text="Dark Theme" FontWeight="Bold" />
@@ -27,6 +28,33 @@
                                               IsChecked="{Binding IsDarkTheme, Mode=TwoWay}"
                                               HorizontalAlignment="Right" />
                             </Grid>
+
+                            <Grid ColumnDefinitions="*,Auto" VerticalAlignment="Center">
+                                <StackPanel Spacing="4">
+                                    <TextBlock Text="Update Stream" FontWeight="Bold" />
+                                    <TextBlock Text="Release checks only stable releases. PreRelease checks both pre-releases and stable releases."
+                                               TextWrapping="Wrap" />
+                                </StackPanel>
+                                <ComboBox Grid.Column="1"
+                                          MinWidth="140"
+                                          ItemsSource="{Binding UpdateStreams}"
+                                          SelectedItem="{Binding UpdateStream, Mode=TwoWay}" />
+                            </Grid>
+
+                            <Button Classes="Flat Compact"
+                                    HorizontalAlignment="Left"
+                                    IsEnabled="{Binding CanRestartToApplyUpdate}"
+                                    Command="{Binding RestartToApplyUpdateCommand}">
+                                <Border Padding="10,4"
+                                        CornerRadius="999"
+                                        Background="{DynamicResource ThemeAccentBrush}"
+                                        Opacity="0.18">
+                                    <TextBlock Text="{Binding UpdateStreamBadgeText}"
+                                               FontSize="12"
+                                               FontWeight="SemiBold" />
+                                </Border>
+                            </Button>
+                        </StackPanel>
                     </suki:SettingsLayoutItem.Content>
                 </suki:SettingsLayoutItem>
 

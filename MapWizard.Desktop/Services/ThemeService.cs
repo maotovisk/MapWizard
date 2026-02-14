@@ -4,7 +4,6 @@ using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Media;
 using Avalonia.Styling;
-using MapWizard.Desktop.Models.Settings;
 using SukiUI;
 using SukiUI.Models;
 
@@ -15,7 +14,6 @@ public class ThemeService(ISettingsService settingsService) : IThemeService
     private const string MapWizardThemeName = "MapWizard";
 
     private readonly SukiTheme _theme = SukiTheme.GetInstance();
-    private readonly MainSettings _mainSettings = settingsService.GetMainSettings();
 
     private SukiColorTheme? _mapWizardTheme;
 
@@ -25,7 +23,8 @@ public class ThemeService(ISettingsService settingsService) : IThemeService
 
     public void Initialize()
     {
-        ApplyTheme(_mainSettings.DarkMode, persist: false, notify: true);
+        var settings = settingsService.GetMainSettings();
+        ApplyTheme(settings.DarkMode, persist: false, notify: true);
     }
 
     public void SetDarkTheme(bool isDarkTheme)
@@ -47,8 +46,9 @@ public class ThemeService(ISettingsService settingsService) : IThemeService
 
         if (persist)
         {
-            _mainSettings.DarkMode = isDarkTheme;
-            settingsService.SaveMainSettings(_mainSettings);
+            var settings = settingsService.GetMainSettings();
+            settings.DarkMode = isDarkTheme;
+            settingsService.SaveMainSettings(settings);
         }
 
         if (notify)
