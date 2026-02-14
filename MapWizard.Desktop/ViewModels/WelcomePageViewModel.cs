@@ -3,8 +3,8 @@ using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Controls.Notifications;
 using Avalonia.Threading;
-using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using MapWizard.Desktop.Services;
 using SukiUI.Dialogs;
 using SukiUI.Enums;
 using SukiUI.Toasts;
@@ -12,48 +12,45 @@ using Velopack;
 
 namespace MapWizard.Desktop.ViewModels;
 
-public partial class WelcomePageViewModel(ISukiDialogManager dialogManager, ISukiToastManager toastManager, UpdateManager updateManager) : ViewModelBase
+public partial class WelcomePageViewModel(
+    ISukiDialogManager dialogManager,
+    ISukiToastManager toastManager,
+    IUpdateService updateService) : ViewModelBase
 {
     public string Message { get; set; } = "Welcome to MapWizard, select a tool to get started!";
 
-    [ObservableProperty]
-    private bool _showUpdateToast = false;
+    private bool _startupCheckDone;
 
-    private bool checkedOnce = false;
-
-#if DEBUG
-    private const bool SimulateVelopackInDebug = true;
-#endif
-
-    [RelayCommand]
-    private async Task WindowStartup()
+    public async Task CheckForUpdatesOnStartupAsync()
     {
-        if (checkedOnce || !updateManager.IsInstalled)
+        if (_startupCheckDone)
+        {
             return;
+        }
 
-        checkedOnce = true;
-        await CheckForUpdates();
+        _startupCheckDone = true;
+        await CheckForUpdatesCoreAsync(showNotInstalledMessage: false);
     }
 
     [RelayCommand]
-    private async Task CheckForUpdates()
+    private Task CheckForUpdates()
     {
-#if DEBUG
-        // Em Debug, se não estiver instalado, simula toda a experiência.
-        if (SimulateVelopackInDebug && !updateManager.IsInstalled)
-        {
-            await CheckForUpdatesDebug();
-            return;
-        }
-#endif
+        return CheckForUpdatesCoreAsync(showNotInstalledMessage: true);
+    }
 
-        if (!updateManager.IsInstalled)
+    private async Task CheckForUpdatesCoreAsync(bool showNotInstalledMessage)
+    {
+        if (!updateService.IsInstalled)
         {
-            dialogManager.CreateDialog()
-                .WithTitle("Update Check")
-                .WithContent("MapWizard is not installed. Please install it to check for updates.")
-                .WithActionButton("Ok ", _ => { }, true)
-                .TryShow();
+            if (showNotInstalledMessage)
+            {
+                await dialogManager.CreateDialog()
+                    .WithTitle("Update Check")
+                    .WithContent("MapWizard is not installed. Please install it to check for updates.")
+                    .WithActionButton("Ok", _ => { }, true)
+                    .TryShowAsync();
+            }
+
             return;
         }
 
@@ -65,10 +62,10 @@ public partial class WelcomePageViewModel(ISukiDialogManager dialogManager, ISuk
             .Dismiss().ByClicking()
             .Queue();
 
-        UpdateInfo? newVersion = null;
+        UpdateInfo? newVersion;
         try
         {
-            newVersion = await Task.Run(() => updateManager.CheckForUpdates());
+            newVersion = await updateService.CheckForUpdatesAsync();
         }
         catch (Exception ex)
         {
@@ -97,21 +94,20 @@ public partial class WelcomePageViewModel(ISukiDialogManager dialogManager, ISuk
             return;
         }
 
-        toastManager.CreateToast().OfType(NotificationType.Information)
-            .WithLoadingState(false)
+        toastManager.CreateToast()
+            .OfType(NotificationType.Information)
             .WithTitle("Updates")
             .WithContent($"New version {newVersion.TargetFullRelease.Version} is available.")
             .WithActionButton("Later", _ => { }, true, SukiButtonStyles.Flat)
-            .WithActionButton("Update",
-                _ =>
-                {
-                    Task.Run(() => ShowUpdateToastWithProgress(newVersion));
-                }, true, SukiButtonStyles.Accent)
+            .WithActionButton("Update", _toast =>
+            {
+                _ = ShowUpdateToastWithProgressAsync(newVersion);
+            }, true, SukiButtonStyles.Accent)
             .Dismiss().ByClicking()
             .Queue();
     }
 
-    private async Task ShowUpdateToastWithProgress(UpdateInfo info)
+    private async Task ShowUpdateToastWithProgressAsync(UpdateInfo info)
     {
         var progress = new ProgressBar { Value = 0, ShowProgressText = true };
         var downloadingToast = toastManager.CreateToast()
@@ -122,13 +118,10 @@ public partial class WelcomePageViewModel(ISukiDialogManager dialogManager, ISuk
 
         try
         {
-            await Task.Run(() => updateManager.DownloadUpdates(info, x =>
+            await updateService.DownloadUpdatesAsync(info, percentage =>
             {
-                Dispatcher.UIThread.Post(() =>
-                {
-                    progress.Value = x;
-                });
-            }));
+                Dispatcher.UIThread.Post(() => { progress.Value = percentage; });
+            });
         }
         catch (Exception ex)
         {
@@ -149,69 +142,9 @@ public partial class WelcomePageViewModel(ISukiDialogManager dialogManager, ISuk
             .OfType(NotificationType.Success)
             .WithTitle("Update Downloaded")
             .WithContent("The update has been downloaded. Please restart the app to apply the update.")
-            .WithActionButton("Next Restart", _ => { updateManager.WaitExitThenApplyUpdates(info); }, true)
-            .WithActionButton("Restart Now", _ => { updateManager.ApplyUpdatesAndRestart(info); }, true, SukiButtonStyles.Accent)
+            .WithActionButton("Next Restart", _ => { updateService.WaitExitThenApplyUpdates(info); }, true)
+            .WithActionButton("Restart Now", _ => { updateService.ApplyUpdatesAndRestart(info); }, true, SukiButtonStyles.Accent)
             .Dismiss().ByClicking()
             .Queue();
     }
-
-#if DEBUG
-    private async Task CheckForUpdatesDebug()
-    {
-        var checkingToast = toastManager.CreateToast()
-            .OfType(NotificationType.Information)
-            .WithLoadingState(true)
-            .WithTitle("Updates")
-            .WithContent("Checking for updates (debug)...")
-            .Dismiss().ByClicking()
-            .Queue();
-
-        // Atraso simulado da request
-        await Task.Delay(TimeSpan.FromSeconds(2));
-
-        toastManager.Dismiss(checkingToast);
-
-        toastManager.CreateToast().OfType(NotificationType.Information)
-            .WithTitle("Updates")
-            .WithContent("New version 9.9.9 (debug) is available.")
-            .WithActionButton("Later", _ => { }, true, SukiButtonStyles.Flat)
-            .WithActionButton("Update", async void (_) =>
-            {
-                await ShowUpdateToastWithProgressDebug();
-            }, true, SukiButtonStyles.Accent)
-            .Dismiss().ByClicking()
-            .Queue();
-    }
-
-    private async Task ShowUpdateToastWithProgressDebug()
-    {
-        var progress = new ProgressBar { Value = 0, ShowProgressText = true };
-        var downloadingToast = toastManager.CreateToast()
-            .WithTitle("Downloading Update (debug)...")
-            .WithContent(progress)
-            .Dismiss().ByClicking()
-            .Queue();
-
-        // Simula download com progresso incremental e jitter
-        var rnd = new Random();
-        double val = 0;
-        while (val < 100)
-        {
-            await Task.Delay(180 + rnd.Next(0, 220));
-            val = Math.Min(100, val + rnd.Next(7, 16));
-            var v = val;
-            Dispatcher.UIThread.Post(() => progress.Value = v);
-        }
-
-        toastManager.Dismiss(downloadingToast);
-
-        toastManager.CreateToast()
-            .OfType(NotificationType.Success)
-            .WithTitle("Update Downloaded (debug)")
-            .WithContent("Simulated update is ready.")
-            .WithActionButton("Close", _ => { }, true, SukiButtonStyles.Flat)
-            .Dismiss().ByClicking()
-            .Queue();
-    }
-#endif
 }

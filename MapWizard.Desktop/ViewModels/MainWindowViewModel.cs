@@ -7,7 +7,6 @@ using MapWizard.Desktop.Enums;
 using MapWizard.Desktop.Services;
 using SukiUI.Dialogs;
 using SukiUI.Toasts;
-using Velopack;
 
 namespace MapWizard.Desktop.ViewModels
 {
@@ -65,7 +64,7 @@ namespace MapWizard.Desktop.ViewModels
             MetadataManagerViewModel metadataManagerViewModel,
             SettingsViewModel settingsViewModel,
             IThemeService themeService,
-            UpdateManager updateManager,
+            IUpdateService updateService,
             ISukiToastManager toastManager,
             ISukiDialogManager dialogManager)
         {
@@ -78,15 +77,14 @@ namespace MapWizard.Desktop.ViewModels
             SettingsViewModel = settingsViewModel;
             CurrentPageViewModel = WelcomePageViewModel;
 
-            Version = updateManager.IsInstalled
-                ? updateManager.CurrentVersion?.ToFullString() ?? "MapWizard-localdev"
-                : "MapWizard-localdev";
+            Version = updateService.VersionLabel;
 
             _themeService.DarkThemeChanged += OnDarkThemeChanged;
             UpdateThemeState(_themeService.IsDarkTheme);
 
             SetPage(NavigationPage.Welcome);
             settingsViewModel.Initialize();
+            _ = welcomePageViewModel.CheckForUpdatesOnStartupAsync();
         }
 
         public void NavigateToWelcome() => SetPage(NavigationPage.Welcome);

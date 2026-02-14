@@ -6,18 +6,11 @@ using MapWizard.Desktop.Views;
 using Microsoft.Extensions.DependencyInjection;
 using SukiUI.Dialogs;
 using SukiUI.Toasts;
-using Velopack;
-using Velopack.Sources;
 
 namespace MapWizard.Desktop.DependencyInjection;
 
 public static class ServiceCollectionExtensions
 {
-    
-    private static readonly GithubSource _githubSource =
-        new("https://github.com/maotovisk/MapWizard", null, false, null);
-    
-    
     public static void AddCommonServices(this IServiceCollection collection)
     {
         // ViewModels
@@ -46,8 +39,7 @@ public static class ServiceCollectionExtensions
         collection.AddScoped<IOsuMemoryReaderService, OsuMemoryReaderService>();
         collection.AddSingleton<ISettingsService, SettingsService>();
         collection.AddSingleton<IThemeService, ThemeService>();
-        
-        collection.AddSingleton<UpdateManager>(provider => new UpdateManager(_githubSource));
+        collection.AddSingleton<IUpdateService, UpdateService>();
         
         collection.AddSingleton<ISukiToastManager, SukiToastManager>();
         collection.AddSingleton<ISukiDialogManager, SukiDialogManager>();

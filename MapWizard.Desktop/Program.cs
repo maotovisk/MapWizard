@@ -28,8 +28,8 @@ internal static class Program
             {
                 RenderingMode =
                 [
-                    X11RenderingMode.Glx,
                     X11RenderingMode.Vulkan,
+                    X11RenderingMode.Glx,
                     X11RenderingMode.Software
                 ],
                 OverlayPopups = true
