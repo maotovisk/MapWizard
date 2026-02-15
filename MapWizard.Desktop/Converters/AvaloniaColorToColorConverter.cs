@@ -7,25 +7,24 @@ namespace MapWizard.Desktop.Converters;
 
 public class AvaloniaColorToColorConverter : IValueConverter
 {
-    // Convert System.Drawing.Color to Avalonia.Media.Color
     public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
         if (value is Color systemColor)
         {
-            return new Avalonia.Media.Color(systemColor.A, systemColor.R, systemColor.G, systemColor.B);
+            // The UI does not expose alpha editing; keep previews opaque.
+            return new Avalonia.Media.Color(255, systemColor.R, systemColor.G, systemColor.B);
         }
         
-        return new Avalonia.Media.Color(255, 0, 0, 0); // Default to black if the value is invalid
+        return new Avalonia.Media.Color(255, 0, 0, 0);
     }
 
-    // Convert Avalonia.Media.Color to System.Drawing.Color
     public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
         if (value is Avalonia.Media.Color avaloniaColor)
         {
-            return System.Drawing.Color.FromArgb(avaloniaColor.A, avaloniaColor.R, avaloniaColor.G, avaloniaColor.B);
+            return System.Drawing.Color.FromArgb(255, avaloniaColor.R, avaloniaColor.G, avaloniaColor.B);
         }
-        return System.Drawing.Color.Black; // Default to black if the value is invalid
+
+        return System.Drawing.Color.Black;
     }
-    
 }

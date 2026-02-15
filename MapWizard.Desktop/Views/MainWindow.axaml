@@ -12,6 +12,29 @@
     MinHeight="600"
     Title="MapWizard">
 
+    <suki:SukiWindow.Styles>
+        <Style Selector="Button.NavButton">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderBrush" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="FocusAdorner" Value="{x:Null}" />
+        </Style>
+        <Style Selector="Button.NavButton:pointerover">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderBrush" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+        </Style>
+        <Style Selector="Button.NavButton:pressed">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderBrush" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+        </Style>
+        <Style Selector="Button.NavButton:focus">
+            <Setter Property="BorderBrush" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+        </Style>
+    </suki:SukiWindow.Styles>
+
     <suki:SukiWindow.DataTemplates>
         <DataTemplate DataType="{x:Type vm:WelcomePageViewModel}">
             <views:WelcomePageView />
@@ -65,7 +88,7 @@
         <suki:GlassCard Grid.Column="0" Classes="Accent" Margin="8,8,8,8" Padding="4,10" CornerRadius="16">
             <Grid RowDefinitions="Auto,*,Auto">
                 <StackPanel Grid.Row="0" Spacing="8" HorizontalAlignment="Center">
-                    <Button Classes="Flat Compact"
+                    <Button Classes="Compact NavButton"
                             Background="Transparent"
                             BorderThickness="0"
                             Padding="0"
@@ -95,7 +118,7 @@
                         </StackPanel>
                     </Button>
 
-                    <Button Classes="Flat Compact"
+                    <Button Classes="Compact NavButton"
                             Background="Transparent"
                             BorderThickness="0"
                             Padding="0"
@@ -125,7 +148,7 @@
                         </StackPanel>
                     </Button>
 
-                    <Button Classes="Flat Compact"
+                    <Button Classes="Compact NavButton"
                             Background="Transparent"
                             BorderThickness="0"
                             Padding="0"
@@ -157,7 +180,7 @@
                 </StackPanel>
 
                 <StackPanel Grid.Row="2" Spacing="8" HorizontalAlignment="Center">
-                    <Button Classes="Flat Compact"
+                    <Button Classes="Compact NavButton"
                             Background="Transparent"
                             BorderThickness="0"
                             Padding="0"
