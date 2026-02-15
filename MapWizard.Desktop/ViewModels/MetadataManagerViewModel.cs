@@ -42,6 +42,14 @@ public partial class MetadataManagerViewModel(
     [ObservableProperty] private bool _removeDuplicateTags;
 
     [ObservableProperty] private bool _hasMultiple;
+    
+    [ObservableProperty] private bool _applyMetadataSection = true;
+    
+    [ObservableProperty] private bool _applyGeneralSection;
+    
+    [ObservableProperty] private bool _applyColoursSection;
+    
+    [ObservableProperty] private bool _applyCombosSection;
 
     [NotifyPropertyChangedFor(nameof(AdditionalBeatmaps))] [ObservableProperty]
     private ObservableCollection<SelectedMap> _destinationBeatmaps = [new SelectedMap()];
@@ -71,8 +79,7 @@ public partial class MetadataManagerViewModel(
         }
     }
 
-    [RelayCommand]
-    async Task ImportMetadata(CancellationToken token)
+    private async Task ImportMetadataFromOriginAsync(CancellationToken token)
     {
         var origin = OriginBeatmap.Path;
 
@@ -156,7 +163,7 @@ public partial class MetadataManagerViewModel(
     }
 
     [RelayCommand]
-    void SetOriginFromMemory()
+    async Task SetOriginFromMemory(CancellationToken token)
     {
         var currentBeatmap = GetBeatmapFromMemory();
 
@@ -168,6 +175,7 @@ public partial class MetadataManagerViewModel(
         };
 
         PreferredDirectory = Path.GetDirectoryName(OriginBeatmap.Path) ?? "";
+        await ImportMetadataFromOriginAsync(token);
     }
 
     [RelayCommand]
@@ -300,6 +308,7 @@ public partial class MetadataManagerViewModel(
             };
 
             PreferredDirectory = Path.GetDirectoryName(OriginBeatmap.Path) ?? "";
+            await ImportMetadataFromOriginAsync(token);
         }
         catch (Exception e)
         {
@@ -387,6 +396,10 @@ public partial class MetadataManagerViewModel(
             {
                 var options = new MetadataManagerOptions()
                 {
+                    ApplyMetadataSection = ApplyMetadataSection,
+                    ApplyGeneralSection = ApplyGeneralSection,
+                    ApplyColoursSection = ApplyColoursSection,
+                    ApplyCombosSection = ApplyCombosSection,
                     OverwriteAudio = true,
                     OverwriteBackground = OverwriteBackground,
                     OverwriteVideo = OverwriteVideo,
