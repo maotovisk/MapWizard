@@ -26,13 +26,14 @@ public partial class App : Application
 
         var mainWindow = services.GetRequiredService<MainWindow>();
 
-        if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+        switch (ApplicationLifetime)
         {
-            desktop.MainWindow = mainWindow;
-        }
-        else if (ApplicationLifetime is ISingleViewApplicationLifetime singleViewPlatform)
-        {
-            singleViewPlatform.MainView = mainWindow;
+            case IClassicDesktopStyleApplicationLifetime desktop:
+                desktop.MainWindow = mainWindow;
+                break;
+            case ISingleViewApplicationLifetime singleViewPlatform:
+                singleViewPlatform.MainView = mainWindow;
+                break;
         }
         
         base.OnFrameworkInitializationCompleted();

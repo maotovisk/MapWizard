@@ -45,6 +45,9 @@
         <DataTemplate DataType="{x:Type vm:MetadataManagerViewModel}">
             <views:MetadataManagerView />
         </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:ComboColourStudioViewModel}">
+            <views:ComboColourStudioView />
+        </DataTemplate>
         <DataTemplate DataType="{x:Type vm:SettingsViewModel}">
             <views:SettingsView />
         </DataTemplate>
@@ -169,6 +172,36 @@
                                                             VerticalAlignment="Center" />
                             </Grid>
                             <TextBlock Text="Metadata Manager"
+                                       Width="68"
+                                       FontSize="11"
+                                       Foreground="{DynamicResource SukiText}"
+                                       HorizontalAlignment="Center"
+                                       TextAlignment="Center"
+                                       TextWrapping="Wrap" />
+                        </StackPanel>
+                    </Button>
+
+                    <Button Classes="Compact NavButton"
+                            Background="Transparent"
+                            BorderThickness="0"
+                            Padding="0"
+                            MinWidth="0"
+                            Width="82"
+                            Foreground="{DynamicResource SukiText}"
+                            HorizontalContentAlignment="Center"
+                            Command="{Binding OpenComboColourStudioCommand}">
+                        <StackPanel Spacing="4" HorizontalAlignment="Center">
+                            <Grid Width="44" Height="30">
+                                <Border CornerRadius="15"
+                                        Background="{DynamicResource ThemeAccentBrush}"
+                                        Opacity="0.20"
+                                        IsVisible="{Binding IsComboColourStudioSelected}" />
+                                <materialIcons:MaterialIcon Kind="Palette"
+                                                            Foreground="{DynamicResource SukiText}"
+                                                            HorizontalAlignment="Center"
+                                                            VerticalAlignment="Center" />
+                            </Grid>
+                            <TextBlock Text="Combo Colour Studio"
                                        Width="68"
                                        FontSize="11"
                                        Foreground="{DynamicResource SukiText}"
