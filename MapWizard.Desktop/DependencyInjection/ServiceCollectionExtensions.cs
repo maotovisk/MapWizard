@@ -39,6 +39,7 @@ public static class ServiceCollectionExtensions
         collection.AddScoped<IMetadataManagerService, MetadataManagerService>();
         collection.AddScoped<IHitSoundService, HitSoundService>();
         collection.AddScoped<IComboColourStudioService, ComboColourStudioService>();
+        collection.AddSingleton<IComboColourProjectStore, ComboColourProjectStore>();
         collection.AddScoped<IOsuMemoryReaderService, OsuMemoryReaderService>();
         collection.AddSingleton<ISettingsService, SettingsService>();
         collection.AddSingleton<IThemeService, ThemeService>();

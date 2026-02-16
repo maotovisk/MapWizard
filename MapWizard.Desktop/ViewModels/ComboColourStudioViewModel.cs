@@ -18,6 +18,7 @@ using CommunityToolkit.Mvvm.Input;
 using MapWizard.Desktop.Models;
 using MapWizard.Desktop.Services;
 using MapWizard.Tools.ComboColourStudio;
+using SukiUI.Dialogs;
 using SukiUI.Toasts;
 using ToolComboColourPoint = MapWizard.Tools.ComboColourStudio.ComboColourPoint;
 
@@ -27,9 +28,15 @@ public partial class ComboColourStudioViewModel(
     IFilesService filesService,
     IComboColourStudioService comboColourStudioService,
     IOsuMemoryReaderService osuMemoryReaderService,
+    IComboColourProjectStore comboColourProjectStore,
+    ISukiDialogManager dialogManager,
     ISukiToastManager toastManager) : ViewModelBase
 {
     [NotifyPropertyChangedFor(nameof(HasOriginBeatmap))]
+    [NotifyPropertyChangedFor(nameof(CanSaveProject))]
+    [NotifyPropertyChangedFor(nameof(IsProjectSavedIndicatorVisible))]
+    [NotifyPropertyChangedFor(nameof(IsProjectUnsavedIndicatorVisible))]
+    [NotifyPropertyChangedFor(nameof(IsProjectNotSavedIndicatorVisible))]
     [ObservableProperty] private SelectedMap _originBeatmap = new();
 
     [NotifyPropertyChangedFor(nameof(AdditionalBeatmaps))]
@@ -49,6 +56,15 @@ public partial class ComboColourStudioViewModel(
     [ObservableProperty] private string _originSongName = string.Empty;
     [NotifyPropertyChangedFor(nameof(OriginContextBottomLine))]
     [ObservableProperty] private string _originDiffName = string.Empty;
+    [ObservableProperty] private int _originBeatmapId;
+    [NotifyPropertyChangedFor(nameof(IsProjectSavedIndicatorVisible))]
+    [NotifyPropertyChangedFor(nameof(IsProjectUnsavedIndicatorVisible))]
+    [NotifyPropertyChangedFor(nameof(IsProjectNotSavedIndicatorVisible))]
+    [ObservableProperty] private bool _hasUnsavedChanges;
+    [NotifyPropertyChangedFor(nameof(IsProjectSavedIndicatorVisible))]
+    [NotifyPropertyChangedFor(nameof(IsProjectUnsavedIndicatorVisible))]
+    [NotifyPropertyChangedFor(nameof(IsProjectNotSavedIndicatorVisible))]
+    [ObservableProperty] private bool _hasLocalProjectSnapshot;
 
     [ObservableProperty] private int _maxBurstLength = 1;
     [ObservableProperty] private int _paletteSize = 6;
@@ -58,9 +74,17 @@ public partial class ComboColourStudioViewModel(
     [ObservableProperty] private ObservableCollection<ComboColourOption> _colourDropdownOptions = [];
     private ObservableCollection<AvaloniaComboColour>? _observedComboColours;
     private readonly HashSet<AvaloniaComboColour> _observedComboColourItems = [];
+    private ObservableCollection<AvaloniaComboColourPoint>? _observedColourPoints;
+    private readonly HashSet<AvaloniaComboColourPoint> _observedColourPointItems = [];
+    private readonly HashSet<AvaloniaComboColourToken> _observedColourPointTokens = [];
+    private bool _suppressDirtyTracking;
 
     public bool HasHeaderBackgroundImage => HeaderBackgroundImage is not null;
     public bool HasOriginBeatmap => !string.IsNullOrWhiteSpace(OriginBeatmap.Path);
+    public bool CanSaveProject => HasOriginBeatmap;
+    public bool IsProjectSavedIndicatorVisible => HasOriginBeatmap && HasLocalProjectSnapshot && !HasUnsavedChanges;
+    public bool IsProjectUnsavedIndicatorVisible => HasOriginBeatmap && HasUnsavedChanges;
+    public bool IsProjectNotSavedIndicatorVisible => HasOriginBeatmap && !HasUnsavedChanges && !HasLocalProjectSnapshot;
     public string OriginContextTopLine
     {
         get
@@ -99,6 +123,21 @@ public partial class ComboColourStudioViewModel(
         };
     }
 
+    partial void OnMaxBurstLengthChanged(int value)
+    {
+        MarkProjectDirty();
+    }
+
+    partial void OnComboColoursChanged(ObservableCollection<AvaloniaComboColour> value)
+    {
+        ObserveComboColours();
+    }
+
+    partial void OnColourPointsChanged(ObservableCollection<AvaloniaComboColourPoint> value)
+    {
+        ObserveColourPoints();
+    }
+
     [RelayCommand]
     private void RemoveMap(string path)
     {
@@ -129,6 +168,7 @@ public partial class ComboColourStudioViewModel(
         ComboColours.Add(new AvaloniaComboColour(ComboColours.Count + 1, cloneColour));
         RefreshComboColourOptions();
         NormalizeColourPointSequences();
+        MarkProjectDirty();
     }
 
     [RelayCommand]
@@ -149,6 +189,7 @@ public partial class ComboColourStudioViewModel(
 
         RefreshComboColourOptions();
         NormalizeColourPointSequences();
+        MarkProjectDirty();
     }
 
     [RelayCommand]
@@ -168,12 +209,15 @@ public partial class ComboColourStudioViewModel(
         }
 
         ColourPoints.Add(point);
+        ObserveColourPoints();
+        MarkProjectDirty();
     }
 
     [RelayCommand]
     private void RemoveColourPoint(AvaloniaComboColourPoint colourPoint)
     {
         ColourPoints.Remove(colourPoint);
+        MarkProjectDirty();
     }
 
     [RelayCommand]
@@ -193,6 +237,7 @@ public partial class ComboColourStudioViewModel(
         {
             ComboNumber = defaultNumber
         });
+        MarkProjectDirty();
     }
 
     [RelayCommand]
@@ -202,8 +247,28 @@ public partial class ComboColourStudioViewModel(
         {
             if (point.ColourSequence.Remove(token))
             {
+                MarkProjectDirty();
                 break;
             }
+        }
+    }
+
+    [RelayCommand]
+    private void SaveProject()
+    {
+        if (!EnsureOriginSelected())
+        {
+            return;
+        }
+
+        try
+        {
+            var project = BuildProjectFromUi();
+            SaveLocalProjectSnapshot(project, showSuccessToast: true);
+        }
+        catch (Exception ex)
+        {
+            ShowToast(NotificationType.Error, "Combo Colour Studio", ex.Message);
         }
     }
 
@@ -331,7 +396,7 @@ public partial class ComboColourStudioViewModel(
             OriginBeatmap = new SelectedMap { Path = file.First().Path.LocalPath };
             PreferredDirectory = Path.GetDirectoryName(OriginBeatmap.Path) ?? string.Empty;
 
-            LoadOriginBeatmapContext();
+            await LoadOriginBeatmapContext();
         }
         catch (Exception ex)
         {
@@ -340,7 +405,7 @@ public partial class ComboColourStudioViewModel(
     }
 
     [RelayCommand]
-    private void SetOriginFromMemory()
+    private async Task SetOriginFromMemory()
     {
         var beatmapPath = GetBeatmapFromMemory();
 
@@ -352,7 +417,7 @@ public partial class ComboColourStudioViewModel(
         OriginBeatmap = new SelectedMap { Path = beatmapPath };
         PreferredDirectory = Path.GetDirectoryName(OriginBeatmap.Path) ?? string.Empty;
 
-        LoadOriginBeatmapContext();
+        await LoadOriginBeatmapContext();
     }
 
     [RelayCommand]
@@ -448,6 +513,7 @@ public partial class ComboColourStudioViewModel(
             var project = BuildProjectFromUi();
 
             comboColourStudioService.ApplyProject(project, destinationPaths, new ComboColourStudioOptions());
+            SaveLocalProjectSnapshot(project, showSuccessToast: false);
 
             ShowToast(NotificationType.Success,
                 "Combo Colour Studio",
@@ -469,6 +535,7 @@ public partial class ComboColourStudioViewModel(
 
             RefreshComboColourOptions();
             NormalizeColourPointSequences();
+            MarkProjectDirty();
             ShowToast(NotificationType.Success, "Combo Colour Studio", "Generated combo colours from image.");
         }
         catch (Exception ex)
@@ -509,20 +576,33 @@ public partial class ComboColourStudioViewModel(
         return currentBeatmap.Value;
     }
 
-    private void LoadOriginBeatmapContext()
+    private async Task LoadOriginBeatmapContext()
     {
         try
         {
             var project = comboColourStudioService.ImportComboColours(OriginBeatmap.Path);
-            LoadProjectIntoUi(project, replaceColourPoints: false);
+            LoadProjectIntoUi(project, replaceColourPoints: false, markAsDirty: false);
             LoadOriginBeatmapMetadata();
             LoadBackgroundImage();
 
-            ShowToast(NotificationType.Success, "Combo Colour Studio", "Loaded beatmap context.");
+            var restoreState = await TryRestoreSavedProject();
+            var contextMessage = restoreState switch
+            {
+                SavedProjectRestoreState.Restored => "Loaded beatmap context and restored saved combo colour project.",
+                SavedProjectRestoreState.FoundButIgnored => "Loaded beatmap context. A saved local project is available.",
+                _ => "Loaded beatmap context."
+            };
+
+            HasLocalProjectSnapshot = restoreState != SavedProjectRestoreState.NotFound;
+            HasUnsavedChanges = restoreState == SavedProjectRestoreState.FoundButIgnored;
+
+            ShowToast(NotificationType.Success, "Combo Colour Studio", contextMessage);
         }
         catch (Exception ex)
         {
             ClearOriginBeatmapMetadata();
+            HasLocalProjectSnapshot = false;
+            HasUnsavedChanges = false;
             ShowToast(NotificationType.Error, "Combo Colour Studio", ex.Message);
         }
     }
@@ -535,6 +615,7 @@ public partial class ComboColourStudioViewModel(
         OriginArtist = FirstNonEmpty(metadata.ArtistUnicode, metadata.Artist);
         OriginSongName = FirstNonEmpty(metadata.TitleUnicode, metadata.Title);
         OriginDiffName = metadata.Version;
+        OriginBeatmapId = metadata.BeatmapID;
     }
 
     private void ClearOriginBeatmapMetadata()
@@ -542,6 +623,71 @@ public partial class ComboColourStudioViewModel(
         OriginArtist = string.Empty;
         OriginSongName = string.Empty;
         OriginDiffName = string.Empty;
+        OriginBeatmapId = 0;
+    }
+
+    private bool SaveLocalProjectSnapshot(ComboColourProject project, bool showSuccessToast)
+    {
+        if (string.IsNullOrWhiteSpace(OriginBeatmap.Path))
+        {
+            return false;
+        }
+
+        try
+        {
+            comboColourProjectStore.SaveProject(OriginBeatmap.Path, OriginBeatmapId, project);
+            HasLocalProjectSnapshot = true;
+            HasUnsavedChanges = false;
+            if (showSuccessToast)
+            {
+                ShowToast(NotificationType.Success, "Combo Colour Studio", "Saved project locally.");
+            }
+
+            return true;
+        }
+        catch (Exception ex)
+        {
+            ShowToast(NotificationType.Warning, "Combo Colour Studio", $"Failed to save local project snapshot: {ex.Message}");
+            return false;
+        }
+    }
+
+    private async Task<SavedProjectRestoreState> TryRestoreSavedProject()
+    {
+        if (string.IsNullOrWhiteSpace(OriginBeatmap.Path))
+        {
+            return SavedProjectRestoreState.NotFound;
+        }
+
+        ComboColourProject? storedProject;
+        try
+        {
+            storedProject = comboColourProjectStore.TryLoadProject(OriginBeatmap.Path, OriginBeatmapId);
+        }
+        catch (Exception ex)
+        {
+            ShowToast(NotificationType.Warning, "Combo Colour Studio", $"Failed to check saved projects: {ex.Message}");
+            return SavedProjectRestoreState.NotFound;
+        }
+
+        if (storedProject is null)
+        {
+            return SavedProjectRestoreState.NotFound;
+        }
+
+        var shouldRestore = await dialogManager.CreateDialog()
+            .WithTitle("Restore Saved Project")
+            .WithContent("A saved Combo Colour project was found for this beatmap. Do you want to restore it?")
+            .WithYesNoResult("Restore", "Ignore")
+            .TryShowAsync();
+
+        if (!shouldRestore)
+        {
+            return SavedProjectRestoreState.FoundButIgnored;
+        }
+
+        LoadProjectIntoUi(storedProject, replaceColourPoints: true, markAsDirty: false);
+        return SavedProjectRestoreState.Restored;
     }
 
     private static string FirstNonEmpty(params string?[] values)
@@ -557,29 +703,38 @@ public partial class ComboColourStudioViewModel(
         return string.Empty;
     }
 
-    private void LoadProjectIntoUi(ComboColourProject project, bool replaceColourPoints)
+    private void LoadProjectIntoUi(ComboColourProject project, bool replaceColourPoints, bool markAsDirty = true)
     {
-        ComboColours = new ObservableCollection<AvaloniaComboColour>(project.ComboColours.Select((combo, index) =>
-            new AvaloniaComboColour(index + 1, combo.Colour)));
-
-        if (replaceColourPoints)
+        WithDirtyTrackingSuppressed(() =>
         {
-            ColourPoints = new ObservableCollection<AvaloniaComboColourPoint>(project.ColourPoints.Select(point =>
-                new AvaloniaComboColourPoint
-                {
-                    Time = point.Time,
-                    Mode = point.Mode,
-                    ColourSequence = new ObservableCollection<AvaloniaComboColourToken>(
-                        point.ColourSequence.Select(index => new AvaloniaComboColourToken
-                        {
-                            ComboNumber = index + 1
-                        }))
-                }));
-        }
+            ComboColours = new ObservableCollection<AvaloniaComboColour>(project.ComboColours.Select((combo, index) =>
+                new AvaloniaComboColour(index + 1, combo.Colour)));
 
-        MaxBurstLength = project.MaxBurstLength;
-        RefreshComboColourOptions();
-        NormalizeColourPointSequences();
+            if (replaceColourPoints)
+            {
+                ColourPoints = new ObservableCollection<AvaloniaComboColourPoint>(project.ColourPoints.Select(point =>
+                    new AvaloniaComboColourPoint
+                    {
+                        Time = point.Time,
+                        Mode = point.Mode,
+                        ColourSequence = new ObservableCollection<AvaloniaComboColourToken>(
+                            point.ColourSequence.Select(index => new AvaloniaComboColourToken
+                            {
+                                ComboNumber = index + 1
+                            }))
+                    }));
+            }
+
+            MaxBurstLength = project.MaxBurstLength;
+            RefreshComboColourOptions();
+            ObserveColourPoints();
+            NormalizeColourPointSequences();
+        });
+
+        if (markAsDirty)
+        {
+            MarkProjectDirty();
+        }
     }
 
     private void LoadBackgroundImage()
@@ -719,6 +874,7 @@ public partial class ComboColourStudioViewModel(
     {
         ObserveComboColours();
         RefreshComboColourOptions();
+        MarkProjectDirty();
     }
 
     private void ComboColourOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
@@ -726,7 +882,209 @@ public partial class ComboColourStudioViewModel(
         if (e.PropertyName == nameof(AvaloniaComboColour.Colour) || e.PropertyName == nameof(AvaloniaComboColour.Number))
         {
             RefreshComboColourOptions();
+            MarkProjectDirty();
         }
+    }
+
+    private void ObserveColourPoints()
+    {
+        if (!ReferenceEquals(_observedColourPoints, ColourPoints))
+        {
+            if (_observedColourPoints is not null)
+            {
+                _observedColourPoints.CollectionChanged -= ColourPointsOnCollectionChanged;
+            }
+
+            foreach (var observedPoint in _observedColourPointItems.ToList())
+            {
+                DetachColourPoint(observedPoint);
+            }
+
+            _observedColourPointItems.Clear();
+            _observedColourPointTokens.Clear();
+            _observedColourPoints = ColourPoints;
+            _observedColourPoints.CollectionChanged += ColourPointsOnCollectionChanged;
+        }
+
+        foreach (var point in ColourPoints)
+        {
+            AttachColourPoint(point);
+        }
+
+        var removedPoints = _observedColourPointItems
+            .Where(point => !ColourPoints.Contains(point))
+            .ToList();
+
+        foreach (var removedPoint in removedPoints)
+        {
+            DetachColourPoint(removedPoint);
+        }
+    }
+
+    private void ColourPointsOnCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+    {
+        if (e.OldItems is not null)
+        {
+            foreach (var oldItem in e.OldItems.OfType<AvaloniaComboColourPoint>())
+            {
+                DetachColourPoint(oldItem);
+            }
+        }
+
+        if (e.NewItems is not null)
+        {
+            foreach (var newItem in e.NewItems.OfType<AvaloniaComboColourPoint>())
+            {
+                AttachColourPoint(newItem);
+            }
+        }
+
+        if (e.Action == NotifyCollectionChangedAction.Reset)
+        {
+            foreach (var observedPoint in _observedColourPointItems.ToList())
+            {
+                DetachColourPoint(observedPoint);
+            }
+
+            foreach (var point in ColourPoints)
+            {
+                AttachColourPoint(point);
+            }
+        }
+
+        MarkProjectDirty();
+    }
+
+    private void AttachColourPoint(AvaloniaComboColourPoint point)
+    {
+        if (!_observedColourPointItems.Add(point))
+        {
+            return;
+        }
+
+        point.PropertyChanged += ColourPointOnPropertyChanged;
+        point.ColourSequence.CollectionChanged += ColourSequenceOnCollectionChanged;
+        foreach (var token in point.ColourSequence)
+        {
+            AttachColourPointToken(token);
+        }
+    }
+
+    private void DetachColourPoint(AvaloniaComboColourPoint point)
+    {
+        if (!_observedColourPointItems.Remove(point))
+        {
+            return;
+        }
+
+        point.PropertyChanged -= ColourPointOnPropertyChanged;
+        point.ColourSequence.CollectionChanged -= ColourSequenceOnCollectionChanged;
+        foreach (var token in point.ColourSequence)
+        {
+            DetachColourPointToken(token);
+        }
+    }
+
+    private void ColourPointOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(AvaloniaComboColourPoint.Time) ||
+            e.PropertyName == nameof(AvaloniaComboColourPoint.Mode))
+        {
+            MarkProjectDirty();
+        }
+    }
+
+    private void ColourSequenceOnCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+    {
+        if (e.OldItems is not null)
+        {
+            foreach (var oldToken in e.OldItems.OfType<AvaloniaComboColourToken>())
+            {
+                DetachColourPointToken(oldToken);
+            }
+        }
+
+        if (e.NewItems is not null)
+        {
+            foreach (var newToken in e.NewItems.OfType<AvaloniaComboColourToken>())
+            {
+                AttachColourPointToken(newToken);
+            }
+        }
+
+        if (e.Action == NotifyCollectionChangedAction.Reset)
+        {
+            foreach (var token in _observedColourPointTokens.ToList())
+            {
+                token.PropertyChanged -= ColourPointTokenOnPropertyChanged;
+            }
+
+            _observedColourPointTokens.Clear();
+            foreach (var point in _observedColourPointItems)
+            {
+                foreach (var token in point.ColourSequence)
+                {
+                    AttachColourPointToken(token);
+                }
+            }
+        }
+
+        MarkProjectDirty();
+    }
+
+    private void AttachColourPointToken(AvaloniaComboColourToken token)
+    {
+        if (_observedColourPointTokens.Add(token))
+        {
+            token.PropertyChanged += ColourPointTokenOnPropertyChanged;
+        }
+    }
+
+    private void DetachColourPointToken(AvaloniaComboColourToken token)
+    {
+        if (_observedColourPointTokens.Remove(token))
+        {
+            token.PropertyChanged -= ColourPointTokenOnPropertyChanged;
+        }
+    }
+
+    private void ColourPointTokenOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(AvaloniaComboColourToken.ComboNumber))
+        {
+            MarkProjectDirty();
+        }
+    }
+
+    private void WithDirtyTrackingSuppressed(Action action)
+    {
+        var previousState = _suppressDirtyTracking;
+        _suppressDirtyTracking = true;
+        try
+        {
+            action();
+        }
+        finally
+        {
+            _suppressDirtyTracking = previousState;
+        }
+    }
+
+    private void MarkProjectDirty()
+    {
+        if (_suppressDirtyTracking || !HasOriginBeatmap)
+        {
+            return;
+        }
+
+        HasUnsavedChanges = true;
+    }
+
+    private enum SavedProjectRestoreState
+    {
+        NotFound,
+        FoundButIgnored,
+        Restored
     }
 
     private void ShowToast(NotificationType type, string title, string message)

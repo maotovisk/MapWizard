@@ -4,6 +4,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:vm="clr-namespace:MapWizard.Desktop.ViewModels"
+    xmlns:controls="clr-namespace:MapWizard.Desktop.Views.Controls"
     xmlns:suki="clr-namespace:SukiUI.Controls;assembly=SukiUI"
     xmlns:materialIcons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
     mc:Ignorable="d"
@@ -27,7 +28,7 @@
         
 
         <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Disabled">
-            <WrapPanel HorizontalAlignment="Center" VerticalAlignment="Center" ItemSpacing="10" Orientation="Horizontal">
+            <controls:CenteredWrapPanel HorizontalAlignment="Stretch" VerticalAlignment="Center" ItemSpacing="10">
                 <Grid Margin="15">
                     <suki:GlassCard Width="260" Height="220" Margin="0,0,0,25" Padding="16" CornerRadius="18">
                         <StackPanel VerticalAlignment="Center" Spacing="12">
@@ -75,7 +76,31 @@
                         Open
                     </Button>
                 </Grid>
-            </WrapPanel>
+
+                <Grid Margin="15">
+                    <suki:GlassCard Width="260" Height="220" Margin="0,0,0,25" Padding="16" CornerRadius="18">
+                        <StackPanel VerticalAlignment="Center" Spacing="12">
+                            <Border Width="56" Height="56" CornerRadius="28" HorizontalAlignment="Center" Background="{DynamicResource ThemeAccentBrush}" Opacity="0.2">
+                                <materialIcons:MaterialIcon Kind="Palette" Width="28" Height="28" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                            </Border>
+                            <TextBlock Text="Combo Colour Studio" FontWeight="Bold" FontSize="18" HorizontalAlignment="Center" />
+                            <TextBlock Text="Design and apply combo colour patterns."
+                                       TextWrapping="Wrap"
+                                       HorizontalAlignment="Center"
+                                       TextAlignment="Center" />
+                        </StackPanel>
+                    </suki:GlassCard>
+                    <Button Width="160"
+                            Height="40"
+                            Margin="0,0,0,7"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Bottom"
+                            Classes="Flat Rounded"
+                            Click="OpenComboColourStudio_OnClick">
+                        Open
+                    </Button>
+                </Grid>
+            </controls:CenteredWrapPanel>
         </ScrollViewer>
     </Grid>
 </UserControl>

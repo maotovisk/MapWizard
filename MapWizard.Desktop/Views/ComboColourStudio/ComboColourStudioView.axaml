@@ -20,27 +20,82 @@
         <local:AvaloniaColorToColorConverter x:Key="AvaloniaColorToColorConverter" />
     </UserControl.Resources>
 
+    <UserControl.KeyBindings>
+        <KeyBinding Gesture="Ctrl+S" Command="{Binding SaveProjectCommand}" />
+    </UserControl.KeyBindings>
+
     <Grid RowDefinitions="Auto,Auto,*">
         <Grid ColumnDefinitions="*,Auto" VerticalAlignment="Center">
-            <TextBlock Grid.Row="0"
-                       Text="Combo Colour Studio"
-                       FontSize="24"
-                       FontWeight="Bold"
-                       VerticalAlignment="Center"
-                       Margin="16,0" />
+            <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+                <TextBlock Grid.Row="0"
+                           Text="Combo Colour Studio"
+                           FontSize="24"
+                           FontWeight="Bold"
+                           VerticalAlignment="Center"
+                           Margin="16,0" />
 
-            <Button Grid.Column="1"
-                    Classes="Flat Large"
-                    Command="{Binding ExportColourHaxCommand}"
-                    ToolTip.Tip="Export colour hax to destination beatmaps">
-                <StackPanel Orientation="Horizontal" Spacing="8">
-                    <materialIcons:MaterialIcon Kind="ContentSave" Width="24" Height="24" />
-                    <TextBlock VerticalAlignment="Center"
-                               FontWeight="Bold"
-                               FontSize="16"
-                               Text="Apply / Export" />
-                </StackPanel>
-            </Button>
+                <Border IsVisible="{Binding HasOriginBeatmap}"
+                        CornerRadius="12"
+                        Padding="10,4"
+                        BorderBrush="{DynamicResource ThemeAccentBrush}"
+                        BorderThickness="1">
+                    <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+                        <materialIcons:MaterialIcon Kind="CheckCircle"
+                                                    Width="14"
+                                                    Height="14"
+                                                    Foreground="#64D58A"
+                                                    IsVisible="{Binding IsProjectSavedIndicatorVisible}" />
+                        <TextBlock Text="Saved"
+                                   FontSize="12"
+                                   IsVisible="{Binding IsProjectSavedIndicatorVisible}" />
+
+                        <materialIcons:MaterialIcon Kind="CircleEditOutline"
+                                                    Width="14"
+                                                    Height="14"
+                                                    Foreground="#E8C57A"
+                                                    IsVisible="{Binding IsProjectUnsavedIndicatorVisible}" />
+                        <TextBlock Text="Unsaved changes"
+                                   FontSize="12"
+                                   IsVisible="{Binding IsProjectUnsavedIndicatorVisible}" />
+
+                        <materialIcons:MaterialIcon Kind="CircleOutline"
+                                                    Width="14"
+                                                    Height="14"
+                                                    Foreground="{DynamicResource SukiLowText}"
+                                                    IsVisible="{Binding IsProjectNotSavedIndicatorVisible}" />
+                        <TextBlock Text="Not saved"
+                                   FontSize="12"
+                                   IsVisible="{Binding IsProjectNotSavedIndicatorVisible}" />
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+
+            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
+                <Button Classes="Basic Large"
+                        Command="{Binding SaveProjectCommand}"
+                        IsEnabled="{Binding CanSaveProject}"
+                        ToolTip.Tip="Save local combo project (Ctrl+S)">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <materialIcons:MaterialIcon Kind="ContentSaveOutline" Width="24" Height="24" />
+                        <TextBlock VerticalAlignment="Center"
+                                   FontWeight="Bold"
+                                   FontSize="16"
+                                   Text="Save Project" />
+                    </StackPanel>
+                </Button>
+
+                <Button Classes="Flat Large"
+                        Command="{Binding ExportColourHaxCommand}"
+                        ToolTip.Tip="Export colour hax to destination beatmaps">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <materialIcons:MaterialIcon Kind="ContentSave" Width="24" Height="24" />
+                        <TextBlock VerticalAlignment="Center"
+                                   FontWeight="Bold"
+                                   FontSize="16"
+                                   Text="Apply / Export" />
+                    </StackPanel>
+                </Button>
+            </StackPanel>
         </Grid>
 
         <Separator Grid.Row="1" Margin="0 10 0 5" />
