@@ -2,6 +2,7 @@ using System.Drawing;
 using BeatmapParser;
 using BeatmapParser.Colours;
 using BeatmapParser.Enums;
+using BeatmapParser.Events;
 using BeatmapParser.HitObjects;
 using BeatmapParser.Sections;
 using SkiaSharp;
@@ -40,7 +41,8 @@ public static class ComboColourStudio
     public static ComboColourProject ExtractColourHaxFromBeatmap(string beatmapPath, int maxBurstLength = 1)
     {
         var beatmap = ReadBeatmap(beatmapPath);
-        return ExtractColourHaxFromBeatmap(beatmap, maxBurstLength);
+        var project = ExtractColourHaxFromBeatmap(beatmap, maxBurstLength);
+        return MinimizeRedundantColourPoints(beatmap, project);
     }
 
     public static ComboColourProject ExtractColourHaxFromBeatmap(Beatmap beatmap, int maxBurstLength = 1)
@@ -78,6 +80,8 @@ public static class ComboColourStudio
             return project;
         }
 
+        var breakWindows = GetBreakWindows(beatmap);
+        var breakBeforeIndex = BuildBreakBoundaries(colourHaxObjects, breakWindows);
         var sequenceLengthChecks = Enumerable.Range(1, comboColourCount * 2 + 2).ToArray();
         var sequenceStartIndex = 0;
         int[]? lastNormalSequence = null;
@@ -85,6 +89,12 @@ public static class ComboColourStudio
 
         while (sequenceStartIndex < colourHaxObjects.Count)
         {
+            if (breakBeforeIndex[sequenceStartIndex])
+            {
+                lastBurst = false;
+                lastNormalSequence = null;
+            }
+
             var firstComboObject = colourHaxObjects[sequenceStartIndex];
 
             var bestSequenceResult = GetBestSequenceAtIndex(
@@ -94,6 +104,7 @@ public static class ComboColourStudio
                 hitObjects,
                 actualNewCombo,
                 sequenceLengthChecks,
+                breakBeforeIndex,
                 lastBurst,
                 lastNormalSequence,
                 maxBurstLength: project.MaxBurstLength);
@@ -107,7 +118,7 @@ public static class ComboColourStudio
                 continue;
             }
 
-            var bestContribution = GetSequenceContribution(colourHaxObjects, sequenceStartIndex, bestSequence);
+            var bestContribution = GetSequenceContribution(colourHaxObjects, sequenceStartIndex, bestSequence, breakBeforeIndex);
 
             if (bestContribution <= 0)
             {
@@ -127,6 +138,7 @@ public static class ComboColourStudio
                 : ColourPointMode.Normal;
 
             var canSkipPoint = lastBurst &&
+                               !breakBeforeIndex[sequenceStartIndex] &&
                                lastNormalSequence is not null &&
                                IsSubSequence(bestSequence, lastNormalSequence) &&
                                (bestSequence.Length == lastNormalSequence.Length ||
@@ -395,6 +407,215 @@ public static class ComboColourStudio
         return Beatmap.Decode(File.ReadAllText(path));
     }
 
+    private static ComboColourProject MinimizeRedundantColourPoints(Beatmap sourceBeatmap, ComboColourProject project)
+    {
+        if (project.ColourPoints.Count <= 1)
+        {
+            return project;
+        }
+
+        var baselineState = CaptureComboState(sourceBeatmap);
+        var sourceBeatmapText = sourceBeatmap.Encode();
+        var breakWindows = GetBreakWindows(sourceBeatmap);
+        var protectedBoundaryTimes = GetPostBreakComboStartTimes(sourceBeatmap, breakWindows);
+
+        var workingPoints = project.ColourPoints
+            .OrderBy(point => point.Time)
+            .Select(CloneColourPoint)
+            .ToList();
+
+        for (var i = 0; i < workingPoints.Count && workingPoints.Count > 1;)
+        {
+            if (IsProtectedBoundaryPoint(workingPoints[i].Time, protectedBoundaryTimes))
+            {
+                i++;
+                continue;
+            }
+
+            var removed = workingPoints[i];
+            workingPoints.RemoveAt(i);
+
+            var candidate = new ComboColourProject
+            {
+                ComboColours = CloneComboColours(project.ComboColours),
+                ColourPoints = workingPoints.Select(CloneColourPoint).ToList(),
+                MaxBurstLength = project.MaxBurstLength
+            };
+
+            if (!ReproducesComboState(sourceBeatmapText, baselineState, candidate))
+            {
+                workingPoints.Insert(i, removed);
+                i++;
+            }
+        }
+
+        return new ComboColourProject
+        {
+            ComboColours = CloneComboColours(project.ComboColours),
+            ColourPoints = workingPoints.Select(CloneColourPoint).ToList(),
+            MaxBurstLength = project.MaxBurstLength
+        };
+    }
+
+    private static bool ReproducesComboState(string sourceBeatmapText, IReadOnlyList<(bool NewCombo, uint ComboOffset)> baselineState, ComboColourProject candidate)
+    {
+        var candidateBeatmap = Beatmap.Decode(sourceBeatmapText);
+        ApplyProjectToBeatmap(candidate, candidateBeatmap, new ComboColourStudioOptions
+        {
+            UpdateComboColoursSection = false,
+            OverrideHitObjectColourShifts = true,
+            CreateColoursSectionIfMissing = true,
+            CreateBackupBeforeWrite = false
+        });
+
+        var candidateState = CaptureComboState(candidateBeatmap);
+        if (candidateState.Count != baselineState.Count)
+        {
+            return false;
+        }
+
+        for (var i = 0; i < baselineState.Count; i++)
+        {
+            if (candidateState[i].NewCombo != baselineState[i].NewCombo ||
+                candidateState[i].ComboOffset != baselineState[i].ComboOffset)
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private static List<(bool NewCombo, uint ComboOffset)> CaptureComboState(Beatmap beatmap)
+    {
+        return beatmap.HitObjects.Objects
+            .Select(hitObject => (hitObject.NewCombo, hitObject.ComboOffset))
+            .ToList();
+    }
+
+    private static ComboColourPoint CloneColourPoint(ComboColourPoint point)
+    {
+        return new ComboColourPoint
+        {
+            Time = point.Time,
+            Mode = point.Mode,
+            ColourSequence = point.ColourSequence.ToList()
+        };
+    }
+
+    private static List<(double Start, double End)> GetBreakWindows(Beatmap beatmap)
+    {
+        return beatmap.Events.EventList
+            .OfType<Break>()
+            .Select(breakEvent => (breakEvent.StartTime.TotalMilliseconds, breakEvent.EndTime.TotalMilliseconds))
+            .Where(window => window.Item2 > window.Item1)
+            .OrderBy(window => window.Item1)
+            .Select(window => (Start: window.Item1, End: window.Item2))
+            .ToList();
+    }
+
+    private static bool[] BuildBreakBoundaries(IReadOnlyList<ColourHaxObject> colourHaxObjects, IReadOnlyList<(double Start, double End)> breakWindows)
+    {
+        var breakBeforeIndex = new bool[colourHaxObjects.Count];
+        if (colourHaxObjects.Count <= 1 || breakWindows.Count == 0)
+        {
+            return breakBeforeIndex;
+        }
+
+        for (var i = 1; i < colourHaxObjects.Count; i++)
+        {
+            if (HasBreakBetween(colourHaxObjects[i - 1].Time, colourHaxObjects[i].Time, breakWindows))
+            {
+                breakBeforeIndex[i] = true;
+            }
+        }
+
+        return breakBeforeIndex;
+    }
+
+    private static bool HasBreakBetween(double fromTime, double toTime, IReadOnlyList<(double Start, double End)> breakWindows)
+    {
+        if (toTime <= fromTime)
+        {
+            return false;
+        }
+
+        foreach (var breakWindow in breakWindows)
+        {
+            if (breakWindow.Start >= toTime)
+            {
+                break;
+            }
+
+            if (breakWindow.End > fromTime && breakWindow.Start < toTime)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static List<double> GetPostBreakComboStartTimes(Beatmap beatmap, IReadOnlyList<(double Start, double End)> breakWindows)
+    {
+        if (breakWindows.Count == 0)
+        {
+            return [];
+        }
+
+        var comboCount = GetActingComboColours(beatmap).Count;
+        if (comboCount <= 0)
+        {
+            return [];
+        }
+
+        var hitObjects = beatmap.HitObjects.Objects;
+        var (actualNewCombo, _) = CalculateComboState(hitObjects, comboCount);
+        var comboStartTimes = new List<double>();
+
+        for (var i = 0; i < hitObjects.Count; i++)
+        {
+            if (actualNewCombo[i] && !IsSpinner(hitObjects[i]))
+            {
+                comboStartTimes.Add(hitObjects[i].Time.TotalMilliseconds);
+            }
+        }
+
+        if (comboStartTimes.Count == 0)
+        {
+            return [];
+        }
+
+        var protectedTimes = new List<double>();
+        foreach (var breakWindow in breakWindows)
+        {
+            double? nextComboStart = null;
+
+            foreach (var comboStartTime in comboStartTimes)
+            {
+                if (comboStartTime >= breakWindow.End)
+                {
+                    nextComboStart = comboStartTime;
+                    break;
+                }
+            }
+
+            if (nextComboStart is null || IsProtectedBoundaryPoint(nextComboStart.Value, protectedTimes))
+            {
+                continue;
+            }
+
+            protectedTimes.Add(nextComboStart.Value);
+        }
+
+        return protectedTimes;
+    }
+
+    private static bool IsProtectedBoundaryPoint(double time, IReadOnlyList<double> protectedTimes)
+    {
+        return protectedTimes.Any(protectedTime => Math.Abs(protectedTime - time) < 0.5d);
+    }
+
     private static void WriteBeatmap(string path, Beatmap beatmap, bool createBackup)
     {
         if (createBackup)
@@ -528,6 +749,7 @@ public static class ComboColourStudio
         IReadOnlyList<IHitObject> hitObjects,
         bool[] actualNewCombo,
         int[] sequenceLengthChecks,
+        IReadOnlyList<bool> breakBeforeIndex,
         bool lastBurst,
         int[]? lastNormalSequence,
         int maxBurstLength)
@@ -540,11 +762,11 @@ public static class ComboColourStudio
         var firstComboHitObject = colourHaxObjects[sequenceStartIndex];
 
         var sequences = sequenceLengthChecks
-            .Select(length => GetColourSequence(colourHaxObjects, sequenceStartIndex, length))
+            .Select(length => GetColourSequence(colourHaxObjects, sequenceStartIndex, length, breakBeforeIndex))
             .ToArray();
 
         var contributions = sequences
-            .Select(sequence => GetSequenceContribution(colourHaxObjects, sequenceStartIndex, sequence))
+            .Select(sequence => GetSequenceContribution(colourHaxObjects, sequenceStartIndex, sequence, breakBeforeIndex))
             .ToArray();
 
         double bestScore = double.NegativeInfinity;
@@ -589,6 +811,7 @@ public static class ComboColourStudio
                     hitObjects,
                     actualNewCombo,
                     sequenceLengthChecks,
+                    breakBeforeIndex,
                     burst,
                     burst ? lastNormalSequence : sequence,
                     maxBurstLength);
@@ -642,7 +865,11 @@ public static class ComboColourStudio
         return true;
     }
 
-    private static int[]? GetColourSequence(IReadOnlyList<ColourHaxObject> hitObjects, int startIndex, int sequenceLength)
+    private static int[]? GetColourSequence(
+        IReadOnlyList<ColourHaxObject> hitObjects,
+        int startIndex,
+        int sequenceLength,
+        IReadOnlyList<bool> breakBeforeIndex)
     {
         var colourSequence = new int[sequenceLength];
 
@@ -653,13 +880,22 @@ public static class ComboColourStudio
                 return null;
             }
 
+            if (i > 0 && breakBeforeIndex[startIndex + i])
+            {
+                return null;
+            }
+
             colourSequence[i] = hitObjects[startIndex + i].ColourIndex;
         }
 
         return colourSequence;
     }
 
-    private static int GetSequenceContribution(IReadOnlyList<ColourHaxObject> hitObjects, int startIndex, IReadOnlyList<int>? colourSequence)
+    private static int GetSequenceContribution(
+        IReadOnlyList<ColourHaxObject> hitObjects,
+        int startIndex,
+        IReadOnlyList<int>? colourSequence,
+        IReadOnlyList<bool> breakBeforeIndex)
     {
         if (colourSequence is null || colourSequence.Count == 0)
         {
@@ -674,6 +910,12 @@ public static class ComboColourStudio
         {
             score++;
             index++;
+
+            if (index >= hitObjects.Count || breakBeforeIndex[index])
+            {
+                break;
+            }
+
             sequenceIndex = Mod(sequenceIndex + 1, colourSequence.Count);
         }
 
