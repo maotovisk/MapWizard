@@ -47,7 +47,7 @@ public partial class WelcomePageViewModel(
                 await dialogManager.CreateDialog()
                     .WithTitle("Update Check")
                     .WithContent("MapWizard is not installed. Please install it to check for updates.")
-                    .WithActionButton("Ok", _ => { }, true)
+                    .WithOkResult("Ok")
                     .TryShowAsync();
             }
 

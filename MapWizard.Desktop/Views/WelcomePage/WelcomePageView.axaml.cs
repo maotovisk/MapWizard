@@ -20,4 +20,9 @@ public partial class WelcomePageView : UserControl
     {
         this.FindAncestorOfType<MainWindow>()?.NavigateToMetadataManager();
     }
+
+    private void OpenComboColourStudio_OnClick(object? sender, RoutedEventArgs e)
+    {
+        this.FindAncestorOfType<MainWindow>()?.NavigateToComboColourStudio();
+    }
 }

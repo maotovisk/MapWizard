@@ -17,7 +17,11 @@
             <Setter Property="Background" Value="Transparent" />
             <Setter Property="BorderBrush" Value="Transparent" />
             <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="CornerRadius" Value="12" />
             <Setter Property="FocusAdorner" Value="{x:Null}" />
+            <Setter Property="Transitions">
+                <Transitions />
+            </Setter>
         </Style>
         <Style Selector="Button.NavButton:pointerover">
             <Setter Property="Background" Value="Transparent" />
@@ -32,6 +36,17 @@
         <Style Selector="Button.NavButton:focus">
             <Setter Property="BorderBrush" Value="Transparent" />
             <Setter Property="BorderThickness" Value="0" />
+        </Style>
+        <Style Selector="Border.NavIconHoverLayer">
+            <Setter Property="Background" Value="{DynamicResource ThemeAccentBrush}" />
+            <Setter Property="Opacity" Value="0" />
+            <Setter Property="CornerRadius" Value="15" />
+        </Style>
+        <Style Selector="Button.NavButton:pointerover Border.NavIconHoverLayer">
+            <Setter Property="Opacity" Value="0.12" />
+        </Style>
+        <Style Selector="Button.NavButton:pressed Border.NavIconHoverLayer">
+            <Setter Property="Opacity" Value="0.18" />
         </Style>
     </suki:SukiWindow.Styles>
 
@@ -91,17 +106,16 @@
         <suki:GlassCard Grid.Column="0" Classes="Accent" Margin="8,8,8,8" Padding="4,10" CornerRadius="16">
             <Grid RowDefinitions="Auto,*,Auto">
                 <StackPanel Grid.Row="0" Spacing="8" HorizontalAlignment="Center">
-                    <Button Classes="Compact NavButton"
-                            Background="Transparent"
-                            BorderThickness="0"
+                    <Button Classes="NavButton"
                             Padding="0"
                             MinWidth="0"
                             Width="82"
                             Foreground="{DynamicResource SukiText}"
                             HorizontalContentAlignment="Center"
                             Command="{Binding OpenWelcomeCommand}">
-                        <StackPanel Spacing="4" HorizontalAlignment="Center">
+                        <StackPanel Spacing="4" HorizontalAlignment="Center" IsHitTestVisible="False">
                             <Grid Width="44" Height="30">
+                                <Border Classes="NavIconHoverLayer" />
                                 <Border CornerRadius="15"
                                         Background="{DynamicResource ThemeAccentBrush}"
                                         Opacity="0.20"
@@ -121,17 +135,16 @@
                         </StackPanel>
                     </Button>
 
-                    <Button Classes="Compact NavButton"
-                            Background="Transparent"
-                            BorderThickness="0"
+                    <Button Classes="NavButton"
                             Padding="0"
                             MinWidth="0"
                             Width="82"
                             Foreground="{DynamicResource SukiText}"
                             HorizontalContentAlignment="Center"
                             Command="{Binding OpenHitSoundCopierCommand}">
-                        <StackPanel Spacing="4" HorizontalAlignment="Center">
+                        <StackPanel Spacing="4" HorizontalAlignment="Center" IsHitTestVisible="False">
                             <Grid Width="44" Height="30">
+                                <Border Classes="NavIconHoverLayer" />
                                 <Border CornerRadius="15"
                                         Background="{DynamicResource ThemeAccentBrush}"
                                         Opacity="0.20"
@@ -151,17 +164,16 @@
                         </StackPanel>
                     </Button>
 
-                    <Button Classes="Compact NavButton"
-                            Background="Transparent"
-                            BorderThickness="0"
+                    <Button Classes="NavButton"
                             Padding="0"
                             MinWidth="0"
                             Width="82"
                             Foreground="{DynamicResource SukiText}"
                             HorizontalContentAlignment="Center"
                             Command="{Binding OpenMetadataManagerCommand}">
-                        <StackPanel Spacing="4" HorizontalAlignment="Center">
+                        <StackPanel Spacing="4" HorizontalAlignment="Center" IsHitTestVisible="False">
                             <Grid Width="44" Height="30">
+                                <Border Classes="NavIconHoverLayer" />
                                 <Border CornerRadius="15"
                                         Background="{DynamicResource ThemeAccentBrush}"
                                         Opacity="0.20"
@@ -181,17 +193,16 @@
                         </StackPanel>
                     </Button>
 
-                    <Button Classes="Compact NavButton"
-                            Background="Transparent"
-                            BorderThickness="0"
+                    <Button Classes="NavButton"
                             Padding="0"
                             MinWidth="0"
                             Width="82"
                             Foreground="{DynamicResource SukiText}"
                             HorizontalContentAlignment="Center"
                             Command="{Binding OpenComboColourStudioCommand}">
-                        <StackPanel Spacing="4" HorizontalAlignment="Center">
+                        <StackPanel Spacing="4" HorizontalAlignment="Center" IsHitTestVisible="False">
                             <Grid Width="44" Height="30">
+                                <Border Classes="NavIconHoverLayer" />
                                 <Border CornerRadius="15"
                                         Background="{DynamicResource ThemeAccentBrush}"
                                         Opacity="0.20"
@@ -213,17 +224,16 @@
                 </StackPanel>
 
                 <StackPanel Grid.Row="2" Spacing="8" HorizontalAlignment="Center">
-                    <Button Classes="Compact NavButton"
-                            Background="Transparent"
-                            BorderThickness="0"
+                    <Button Classes="NavButton"
                             Padding="0"
                             MinWidth="0"
                             Width="82"
                             Foreground="{DynamicResource SukiText}"
                             HorizontalContentAlignment="Center"
                             Command="{Binding OpenSettingsCommand}">
-                        <StackPanel Spacing="4" HorizontalAlignment="Center">
+                        <StackPanel Spacing="4" HorizontalAlignment="Center" IsHitTestVisible="False">
                             <Grid Width="44" Height="30">
+                                <Border Classes="NavIconHoverLayer" />
                                 <Border CornerRadius="15"
                                         Background="{DynamicResource ThemeAccentBrush}"
                                         Opacity="0.20"
