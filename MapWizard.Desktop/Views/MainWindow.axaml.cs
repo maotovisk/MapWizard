@@ -34,6 +34,8 @@ public partial class MainWindow : SukiWindow
 
         public void NavigateToMetadataManager() => ViewModel.NavigateToMetadataManager();
 
+        public void NavigateToComboColourStudio() => ViewModel.NavigateToComboColourStudio();
+
         public void NavigateToSettings() => ViewModel.NavigateToSettings();
 
         private void OnDarkThemeChanged(object? sender, bool isDarkTheme)

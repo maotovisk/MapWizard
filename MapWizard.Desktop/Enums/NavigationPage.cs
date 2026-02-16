@@ -5,5 +5,6 @@ public enum NavigationPage
     Welcome,
     HitSoundCopier,
     MetadataManager,
+    ComboColourStudio,
     Settings
 }
