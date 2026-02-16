@@ -114,8 +114,38 @@ public class ComboColourStudioTests
         Assert.Equal(neutralColour.ToArgb(), readable.ToArgb());
     }
 
-    private static string BuildBeatmap(IEnumerable<string> hitObjects)
+    [Fact]
+    public void ExtractColourHaxFromBeatmap_BreakInPattern_CreatesPointAfterBreak()
     {
+        var beatmap = Beatmap.Decode(BuildBeatmap(
+            hitObjects:
+            [
+                "64,192,1000,53,0,0:0:0:0:",
+                "128,192,1500,53,0,0:0:0:0:",
+                "192,192,4500,53,0,0:0:0:0:",
+                "256,192,5000,53,0,0:0:0:0:"
+            ],
+            eventLines:
+            [
+                "//Background and Video events",
+                "0,0,\"bg.jpg\",0,0",
+                "2,2000,4000"
+            ]));
+
+        var project = ComboColourStudioTool.ExtractColourHaxFromBeatmap(beatmap, maxBurstLength: 1);
+
+        Assert.True(project.ColourPoints.Count >= 2);
+        Assert.Contains(project.ColourPoints, point => point.Time >= 4500);
+    }
+
+    private static string BuildBeatmap(IEnumerable<string> hitObjects, IEnumerable<string>? eventLines = null)
+    {
+        var events = eventLines?.ToArray() ??
+                     [
+                         "//Background and Video events",
+                         "0,0,\"bg.jpg\",0,0"
+                     ];
+
         return $"""
 osu file format v14
 
@@ -138,8 +168,7 @@ SliderMultiplier:1.4
 SliderTickRate:1
 
 [Events]
-//Background and Video events
-0,0,\"bg.jpg\",0,0
+{string.Join("\n", events)}
 
 [TimingPoints]
 0,500,4,2,0,50,1,0

@@ -233,9 +233,20 @@
 
                 <suki:GlassCard Margin="8" Padding="12" CornerRadius="15">
                     <StackPanel Spacing="8">
-                        <Grid ColumnDefinitions="*,Auto" VerticalAlignment="Center">
+                        <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="8" VerticalAlignment="Center">
                             <TextBlock Text="Colour Points" FontWeight="Bold" FontSize="16" />
+
                             <Button Grid.Column="1"
+                                    Classes="Basic"
+                                    Command="{Binding ImportColourHaxFromOriginCommand}"
+                                    ToolTip.Tip="Import colour hax from selected origin beatmap">
+                                <StackPanel Orientation="Horizontal" Spacing="4">
+                                    <materialIcons:MaterialIcon Kind="Import" Width="18" Height="18" />
+                                    <TextBlock Text="Import ColourHax" VerticalAlignment="Center" />
+                                </StackPanel>
+                            </Button>
+
+                            <Button Grid.Column="2"
                                     Classes="Basic"
                                     Command="{Binding AddColourPointCommand}"
                                     ToolTip.Tip="Add colour point">
@@ -309,7 +320,7 @@
                 </suki:GlassCard>
 
                 <suki:GlassCard Margin="8" Padding="12" CornerRadius="15">
-                    <suki:GroupBox Header="Advanced Options">
+                    <suki:GroupBox Header="Object Burst">
                         <StackPanel Spacing="8" Margin="0,8,0,0">
                             <Grid ColumnDefinitions="*,Auto">
                                 <TextBlock Text="Max burst length" VerticalAlignment="Center" />
@@ -319,26 +330,6 @@
                                                Minimum="1"
                                                Maximum="16"
                                                Value="{Binding MaxBurstLength, Mode=TwoWay}" />
-                            </Grid>
-
-                            <Grid ColumnDefinitions="*,Auto">
-                                <TextBlock Text="Update [Colours] combo list" VerticalAlignment="Center" />
-                                <ToggleSwitch Grid.Column="1" IsChecked="{Binding UpdateComboColoursSection, Mode=TwoWay}" />
-                            </Grid>
-
-                            <Grid ColumnDefinitions="*,Auto">
-                                <TextBlock Text="Override hitobject colour shifts" VerticalAlignment="Center" />
-                                <ToggleSwitch Grid.Column="1" IsChecked="{Binding OverrideHitObjectColourShifts, Mode=TwoWay}" />
-                            </Grid>
-
-                            <Grid ColumnDefinitions="*,Auto">
-                                <TextBlock Text="Create [Colours] section if missing" VerticalAlignment="Center" />
-                                <ToggleSwitch Grid.Column="1" IsChecked="{Binding CreateColoursSectionIfMissing, Mode=TwoWay}" />
-                            </Grid>
-
-                            <Grid ColumnDefinitions="*,Auto">
-                                <TextBlock Text="Create backup before export" VerticalAlignment="Center" />
-                                <ToggleSwitch Grid.Column="1" IsChecked="{Binding CreateBackupBeforeWrite, Mode=TwoWay}" />
                             </Grid>
                         </StackPanel>
                     </suki:GroupBox>

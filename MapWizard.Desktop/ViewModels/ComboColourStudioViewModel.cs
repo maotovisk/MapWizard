@@ -52,12 +52,6 @@ public partial class ComboColourStudioViewModel(
 
     [ObservableProperty] private int _maxBurstLength = 1;
     [ObservableProperty] private int _paletteSize = 6;
-    [ObservableProperty] private bool _isAdvancedOptionsExpanded;
-
-    [ObservableProperty] private bool _updateComboColoursSection = true;
-    [ObservableProperty] private bool _overrideHitObjectColourShifts = true;
-    [ObservableProperty] private bool _createColoursSectionIfMissing = true;
-    [ObservableProperty] private bool _createBackupBeforeWrite = true;
 
     [ObservableProperty] private ObservableCollection<AvaloniaComboColour> _comboColours = [];
     [ObservableProperty] private ObservableCollection<AvaloniaComboColourPoint> _colourPoints = [];
@@ -227,6 +221,27 @@ public partial class ComboColourStudioViewModel(
             LoadProjectIntoUi(project, replaceColourPoints: false);
 
             ShowToast(NotificationType.Success, "Combo Colour Studio", "Imported combo colours from beatmap.");
+        }
+        catch (Exception ex)
+        {
+            ShowToast(NotificationType.Error, "Combo Colour Studio", ex.Message);
+        }
+    }
+
+    [RelayCommand]
+    private void ImportColourHaxFromOrigin()
+    {
+        if (!EnsureOriginSelected())
+        {
+            return;
+        }
+
+        try
+        {
+            var maxBurstLength = Math.Max(1, MaxBurstLength);
+            var project = comboColourStudioService.ExtractColourHax(OriginBeatmap.Path, maxBurstLength);
+            LoadProjectIntoUi(project, replaceColourPoints: true);
+            ShowToast(NotificationType.Success, "Combo Colour Studio", "Imported colour hax from beatmap.");
         }
         catch (Exception ex)
         {
@@ -432,15 +447,7 @@ public partial class ComboColourStudioViewModel(
 
             var project = BuildProjectFromUi();
 
-            var options = new ComboColourStudioOptions
-            {
-                UpdateComboColoursSection = UpdateComboColoursSection,
-                OverrideHitObjectColourShifts = OverrideHitObjectColourShifts,
-                CreateColoursSectionIfMissing = CreateColoursSectionIfMissing,
-                CreateBackupBeforeWrite = CreateBackupBeforeWrite
-            };
-
-            comboColourStudioService.ApplyProject(project, destinationPaths, options);
+            comboColourStudioService.ApplyProject(project, destinationPaths, new ComboColourStudioOptions());
 
             ShowToast(NotificationType.Success,
                 "Combo Colour Studio",
