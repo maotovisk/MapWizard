@@ -299,6 +299,8 @@ public partial class HitSoundCopierViewModel(
         finally
         {
             songSelectViewModel.SelectionSubmitted -= OnSelectionSubmitted;
+            dialogContent.DataContext = null;
+            songSelectViewModel.Dispose();
             dialogLifetimeCts.Dispose();
         }
     }

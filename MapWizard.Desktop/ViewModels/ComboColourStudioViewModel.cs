@@ -637,6 +637,8 @@ public partial class ComboColourStudioViewModel(
         finally
         {
             songSelectViewModel.SelectionSubmitted -= OnSelectionSubmitted;
+            dialogContent.DataContext = null;
+            songSelectViewModel.Dispose();
             dialogLifetimeCts.Dispose();
         }
     }
