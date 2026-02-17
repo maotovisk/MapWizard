@@ -64,7 +64,7 @@
             <TextBox x:Name="OriginPathEditTextBox"
                      theme:TextBoxExtensions.Prefix="{Binding FromPrefix, ElementName=Root}"
                      Watermark="{Binding FromWatermark, ElementName=Root}"
-                     Text="{Binding OriginBeatmap.Path, Mode=TwoWay}"
+                     Text="{Binding OriginBeatmap.Path, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                      HorizontalAlignment="Stretch"
                      VerticalAlignment="Center"
                      IsVisible="{Binding IsEditingOriginPath, ElementName=Root}"
@@ -73,7 +73,7 @@
 
             <TextBox theme:TextBoxExtensions.Prefix="{Binding FromPrefix, ElementName=Root}"
                      x:Name="OriginPathSummaryTextBox"
-                     Text="{Binding OriginBeatmap.Path, Converter={StaticResource MapPathSummaryConverter}}"
+                     Text="{Binding OriginBeatmap.Path, Mode=OneWay, Converter={StaticResource MapPathSummaryConverter}}"
                      HorizontalAlignment="Stretch"
                      VerticalAlignment="Center"
                      IsReadOnly="True"
@@ -109,7 +109,7 @@
             <TextBox x:Name="DestinationPathEditTextBox"
                      theme:TextBoxExtensions.Prefix="{Binding ToPrefix, ElementName=Root}"
                      Watermark="{Binding ToWatermark, ElementName=Root}"
-                     Text="{Binding DestinationBeatmaps[0].Path, Mode=TwoWay}"
+                     Text="{Binding DestinationBeatmaps[0].Path, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                      HorizontalAlignment="Stretch"
                      VerticalAlignment="Center"
                      IsVisible="{Binding IsEditingDestinationPath, ElementName=Root}"
@@ -118,7 +118,7 @@
 
             <TextBox theme:TextBoxExtensions.Prefix="{Binding ToPrefix, ElementName=Root}"
                      x:Name="DestinationPathSummaryTextBox"
-                     Text="{Binding DestinationBeatmaps[0].Path, Converter={StaticResource MapPathSummaryConverter}}"
+                     Text="{Binding DestinationBeatmaps[0].Path, Mode=OneWay, Converter={StaticResource MapPathSummaryConverter}}"
                      HorizontalAlignment="Stretch"
                      VerticalAlignment="Center"
                      IsReadOnly="True"
@@ -164,7 +164,7 @@
                 <Grid Margin="0,0, 8,8">
                   <TextBox
                     theme:TextBoxExtensions.Prefix="{Binding AdditionalPrefix, RelativeSource={RelativeSource AncestorType=controls:BeatmapSelectionPanel}}"
-                    Text="{Binding Path, Mode=TwoWay}"
+                    Text="{Binding Path, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                     HorizontalAlignment="Stretch"
                     IsVisible="False"
                     LostFocus="AdditionalPathEditTextBox_OnLostFocus"
@@ -173,7 +173,7 @@
                   <TextBox
                     x:Name="AdditionalPathSummaryTextBox"
                     theme:TextBoxExtensions.Prefix="{Binding AdditionalPrefix, RelativeSource={RelativeSource AncestorType=controls:BeatmapSelectionPanel}}"
-                    Text="{Binding Path, Converter={StaticResource MapPathSummaryConverter}}"
+                    Text="{Binding Path, Mode=OneWay, Converter={StaticResource MapPathSummaryConverter}}"
                     HorizontalAlignment="Stretch"
                     IsReadOnly="True"
                     ToolTip.Tip="Click to edit full path"
