@@ -22,6 +22,17 @@ public class FilesService (Lazy<TopLevel> toplevelLazy) : IFilesService
         return files.Count >= 1 ? files.ToList() : new List<IStorageFile>();
     }
 
+    public async Task<List<IStorageFolder>> OpenFolderAsync(FolderPickerOpenOptions? options = null)
+    {
+        var folders = await TopLevel.StorageProvider.OpenFolderPickerAsync(options ?? new FolderPickerOpenOptions
+        {
+            Title = "Open Folder",
+            AllowMultiple = false
+        });
+
+        return folders.ToList();
+    }
+
     public async Task<IStorageFile?> SaveFileAsync(FilePickerSaveOptions? options = null)
     {
         return await TopLevel.StorageProvider.SaveFilePickerAsync(options ?? new FilePickerSaveOptions

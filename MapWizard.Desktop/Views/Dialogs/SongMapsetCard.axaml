@@ -1,0 +1,211 @@
+<UserControl
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:vm="clr-namespace:MapWizard.Desktop.ViewModels"
+    xmlns:dialogs="clr-namespace:MapWizard.Desktop.Views.Dialogs"
+    xmlns:materialIcons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+    x:Class="MapWizard.Desktop.Views.Dialogs.SongMapsetCard"
+    x:DataType="vm:SongMapsetCardViewModel"
+    d:DesignWidth="780"
+    d:DesignHeight="220"
+    mc:Ignorable="d">
+
+    <UserControl.Styles>
+        <Style Selector="Border.CardRoot">
+            <Setter Property="Background" Value="#170D1522" />
+            <Setter Property="BorderBrush" Value="#4AFFFFFF" />
+            <Setter Property="BorderThickness" Value="2" />
+            <Setter Property="CornerRadius" Value="16" />
+            <Setter Property="ClipToBounds" Value="True" />
+            <Setter Property="Margin" Value="0,0,0,14" />
+            <Setter Property="MaxWidth" Value="600" />
+            <Setter Property="HorizontalAlignment" Value="Stretch" />
+        </Style>
+
+        <Style Selector="Button.CardHeaderHit">
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderBrush" Value="Transparent" />
+            <Setter Property="HorizontalAlignment" Value="Stretch" />
+            <Setter Property="VerticalAlignment" Value="Stretch" />
+            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+            <Setter Property="VerticalContentAlignment" Value="Stretch" />
+            <Setter Property="FocusAdorner" Value="{x:Null}" />
+        </Style>
+        <Style Selector="Button.CardHeaderHit:pointerover">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderBrush" Value="Transparent" />
+        </Style>
+        <Style Selector="Button.CardHeaderHit:pressed">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderBrush" Value="Transparent" />
+            <Setter Property="RenderTransform">
+                <TransformGroup>
+                    <TranslateTransform X="0" Y="0" />
+                    <ScaleTransform ScaleX="1" ScaleY="1" />
+                </TransformGroup>
+            </Setter>
+        </Style>
+
+        <Style Selector="Border.DifficultyPill">
+            <Setter Property="Background" Value="#55131D31" />
+            <Setter Property="BorderBrush" Value="#7BFFFFFF" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="10" />
+            <Setter Property="Padding" Value="12,6" />
+            <Setter Property="Margin" Value="0,0,0,10" />
+        </Style>
+
+        <Style Selector="Border.MapBackground">
+            <Setter Property="CornerRadius" Value="14" />
+            <Setter Property="ClipToBounds" Value="True" />
+        </Style>
+        <Style Selector="Border.MapBackground.expanded">
+            <Setter Property="CornerRadius" Value="14,14,4,4" />
+        </Style>
+
+        <Style Selector="Border.DetailsPanel">
+            <Setter Property="Background" Value="#3A101A2B" />
+            <Setter Property="Padding" Value="14,12,14,8" />
+            <Setter Property="ClipToBounds" Value="True" />
+        </Style>
+
+        <Style Selector="ToggleButton.DifficultyChip">
+            <Setter Property="Margin" Value="0,0,10,10" />
+            <Setter Property="Padding" Value="12,7" />
+            <Setter Property="MinHeight" Value="32" />
+            <Setter Property="Background" Value="#2819253A" />
+            <Setter Property="BorderBrush" Value="#50FFFFFF" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="12" />
+            <Setter Property="HorizontalContentAlignment" Value="Center" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+        </Style>
+
+        <Style Selector="ToggleButton.DifficultyChip:pointerover">
+            <Setter Property="Background" Value="#3C263650" />
+            <Setter Property="BorderBrush" Value="#86FFFFFF" />
+        </Style>
+
+        <Style Selector="ToggleButton.DifficultyChip:checked">
+            <Setter Property="Background" Value="#5A6F6BFF" />
+            <Setter Property="BorderBrush" Value="#A4B9B7FF" />
+        </Style>
+    </UserControl.Styles>
+
+    <Border Classes="CardRoot">
+        <Grid RowDefinitions="Auto,Auto">
+            <Grid Height="80"
+                  HorizontalAlignment="Stretch">
+                <Border Classes="MapBackground"
+                        Classes.expanded="{Binding IsExpanded}">
+                    <Grid>
+                        <Border Background="#1A2338" />
+
+                        <Border IsVisible="{Binding HasBackgroundImage}">
+                            <Border.Background>
+                                <ImageBrush Source="{Binding BackgroundImage}"
+                                            Stretch="UniformToFill"
+                                            AlignmentX="Center"
+                                            AlignmentY="Center" />
+                            </Border.Background>
+                        </Border>
+
+                        <Border>
+                            <Border.Background>
+                                <LinearGradientBrush StartPoint="0,0.5" EndPoint="1,0.5">
+                                    <GradientStop Color="#D0121B2E" Offset="0" />
+                                    <GradientStop Color="#9B131B2F" Offset="0.34" />
+                                    <GradientStop Color="#45131B2F" Offset="0.72" />
+                                    <GradientStop Color="#30131B2F" Offset="1" />
+                                </LinearGradientBrush>
+                            </Border.Background>
+                        </Border>
+
+                        <Border>
+                            <Border.Background>
+                                <LinearGradientBrush StartPoint="0,1" EndPoint="0,0">
+                                    <GradientStop Color="#64050B15" Offset="0" />
+                                    <GradientStop Color="#1A050B15" Offset="0.55" />
+                                    <GradientStop Color="#00050B15" Offset="1" />
+                                </LinearGradientBrush>
+                            </Border.Background>
+                        </Border>
+                    </Grid>
+                </Border>
+
+                <Grid Margin="18,12"
+                      ColumnDefinitions="*,Auto"
+                      ColumnSpacing="12">
+                    <StackPanel VerticalAlignment="Center"
+                                Spacing="3"
+                                Margin="0,0,0,4">
+                        <TextBlock Text="{Binding ArtistAndTitle}"
+                                   FontWeight="Bold"
+                                   FontSize="18"
+                                   TextTrimming="CharacterEllipsis"
+                                   MaxLines="1" />
+                        <TextBlock Text="{Binding CreatorLabel}"
+                                   FontSize="14"
+                                   FontWeight="SemiBold"
+                                   Opacity="0.94"
+                                   TextTrimming="CharacterEllipsis"
+                                   MaxLines="1" />
+                        <TextBlock Text="{Binding LastEditedLabel}"
+                                   FontSize="12"
+                                   Opacity="0.88"
+                                   TextTrimming="CharacterEllipsis"
+                                   MaxLines="1" />
+                    </StackPanel>
+
+                    <Border Grid.Column="1"
+                            Classes="DifficultyPill"
+                            VerticalAlignment="Top"
+                            HorizontalAlignment="Right"
+                            Margin="0">
+                        <TextBlock Text="{Binding DifficultyCountLabel}"
+                                   FontSize="12"
+                                   FontWeight="SemiBold" />
+                    </Border>
+                </Grid>
+
+                <Button Classes="CardHeaderHit"
+                        Command="{Binding DataContext.ToggleMapsetExpansionCommand, RelativeSource={RelativeSource AncestorType=dialogs:SongSelectDialog}}"
+                        CommandParameter="{Binding}" />
+            </Grid>
+
+            <Border Grid.Row="1"
+                    Classes="DetailsPanel"
+                    IsVisible="{Binding IsExpanded}">
+                <ItemsControl ItemsSource="{Binding Difficulties}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate x:DataType="vm:SongDifficultyItemViewModel">
+                            <ToggleButton Classes="DifficultyChip"
+                                          IsChecked="{Binding IsSelected, Mode=OneWay}"
+                                          Command="{Binding DataContext.SelectDifficultyCommand, RelativeSource={RelativeSource AncestorType=dialogs:SongSelectDialog}}"
+                                          CommandParameter="{Binding}">
+                                <StackPanel Orientation="Horizontal" Spacing="7">
+                                    <materialIcons:MaterialIcon Kind="CheckCircle"
+                                                                Width="14"
+                                                                Height="14"
+                                                                IsVisible="{Binding IsSelected}" />
+                                    <TextBlock Text="{Binding Name}"
+                                               TextTrimming="CharacterEllipsis"
+                                               MaxWidth="260" />
+                                </StackPanel>
+                            </ToggleButton>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </Border>
+        </Grid>
+    </Border>
+</UserControl>
