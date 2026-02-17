@@ -5,6 +5,15 @@ on:
     branches:
       - main
   workflow_dispatch:
+    inputs:
+      tag_name:
+        description: "Optional custom pre-release tag (example: pre-20260217-hotfix1)"
+        required: false
+        default: ""
+      version:
+        description: "Optional custom pre-release version (example: 1.2.4-pre.20260217.1)"
+        required: false
+        default: ""
 
 jobs:
   prepare:
@@ -24,13 +33,17 @@ jobs:
       - name: Compute tag/version metadata
         id: metadata
         shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          INPUT_TAG_NAME: ${{ github.event.inputs.tag_name || '' }}
+          INPUT_VERSION: ${{ github.event.inputs.version || '' }}
         run: |
           set -euo pipefail
 
           git fetch --tags --force
 
           date_stamp="$(date -u +%Y%m%d)"
-          tag_name="pre-${date_stamp}"
+          default_tag_name="pre-${date_stamp}"
 
           latest_stable_tag="$(git tag -l 'v[0-9]*.[0-9]*.[0-9]*' --sort=-v:refname | head -n 1)"
           if [[ -z "${latest_stable_tag}" ]]; then
@@ -41,7 +54,25 @@ jobs:
 
           IFS='.' read -r major minor patch <<< "${base_version}"
           next_patch=$((patch + 1))
-          next_version="${major}.${minor}.${next_patch}-pre.${date_stamp}"
+          default_next_version="${major}.${minor}.${next_patch}-pre.${date_stamp}"
+
+          tag_name="${default_tag_name}"
+          next_version="${default_next_version}"
+
+          if [[ "${EVENT_NAME}" == "workflow_dispatch" ]]; then
+            trimmed_tag_name="${INPUT_TAG_NAME#"${INPUT_TAG_NAME%%[![:space:]]*}"}"
+            trimmed_tag_name="${trimmed_tag_name%"${trimmed_tag_name##*[![:space:]]}"}"
+            trimmed_version="${INPUT_VERSION#"${INPUT_VERSION%%[![:space:]]*}"}"
+            trimmed_version="${trimmed_version%"${trimmed_version##*[![:space:]]}"}"
+
+            if [[ -n "${trimmed_tag_name}" ]]; then
+              tag_name="${trimmed_tag_name}"
+            fi
+
+            if [[ -n "${trimmed_version}" ]]; then
+              next_version="${trimmed_version}"
+            fi
+          fi
 
           if git rev-parse -q --verify "refs/tags/${tag_name}" >/dev/null; then
             should_release="false"
