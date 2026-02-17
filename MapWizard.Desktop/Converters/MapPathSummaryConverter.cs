@@ -2,6 +2,7 @@ using System;
 using System.Globalization;
 using System.IO;
 using System.Text.RegularExpressions;
+using Avalonia.Data;
 using Avalonia.Data.Converters;
 
 namespace MapWizard.Desktop.Converters;
@@ -67,7 +68,7 @@ public sealed class MapPathSummaryConverter : IValueConverter
 
     public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
-        return value?.ToString() ?? string.Empty;
+        return BindingOperations.DoNothing;
     }
 
     private static bool IsValidOsuMapPath(string path)
