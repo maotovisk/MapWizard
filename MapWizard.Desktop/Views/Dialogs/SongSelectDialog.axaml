@@ -40,7 +40,7 @@
         </Style>
     </UserControl.Styles>
 
-    <Grid RowDefinitions="Auto,*,Auto" RowSpacing="12">
+    <Grid RowDefinitions="Auto,*" RowSpacing="12">
         <Border Classes="PopupHeader" Margin="0,6,0,0">
             <Grid RowDefinitions="Auto,Auto" RowSpacing="8">
                 <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
@@ -118,22 +118,5 @@
             </Border>
         </suki:BusyArea>
 
-        <Grid Grid.Row="2"
-              ColumnDefinitions="Auto,*"
-              ColumnSpacing="12"
-              IsVisible="{Binding AllowMultipleSelection}">
-            <Button Classes="Basic"
-                    MinHeight="36"
-                    Padding="14,0"
-                    Command="{Binding ConfirmSelectionCommand}"
-                    IsEnabled="{Binding CanConfirmSelection}">
-                <TextBlock Text="{Binding SelectedDifficultyCount, StringFormat=Use Selected ({0})}" />
-            </Button>
-
-            <TextBlock Grid.Column="1"
-                       VerticalAlignment="Center"
-                       Text="Select one or more difficulties, then confirm your selection."
-                       Opacity="0.88" />
-        </Grid>
     </Grid>
 </UserControl>

@@ -156,14 +156,6 @@
                                         </StackPanel>
                                     </Button>
                                     <Button Classes="Flat Rounded"
-                                            Command="{Binding PickOriginFileManuallyCommand}"
-                                            ToolTip.Tip="Open native file picker fallback">
-                                        <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
-                                            <materialIcons:MaterialIcon Kind="FileSearchOutline" Width="24" Height="24" />
-                                            <TextBlock VerticalAlignment="Center" Text="Manual" />
-                                        </StackPanel>
-                                    </Button>
-                                    <Button Classes="Flat Rounded"
                                             Command="{Binding SetOriginFromMemoryCommand}"
                                             ToolTip.Tip="Use currently selected osu! beatmap">
                                         <StackPanel Orientation="Horizontal" Spacing="4">
@@ -193,14 +185,6 @@
                                         <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
                                             <materialIcons:MaterialIcon Kind="FileSearchOutline" Width="24" Height="24" />
                                             <TextBlock VerticalAlignment="Center" Text="Song Select" />
-                                        </StackPanel>
-                                    </Button>
-                                    <Button Classes="Flat Rounded"
-                                            Command="{Binding PickDestinationFileManuallyCommand}"
-                                            ToolTip.Tip="Open native file picker fallback">
-                                        <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
-                                            <materialIcons:MaterialIcon Kind="FileSearchOutline" Width="24" Height="24" />
-                                            <TextBlock VerticalAlignment="Center" Text="Manual" />
                                         </StackPanel>
                                     </Button>
                                     <Button Classes="Flat Rounded"

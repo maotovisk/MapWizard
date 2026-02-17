@@ -386,44 +386,6 @@ public partial class ComboColourStudioViewModel(
     }
 
     [RelayCommand]
-    private async Task PickOriginFileManually(CancellationToken token)
-    {
-        try
-        {
-            var preferredDirectory = await filesService.TryGetFolderFromPathAsync(
-                string.IsNullOrWhiteSpace(PreferredDirectory)
-                    ? Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)
-                    : PreferredDirectory);
-
-            var file = await filesService.OpenFileAsync(new FilePickerOpenOptions
-            {
-                Title = "Select beatmap",
-                AllowMultiple = false,
-                FileTypeFilter =
-                [
-                    new FilePickerFileType("osu! beatmap file")
-                    {
-                        Patterns = ["*.osu"],
-                        MimeTypes = ["application/octet-stream"]
-                    }
-                ],
-                SuggestedStartLocation = preferredDirectory
-            });
-
-            if (token.IsCancellationRequested || file is null || file.Count == 0)
-            {
-                return;
-            }
-
-            await SetOriginBeatmapPath(file.First().Path.LocalPath);
-        }
-        catch (Exception ex)
-        {
-            ShowToast(NotificationType.Error, "Combo Colour Studio", ex.Message);
-        }
-    }
-
-    [RelayCommand]
     private async Task SetOriginFromMemory()
     {
         var beatmapPath = GetBeatmapFromMemory();
@@ -451,44 +413,6 @@ public partial class ComboColourStudioViewModel(
             }
 
             SetDestinationBeatmaps(selectedPaths);
-        }
-        catch (Exception ex)
-        {
-            ShowToast(NotificationType.Error, "Combo Colour Studio", ex.Message);
-        }
-    }
-
-    [RelayCommand]
-    private async Task PickDestinationFileManually(CancellationToken token)
-    {
-        try
-        {
-            var preferredDirectory = await filesService.TryGetFolderFromPathAsync(
-                string.IsNullOrWhiteSpace(PreferredDirectory)
-                    ? Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)
-                    : PreferredDirectory);
-
-            var file = await filesService.OpenFileAsync(new FilePickerOpenOptions
-            {
-                Title = "Select destination beatmap(s)",
-                AllowMultiple = true,
-                FileTypeFilter =
-                [
-                    new FilePickerFileType("osu! beatmap file")
-                    {
-                        Patterns = ["*.osu"],
-                        MimeTypes = ["application/octet-stream"]
-                    }
-                ],
-                SuggestedStartLocation = preferredDirectory
-            });
-
-            if (token.IsCancellationRequested || file is null || file.Count == 0)
-            {
-                return;
-            }
-
-            SetDestinationBeatmaps(file.Select(f => f.Path.LocalPath).ToList());
         }
         catch (Exception ex)
         {
@@ -669,28 +593,35 @@ public partial class ComboColourStudioViewModel(
 
         try
         {
-            var shown = dialogManager.CreateDialog()
+            var dialogBuilder = dialogManager.CreateDialog()
                 .WithTitle("Song Select")
                 .WithContent(dialogContent)
                 .WithActionButton("Close", _ => { }, true, "Flat")
                 .Dismiss().ByClickingBackground()
                 .OnDismissed(_ =>
                 {
-                    if (!dialogLifetimeCts.IsCancellationRequested)
+                    try
                     {
-                        try
-                        {
-                            dialogLifetimeCts.Cancel();
-                        }
-                        catch (ObjectDisposedException)
-                        {
-                            // The dialog completion path can dispose this CTS before the dismissed callback runs.
-                        }
+                        dialogLifetimeCts.Cancel();
+                    }
+                    catch (ObjectDisposedException)
+                    {
+                        // The dialog completion path can dispose this CTS before the dismissed callback runs.
                     }
 
                     completion.TrySetResult(null);
-                })
-                .TryShow();
+                });
+
+            if (allowMultiple)
+            {
+                dialogBuilder = dialogBuilder.WithActionButton(
+                    "Use Selected",
+                    _ => songSelectViewModel.ConfirmSelectionCommand.Execute(null),
+                    false,
+                    "Success");
+            }
+
+            var shown = dialogBuilder.TryShow();
 
             if (!shown)
             {

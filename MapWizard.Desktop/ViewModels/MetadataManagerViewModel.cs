@@ -7,15 +7,17 @@ using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Collections;
 using Avalonia.Controls.Notifications;
-using Avalonia.Platform.Storage;
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
+using Avalonia.Media.Imaging;
 using BeatmapParser;
 using BeatmapParser.Enums.Storyboard;
 using BeatmapParser.Events;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using MapWizard.Desktop.Models;
 using MapWizard.Desktop.Services;
+using MapWizard.Desktop.Views.Dialogs;
 using MapWizard.Tools.MetadataManager;
+using SukiUI.Dialogs;
 using SukiUI.Toasts;
 using Color = System.Drawing.Color;
 
@@ -25,33 +27,37 @@ public partial class MetadataManagerViewModel(
     IFilesService filesService,
     IMetadataManagerService metadataManagerService,
     IOsuMemoryReaderService osuMemoryReaderService,
+    ISettingsService settingsService,
+    ISongLibraryService songLibraryService,
+    ISukiDialogManager dialogManager,
     ISukiToastManager toastManager) : ViewModelBase
 {
     [ObservableProperty] private SelectedMap _originBeatmap = new();
-
     [ObservableProperty] private bool _sliderTrackOverride;
-
     [ObservableProperty] private bool _sliderBorderOverride;
-
     [ObservableProperty] private bool _overwriteBackground;
-
     [ObservableProperty] private bool _overwriteVideo;
-
     [ObservableProperty] private bool _resetBeatmapIds;
-
     [ObservableProperty] private bool _removeDuplicateTags;
-
     [ObservableProperty] private bool _hasMultiple;
-    
     [ObservableProperty] private bool _applyMetadataSection = true;
-    
     [ObservableProperty] private bool _applyGeneralSection;
-    
     [ObservableProperty] private bool _applyColoursSection;
-    
     [ObservableProperty] private bool _applyCombosSection;
 
-    [NotifyPropertyChangedFor(nameof(AdditionalBeatmaps))] [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasHeaderBackgroundImage))]
+    [ObservableProperty] private Bitmap? _headerBackgroundImage;
+
+    [NotifyPropertyChangedFor(nameof(OriginContextTopLine))]
+    [ObservableProperty] private string _originArtist = string.Empty;
+
+    [NotifyPropertyChangedFor(nameof(OriginContextTopLine))]
+    [ObservableProperty] private string _originSongName = string.Empty;
+
+    [ObservableProperty] private string _backgroundImagePath = string.Empty;
+
+    [NotifyPropertyChangedFor(nameof(AdditionalBeatmaps))]
+    [ObservableProperty]
     private ObservableCollection<SelectedMap> _destinationBeatmaps = [new SelectedMap()];
 
     public ObservableCollection<SelectedMap> AdditionalBeatmaps
@@ -64,15 +70,25 @@ public partial class MetadataManagerViewModel(
         }
     }
 
-    [ObservableProperty] private string _preferredDirectory = "";
+    public bool HasHeaderBackgroundImage => HeaderBackgroundImage is not null;
 
+    public string OriginContextTopLine
+    {
+        get
+        {
+            var artist = string.IsNullOrWhiteSpace(OriginArtist) ? "Unknown Artist" : OriginArtist;
+            var song = string.IsNullOrWhiteSpace(OriginSongName) ? "Unknown Title" : OriginSongName;
+            return $"{artist} - {song}";
+        }
+    }
+
+    [ObservableProperty] private string _preferredDirectory = string.Empty;
     [ObservableProperty] private AvaloniaBeatmapMetadata _metadata = new();
 
     [RelayCommand]
     private void RemoveMap(string path)
     {
         DestinationBeatmaps = new ObservableCollection<SelectedMap>(DestinationBeatmaps.Where(x => x.Path != path));
-
         if (DestinationBeatmaps.Count < 2)
         {
             HasMultiple = false;
@@ -82,7 +98,6 @@ public partial class MetadataManagerViewModel(
     private async Task ImportMetadataFromOriginAsync(CancellationToken token)
     {
         var origin = OriginBeatmap.Path;
-
         if (string.IsNullOrEmpty(origin))
         {
             toastManager.CreateToast()
@@ -92,23 +107,21 @@ public partial class MetadataManagerViewModel(
                 .Dismiss().ByClicking()
                 .Dismiss().After(TimeSpan.FromSeconds(8))
                 .Queue();
-
             return;
         }
 
         try
         {
             var originMetadata = Beatmap.Decode(await File.ReadAllTextAsync(origin, token) ?? string.Empty);
-            AvaloniaList<AvaloniaComboColour> comboColourList = [];
+            var comboColourList = new AvaloniaList<AvaloniaComboColour>();
 
-            if (originMetadata.Colours != null)
+            if (originMetadata.Colours is not null)
             {
                 foreach (var combo in originMetadata.Colours.Combos)
                 {
                     comboColourList.Add(new AvaloniaComboColour((int)combo.Number, combo.Colour));
                 }
             }
-
 
             Metadata = new AvaloniaBeatmapMetadata
             {
@@ -135,10 +148,13 @@ public partial class MetadataManagerViewModel(
                 WidescreenStoryboard = originMetadata.GeneralSection.WidescreenStoryboard ?? false,
                 LetterboxInBreaks = originMetadata.GeneralSection.LetterboxInBreaks ?? false,
                 EpilepsyWarning = originMetadata.GeneralSection.EpilepsyWarning ?? false,
-                SamplesMatch = originMetadata.GeneralSection.SamplesMatchPlaybackRate ?? false,
+                SamplesMatch = originMetadata.GeneralSection.SamplesMatchPlaybackRate ?? false
             };
+
             SliderBorderOverride = Metadata.SliderBorderColour != null;
             SliderTrackOverride = Metadata.SliderTrackColour != null;
+            LoadOriginBeatmapHeader(originMetadata);
+            LoadBackgroundImage(origin, originMetadata);
 
             toastManager.CreateToast()
                 .OfType(NotificationType.Success)
@@ -148,9 +164,10 @@ public partial class MetadataManagerViewModel(
                 .Dismiss().After(TimeSpan.FromSeconds(8))
                 .Queue();
         }
-        catch (Exception e)
+        catch (Exception exception)
         {
-            Console.WriteLine(e.Message);
+            Console.WriteLine(exception.Message);
+            ClearOriginBeatmapHeader();
 
             toastManager.CreateToast()
                 .OfType(NotificationType.Error)
@@ -163,37 +180,34 @@ public partial class MetadataManagerViewModel(
     }
 
     [RelayCommand]
-    async Task SetOriginFromMemory(CancellationToken token)
+    private async Task SetOriginFromMemory(CancellationToken token)
     {
         var currentBeatmap = GetBeatmapFromMemory();
-
-        if (currentBeatmap is null) return;
-
-        OriginBeatmap = new SelectedMap()
+        if (currentBeatmap is null)
         {
-            Path = currentBeatmap
-        };
+            return;
+        }
 
-        PreferredDirectory = Path.GetDirectoryName(OriginBeatmap.Path) ?? "";
-        await ImportMetadataFromOriginAsync(token);
+        await SetOriginBeatmapPath(currentBeatmap, token);
     }
 
     [RelayCommand]
-    void AddDestinationFromMemory()
+    private void AddDestinationFromMemory()
     {
         var currentBeatmap = GetBeatmapFromMemory();
-
-        if (currentBeatmap is null) return;
+        if (currentBeatmap is null)
+        {
+            return;
+        }
 
         var destinationBeatmap = DestinationBeatmaps;
-
         if (destinationBeatmap.Count == 0 ||
             (destinationBeatmap.Count == 1 && string.IsNullOrEmpty(destinationBeatmap.First().Path)))
         {
             destinationBeatmap = [];
         }
 
-        if (destinationBeatmap.Any(x => x.Path == currentBeatmap))
+        if (destinationBeatmap.Any(x => string.Equals(x.Path, currentBeatmap, StringComparison.OrdinalIgnoreCase)))
         {
             toastManager.CreateToast()
                 .OfType(NotificationType.Error)
@@ -202,21 +216,16 @@ public partial class MetadataManagerViewModel(
                 .Dismiss().ByClicking()
                 .Dismiss().After(TimeSpan.FromSeconds(8))
                 .Queue();
-
             return;
         }
 
-        destinationBeatmap = new ObservableCollection<SelectedMap>(destinationBeatmap.Append(new SelectedMap()
+        destinationBeatmap = new ObservableCollection<SelectedMap>(destinationBeatmap.Append(new SelectedMap
         {
             Path = currentBeatmap
         }));
 
-        if (destinationBeatmap.Count > 1)
-        {
-            HasMultiple = true;
-        }
-
         DestinationBeatmaps = destinationBeatmap;
+        HasMultiple = DestinationBeatmaps.Count > 1;
     }
 
     private string? GetBeatmapFromMemory()
@@ -251,111 +260,293 @@ public partial class MetadataManagerViewModel(
     }
 
     [RelayCommand]
-    void RemoveColour(AvaloniaComboColour colour)
+    private void RemoveColour(AvaloniaComboColour colour)
     {
         try
         {
             var index = Metadata.Colours.IndexOf(colour);
             Metadata.Colours.RemoveAt(index);
 
-            // Reprocess the combo numbers
-
             for (var i = index; i < Metadata.Colours.Count; i++)
             {
                 Metadata.Colours[i].Number = i + 1;
             }
         }
-        catch (Exception e)
+        catch (Exception exception)
         {
-            Console.WriteLine(e.Message);
+            Console.WriteLine(exception.Message);
         }
     }
 
     [RelayCommand]
-    void AddColour()
+    private void AddColour()
     {
         Metadata.Colours.Add(new AvaloniaComboColour(Metadata.Colours.Count + 1, Color.White));
     }
 
     [RelayCommand]
-    async Task PickOriginFile(CancellationToken token)
+    private async Task PickOriginFile(CancellationToken token)
     {
         try
         {
-            var file = await filesService.OpenFileAsync(
-                new FilePickerOpenOptions()
-                {
-                    Title = "Select the origin beatmap file",
-                    AllowMultiple = false,
-                    FileTypeFilter =
-                    [
-                        new FilePickerFileType("osu! beatmap file")
-                        {
-                            Patterns = ["*.osu"],
-                            MimeTypes = new List<string>
-                            {
-                                "application/octet-stream",
-                            }
-                        }
-                    ]
-                });
-
-            if (file is null || file.Count == 0) return;
-
-            OriginBeatmap = new SelectedMap()
+            var selectedPaths = await ShowSongSelectDialogAsync(allowMultiple: false, token: token);
+            if (token.IsCancellationRequested || selectedPaths is null || selectedPaths.Count == 0)
             {
-                Path = file.First().Path.LocalPath
-            };
+                return;
+            }
 
-            PreferredDirectory = Path.GetDirectoryName(OriginBeatmap.Path) ?? "";
-            await ImportMetadataFromOriginAsync(token);
+            await SetOriginBeatmapPath(selectedPaths[0], token);
         }
-        catch (Exception e)
+        catch (Exception exception)
         {
-            Console.WriteLine(e.Message);
+            Console.WriteLine(exception.Message);
         }
     }
 
     [RelayCommand]
-    async Task PickDestinationFile(CancellationToken token)
+    private async Task PickDestinationFile(CancellationToken token)
     {
         try
         {
-            var preferredDirectory = await filesService.TryGetFolderFromPathAsync(PreferredDirectory);
-            var file = await filesService.OpenFileAsync(
-                new FilePickerOpenOptions()
-                {
-                    Title = "Select the origin beatmap file",
-                    AllowMultiple = true,
-                    FileTypeFilter =
-                    [
-                        new FilePickerFileType("osu! beatmap file")
-                        {
-                            Patterns = ["*.osu"],
-                            MimeTypes = new List<string>()
-                            {
-                                "application/octet-stream",
-                            }
-                        }
-                    ],
-                    SuggestedStartLocation = preferredDirectory,
-                });
-
-            if (file is null || file.Count == 0) return;
-
-            if (file.Count > 1)
+            var selectedPaths = await ShowSongSelectDialogAsync(
+                allowMultiple: true,
+                token: token,
+                preferredMapsetDirectoryPath: GetOriginMapsetDirectoryPath());
+            if (token.IsCancellationRequested || selectedPaths is null || selectedPaths.Count == 0)
             {
-                HasMultiple = true;
+                return;
             }
 
-            DestinationBeatmaps =
-                new ObservableCollection<SelectedMap>(file.Select(f => new SelectedMap { Path = f.Path.LocalPath }));
-            Console.WriteLine($"Selected file: {string.Join(", ", DestinationBeatmaps.Select(x => x.Path))}");
+            SetDestinationBeatmaps(selectedPaths);
         }
-        catch (Exception e)
+        catch (Exception exception)
         {
-            Console.WriteLine(e.Message);
+            Console.WriteLine(exception.Message);
         }
+    }
+
+    private async Task SetOriginBeatmapPath(string beatmapPath, CancellationToken token)
+    {
+        OriginBeatmap = new SelectedMap
+        {
+            Path = beatmapPath
+        };
+
+        PreferredDirectory = Path.GetDirectoryName(OriginBeatmap.Path) ?? string.Empty;
+        await ImportMetadataFromOriginAsync(token);
+    }
+
+    private void SetDestinationBeatmaps(IReadOnlyCollection<string> beatmapPaths)
+    {
+        var normalizedPaths = beatmapPaths
+            .Where(path => !string.IsNullOrWhiteSpace(path))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .Select(path => new SelectedMap { Path = path })
+            .ToList();
+
+        if (normalizedPaths.Count == 0)
+        {
+            return;
+        }
+
+        DestinationBeatmaps = new ObservableCollection<SelectedMap>(normalizedPaths);
+        HasMultiple = DestinationBeatmaps.Count > 1;
+        PreferredDirectory = Path.GetDirectoryName(DestinationBeatmaps[0].Path) ?? PreferredDirectory;
+    }
+
+    private async Task<IReadOnlyList<string>?> ShowSongSelectDialogAsync(
+        bool allowMultiple,
+        CancellationToken token,
+        string? preferredMapsetDirectoryPath = null)
+    {
+        var songsPath = ResolveSongsPath();
+        var songSelectViewModel = new SongSelectDialogViewModel(
+            songLibraryService,
+            filesService,
+            songsPath,
+            allowMultiple,
+            preferredMapsetDirectoryPath);
+
+        var dialogContent = new SongSelectDialog
+        {
+            DataContext = songSelectViewModel
+        };
+
+        var completion = new TaskCompletionSource<IReadOnlyList<string>?>(
+            TaskCreationOptions.RunContinuationsAsynchronously);
+        var dialogLifetimeCts = CancellationTokenSource.CreateLinkedTokenSource(token);
+
+        void OnSelectionSubmitted(IReadOnlyList<string> selectedPaths)
+        {
+            completion.TrySetResult(selectedPaths);
+            dialogManager.DismissDialog();
+        }
+
+        songSelectViewModel.SelectionSubmitted += OnSelectionSubmitted;
+
+        try
+        {
+            var dialogBuilder = dialogManager.CreateDialog()
+                .WithTitle("Song Select")
+                .WithContent(dialogContent)
+                .WithActionButton("Close", _ => { }, true, "Flat")
+                .Dismiss().ByClickingBackground()
+                .OnDismissed(_ =>
+                {
+                    try
+                    {
+                        dialogLifetimeCts.Cancel();
+                    }
+                    catch (ObjectDisposedException)
+                    {
+                        // The dialog completion path can dispose this CTS before the dismissed callback runs.
+                    }
+
+                    completion.TrySetResult(null);
+                });
+
+            if (allowMultiple)
+            {
+                dialogBuilder = dialogBuilder.WithActionButton(
+                    "Use Selected",
+                    _ => songSelectViewModel.ConfirmSelectionCommand.Execute(null),
+                    false,
+                    "Success");
+            }
+
+            var shown = dialogBuilder.TryShow();
+
+            if (!shown)
+            {
+                toastManager.CreateToast()
+                    .OfType(NotificationType.Warning)
+                    .WithTitle("Metadata Manager")
+                    .WithContent("Could not open Song Select because another dialog is already open.")
+                    .Dismiss().ByClicking()
+                    .Dismiss().After(TimeSpan.FromSeconds(8))
+                    .Queue();
+                return null;
+            }
+
+            _ = songSelectViewModel.InitializeAsync(dialogLifetimeCts.Token);
+            return await completion.Task;
+        }
+        finally
+        {
+            songSelectViewModel.SelectionSubmitted -= OnSelectionSubmitted;
+            dialogLifetimeCts.Dispose();
+        }
+    }
+
+    private string ResolveSongsPath()
+    {
+        var settings = settingsService.GetMainSettings();
+        var configuredPath = settings.SongsPath;
+        if (songLibraryService.IsValidSongsPath(configuredPath))
+        {
+            return configuredPath;
+        }
+
+        var detectedPath = songLibraryService.TryDetectSongsPath();
+        if (songLibraryService.IsValidSongsPath(detectedPath))
+        {
+            settings.SongsPath = detectedPath!;
+            settingsService.SaveMainSettings(settings);
+            return detectedPath!;
+        }
+
+        return string.Empty;
+    }
+
+    private string? GetOriginMapsetDirectoryPath()
+    {
+        if (string.IsNullOrWhiteSpace(OriginBeatmap.Path))
+        {
+            return null;
+        }
+
+        try
+        {
+            return Path.GetDirectoryName(Path.GetFullPath(OriginBeatmap.Path));
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    private void LoadOriginBeatmapHeader(Beatmap beatmap)
+    {
+        var metadata = beatmap.MetadataSection;
+        OriginArtist = FirstNonEmpty(metadata.ArtistUnicode, metadata.Artist);
+        OriginSongName = FirstNonEmpty(metadata.TitleUnicode, metadata.Title);
+    }
+
+    private void LoadBackgroundImage(string beatmapPath, Beatmap beatmap)
+    {
+        var backgroundRelativePath = beatmap.Events.EventList
+            .OfType<Background>()
+            .Select(background => background.Filename)
+            .FirstOrDefault(filename => !string.IsNullOrWhiteSpace(filename));
+
+        var resolvedBackgroundPath = ResolveBackgroundPath(beatmapPath, backgroundRelativePath);
+        BackgroundImagePath = resolvedBackgroundPath ?? string.Empty;
+
+        HeaderBackgroundImage?.Dispose();
+        HeaderBackgroundImage = null;
+
+        if (!string.IsNullOrWhiteSpace(resolvedBackgroundPath) && File.Exists(resolvedBackgroundPath))
+        {
+            HeaderBackgroundImage = new Bitmap(resolvedBackgroundPath);
+        }
+    }
+
+    private void ClearOriginBeatmapHeader()
+    {
+        OriginArtist = string.Empty;
+        OriginSongName = string.Empty;
+        BackgroundImagePath = string.Empty;
+
+        HeaderBackgroundImage?.Dispose();
+        HeaderBackgroundImage = null;
+    }
+
+    private static string? ResolveBackgroundPath(string beatmapPath, string? relativePath)
+    {
+        if (string.IsNullOrWhiteSpace(relativePath))
+        {
+            return null;
+        }
+
+        var mapsetDirectory = Path.GetDirectoryName(beatmapPath);
+        if (string.IsNullOrWhiteSpace(mapsetDirectory))
+        {
+            return null;
+        }
+
+        var sanitized = relativePath.Trim()
+            .Trim('"')
+            .Replace('\\', Path.DirectorySeparatorChar)
+            .Replace('/', Path.DirectorySeparatorChar);
+
+        var candidate = Path.IsPathRooted(sanitized)
+            ? sanitized
+            : Path.Combine(mapsetDirectory, sanitized);
+
+        return File.Exists(candidate) ? candidate : null;
+    }
+
+    private static string FirstNonEmpty(params string?[] values)
+    {
+        foreach (var value in values)
+        {
+            if (!string.IsNullOrWhiteSpace(value))
+            {
+                return value;
+            }
+        }
+
+        return string.Empty;
     }
 
     [RelayCommand]
@@ -365,13 +556,19 @@ public partial class MetadataManagerViewModel(
         var type = NotificationType.Warning;
         var error = false;
 
+        var destinationPaths = DestinationBeatmaps
+            .Select(x => x.Path)
+            .Where(path => !string.IsNullOrWhiteSpace(path))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToArray();
+
         if (string.IsNullOrEmpty(OriginBeatmap.Path))
         {
             message = "Please select an origin beatmap!";
             type = NotificationType.Error;
             error = true;
         }
-        else if (DestinationBeatmaps.Count == 0 || DestinationBeatmaps.All(x => string.IsNullOrEmpty(x.Path)))
+        else if (destinationPaths.Length == 0)
         {
             message = "Please select at least one destination beatmap!";
             type = NotificationType.Error;
@@ -392,9 +589,10 @@ public partial class MetadataManagerViewModel(
         }
 
         if (!error)
+        {
             try
             {
-                var options = new MetadataManagerOptions()
+                var options = new MetadataManagerOptions
                 {
                     ApplyMetadataSection = ApplyMetadataSection,
                     ApplyGeneralSection = ApplyGeneralSection,
@@ -404,20 +602,20 @@ public partial class MetadataManagerViewModel(
                     OverwriteBackground = OverwriteBackground,
                     OverwriteVideo = OverwriteVideo,
                     SliderBorderColour = SliderBorderOverride,
-                    SliderTrackColour = SliderTrackOverride,
+                    SliderTrackColour = SliderTrackOverride
                 };
 
-                metadataManagerService.ApplyMetadata(appliedMetadata, DestinationBeatmaps.Select(x => x.Path).ToArray(),
-                    options);
-                message = $"Successfully exported metadata to {DestinationBeatmaps.Count} beatmap(s)!";
+                metadataManagerService.ApplyMetadata(appliedMetadata, destinationPaths, options);
+                message = $"Successfully exported metadata to {destinationPaths.Length} beatmap(s)!";
                 type = NotificationType.Success;
             }
-            catch (Exception e)
+            catch (Exception exception)
             {
-                Console.WriteLine(e);
-                message = e.Message;
+                Console.WriteLine(exception);
+                message = exception.Message;
                 type = NotificationType.Error;
             }
+        }
 
         toastManager.CreateToast()
             .OfType(type)
