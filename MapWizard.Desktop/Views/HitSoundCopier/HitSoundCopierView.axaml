@@ -5,11 +5,11 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:materialIcons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
     xmlns:suki="clr-namespace:SukiUI.Controls;assembly=SukiUI"
+    xmlns:controls="clr-namespace:MapWizard.Desktop.Views.Controls"
     mc:Ignorable="d"
     d:DesignWidth="800"
     d:DesignHeight="450"
     x:Class="MapWizard.Desktop.Views.HitSoundCopierView"
-    xmlns:vm="clr-namespace:MapWizard.Desktop.ViewModels"
     xmlns:viewModels="clr-namespace:MapWizard.Desktop.ViewModels"
     xmlns:theme="https://github.com/kikipoulet/SukiUI"
     x:DataType="viewModels:HitSoundCopierViewModel"
@@ -42,101 +42,12 @@
 
         <ScrollViewer Grid.Row="2">
             <StackPanel Spacing="16">
-                <suki:GlassCard
-                    Margin="8"
-                    Padding="12"
-                    CornerRadius="15">
-                    <StackPanel Spacing="8">
-                        <TextBlock Text="Beatmap Selection" />
-                        <Separator />
-                        <Grid ColumnDefinitions="*,Auto" VerticalAlignment="Center">
-                            <TextBox
-                                theme:TextBoxExtensions.Prefix="From: "
-                                Watermark="Copy hitsounds from..."
-                                Text="{Binding OriginBeatmap.Path, Mode=TwoWay}"
-                                VerticalAlignment="Center"
-                                HorizontalAlignment="Stretch"
-                                Margin="0,0,8,0" />
-                            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
-                                <Button Classes="Basic" Command="{Binding PickOriginFileCommand}"
-                                        ToolTip.Tip="Open Song Select dialog">
-                                    <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
-                                        <materialIcons:MaterialIcon Kind="FileSearchOutline" Width="24" Height="24" />
-                                        <TextBlock VerticalAlignment="Center" Text="Song Select"></TextBlock>
-                                    </StackPanel>
-                                </Button>
-                                <Button Classes="Flat Rounded" Command="{Binding SetOriginFromMemoryCommand}"
-                                        ToolTip.Tip="Get the current beatmap selected in the osu! client.">
-                                    <StackPanel Orientation="Horizontal" Spacing="4">
-                                        <materialIcons:MaterialIcon Kind="Import" Width="24" Height="24" />
-                                        <TextBlock VerticalAlignment="Center" Text="Select current" />
-                                    </StackPanel>
-                                </Button>
-                            </StackPanel>
-                        </Grid>
-
-                        <Separator />
-                        <Grid ColumnDefinitions="*,Auto" VerticalAlignment="Center">
-                            <TextBox
-                                theme:TextBoxExtensions.Prefix="To: "
-                                Watermark="Copy hitsounds to..."
-                                Text="{Binding DestinationBeatmaps[0].Path, Mode=TwoWay}"
-                                VerticalAlignment="Center"
-                                HorizontalAlignment="Stretch"
-                                Margin="0,0,8,0" />
-                            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
-                                <Button IsVisible="{Binding HasMultiple}"
-                                        Command="{Binding RemoveMapCommand}"
-                                        CommandParameter="{Binding DestinationBeatmaps[0].Path}"
-                                        Classes="Basic"
-                                        ToolTip.Tip="Remove this beatmap from the list.">
-                                        <materialIcons:MaterialIcon Kind="Close" Width="24" Height="24" />
-                                </Button>
-                                <Button Classes="Basic" Command="{Binding PickDestinationFileCommand}"
-                                        ToolTip.Tip="Open Song Select dialog">
-                                    <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
-                                        <materialIcons:MaterialIcon Kind="FileSearchOutline" Width="24" Height="24" />
-                                        <TextBlock VerticalAlignment="Center" Text="Song Select"></TextBlock>
-                                    </StackPanel>
-                                </Button>
-                                <Button Classes="Flat Rounded" Command="{Binding AddDestinationFromMemoryCommand}"
-                                        ToolTip.Tip="Add the current beatmap selected in the osu! client.">
-                                    <StackPanel Orientation="Horizontal" Spacing="4">
-                                        <materialIcons:MaterialIcon Kind="Import" Width="24" Height="24" />
-                                        <TextBlock VerticalAlignment="Center" Text="Add current" />
-                                    </StackPanel>
-                                </Button>
-                            </StackPanel>
-                        </Grid>
-                        <ItemsControl
-                            ItemsSource="{Binding AdditionalBeatmaps}"
-                            IsVisible="{Binding HasMultiple}"
-                            Margin="0,8,0,0">
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <Grid ColumnDefinitions="*,Auto">
-                                        <TextBox
-                                            Text="{Binding Path, Mode=TwoWay}"
-                                            HorizontalAlignment="Stretch" />
-                                        <Button Grid.Column="1"
-                                                Command="{Binding $parent[ItemsControl].((vm:HitSoundCopierViewModel)DataContext).RemoveMapCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                CommandParameter="{Binding Path}"
-                                                Classes="Basic"
-                                                ToolTip.Tip="Remove this beatmap from the list.">
-                                            <materialIcons:MaterialIcon Kind="Close" Width="24" Height="24" />
-                                        </Button>
-                                    </Grid>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-
-                        <TextBlock
-                            IsVisible="{Binding HasMultiple}"
-                            Text="{Binding DestinationBeatmaps.Count, StringFormat=There are {0} selected beatmaps.}"
-                            Margin="0,8,0,0" />
-
-                    </StackPanel>
-                </suki:GlassCard>
+                <controls:BeatmapSelectionPanel
+                    FromWatermark="Copy hitsounds from..."
+                    ToWatermark="Copy hitsounds to..."
+                    AdditionalPrefix="{x:Null}"
+                    OriginMemoryToolTip="Get the current beatmap selected in the osu! client."
+                    DestinationMemoryToolTip="Add the current beatmap selected in the osu! client." />
 
                 <!-- Options & Slider -->
                 <suki:GlassCard

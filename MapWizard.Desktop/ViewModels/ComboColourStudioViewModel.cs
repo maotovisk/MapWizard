@@ -594,7 +594,7 @@ public partial class ComboColourStudioViewModel(
         try
         {
             var dialogBuilder = dialogManager.CreateDialog()
-                .WithTitle("Song Select")
+                .WithTitle("Map Picker")
                 .WithContent(dialogContent)
                 .WithActionButton("Close", _ => { }, true, "Flat")
                 .Dismiss().ByClickingBackground()
@@ -627,7 +627,7 @@ public partial class ComboColourStudioViewModel(
             {
                 ShowToast(NotificationType.Warning,
                     "Combo Colour Studio",
-                    "Could not open Song Select because another dialog is already open.");
+                    "Could not open Map Picker because another dialog is already open.");
                 return null;
             }
 

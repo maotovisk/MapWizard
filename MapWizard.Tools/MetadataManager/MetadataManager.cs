@@ -1,6 +1,8 @@
 using BeatmapParser;
+using BeatmapParser.Colours;
 using BeatmapParser.Enums.Storyboard;
 using BeatmapParser.Events;
+using BeatmapParser.Sections;
 
 namespace MapWizard.Tools.MetadataManager;
 
@@ -60,8 +62,11 @@ public static class MetadataManager
                 }
                 
                 // Colours field
-                if (beatmap.Colours != null && (options.ApplyColoursSection || options.ApplyCombosSection))
+                if (options.ApplyColoursSection || options.ApplyCombosSection)
                 {
+                    // done this cuz im lazy to implement a clean constructor in the combo colour section class
+                    beatmap.Colours ??= ColoursSection.Decode([]);
+                    
                     if (options.ApplyCombosSection)
                     {
                         beatmap.Colours.Combos.Clear();

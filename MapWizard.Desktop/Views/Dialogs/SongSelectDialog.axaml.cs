@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using Avalonia;
 using Avalonia.Controls;
 using MapWizard.Desktop.ViewModels;
@@ -19,7 +20,18 @@ public partial class SongSelectDialog : UserControl
             return;
         }
 
-        var (firstVisibleIndex, lastVisibleIndex) = GetVisibleMapsetRange(scrollViewer);
+        int? firstVisibleIndex = null;
+        int? lastVisibleIndex = null;
+        try
+        {
+            (firstVisibleIndex, lastVisibleIndex) = GetVisibleMapsetRange(scrollViewer);
+        }
+        catch (Exception)
+        {
+            // Containers can be re-realized while the window is being resized quickly.
+            // Fall back to estimated viewport math in the view-model for this tick.
+        }
+
         viewModel.TryLoadMoreFromScroll(
             scrollViewer.Offset.Y,
             scrollViewer.Viewport.Height,
@@ -39,7 +51,7 @@ public partial class SongSelectDialog : UserControl
         int? firstVisibleIndex = null;
         int? lastVisibleIndex = null;
 
-        foreach (var container in MapsetItemsControl.GetRealizedContainers())
+        foreach (var container in MapsetItemsControl.GetRealizedContainers().ToArray())
         {
             if (!container.IsVisible || container.Bounds.Height <= 0d)
             {
