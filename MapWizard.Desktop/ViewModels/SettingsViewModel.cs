@@ -8,6 +8,7 @@ using CommunityToolkit.Mvvm.Input;
 using Material.Icons;
 using MapWizard.Desktop.Models.Settings;
 using MapWizard.Desktop.Services;
+using Velopack;
 
 namespace MapWizard.Desktop.ViewModels;
 
@@ -21,6 +22,8 @@ public partial class SettingsViewModel(
     private bool _isUpdatingFromThemeService;
     private bool _isUpdatingSongsPath;
     private int _updateStatusRequestId;
+    private UpdateInfo? _availableUpdate;
+    private bool _isUpdateActionRunning;
 
     [ObservableProperty]
     private bool _isDarkTheme;
@@ -96,15 +99,55 @@ public partial class SettingsViewModel(
         SaveSongsPath(normalized);
         SongsPathStatusText = songLibraryService.IsValidSongsPath(normalized)
             ? "Using configured Songs folder."
-            : "Folder not found. Song Select will use manual picker fallback.";
+            : "Folder not found. Map Picker will use manual picker fallback.";
     }
 
     [RelayCommand]
-    private void RestartToApplyUpdate()
+    private async Task RestartToApplyUpdate(CancellationToken cancellationToken)
     {
-        if (!updateService.RestartToApplyPendingUpdate())
+        if (_isUpdateActionRunning)
         {
-            _ = RefreshUpdateStreamBadgeAsync();
+            return;
+        }
+
+        if (updateService.IsRestartRequired)
+        {
+            if (!updateService.RestartToApplyPendingUpdate())
+            {
+                await RefreshUpdateStreamBadgeAsync();
+            }
+
+            return;
+        }
+
+        if (_availableUpdate is null)
+        {
+            await RefreshUpdateStreamBadgeAsync();
+            return;
+        }
+
+        _isUpdateActionRunning = true;
+        CanRestartToApplyUpdate = false;
+
+        try
+        {
+            UpdateStreamBadgeText = $"Downloading {_availableUpdate.TargetFullRelease.Version}...";
+            await updateService.DownloadUpdatesAsync(_availableUpdate, null, cancellationToken);
+            _availableUpdate = null;
+            await RefreshUpdateStreamBadgeAsync();
+        }
+        catch (OperationCanceledException)
+        {
+            await RefreshUpdateStreamBadgeAsync();
+        }
+        catch
+        {
+            UpdateStreamBadgeText = "Could not download update right now.";
+            CanRestartToApplyUpdate = true;
+        }
+        finally
+        {
+            _isUpdateActionRunning = false;
         }
     }
 
@@ -152,6 +195,7 @@ public partial class SettingsViewModel(
     private async Task RefreshUpdateStreamBadgeAsync()
     {
         var requestId = Interlocked.Increment(ref _updateStatusRequestId);
+        _availableUpdate = null;
         CanRestartToApplyUpdate = false;
         UpdateStreamBadgeText = $"Checking {GetCurrentStreamLabel()} stream...";
 
@@ -178,7 +222,9 @@ public partial class SettingsViewModel(
 
             UpdateStreamBadgeText = update == null
                 ? $"You're on the latest {GetCurrentStreamLabel()} update."
-                : $"Update {update.TargetFullRelease.Version} is available.";
+                : $"Update {update.TargetFullRelease.Version} is available. Click to download.";
+            _availableUpdate = update;
+            CanRestartToApplyUpdate = update is not null;
         }
         catch
         {

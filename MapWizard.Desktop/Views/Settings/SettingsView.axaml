@@ -44,7 +44,7 @@
                             <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="8" VerticalAlignment="Top">
                                 <StackPanel Spacing="4">
                                     <TextBlock Text="Songs Folder" FontWeight="Bold" />
-                                    <TextBlock Text="Song Select uses this folder to display recent beatmaps and their backgrounds."
+                                    <TextBlock Text="Map Picker uses this folder to display recent beatmaps and their backgrounds."
                                                TextWrapping="Wrap" />
                                     <TextBox Text="{Binding SongsPath, Mode=TwoWay}"
                                              Watermark="Path to osu! Songs folder"
@@ -73,14 +73,10 @@
                                     HorizontalAlignment="Left"
                                     IsEnabled="{Binding CanRestartToApplyUpdate}"
                                     Command="{Binding RestartToApplyUpdateCommand}">
-                                <Border Padding="10,4"
-                                        CornerRadius="999"
-                                        Background="{DynamicResource ThemeAccentBrush}"
-                                        Opacity="0.18">
-                                    <TextBlock Text="{Binding UpdateStreamBadgeText}"
-                                               FontSize="12"
-                                               FontWeight="SemiBold" />
-                                </Border>
+                                <TextBlock Text="{Binding UpdateStreamBadgeText}"
+                                           FontSize="12"
+                                           FontWeight="SemiBold"
+                                           TextDecorations="Underline" />
                             </Button>
                         </StackPanel>
                     </suki:SettingsLayoutItem.Content>
