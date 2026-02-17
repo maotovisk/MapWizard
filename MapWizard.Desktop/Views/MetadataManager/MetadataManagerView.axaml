@@ -57,7 +57,7 @@
             <Grid Grid.Row="0" MaxHeight="140" ClipToBounds="True" IsVisible="{Binding HasHeaderBackgroundImage}">
               <Image Source="{Binding HeaderBackgroundImage}" Stretch="UniformToFill" />
 
-              <Border VerticalAlignment="Bottom" Height="78">
+              <Border VerticalAlignment="Bottom" Height="56">
                 <Border.Background>
                   <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
                     <GradientStop Offset="0" Color="#00000000" />

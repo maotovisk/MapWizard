@@ -67,6 +67,21 @@
             <Setter Property="CornerRadius" Value="14,14,4,4" />
         </Style>
 
+        <Style Selector="Border.CardHoverHighlight">
+            <Setter Property="Background" Value="#FFFFFFFF" />
+            <Setter Property="Opacity" Value="0" />
+            <Setter Property="IsHitTestVisible" Value="False" />
+            <Setter Property="CornerRadius" Value="16" />
+            <Setter Property="Transitions">
+                <Transitions>
+                    <DoubleTransition Property="Opacity" Duration="0:0:0.12" />
+                </Transitions>
+            </Setter>
+        </Style>
+        <Style Selector="Border.CardRoot:pointerover Border.CardHoverHighlight">
+            <Setter Property="Opacity" Value="0.09" />
+        </Style>
+
         <Style Selector="Border.DetailsPanel">
             <Setter Property="Background" Value="#3A101A2B" />
             <Setter Property="Padding" Value="14,12,14,8" />
@@ -206,6 +221,8 @@
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
             </Border>
+
+            <Border Classes="CardHoverHighlight" Grid.RowSpan="2" />
         </Grid>
     </Border>
 </UserControl>
