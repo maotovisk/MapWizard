@@ -192,6 +192,18 @@ public partial class MetadataManagerViewModel(
     }
 
     [RelayCommand]
+    private async Task ReimportOriginMetadataAfterPathChange(CancellationToken token)
+    {
+        if (string.IsNullOrWhiteSpace(OriginBeatmap.Path))
+        {
+            ClearOriginBeatmapHeader();
+            return;
+        }
+
+        await ImportMetadataFromOriginAsync(token);
+    }
+
+    [RelayCommand]
     private void AddDestinationFromMemory()
     {
         var currentBeatmap = GetBeatmapFromMemory();

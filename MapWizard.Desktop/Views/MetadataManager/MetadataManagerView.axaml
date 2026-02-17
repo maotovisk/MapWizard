@@ -54,7 +54,8 @@
         <controls:BeatmapSelectionPanel
           ShowHeaderBackground="{Binding HasHeaderBackgroundImage}"
           HeaderBackgroundImage="{Binding HeaderBackgroundImage}"
-          HeaderTopLine="{Binding OriginContextTopLine}" />
+          HeaderTopLine="{Binding OriginContextTopLine}"
+          OriginPathChangedCommand="{Binding ReimportOriginMetadataAfterPathChangeCommand}" />
         
         <!-- METADATA -->
         <Grid ColumnDefinitions="*,*" Margin="0,8,0,0">

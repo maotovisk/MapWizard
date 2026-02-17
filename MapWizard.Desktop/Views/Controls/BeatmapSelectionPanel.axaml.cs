@@ -4,14 +4,14 @@ using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Media;
 using Avalonia.Threading;
-using MapWizard.Desktop.Converters;
 using System.Linq;
+using System.Windows.Input;
 
 namespace MapWizard.Desktop.Views.Controls;
 
 public partial class BeatmapSelectionPanel : UserControl
 {
-    private static readonly MapPathSummaryConverter PathSummaryConverter = new();
+    private string _originPathBeforeEdit = string.Empty;
 
     public static readonly StyledProperty<string> SectionTitleProperty =
         AvaloniaProperty.Register<BeatmapSelectionPanel, string>(nameof(SectionTitle), "Beatmap Selection");
@@ -76,6 +76,9 @@ public partial class BeatmapSelectionPanel : UserControl
 
     public static readonly StyledProperty<bool> ShowDestinationSummaryProperty =
         AvaloniaProperty.Register<BeatmapSelectionPanel, bool>(nameof(ShowDestinationSummary), true);
+
+    public static readonly StyledProperty<ICommand?> OriginPathChangedCommandProperty =
+        AvaloniaProperty.Register<BeatmapSelectionPanel, ICommand?>(nameof(OriginPathChangedCommand));
 
     public BeatmapSelectionPanel()
     {
@@ -202,6 +205,12 @@ public partial class BeatmapSelectionPanel : UserControl
         set => SetValue(ShowDestinationSummaryProperty, value);
     }
 
+    public ICommand? OriginPathChangedCommand
+    {
+        get => GetValue(OriginPathChangedCommandProperty);
+        set => SetValue(OriginPathChangedCommandProperty, value);
+    }
+
     private void OriginPathSummaryTextBox_OnPointerPressed(object? sender, PointerPressedEventArgs e)
     {
         BeginOriginPathEdit();
@@ -226,14 +235,11 @@ public partial class BeatmapSelectionPanel : UserControl
 
     private void OriginPathEditTextBox_OnLostFocus(object? sender, RoutedEventArgs e)
     {
-        RefreshOriginSummaryText();
-        IsEditingOriginPath = false;
-        ShowOriginSummary = true;
+        EndOriginPathEdit();
     }
 
     private void DestinationPathEditTextBox_OnLostFocus(object? sender, RoutedEventArgs e)
     {
-        RefreshDestinationSummaryText();
         IsEditingDestinationPath = false;
         ShowDestinationSummary = true;
     }
@@ -245,9 +251,7 @@ public partial class BeatmapSelectionPanel : UserControl
             return;
         }
 
-        IsEditingOriginPath = false;
-        ShowOriginSummary = true;
-        RefreshOriginSummaryText();
+        EndOriginPathEdit();
         Focus();
         e.Handled = true;
     }
@@ -261,7 +265,6 @@ public partial class BeatmapSelectionPanel : UserControl
 
         IsEditingDestinationPath = false;
         ShowDestinationSummary = true;
-        RefreshDestinationSummaryText();
         Focus();
         e.Handled = true;
     }
@@ -311,6 +314,7 @@ public partial class BeatmapSelectionPanel : UserControl
             return;
         }
 
+        _originPathBeforeEdit = OriginPathEditTextBox.Text ?? string.Empty;
         ShowOriginSummary = false;
         IsEditingOriginPath = true;
 
@@ -378,24 +382,30 @@ public partial class BeatmapSelectionPanel : UserControl
         editTextBox.IsVisible = false;
         if (summaryTextBox is not null)
         {
-            RefreshSummaryText(summaryTextBox, editTextBox.Text);
             summaryTextBox.IsVisible = true;
         }
     }
 
-    private void RefreshOriginSummaryText()
+    private void EndOriginPathEdit()
     {
-        RefreshSummaryText(OriginPathSummaryTextBox, OriginPathEditTextBox.Text);
-    }
+        if (!IsEditingOriginPath)
+        {
+            return;
+        }
 
-    private void RefreshDestinationSummaryText()
-    {
-        RefreshSummaryText(DestinationPathSummaryTextBox, DestinationPathEditTextBox.Text);
-    }
+        IsEditingOriginPath = false;
+        ShowOriginSummary = true;
 
-    private static void RefreshSummaryText(TextBox summaryTextBox, string? path)
-    {
-        var summary = PathSummaryConverter.Convert(path, typeof(string), null, System.Globalization.CultureInfo.CurrentCulture);
-        summaryTextBox.SetCurrentValue(TextBox.TextProperty, summary?.ToString() ?? string.Empty);
+        var currentPath = OriginPathEditTextBox.Text ?? string.Empty;
+        if (string.Equals(_originPathBeforeEdit, currentPath, System.StringComparison.OrdinalIgnoreCase))
+        {
+            return;
+        }
+
+        var command = OriginPathChangedCommand;
+        if (command?.CanExecute(null) == true)
+        {
+            command.Execute(null);
+        }
     }
 }
