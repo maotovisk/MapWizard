@@ -41,6 +41,34 @@
                                           SelectedItem="{Binding UpdateStream, Mode=TwoWay}" />
                             </Grid>
 
+                            <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="8" VerticalAlignment="Top">
+                                <StackPanel Spacing="4">
+                                    <TextBlock Text="Songs Folder" FontWeight="Bold" />
+                                    <TextBlock Text="Song Select uses this folder to display recent beatmaps and their backgrounds."
+                                               TextWrapping="Wrap" />
+                                    <TextBox Text="{Binding SongsPath, Mode=TwoWay}"
+                                             Watermark="Path to osu! Songs folder"
+                                             Margin="0,4,0,0" />
+                                    <TextBlock Text="{Binding SongsPathStatusText}"
+                                               FontSize="12"
+                                               Opacity="0.82" />
+                                </StackPanel>
+
+                                <Button Grid.Column="1"
+                                        Classes="Basic"
+                                        VerticalAlignment="Top"
+                                        Command="{Binding PickSongsFolderCommand}">
+                                    <TextBlock Text="Browse" />
+                                </Button>
+
+                                <Button Grid.Column="2"
+                                        Classes="Flat"
+                                        VerticalAlignment="Top"
+                                        Command="{Binding AutoDetectSongsFolderCommand}">
+                                    <TextBlock Text="Auto Detect" />
+                                </Button>
+                            </Grid>
+
                             <Button Classes="Flat Compact"
                                     HorizontalAlignment="Left"
                                     IsEnabled="{Binding CanRestartToApplyUpdate}"

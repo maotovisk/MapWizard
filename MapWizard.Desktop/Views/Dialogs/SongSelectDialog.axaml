@@ -1,0 +1,139 @@
+<UserControl
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:vm="clr-namespace:MapWizard.Desktop.ViewModels"
+    xmlns:dialogs="clr-namespace:MapWizard.Desktop.Views.Dialogs"
+    xmlns:suki="clr-namespace:SukiUI.Controls;assembly=SukiUI"
+    xmlns:materialIcons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+    mc:Ignorable="d"
+    d:DesignWidth="920"
+    d:DesignHeight="660"
+    x:Class="MapWizard.Desktop.Views.Dialogs.SongSelectDialog"
+    x:DataType="vm:SongSelectDialogViewModel"
+    MinWidth="680"
+    MinHeight="420">
+
+    <UserControl.Styles>
+        <Style Selector="Border.SongSurface">
+            <Setter Property="Background" Value="#2A0F1625" />
+            <Setter Property="BorderBrush" Value="#6B788AFF" />
+            <Setter Property="BorderThickness" Value="2" />
+            <Setter Property="CornerRadius" Value="16" />
+        </Style>
+
+        <Style Selector="Border.StatusPill">
+            <Setter Property="Background" Value="#33131E33" />
+            <Setter Property="BorderBrush" Value="#3BFFFFFF" />
+            <Setter Property="BorderThickness" Value="2" />
+            <Setter Property="CornerRadius" Value="8" />
+            <Setter Property="Padding" Value="8,4" />
+        </Style>
+
+        <Style Selector="Border.PopupHeader">
+            <Setter Property="Background" Value="#2A0F1625" />
+            <Setter Property="BorderBrush" Value="#6B788AFF" />
+            <Setter Property="BorderThickness" Value="2" />
+            <Setter Property="CornerRadius" Value="12" />
+            <Setter Property="Padding" Value="10" />
+        </Style>
+    </UserControl.Styles>
+
+    <Grid RowDefinitions="Auto,*,Auto" RowSpacing="12">
+        <Border Classes="PopupHeader" Margin="0,6,0,0">
+            <Grid RowDefinitions="Auto,Auto" RowSpacing="8">
+                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                    <TextBox Height="38"
+                             Watermark="Search beatmaps..."
+                             Text="{Binding SearchText, Mode=TwoWay}" />
+
+                    <Button Grid.Column="1"
+                            Classes="Basic"
+                            Command="{Binding PickFilesManuallyCommand}"
+                            MinHeight="38"
+                            Padding="14,0,14,0"
+                            ToolTip.Tip="Open native file picker fallback">
+                        <StackPanel Orientation="Horizontal" Spacing="7">
+                            <materialIcons:MaterialIcon Kind="FolderOpen" Width="18" Height="18" />
+                            <TextBlock Text="Manual Open" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+                </Grid>
+
+                <Grid Grid.Row="1"
+                      ColumnDefinitions="Auto,*,Auto"
+                      ColumnSpacing="8">
+                    <Border Classes="StatusPill">
+                        <TextBlock Text="{Binding SongsPathDisplay, StringFormat=Songs Folder: {0}}"
+                                   FontSize="12"
+                                   TextTrimming="CharacterEllipsis"
+                                   MaxWidth="320"
+                                   ToolTip.Tip="{Binding SongsPathDisplay}" />
+                    </Border>
+
+                    <Border Grid.Column="1" Classes="StatusPill">
+                        <TextBlock Text="{Binding StatusMessage}"
+                                   FontSize="12"
+                                   TextTrimming="CharacterEllipsis" />
+                    </Border>
+                    <Border Grid.Column="2"
+                            Classes="StatusPill"
+                            IsVisible="{Binding ShowNotFoundBadge}">
+                        <TextBlock Text="Not found"
+                                   FontWeight="Bold" />
+                    </Border>
+                </Grid>
+            </Grid>
+        </Border>
+
+        <suki:BusyArea Grid.Row="1" BusyText="Searching songs..." IsBusy="{Binding ShowBusyBox}">
+            <Border Classes="SongSurface" Padding="10" MinHeight="0">
+                <ScrollViewer ScrollChanged="MapsetScrollViewer_OnScrollChanged"
+                              HorizontalScrollBarVisibility="Disabled">
+                    <StackPanel Spacing="10"
+                                HorizontalAlignment="Stretch">
+                        <Border Classes="StatusPill"
+                                Margin="2"
+                                IsVisible="{Binding ShowEmptyState}">
+                            <TextBlock Text="{Binding StatusMessage}"
+                                       FontWeight="SemiBold" />
+                        </Border>
+
+                        <ItemsControl ItemsSource="{Binding VisibleMapsets}"
+                                      HorizontalAlignment="Stretch">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <StackPanel HorizontalAlignment="Stretch" />
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="vm:SongMapsetCardViewModel">
+                                    <dialogs:SongMapsetCard />
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </ScrollViewer>
+            </Border>
+        </suki:BusyArea>
+
+        <Grid Grid.Row="2"
+              ColumnDefinitions="Auto,*"
+              ColumnSpacing="12"
+              IsVisible="{Binding AllowMultipleSelection}">
+            <Button Classes="Basic"
+                    MinHeight="36"
+                    Padding="14,0"
+                    Command="{Binding ConfirmSelectionCommand}"
+                    IsEnabled="{Binding CanConfirmSelection}">
+                <TextBlock Text="{Binding SelectedDifficultyCount, StringFormat=Use Selected ({0})}" />
+            </Button>
+
+            <TextBlock Grid.Column="1"
+                       VerticalAlignment="Center"
+                       Text="Select one or more difficulties, then confirm your selection."
+                       Opacity="0.88" />
+        </Grid>
+    </Grid>
+</UserControl>

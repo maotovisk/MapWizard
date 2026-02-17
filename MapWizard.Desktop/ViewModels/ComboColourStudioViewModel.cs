@@ -17,6 +17,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MapWizard.Desktop.Models;
 using MapWizard.Desktop.Services;
+using MapWizard.Desktop.Views.Dialogs;
 using MapWizard.Tools.ComboColourStudio;
 using SukiUI.Dialogs;
 using SukiUI.Toasts;
@@ -29,6 +30,8 @@ public partial class ComboColourStudioViewModel(
     IComboColourStudioService comboColourStudioService,
     IOsuMemoryReaderService osuMemoryReaderService,
     IComboColourProjectStore comboColourProjectStore,
+    ISettingsService settingsService,
+    ISongLibraryService songLibraryService,
     ISukiDialogManager dialogManager,
     ISukiToastManager toastManager) : ViewModelBase
 {
@@ -368,6 +371,25 @@ public partial class ComboColourStudioViewModel(
     {
         try
         {
+            var selectedPaths = await ShowSongSelectDialogAsync(allowMultiple: false, token: token);
+            if (token.IsCancellationRequested || selectedPaths is null || selectedPaths.Count == 0)
+            {
+                return;
+            }
+
+            await SetOriginBeatmapPath(selectedPaths[0]);
+        }
+        catch (Exception ex)
+        {
+            ShowToast(NotificationType.Error, "Combo Colour Studio", ex.Message);
+        }
+    }
+
+    [RelayCommand]
+    private async Task PickOriginFileManually(CancellationToken token)
+    {
+        try
+        {
             var preferredDirectory = await filesService.TryGetFolderFromPathAsync(
                 string.IsNullOrWhiteSpace(PreferredDirectory)
                     ? Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)
@@ -393,10 +415,7 @@ public partial class ComboColourStudioViewModel(
                 return;
             }
 
-            OriginBeatmap = new SelectedMap { Path = file.First().Path.LocalPath };
-            PreferredDirectory = Path.GetDirectoryName(OriginBeatmap.Path) ?? string.Empty;
-
-            await LoadOriginBeatmapContext();
+            await SetOriginBeatmapPath(file.First().Path.LocalPath);
         }
         catch (Exception ex)
         {
@@ -414,14 +433,33 @@ public partial class ComboColourStudioViewModel(
             return;
         }
 
-        OriginBeatmap = new SelectedMap { Path = beatmapPath };
-        PreferredDirectory = Path.GetDirectoryName(OriginBeatmap.Path) ?? string.Empty;
-
-        await LoadOriginBeatmapContext();
+        await SetOriginBeatmapPath(beatmapPath);
     }
 
     [RelayCommand]
     private async Task PickDestinationFile(CancellationToken token)
+    {
+        try
+        {
+            var selectedPaths = await ShowSongSelectDialogAsync(
+                allowMultiple: true,
+                token: token,
+                preferredMapsetDirectoryPath: GetOriginMapsetDirectoryPath());
+            if (token.IsCancellationRequested || selectedPaths is null || selectedPaths.Count == 0)
+            {
+                return;
+            }
+
+            SetDestinationBeatmaps(selectedPaths);
+        }
+        catch (Exception ex)
+        {
+            ShowToast(NotificationType.Error, "Combo Colour Studio", ex.Message);
+        }
+    }
+
+    [RelayCommand]
+    private async Task PickDestinationFileManually(CancellationToken token)
     {
         try
         {
@@ -450,9 +488,7 @@ public partial class ComboColourStudioViewModel(
                 return;
             }
 
-            DestinationBeatmaps =
-                new ObservableCollection<SelectedMap>(file.Select(f => new SelectedMap { Path = f.Path.LocalPath }));
-            HasMultiple = DestinationBeatmaps.Count > 1;
+            SetDestinationBeatmaps(file.Select(f => f.Path.LocalPath).ToList());
         }
         catch (Exception ex)
         {
@@ -491,6 +527,31 @@ public partial class ComboColourStudioViewModel(
 
         DestinationBeatmaps = destinationBeatmaps;
         HasMultiple = DestinationBeatmaps.Count > 1;
+    }
+
+    private async Task SetOriginBeatmapPath(string beatmapPath)
+    {
+        OriginBeatmap = new SelectedMap { Path = beatmapPath };
+        PreferredDirectory = Path.GetDirectoryName(OriginBeatmap.Path) ?? string.Empty;
+        await LoadOriginBeatmapContext();
+    }
+
+    private void SetDestinationBeatmaps(IReadOnlyCollection<string> beatmapPaths)
+    {
+        var normalizedPaths = beatmapPaths
+            .Where(path => !string.IsNullOrWhiteSpace(path))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .Select(path => new SelectedMap { Path = path })
+            .ToList();
+
+        if (normalizedPaths.Count == 0)
+        {
+            return;
+        }
+
+        DestinationBeatmaps = new ObservableCollection<SelectedMap>(normalizedPaths);
+        HasMultiple = DestinationBeatmaps.Count > 1;
+        PreferredDirectory = Path.GetDirectoryName(DestinationBeatmaps[0].Path) ?? PreferredDirectory;
     }
 
     [RelayCommand]
@@ -574,6 +635,116 @@ public partial class ComboColourStudioViewModel(
         }
 
         return currentBeatmap.Value;
+    }
+
+    private async Task<IReadOnlyList<string>?> ShowSongSelectDialogAsync(
+        bool allowMultiple,
+        CancellationToken token,
+        string? preferredMapsetDirectoryPath = null)
+    {
+        var songsPath = ResolveSongsPath();
+        var songSelectViewModel = new SongSelectDialogViewModel(
+            songLibraryService,
+            filesService,
+            songsPath,
+            allowMultiple,
+            preferredMapsetDirectoryPath);
+
+        var dialogContent = new SongSelectDialog
+        {
+            DataContext = songSelectViewModel
+        };
+
+        var completion = new TaskCompletionSource<IReadOnlyList<string>?>(
+            TaskCreationOptions.RunContinuationsAsynchronously);
+        var dialogLifetimeCts = CancellationTokenSource.CreateLinkedTokenSource(token);
+
+        void OnSelectionSubmitted(IReadOnlyList<string> selectedPaths)
+        {
+            completion.TrySetResult(selectedPaths);
+            dialogManager.DismissDialog();
+        }
+
+        songSelectViewModel.SelectionSubmitted += OnSelectionSubmitted;
+
+        try
+        {
+            var shown = dialogManager.CreateDialog()
+                .WithTitle("Song Select")
+                .WithContent(dialogContent)
+                .WithActionButton("Close", _ => { }, true, "Flat")
+                .Dismiss().ByClickingBackground()
+                .OnDismissed(_ =>
+                {
+                    if (!dialogLifetimeCts.IsCancellationRequested)
+                    {
+                        try
+                        {
+                            dialogLifetimeCts.Cancel();
+                        }
+                        catch (ObjectDisposedException)
+                        {
+                            // The dialog completion path can dispose this CTS before the dismissed callback runs.
+                        }
+                    }
+
+                    completion.TrySetResult(null);
+                })
+                .TryShow();
+
+            if (!shown)
+            {
+                ShowToast(NotificationType.Warning,
+                    "Combo Colour Studio",
+                    "Could not open Song Select because another dialog is already open.");
+                return null;
+            }
+
+            _ = songSelectViewModel.InitializeAsync(dialogLifetimeCts.Token);
+            return await completion.Task;
+        }
+        finally
+        {
+            songSelectViewModel.SelectionSubmitted -= OnSelectionSubmitted;
+            dialogLifetimeCts.Dispose();
+        }
+    }
+
+    private string? GetOriginMapsetDirectoryPath()
+    {
+        if (string.IsNullOrWhiteSpace(OriginBeatmap.Path))
+        {
+            return null;
+        }
+
+        try
+        {
+            return Path.GetDirectoryName(Path.GetFullPath(OriginBeatmap.Path));
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    private string ResolveSongsPath()
+    {
+        var settings = settingsService.GetMainSettings();
+        var configuredPath = settings.SongsPath;
+        if (songLibraryService.IsValidSongsPath(configuredPath))
+        {
+            return configuredPath;
+        }
+
+        var detectedPath = songLibraryService.TryDetectSongsPath();
+        if (songLibraryService.IsValidSongsPath(detectedPath))
+        {
+            settings.SongsPath = detectedPath!;
+            settingsService.SaveMainSettings(settings);
+            return detectedPath!;
+        }
+
+        return string.Empty;
     }
 
     private async Task LoadOriginBeatmapContext()

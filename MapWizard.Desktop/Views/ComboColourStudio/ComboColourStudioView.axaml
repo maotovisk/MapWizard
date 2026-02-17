@@ -149,10 +149,18 @@
                                 <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
                                     <Button Classes="Basic"
                                             Command="{Binding PickOriginFileCommand}"
-                                            ToolTip.Tip="Select origin beatmap">
+                                            ToolTip.Tip="Open Song Select dialog">
                                         <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
                                             <materialIcons:MaterialIcon Kind="FileSearchOutline" Width="24" Height="24" />
-                                            <TextBlock VerticalAlignment="Center" Text="Open" />
+                                            <TextBlock VerticalAlignment="Center" Text="Song Select" />
+                                        </StackPanel>
+                                    </Button>
+                                    <Button Classes="Flat Rounded"
+                                            Command="{Binding PickOriginFileManuallyCommand}"
+                                            ToolTip.Tip="Open native file picker fallback">
+                                        <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+                                            <materialIcons:MaterialIcon Kind="FileSearchOutline" Width="24" Height="24" />
+                                            <TextBlock VerticalAlignment="Center" Text="Manual" />
                                         </StackPanel>
                                     </Button>
                                     <Button Classes="Flat Rounded"
@@ -181,10 +189,18 @@
                                     </Button>
                                     <Button Classes="Basic"
                                             Command="{Binding PickDestinationFileCommand}"
-                                            ToolTip.Tip="Select destination beatmap(s)">
+                                            ToolTip.Tip="Open Song Select dialog">
                                         <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
                                             <materialIcons:MaterialIcon Kind="FileSearchOutline" Width="24" Height="24" />
-                                            <TextBlock VerticalAlignment="Center" Text="Open" />
+                                            <TextBlock VerticalAlignment="Center" Text="Song Select" />
+                                        </StackPanel>
+                                    </Button>
+                                    <Button Classes="Flat Rounded"
+                                            Command="{Binding PickDestinationFileManuallyCommand}"
+                                            ToolTip.Tip="Open native file picker fallback">
+                                        <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+                                            <materialIcons:MaterialIcon Kind="FileSearchOutline" Width="24" Height="24" />
+                                            <TextBlock VerticalAlignment="Center" Text="Manual" />
                                         </StackPanel>
                                     </Button>
                                     <Button Classes="Flat Rounded"
