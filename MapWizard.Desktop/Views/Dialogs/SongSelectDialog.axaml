@@ -89,7 +89,8 @@
 
         <suki:BusyArea Grid.Row="1" BusyText="Searching songs..." IsBusy="{Binding ShowBusyBox}">
             <Border Classes="SongSurface" Padding="10" MinHeight="0">
-                <ScrollViewer ScrollChanged="MapsetScrollViewer_OnScrollChanged"
+                <ScrollViewer x:Name="MapsetScrollViewer"
+                              ScrollChanged="MapsetScrollViewer_OnScrollChanged"
                               HorizontalScrollBarVisibility="Disabled">
                     <StackPanel Spacing="10"
                                 HorizontalAlignment="Stretch">
@@ -100,7 +101,8 @@
                                        FontWeight="SemiBold" />
                         </Border>
 
-                        <ItemsControl ItemsSource="{Binding VisibleMapsets}"
+                        <ItemsControl x:Name="MapsetItemsControl"
+                                      ItemsSource="{Binding VisibleMapsets}"
                                       HorizontalAlignment="Stretch">
                             <ItemsControl.ItemsPanel>
                                 <ItemsPanelTemplate>

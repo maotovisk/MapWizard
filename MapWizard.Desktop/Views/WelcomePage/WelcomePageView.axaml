@@ -16,13 +16,6 @@
     <Grid RowDefinitions="Auto,*" VerticalAlignment="Center" RowSpacing="20">
         <StackPanel Grid.Row="0" HorizontalAlignment="Center" Spacing="8">
             <TextBlock Text="Welcome to MapWizard" FontSize="30" FontWeight="Bold" HorizontalAlignment="Center" />
-            <Button Classes="Flat Rounded" Command="{Binding CheckForUpdatesCommand}" HorizontalAlignment="Center">
-                <StackPanel Orientation="Horizontal" Spacing="6">
-                    <materialIcons:MaterialIcon Kind="Update" />
-                    <TextBlock VerticalAlignment="Center" Text="Check for updates" />
-                </StackPanel>
-            </Button>
-            
             <TextBlock HorizontalAlignment="Center" Text="Select a tool to get started."></TextBlock>
         </StackPanel>
         

@@ -32,12 +32,6 @@ public partial class WelcomePageViewModel(
         await CheckForUpdatesCoreAsync(showNotInstalledMessage: false);
     }
 
-    [RelayCommand]
-    private Task CheckForUpdates()
-    {
-        return CheckForUpdatesCoreAsync(showNotInstalledMessage: true);
-    }
-
     private async Task CheckForUpdatesCoreAsync(bool showNotInstalledMessage)
     {
         if (!updateService.IsInstalled)

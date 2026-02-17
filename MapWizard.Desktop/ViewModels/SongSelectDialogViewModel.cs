@@ -23,8 +23,10 @@ public partial class SongSelectDialogViewModel(
     string? preferredMapsetDirectoryPath = null) : ViewModelBase, IDisposable
 {
     private const int PageSize = 20;
+    private const int BackgroundCacheSize = 20;
     private const int SearchDebounceMilliseconds = 2000;
     private const int StatusQueryMaxLength = 36;
+    private const double EstimatedMapsetCardHeight = 104d;
     private readonly SemaphoreSlim _loadGate = new(1, 1);
     private readonly string _songsPath = songsPath;
     private readonly string? _preferredMapsetDirectoryPath = NormalizeDirectoryPath(preferredMapsetDirectoryPath);
@@ -39,6 +41,10 @@ public partial class SongSelectDialogViewModel(
     private bool _isDisposed;
     private int _filteredCursor;
     private int _queryVersion;
+    private double _lastScrollOffsetY;
+    private double _lastViewportHeight = EstimatedMapsetCardHeight * 6d;
+    private int? _lastFirstVisibleIndex;
+    private int? _lastLastVisibleIndex;
 
     [ObservableProperty] private bool _isLoading;
 
@@ -167,6 +173,9 @@ public partial class SongSelectDialogViewModel(
         _filteredDirectoryEntries.Clear();
         _visibleDirectoryPaths.Clear();
         VisibleMapsets.Clear();
+        _lastFirstVisibleIndex = null;
+        _lastLastVisibleIndex = null;
+        DeactivateAllCachedBackgrounds();
         foreach (var mapset in _mapsetViewModelCache.Values)
         {
             mapset.IsExpanded = false;
@@ -264,8 +273,24 @@ public partial class SongSelectDialogViewModel(
         }
     }
 
-    public void TryLoadMoreFromScroll(double offsetY, double viewportHeight, double extentHeight)
+    public void TryLoadMoreFromScroll(
+        double offsetY,
+        double viewportHeight,
+        double extentHeight,
+        int? firstVisibleIndex = null,
+        int? lastVisibleIndex = null)
     {
+        _lastScrollOffsetY = Math.Max(0d, offsetY);
+        _lastViewportHeight = viewportHeight > 0d ? viewportHeight : _lastViewportHeight;
+
+        if (firstVisibleIndex.HasValue && lastVisibleIndex.HasValue && firstVisibleIndex.Value <= lastVisibleIndex.Value)
+        {
+            _lastFirstVisibleIndex = firstVisibleIndex.Value;
+            _lastLastVisibleIndex = lastVisibleIndex.Value;
+        }
+
+        UpdateBackgroundCacheForCurrentViewport();
+
         if (IsLoading || !HasMoreResults)
         {
             return;
@@ -333,6 +358,9 @@ public partial class SongSelectDialogViewModel(
         _filteredCursor = 0;
         _visibleDirectoryPaths.Clear();
         VisibleMapsets.Clear();
+        _lastFirstVisibleIndex = null;
+        _lastLastVisibleIndex = null;
+        DeactivateAllCachedBackgrounds();
         foreach (var mapset in _mapsetViewModelCache.Values)
         {
             mapset.IsExpanded = false;
@@ -436,6 +464,7 @@ public partial class SongSelectDialogViewModel(
             }
 
             RecalculateSelectedDifficultyCount();
+            UpdateBackgroundCacheForCurrentViewport();
             UpdateStatusMessage();
         }
         catch (OperationCanceledException)
@@ -565,11 +594,88 @@ public partial class SongSelectDialogViewModel(
         }
     }
 
+    private void UpdateBackgroundCacheForCurrentViewport()
+    {
+        var totalVisible = VisibleMapsets.Count;
+        if (totalVisible == 0)
+        {
+            return;
+        }
+
+        var keepCount = Math.Min(BackgroundCacheSize, totalVisible);
+        int firstVisibleIndex;
+        int lastVisibleIndex;
+
+        if (_lastFirstVisibleIndex.HasValue && _lastLastVisibleIndex.HasValue)
+        {
+            firstVisibleIndex = Math.Clamp(_lastFirstVisibleIndex.Value, 0, totalVisible - 1);
+            lastVisibleIndex = Math.Clamp(_lastLastVisibleIndex.Value, firstVisibleIndex, totalVisible - 1);
+        }
+        else
+        {
+            var viewportHeight = _lastViewportHeight > 0d ? _lastViewportHeight : EstimatedMapsetCardHeight * 6d;
+
+            firstVisibleIndex = (int)Math.Floor(_lastScrollOffsetY / EstimatedMapsetCardHeight);
+            firstVisibleIndex = Math.Clamp(firstVisibleIndex, 0, totalVisible - 1);
+
+            lastVisibleIndex = (int)Math.Ceiling((_lastScrollOffsetY + viewportHeight) / EstimatedMapsetCardHeight);
+            lastVisibleIndex = Math.Clamp(lastVisibleIndex, firstVisibleIndex, totalVisible - 1);
+        }
+
+        var visibleCount = lastVisibleIndex - firstVisibleIndex + 1;
+        int cacheStart;
+        int cacheEnd;
+
+        if (visibleCount >= keepCount)
+        {
+            cacheStart = firstVisibleIndex;
+            cacheEnd = cacheStart + keepCount - 1;
+        }
+        else
+        {
+            var extraSlots = keepCount - visibleCount;
+            var beforeCount = extraSlots / 2;
+            var afterCount = extraSlots - beforeCount;
+
+            cacheStart = firstVisibleIndex - beforeCount;
+            cacheEnd = lastVisibleIndex + afterCount;
+
+            if (cacheStart < 0)
+            {
+                cacheEnd = Math.Min(totalVisible - 1, cacheEnd - cacheStart);
+                cacheStart = 0;
+            }
+
+            if (cacheEnd >= totalVisible)
+            {
+                var overflow = cacheEnd - (totalVisible - 1);
+                cacheStart = Math.Max(0, cacheStart - overflow);
+                cacheEnd = totalVisible - 1;
+            }
+        }
+
+        for (var i = 0; i < totalVisible; i++)
+        {
+            VisibleMapsets[i].SetBackgroundActive(i >= cacheStart && i <= cacheEnd);
+        }
+    }
+
+    private void DeactivateAllCachedBackgrounds()
+    {
+        foreach (var mapset in _mapsetViewModelCache.Values)
+        {
+            mapset.SetBackgroundActive(false);
+        }
+    }
+
     private readonly record struct MapsetDirectoryEntry(string DirectoryPath, string FolderName);
 }
 
 public partial class SongMapsetCardViewModel : ObservableObject, IDisposable
 {
+    private readonly string? _backgroundImagePath;
+    private bool _backgroundLoadFailed;
+    private bool _isBackgroundActive;
     private bool _isDisposed;
 
     public SongMapsetCardViewModel(SongMapsetInfo mapset)
@@ -578,7 +684,7 @@ public partial class SongMapsetCardViewModel : ObservableObject, IDisposable
         Title = mapset.Title;
         Creator = mapset.Creator;
         LastEditedUtc = mapset.LastEditUtc;
-        BackgroundImage = BuildBackgroundImage(mapset.BackgroundImagePath);
+        _backgroundImagePath = mapset.BackgroundImagePath;
         Difficulties = new ObservableCollection<SongDifficultyItemViewModel>(mapset.Difficulties
             .OrderByDescending(difficulty => difficulty.LastEditUtc)
             .Select(difficulty => new SongDifficultyItemViewModel(difficulty)));
@@ -594,9 +700,28 @@ public partial class SongMapsetCardViewModel : ObservableObject, IDisposable
     public string CreatorLabel => $"Mapped by {Creator}";
     public string LastEditedLabel => $"Edited {LastEditedUtc.ToLocalTime().ToString("g", CultureInfo.CurrentCulture)}";
     public string DifficultyCountLabel => Difficulties.Count == 1 ? "1 difficulty" : $"{Difficulties.Count} difficulties";
-    public Bitmap? BackgroundImage { get; }
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasBackgroundImage))]
+    private Bitmap? _backgroundImage;
     public bool HasBackgroundImage => BackgroundImage is not null;
     public ObservableCollection<SongDifficultyItemViewModel> Difficulties { get; }
+
+    public void SetBackgroundActive(bool isActive)
+    {
+        if (_isDisposed || _isBackgroundActive == isActive)
+        {
+            return;
+        }
+
+        _isBackgroundActive = isActive;
+        if (isActive)
+        {
+            EnsureBackgroundLoaded();
+            return;
+        }
+
+        ReleaseBackgroundImage();
+    }
 
     public void Dispose()
     {
@@ -606,8 +731,36 @@ public partial class SongMapsetCardViewModel : ObservableObject, IDisposable
         }
 
         _isDisposed = true;
-        BackgroundImage?.Dispose();
+        ReleaseBackgroundImage();
         Difficulties.Clear();
+    }
+
+    private void EnsureBackgroundLoaded()
+    {
+        if (BackgroundImage is not null || _backgroundLoadFailed)
+        {
+            return;
+        }
+
+        var image = BuildBackgroundImage(_backgroundImagePath);
+        if (image is null)
+        {
+            _backgroundLoadFailed = true;
+            return;
+        }
+
+        BackgroundImage = image;
+    }
+
+    private void ReleaseBackgroundImage()
+    {
+        if (BackgroundImage is null)
+        {
+            return;
+        }
+
+        BackgroundImage.Dispose();
+        BackgroundImage = null;
     }
 
     private static Bitmap? BuildBackgroundImage(string? backgroundImagePath)
