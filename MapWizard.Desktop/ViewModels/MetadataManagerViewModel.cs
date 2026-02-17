@@ -387,7 +387,7 @@ public partial class MetadataManagerViewModel(
         try
         {
             var dialogBuilder = dialogManager.CreateDialog()
-                .WithTitle("Song Select")
+                .WithTitle("Map Picker")
                 .WithContent(dialogContent)
                 .WithActionButton("Close", _ => { }, true, "Flat")
                 .Dismiss().ByClickingBackground()
@@ -421,7 +421,7 @@ public partial class MetadataManagerViewModel(
                 toastManager.CreateToast()
                     .OfType(NotificationType.Warning)
                     .WithTitle("Metadata Manager")
-                    .WithContent("Could not open Song Select because another dialog is already open.")
+                    .WithContent("Could not open Map Picker because another dialog is already open.")
                     .Dismiss().ByClicking()
                     .Dismiss().After(TimeSpan.FromSeconds(8))
                     .Queue();

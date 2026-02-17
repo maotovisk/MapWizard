@@ -109,6 +109,34 @@
             <Setter Property="Background" Value="#5A6F6BFF" />
             <Setter Property="BorderBrush" Value="#A4B9B7FF" />
         </Style>
+
+        <Style Selector="Button.SelectMapsetDiffsButton">
+            <Setter Property="Background" Value="#2D1E4638" />
+            <Setter Property="BorderBrush" Value="#84A3E9CB" />
+            <Setter Property="BorderThickness" Value="1.25" />
+            <Setter Property="CornerRadius" Value="10" />
+            <Setter Property="Padding" Value="10,5" />
+            <Setter Property="MinHeight" Value="32" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+        </Style>
+        <Style Selector="Button.SelectMapsetDiffsButton:pointerover">
+            <Setter Property="Background" Value="#3B2A6650" />
+            <Setter Property="BorderBrush" Value="#AFC3F7DE" />
+        </Style>
+        <Style Selector="Button.SelectMapsetDiffsButton:pressed">
+            <Setter Property="Background" Value="#45307159" />
+        </Style>
+        <Style Selector="Button.SelectMapsetDiffsButton.selected">
+            <Setter Property="Background" Value="#3B3C7A5D" />
+            <Setter Property="BorderBrush" Value="#AEEFCF" />
+        </Style>
+        <Style Selector="Button.SelectMapsetDiffsButton.selected:pointerover">
+            <Setter Property="Background" Value="#445B8A69" />
+            <Setter Property="BorderBrush" Value="#CCF7DE" />
+        </Style>
+        <Style Selector="Button.SelectMapsetDiffsButton.selected:pressed">
+            <Setter Property="Background" Value="#4C6A9573" />
+        </Style>
     </UserControl.Styles>
 
     <Border Classes="CardRoot">
@@ -152,11 +180,11 @@
                     </Grid>
                 </Border>
 
-                <Grid Margin="18,12"
+                <Grid Margin="12,6"
                       ColumnDefinitions="*,Auto"
                       ColumnSpacing="12">
                     <StackPanel VerticalAlignment="Center"
-                                Spacing="3"
+                                Spacing="2"
                                 Margin="0,0,0,4">
                         <TextBlock Text="{Binding ArtistAndTitle}"
                                    FontWeight="Bold"
@@ -176,20 +204,48 @@
                                    MaxLines="1" />
                     </StackPanel>
 
-                    <Border Grid.Column="1"
-                            Classes="DifficultyPill"
-                            VerticalAlignment="Top"
-                            HorizontalAlignment="Right"
-                            Margin="0">
-                        <TextBlock Text="{Binding DifficultyCountLabel}"
-                                   FontSize="12"
-                                   FontWeight="SemiBold" />
-                    </Border>
-                </Grid>
+                    <StackPanel Grid.Column="1"
+                                Orientation="Vertical"
+                                Spacing="6"
+                                VerticalAlignment="Top"
+                                HorizontalAlignment="Right"
+                                Margin="0"
+                                Panel.ZIndex="2">
+                        <Border Classes="DifficultyPill"
+                                HorizontalAlignment="Right"
+                                Margin="0">
+                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                <TextBlock Text="{Binding DifficultyCountLabel}"
+                                           FontSize="12"
+                                           FontWeight="SemiBold" />
+                                <materialIcons:MaterialIcon Kind="CheckCircle"
+                                                            Width="12"
+                                                            Height="12"
+                                                            Foreground="#BEEFD5"
+                                                            IsVisible="{Binding AllDifficultiesSelected}"
+                                                            ToolTip.Tip="All difficulties in this mapset are selected" />
+                            </StackPanel>
+                        </Border>
 
-                <Button Classes="CardHeaderHit"
-                        Command="{Binding DataContext.ToggleMapsetExpansionCommand, RelativeSource={RelativeSource AncestorType=dialogs:SongSelectDialog}}"
-                        CommandParameter="{Binding}" />
+                        <Button Classes="SelectMapsetDiffsButton"
+                                HorizontalAlignment="Right"
+                                Classes.selected="{Binding AllDifficultiesSelected}"
+                                IsVisible="{Binding DataContext.AllowMultipleSelection, RelativeSource={RelativeSource AncestorType=dialogs:SongSelectDialog}}"
+                                Command="{Binding DataContext.SelectAllDifficultiesInMapsetCommand, RelativeSource={RelativeSource AncestorType=dialogs:SongSelectDialog}}"
+                                CommandParameter="{Binding}"
+                                ToolTip.Tip="Select all difficulties in this mapset">
+                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                <materialIcons:MaterialIcon Kind="CheckAll" Width="14" Height="14" />
+                                <TextBlock Text="{Binding SelectAllButtonLabel}" />
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+
+                    <Button Grid.Column="0"
+                            Classes="CardHeaderHit"
+                            Command="{Binding DataContext.ToggleMapsetExpansionCommand, RelativeSource={RelativeSource AncestorType=dialogs:SongSelectDialog}}"
+                            CommandParameter="{Binding}" />
+                </Grid>
             </Grid>
 
             <Border Grid.Row="1"

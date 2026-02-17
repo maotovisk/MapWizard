@@ -18,8 +18,6 @@
     <UserControl.Styles>
         <Style Selector="Border.SongSurface">
             <Setter Property="Background" Value="#2A0F1625" />
-            <Setter Property="BorderBrush" Value="#6B788AFF" />
-            <Setter Property="BorderThickness" Value="2" />
             <Setter Property="CornerRadius" Value="16" />
         </Style>
 
@@ -33,11 +31,10 @@
 
         <Style Selector="Border.PopupHeader">
             <Setter Property="Background" Value="#2A0F1625" />
-            <Setter Property="BorderBrush" Value="#6B788AFF" />
-            <Setter Property="BorderThickness" Value="2" />
             <Setter Property="CornerRadius" Value="12" />
-            <Setter Property="Padding" Value="10" />
+            <Setter Property="Padding" Value="5" />
         </Style>
+
     </UserControl.Styles>
 
     <Grid RowDefinitions="Auto,*" RowSpacing="12">
@@ -61,29 +58,11 @@
                     </Button>
                 </Grid>
 
-                <Grid Grid.Row="1"
-                      ColumnDefinitions="Auto,*,Auto"
-                      ColumnSpacing="8">
-                    <Border Classes="StatusPill">
-                        <TextBlock Text="{Binding SongsPathDisplay, StringFormat=Songs Folder: {0}}"
-                                   FontSize="12"
-                                   TextTrimming="CharacterEllipsis"
-                                   MaxWidth="320"
-                                   ToolTip.Tip="{Binding SongsPathDisplay}" />
-                    </Border>
-
-                    <Border Grid.Column="1" Classes="StatusPill">
-                        <TextBlock Text="{Binding StatusMessage}"
-                                   FontSize="12"
-                                   TextTrimming="CharacterEllipsis" />
-                    </Border>
-                    <Border Grid.Column="2"
-                            Classes="StatusPill"
-                            IsVisible="{Binding ShowNotFoundBadge}">
-                        <TextBlock Text="Not found"
-                                   FontWeight="Bold" />
-                    </Border>
-                </Grid>
+                <Border Grid.Row="1" Classes="StatusPill">
+                    <TextBlock Text="{Binding StatusMessage}"
+                               FontSize="12"
+                               TextTrimming="CharacterEllipsis" />
+                </Border>
             </Grid>
         </Border>
 

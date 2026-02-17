@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -28,7 +29,6 @@ public partial class SongSelectDialogViewModel(
     private const int StatusQueryMaxLength = 36;
     private const double EstimatedMapsetCardHeight = 104d;
     private readonly SemaphoreSlim _loadGate = new(1, 1);
-    private readonly string _songsPath = songsPath;
     private readonly string? _preferredMapsetDirectoryPath = NormalizeDirectoryPath(preferredMapsetDirectoryPath);
     private readonly List<string> _mapsetDirectories = [];
     private readonly List<MapsetDirectoryEntry> _mapsetDirectoryEntries = [];
@@ -45,6 +45,7 @@ public partial class SongSelectDialogViewModel(
     private double _lastViewportHeight = EstimatedMapsetCardHeight * 6d;
     private int? _lastFirstVisibleIndex;
     private int? _lastLastVisibleIndex;
+    private bool _isScrollLoadScheduled;
 
     [ObservableProperty] private bool _isLoading;
 
@@ -62,8 +63,7 @@ public partial class SongSelectDialogViewModel(
     [ObservableProperty] private int _selectedDifficultyCount;
 
     public bool AllowMultipleSelection { get; } = allowMultipleSelection;
-    public string SongsPathDisplay => string.IsNullOrWhiteSpace(_songsPath) ? "Not configured" : _songsPath;
-    public bool HasSongsPath => !string.IsNullOrWhiteSpace(_songsPath);
+    public bool HasSongsPath => !string.IsNullOrWhiteSpace(songsPath);
     public bool HasMoreResults => _filteredCursor < _filteredDirectoryEntries.Count;
     public bool ShowBusyBox => IsBusyAreaActive || IsSearchPending;
     public bool ShowEmptyState => !ShowBusyBox && VisibleMapsets.Count == 0 && !ShowNotFoundBadge;
@@ -103,6 +103,7 @@ public partial class SongSelectDialogViewModel(
         _mapsetDirectoryEntries.Clear();
         _mapsetDirectories.Clear();
         VisibleMapsets.Clear();
+        _isScrollLoadScheduled = false;
 
         SelectionSubmitted = null;
     }
@@ -122,7 +123,7 @@ public partial class SongSelectDialogViewModel(
                 return;
             }
 
-            var directories = await songLibraryService.GetMapsetDirectoriesAsync(_songsPath, cancellationToken);
+            var directories = await songLibraryService.GetMapsetDirectoriesAsync(songsPath, cancellationToken);
             cancellationToken.ThrowIfCancellationRequested();
 
             _mapsetDirectories.Clear();
@@ -175,6 +176,7 @@ public partial class SongSelectDialogViewModel(
         VisibleMapsets.Clear();
         _lastFirstVisibleIndex = null;
         _lastLastVisibleIndex = null;
+        _isScrollLoadScheduled = false;
         DeactivateAllCachedBackgrounds();
         foreach (var mapset in _mapsetViewModelCache.Values)
         {
@@ -273,6 +275,23 @@ public partial class SongSelectDialogViewModel(
         }
     }
 
+    [RelayCommand]
+    private void SelectAllDifficultiesInMapset(SongMapsetCardViewModel? mapset)
+    {
+        if (!AllowMultipleSelection || mapset is null || mapset.Difficulties.Count == 0)
+        {
+            return;
+        }
+
+        var shouldSelectAll = !mapset.AllDifficultiesSelected;
+        foreach (var difficulty in mapset.Difficulties)
+        {
+            difficulty.IsSelected = shouldSelectAll;
+        }
+
+        RecalculateSelectedDifficultyCount();
+    }
+
     public void TryLoadMoreFromScroll(
         double offsetY,
         double viewportHeight,
@@ -298,7 +317,29 @@ public partial class SongSelectDialogViewModel(
 
         if (offsetY + viewportHeight >= extentHeight - 220)
         {
-            _ = LoadNextPageAsync(_queryVersion, CancellationToken.None);
+            _ = LoadMoreFromScrollAsync(_queryVersion);
+        }
+    }
+
+    private async Task LoadMoreFromScrollAsync(int queryVersion)
+    {
+        if (_isScrollLoadScheduled)
+        {
+            return;
+        }
+
+        _isScrollLoadScheduled = true;
+        try
+        {
+            await LoadNextPageAsync(queryVersion, CancellationToken.None);
+        }
+        catch (Exception exception)
+        {
+            StatusMessage = $"Failed to load more mapsets: {exception.Message}";
+        }
+        finally
+        {
+            _isScrollLoadScheduled = false;
         }
     }
 
@@ -360,6 +401,7 @@ public partial class SongSelectDialogViewModel(
         VisibleMapsets.Clear();
         _lastFirstVisibleIndex = null;
         _lastLastVisibleIndex = null;
+        _isScrollLoadScheduled = false;
         DeactivateAllCachedBackgrounds();
         foreach (var mapset in _mapsetViewModelCache.Values)
         {
@@ -688,6 +730,10 @@ public partial class SongMapsetCardViewModel : ObservableObject, IDisposable
         Difficulties = new ObservableCollection<SongDifficultyItemViewModel>(mapset.Difficulties
             .OrderByDescending(difficulty => difficulty.LastEditUtc)
             .Select(difficulty => new SongDifficultyItemViewModel(difficulty)));
+        foreach (var difficulty in Difficulties)
+        {
+            difficulty.PropertyChanged += OnDifficultyPropertyChanged;
+        }
 
     }
 
@@ -700,6 +746,8 @@ public partial class SongMapsetCardViewModel : ObservableObject, IDisposable
     public string CreatorLabel => $"Mapped by {Creator}";
     public string LastEditedLabel => $"Edited {LastEditedUtc.ToLocalTime().ToString("g", CultureInfo.CurrentCulture)}";
     public string DifficultyCountLabel => Difficulties.Count == 1 ? "1 difficulty" : $"{Difficulties.Count} difficulties";
+    public bool AllDifficultiesSelected => Difficulties.Count > 0 && Difficulties.All(difficulty => difficulty.IsSelected);
+    public string SelectAllButtonLabel => AllDifficultiesSelected ? "Unselect All Diffs" : "Select All Diffs";
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(HasBackgroundImage))]
     private Bitmap? _backgroundImage;
@@ -717,10 +765,7 @@ public partial class SongMapsetCardViewModel : ObservableObject, IDisposable
         if (isActive)
         {
             EnsureBackgroundLoaded();
-            return;
         }
-
-        ReleaseBackgroundImage();
     }
 
     public void Dispose()
@@ -731,8 +776,22 @@ public partial class SongMapsetCardViewModel : ObservableObject, IDisposable
         }
 
         _isDisposed = true;
-        ReleaseBackgroundImage();
+        BackgroundImage = null;
+        foreach (var difficulty in Difficulties)
+        {
+            difficulty.PropertyChanged -= OnDifficultyPropertyChanged;
+        }
+
         Difficulties.Clear();
+    }
+
+    private void OnDifficultyPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (string.IsNullOrEmpty(e.PropertyName) || e.PropertyName == nameof(SongDifficultyItemViewModel.IsSelected))
+        {
+            OnPropertyChanged(nameof(AllDifficultiesSelected));
+            OnPropertyChanged(nameof(SelectAllButtonLabel));
+        }
     }
 
     private void EnsureBackgroundLoaded()
@@ -750,17 +809,6 @@ public partial class SongMapsetCardViewModel : ObservableObject, IDisposable
         }
 
         BackgroundImage = image;
-    }
-
-    private void ReleaseBackgroundImage()
-    {
-        if (BackgroundImage is null)
-        {
-            return;
-        }
-
-        BackgroundImage.Dispose();
-        BackgroundImage = null;
     }
 
     private static Bitmap? BuildBackgroundImage(string? backgroundImagePath)
