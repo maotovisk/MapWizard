@@ -20,7 +20,7 @@ public partial class SongSelectDialogViewModel(
     IFilesService filesService,
     string songsPath,
     bool allowMultipleSelection,
-    string? preferredMapsetDirectoryPath = null) : ViewModelBase
+    string? preferredMapsetDirectoryPath = null) : ViewModelBase, IDisposable
 {
     private const int PageSize = 20;
     private const int SearchDebounceMilliseconds = 2000;
@@ -36,6 +36,7 @@ public partial class SongSelectDialogViewModel(
     private readonly HashSet<string> _visibleDirectoryPaths = new(StringComparer.OrdinalIgnoreCase);
     private CancellationTokenSource? _searchDebounceCts;
     private CancellationTokenSource? _searchExecutionCts;
+    private bool _isDisposed;
     private int _filteredCursor;
     private int _queryVersion;
 
@@ -67,6 +68,38 @@ public partial class SongSelectDialogViewModel(
     public bool CanConfirmSelection => AllowMultipleSelection && SelectedDifficultyCount > 0;
 
     public event Action<IReadOnlyList<string>>? SelectionSubmitted;
+
+    public void Dispose()
+    {
+        if (_isDisposed)
+        {
+            return;
+        }
+
+        _isDisposed = true;
+
+        _searchDebounceCts?.Cancel();
+        _searchDebounceCts?.Dispose();
+        _searchDebounceCts = null;
+
+        _searchExecutionCts?.Cancel();
+        _searchExecutionCts?.Dispose();
+        _searchExecutionCts = null;
+
+        foreach (var mapset in _mapsetViewModelCache.Values)
+        {
+            mapset.Dispose();
+        }
+
+        _mapsetViewModelCache.Clear();
+        _visibleDirectoryPaths.Clear();
+        _filteredDirectoryEntries.Clear();
+        _mapsetDirectoryEntries.Clear();
+        _mapsetDirectories.Clear();
+        VisibleMapsets.Clear();
+
+        SelectionSubmitted = null;
+    }
 
     public async Task InitializeAsync(CancellationToken cancellationToken = default)
     {
@@ -535,8 +568,10 @@ public partial class SongSelectDialogViewModel(
     private readonly record struct MapsetDirectoryEntry(string DirectoryPath, string FolderName);
 }
 
-public partial class SongMapsetCardViewModel : ObservableObject
+public partial class SongMapsetCardViewModel : ObservableObject, IDisposable
 {
+    private bool _isDisposed;
+
     public SongMapsetCardViewModel(SongMapsetInfo mapset)
     {
         Artist = mapset.Artist;
@@ -562,6 +597,18 @@ public partial class SongMapsetCardViewModel : ObservableObject
     public Bitmap? BackgroundImage { get; }
     public bool HasBackgroundImage => BackgroundImage is not null;
     public ObservableCollection<SongDifficultyItemViewModel> Difficulties { get; }
+
+    public void Dispose()
+    {
+        if (_isDisposed)
+        {
+            return;
+        }
+
+        _isDisposed = true;
+        BackgroundImage?.Dispose();
+        Difficulties.Clear();
+    }
 
     private static Bitmap? BuildBackgroundImage(string? backgroundImagePath)
     {

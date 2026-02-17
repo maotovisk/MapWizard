@@ -434,6 +434,8 @@ public partial class MetadataManagerViewModel(
         finally
         {
             songSelectViewModel.SelectionSubmitted -= OnSelectionSubmitted;
+            dialogContent.DataContext = null;
+            songSelectViewModel.Dispose();
             dialogLifetimeCts.Dispose();
         }
     }
