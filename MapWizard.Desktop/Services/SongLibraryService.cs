@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using BeatmapParser;
 using BeatmapParser.Events;
 using MapWizard.Desktop.Models.SongSelect;
+using MapWizard.Desktop.Utils;
 using Microsoft.Win32;
 
 namespace MapWizard.Desktop.Services;
@@ -205,12 +206,12 @@ public sealed class SongLibraryService : ISongLibraryService
 
             if (beatmap is not null && string.IsNullOrWhiteSpace(artist))
             {
-                artist = FirstNonEmpty(beatmap.MetadataSection.Artist, beatmap.MetadataSection.ArtistUnicode);
+                artist = StringValueUtils.FirstNonEmpty(beatmap.MetadataSection.Artist, beatmap.MetadataSection.ArtistUnicode);
             }
 
             if (beatmap is not null && string.IsNullOrWhiteSpace(title))
             {
-                title = FirstNonEmpty(beatmap.MetadataSection.Title, beatmap.MetadataSection.TitleUnicode);
+                title = StringValueUtils.FirstNonEmpty(beatmap.MetadataSection.Title, beatmap.MetadataSection.TitleUnicode);
             }
 
             if (beatmap is not null && string.IsNullOrWhiteSpace(creator))
@@ -227,7 +228,7 @@ public sealed class SongLibraryService : ISongLibraryService
 
                 if (!string.IsNullOrWhiteSpace(backgroundRelativePath))
                 {
-                    backgroundPath = ResolveBackgroundPath(mapsetDirectory, backgroundRelativePath);
+                    backgroundPath = MapsetAssetPathUtils.ResolveRelativePath(mapsetDirectory, backgroundRelativePath);
                 }
             }
 
@@ -267,38 +268,6 @@ public sealed class SongLibraryService : ISongLibraryService
             LastEditUtc = mapsetLastEditUtc,
             Difficulties = difficulties
         };
-    }
-
-    private static string? ResolveBackgroundPath(string mapsetDirectory, string relativePath)
-    {
-        if (string.IsNullOrWhiteSpace(relativePath))
-        {
-            return null;
-        }
-
-        var sanitized = relativePath.Trim()
-            .Trim('"')
-            .Replace('\\', Path.DirectorySeparatorChar)
-            .Replace('/', Path.DirectorySeparatorChar);
-
-        var candidate = Path.IsPathRooted(sanitized)
-            ? sanitized
-            : Path.Combine(mapsetDirectory, sanitized);
-
-        return File.Exists(candidate) ? candidate : null;
-    }
-
-    private static string FirstNonEmpty(params string?[] values)
-    {
-        foreach (var value in values)
-        {
-            if (!string.IsNullOrWhiteSpace(value))
-            {
-                return value;
-            }
-        }
-
-        return string.Empty;
     }
 
     [SupportedOSPlatform("windows")]

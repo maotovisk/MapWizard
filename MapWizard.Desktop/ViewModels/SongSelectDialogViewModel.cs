@@ -765,7 +765,10 @@ public partial class SongMapsetCardViewModel : ObservableObject, IDisposable
         if (isActive)
         {
             EnsureBackgroundLoaded();
+            return;
         }
+
+        ReleaseBackground();
     }
 
     public void Dispose()
@@ -776,7 +779,7 @@ public partial class SongMapsetCardViewModel : ObservableObject, IDisposable
         }
 
         _isDisposed = true;
-        BackgroundImage = null;
+        ReleaseBackground();
         foreach (var difficulty in Difficulties)
         {
             difficulty.PropertyChanged -= OnDifficultyPropertyChanged;
@@ -809,6 +812,18 @@ public partial class SongMapsetCardViewModel : ObservableObject, IDisposable
         }
 
         BackgroundImage = image;
+    }
+
+    private void ReleaseBackground()
+    {
+        if (BackgroundImage is null)
+        {
+            return;
+        }
+
+        var image = BackgroundImage;
+        BackgroundImage = null;
+        image.Dispose();
     }
 
     private static Bitmap? BuildBackgroundImage(string? backgroundImagePath)
