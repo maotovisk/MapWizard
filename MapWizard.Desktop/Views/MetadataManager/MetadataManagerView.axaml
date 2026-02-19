@@ -74,7 +74,6 @@
                 <TextBox theme:TextBoxExtensions.Prefix="Creator: " theme:TextBoxExtensions.AddDeleteButton="True" Watermark="Creator" Text="{Binding Metadata.Creator, Mode=TwoWay}" />
                 <TextBox theme:TextBoxExtensions.Prefix="Source: " theme:TextBoxExtensions.AddDeleteButton="True" Watermark="Source" Text="{Binding Metadata.Source, Mode=TwoWay}" />
                 <TextBox theme:TextBoxExtensions.Prefix="Tags: " theme:TextBoxExtensions.AddDeleteButton="True" Watermark="Tags" AcceptsReturn="True" TextWrapping="Wrap" Text="{Binding Metadata.Tags, Mode=TwoWay}" />
-                <TextBox theme:TextBoxExtensions.Prefix="Beatmap ID: " theme:TextBoxExtensions.AddDeleteButton="True" Watermark="Beatmap ID" Text="{Binding Metadata.BeatmapId, Mode=TwoWay}" />
                 <TextBox theme:TextBoxExtensions.Prefix="Beatmap Set ID: " theme:TextBoxExtensions.AddDeleteButton="True" Watermark="Beatmap Set ID" Text="{Binding Metadata.BeatmapSetId, Mode=TwoWay}" />
               </StackPanel>
             </StackPanel>

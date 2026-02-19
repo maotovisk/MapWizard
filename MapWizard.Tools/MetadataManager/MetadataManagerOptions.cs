@@ -3,6 +3,7 @@ namespace MapWizard.Tools.MetadataManager;
 public class MetadataManagerOptions
 {
     public bool ApplyMetadataSection = true;
+    public bool ResetBeatmapIds = false;
     public bool ApplyGeneralSection = true;
     public bool ApplyColoursSection = true;
     public bool ApplyCombosSection = true;
