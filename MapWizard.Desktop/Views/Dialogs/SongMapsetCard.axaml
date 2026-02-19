@@ -23,6 +23,12 @@
             <Setter Property="MaxWidth" Value="600" />
             <Setter Property="HorizontalAlignment" Value="Stretch" />
         </Style>
+        <Style Selector="Border.CardRoot TextBlock">
+            <Setter Property="Foreground" Value="#F4F7FF" />
+        </Style>
+        <Style Selector="Border.CardRoot materialIcons|MaterialIcon">
+            <Setter Property="Foreground" Value="#E9F1FF" />
+        </Style>
 
         <Style Selector="Button.CardHeaderHit">
             <Setter Property="Padding" Value="0" />

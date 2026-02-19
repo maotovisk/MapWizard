@@ -8,16 +8,20 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Avalonia;
 using Avalonia.Controls.Notifications;
+using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Input.Platform;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform.Storage;
 using BeatmapParser;
 using BeatmapParser.Colours;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using MapWizard.Desktop.Extensions;
 using MapWizard.Desktop.Models;
 using MapWizard.Desktop.Services;
-using MapWizard.Desktop.Views.Dialogs;
+using MapWizard.Desktop.Utils;
 using MapWizard.Tools.ComboColourStudio;
 using SukiUI.Dialogs;
 using SukiUI.Toasts;
@@ -196,9 +200,10 @@ public partial class ComboColourStudioViewModel(
     }
 
     [RelayCommand]
-    private void AddColourPoint()
+    private async Task AddColourPoint()
     {
-        var nextTime = ColourPoints.Count > 0 ? ColourPoints[^1].Time : 0;
+        var nextTime = await TryGetTimestampFromClipboardAsync()
+                       ?? (ColourPoints.Count > 0 ? ColourPoints[^1].Time : 0);
         var point = new AvaloniaComboColourPoint
         {
             Time = nextTime,
@@ -214,6 +219,38 @@ public partial class ComboColourStudioViewModel(
         ColourPoints.Add(point);
         ObserveColourPoints();
         MarkProjectDirty();
+    }
+
+    private static async Task<double?> TryGetTimestampFromClipboardAsync()
+    {
+        var clipboard = TryGetClipboard();
+        if (clipboard is null)
+        {
+            return null;
+        }
+
+        string? clipboardText;
+        try
+        {
+            clipboardText = await clipboard.TryGetTextAsync();
+        }
+        catch
+        {
+            return null;
+        }
+
+        return MillisecondParser.TryParseMillisecondInput(clipboardText, out var timestamp) ? timestamp : null;
+    }
+
+    private static IClipboard? TryGetClipboard()
+    {
+        if (Application.Current?.ApplicationLifetime is not IClassicDesktopStyleApplicationLifetime lifetime)
+        {
+            return null;
+        }
+
+        var activeWindow = lifetime.Windows.FirstOrDefault(window => window.IsActive);
+        return activeWindow?.Clipboard ?? lifetime.MainWindow?.Clipboard;
     }
 
     [RelayCommand]
@@ -406,7 +443,7 @@ public partial class ComboColourStudioViewModel(
             var selectedPaths = await ShowSongSelectDialogAsync(
                 allowMultiple: true,
                 token: token,
-                preferredMapsetDirectoryPath: GetOriginMapsetDirectoryPath());
+                preferredMapsetDirectoryPath: BeatmapPathUtils.TryGetMapsetDirectoryPath(OriginBeatmap.Path));
             if (token.IsCancellationRequested || selectedPaths is null || selectedPaths.Count == 0)
             {
                 return;
@@ -424,30 +461,16 @@ public partial class ComboColourStudioViewModel(
     private void AddDestinationFromMemory()
     {
         var beatmapPath = GetBeatmapFromMemory();
-
         if (beatmapPath is null)
         {
             return;
         }
 
-        var destinationBeatmaps = DestinationBeatmaps;
-
-        if (destinationBeatmaps.Count == 0 ||
-            (destinationBeatmaps.Count == 1 && string.IsNullOrEmpty(destinationBeatmaps.First().Path)))
-        {
-            destinationBeatmaps = [];
-        }
-
-        if (destinationBeatmaps.Any(x => string.Equals(x.Path, beatmapPath, StringComparison.OrdinalIgnoreCase)))
+        if (!BeatmapSelectionUtils.TryAppendDestinationBeatmap(DestinationBeatmaps, beatmapPath, out var destinationBeatmaps))
         {
             ShowToast(NotificationType.Error, "Combo Colour Studio", "This beatmap is already in the destination list.");
             return;
         }
-
-        destinationBeatmaps = new ObservableCollection<SelectedMap>(destinationBeatmaps.Append(new SelectedMap
-        {
-            Path = beatmapPath
-        }));
 
         DestinationBeatmaps = destinationBeatmaps;
         HasMultiple = DestinationBeatmaps.Count > 1;
@@ -462,20 +485,15 @@ public partial class ComboColourStudioViewModel(
 
     private void SetDestinationBeatmaps(IReadOnlyCollection<string> beatmapPaths)
     {
-        var normalizedPaths = beatmapPaths
-            .Where(path => !string.IsNullOrWhiteSpace(path))
-            .Distinct(StringComparer.OrdinalIgnoreCase)
-            .Select(path => new SelectedMap { Path = path })
-            .ToList();
-
-        if (normalizedPaths.Count == 0)
+        var normalizedBeatmaps = BeatmapSelectionUtils.NormalizeDestinationBeatmaps(beatmapPaths);
+        if (normalizedBeatmaps.Count == 0)
         {
             return;
         }
 
-        DestinationBeatmaps = new ObservableCollection<SelectedMap>(normalizedPaths);
+        DestinationBeatmaps = normalizedBeatmaps;
         HasMultiple = DestinationBeatmaps.Count > 1;
-        PreferredDirectory = Path.GetDirectoryName(DestinationBeatmaps[0].Path) ?? PreferredDirectory;
+        PreferredDirectory = BeatmapSelectionUtils.GetPreferredDirectoryOrFallback(DestinationBeatmaps, PreferredDirectory);
     }
 
     [RelayCommand]
@@ -542,143 +560,29 @@ public partial class ComboColourStudioViewModel(
 
     private string? GetBeatmapFromMemory()
     {
-        var currentBeatmap = osuMemoryReaderService.GetBeatmapPath();
-
-        if (currentBeatmap.Status == ResultStatus.Error)
-        {
-            ShowToast(NotificationType.Error,
-                "Memory Error",
-                currentBeatmap.ErrorMessage ?? "Failed to read beatmap path from memory.");
-            return null;
-        }
-
-        if (string.IsNullOrWhiteSpace(currentBeatmap.Value))
-        {
-            ShowToast(NotificationType.Error, "Memory Error", "No beatmap is currently loaded in osu!.");
-            return null;
-        }
-
-        return currentBeatmap.Value;
+        return BeatmapSelectionUtils.TryGetBeatmapFromMemory(
+            osuMemoryReaderService,
+            ShowToast,
+            "Memory Error",
+            "Failed to read beatmap path from memory.",
+            "Memory Error",
+            "No beatmap is currently loaded in osu!.");
     }
 
-    private async Task<IReadOnlyList<string>?> ShowSongSelectDialogAsync(
+    private Task<IReadOnlyList<string>?> ShowSongSelectDialogAsync(
         bool allowMultiple,
         CancellationToken token,
         string? preferredMapsetDirectoryPath = null)
-    {
-        var songsPath = ResolveSongsPath();
-        var songSelectViewModel = new SongSelectDialogViewModel(
+        => MapPickerDialogUtils.ShowSongSelectDialogAsync(
+            dialogManager,
+            toastManager,
             songLibraryService,
             filesService,
-            songsPath,
+            settingsService,
+            "Combo Colour Studio",
             allowMultiple,
+            token,
             preferredMapsetDirectoryPath);
-
-        var dialogContent = new SongSelectDialog
-        {
-            DataContext = songSelectViewModel
-        };
-
-        var completion = new TaskCompletionSource<IReadOnlyList<string>?>(
-            TaskCreationOptions.RunContinuationsAsynchronously);
-        var dialogLifetimeCts = CancellationTokenSource.CreateLinkedTokenSource(token);
-
-        void OnSelectionSubmitted(IReadOnlyList<string> selectedPaths)
-        {
-            completion.TrySetResult(selectedPaths);
-            dialogManager.DismissDialog();
-        }
-
-        songSelectViewModel.SelectionSubmitted += OnSelectionSubmitted;
-
-        try
-        {
-            var dialogBuilder = dialogManager.CreateDialog()
-                .WithTitle("Map Picker")
-                .WithContent(dialogContent)
-                .WithActionButton("Close", _ => { }, true, "Flat")
-                .Dismiss().ByClickingBackground()
-                .OnDismissed(_ =>
-                {
-                    try
-                    {
-                        dialogLifetimeCts.Cancel();
-                    }
-                    catch (ObjectDisposedException)
-                    {
-                        // The dialog completion path can dispose this CTS before the dismissed callback runs.
-                    }
-
-                    completion.TrySetResult(null);
-                });
-
-            if (allowMultiple)
-            {
-                dialogBuilder = dialogBuilder.WithActionButton(
-                    "Use Selected",
-                    _ => songSelectViewModel.ConfirmSelectionCommand.Execute(null),
-                    false,
-                    "Success");
-            }
-
-            var shown = dialogBuilder.TryShow();
-
-            if (!shown)
-            {
-                ShowToast(NotificationType.Warning,
-                    "Combo Colour Studio",
-                    "Could not open Map Picker because another dialog is already open.");
-                return null;
-            }
-
-            _ = songSelectViewModel.InitializeAsync(dialogLifetimeCts.Token);
-            return await completion.Task;
-        }
-        finally
-        {
-            songSelectViewModel.SelectionSubmitted -= OnSelectionSubmitted;
-            dialogContent.DataContext = null;
-            songSelectViewModel.Dispose();
-            dialogLifetimeCts.Dispose();
-        }
-    }
-
-    private string? GetOriginMapsetDirectoryPath()
-    {
-        if (string.IsNullOrWhiteSpace(OriginBeatmap.Path))
-        {
-            return null;
-        }
-
-        try
-        {
-            return Path.GetDirectoryName(Path.GetFullPath(OriginBeatmap.Path));
-        }
-        catch
-        {
-            return null;
-        }
-    }
-
-    private string ResolveSongsPath()
-    {
-        var settings = settingsService.GetMainSettings();
-        var configuredPath = settings.SongsPath;
-        if (songLibraryService.IsValidSongsPath(configuredPath))
-        {
-            return configuredPath;
-        }
-
-        var detectedPath = songLibraryService.TryDetectSongsPath();
-        if (songLibraryService.IsValidSongsPath(detectedPath))
-        {
-            settings.SongsPath = detectedPath!;
-            settingsService.SaveMainSettings(settings);
-            return detectedPath!;
-        }
-
-        return string.Empty;
-    }
 
     private async Task LoadOriginBeatmapContext()
     {
@@ -716,8 +620,8 @@ public partial class ComboColourStudioViewModel(
         var beatmap = Beatmap.Decode(File.ReadAllText(OriginBeatmap.Path));
         var metadata = beatmap.MetadataSection;
 
-        OriginArtist = FirstNonEmpty(metadata.ArtistUnicode, metadata.Artist);
-        OriginSongName = FirstNonEmpty(metadata.TitleUnicode, metadata.Title);
+        OriginArtist = StringValueUtils.FirstNonEmpty(metadata.ArtistUnicode, metadata.Artist);
+        OriginSongName = StringValueUtils.FirstNonEmpty(metadata.TitleUnicode, metadata.Title);
         OriginDiffName = metadata.Version;
         OriginBeatmapId = metadata.BeatmapID;
     }
@@ -792,19 +696,6 @@ public partial class ComboColourStudioViewModel(
 
         LoadProjectIntoUi(storedProject, replaceColourPoints: true, markAsDirty: false);
         return SavedProjectRestoreState.Restored;
-    }
-
-    private static string FirstNonEmpty(params string?[] values)
-    {
-        foreach (var value in values)
-        {
-            if (!string.IsNullOrWhiteSpace(value))
-            {
-                return value;
-            }
-        }
-
-        return string.Empty;
     }
 
     private void LoadProjectIntoUi(ComboColourProject project, bool replaceColourPoints, bool markAsDirty = true)
@@ -1193,12 +1084,6 @@ public partial class ComboColourStudioViewModel(
 
     private void ShowToast(NotificationType type, string title, string message)
     {
-        toastManager.CreateToast()
-            .OfType(type)
-            .WithTitle(title)
-            .WithContent(message)
-            .Dismiss().ByClicking()
-            .Dismiss().After(TimeSpan.FromSeconds(8))
-            .Queue();
+        toastManager.ShowToast(type, title, message);
     }
 }

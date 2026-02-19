@@ -1,6 +1,5 @@
 using System;
 using System.Globalization;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
@@ -8,15 +7,12 @@ using Avalonia.Controls.Primitives;
 using Avalonia.Input;
 using Avalonia.Input.Platform;
 using Avalonia.Interactivity;
+using MapWizard.Desktop.Utils;
 
 namespace MapWizard.Desktop.Views.Controls;
 
 public partial class MillisecondFlyoutInput : UserControl
 {
-    private static readonly Regex osuTimestampRegex = new(
-        @"(?<min>\d{1,4}):(?<sec>\d{1,2}):(?<ms>\d{1,3})",
-        RegexOptions.Compiled);
-
     public static readonly StyledProperty<double> ValueProperty =
         AvaloniaProperty.Register<MillisecondFlyoutInput, double>(
             nameof(Value),
@@ -108,7 +104,7 @@ public partial class MillisecondFlyoutInput : UserControl
     private void ApplyValueAndClose()
     {
         var rawText = InputTextBox.Text;
-        if (TryParseMillisecondInput(rawText, out var parsed))
+        if (MillisecondParser.TryParseMillisecondInput(rawText, out var parsed))
         {
             _isUpdatingFromControl = true;
             Value = parsed;
@@ -140,30 +136,6 @@ public partial class MillisecondFlyoutInput : UserControl
         return value.ToString("0.##", CultureInfo.InvariantCulture);
     }
 
-    private static bool TryParseMillisecondInput(string? input, out double value)
-    {
-        value = 0;
-
-        if (string.IsNullOrWhiteSpace(input))
-        {
-            return false;
-        }
-
-        var normalized = input.Trim();
-        if (normalized.EndsWith("ms", StringComparison.OrdinalIgnoreCase))
-        {
-            normalized = normalized[..^2].Trim();
-        }
-
-        if (TryParseOsuTimestamp(normalized, out value))
-        {
-            return true;
-        }
-
-        return double.TryParse(normalized, NumberStyles.Float, CultureInfo.InvariantCulture, out value)
-               || double.TryParse(normalized, NumberStyles.Float, CultureInfo.CurrentCulture, out value);
-    }
-
     private async Task PasteWithTimestampNormalizationAsync()
     {
         var clipboard = TopLevel.GetTopLevel(this)?.Clipboard;
@@ -178,7 +150,7 @@ public partial class MillisecondFlyoutInput : UserControl
             return;
         }
 
-        var replacement = TryParseMillisecondInput(clipboardText, out var parsed)
+        var replacement = MillisecondParser.TryParseMillisecondInput(clipboardText, out var parsed)
             ? FormatValueWithoutUnit(parsed)
             : clipboardText;
 
@@ -218,29 +190,4 @@ public partial class MillisecondFlyoutInput : UserControl
         return mods.HasFlag(KeyModifiers.Control) || mods.HasFlag(KeyModifiers.Meta);
     }
 
-    private static bool TryParseOsuTimestamp(string input, out double value)
-    {
-        value = 0;
-        var match = osuTimestampRegex.Match(input);
-
-        if (!match.Success)
-        {
-            return false;
-        }
-
-        if (!int.TryParse(match.Groups["min"].Value, NumberStyles.None, CultureInfo.InvariantCulture, out var minutes) ||
-            !int.TryParse(match.Groups["sec"].Value, NumberStyles.None, CultureInfo.InvariantCulture, out var seconds) ||
-            !int.TryParse(match.Groups["ms"].Value, NumberStyles.None, CultureInfo.InvariantCulture, out var milliseconds))
-        {
-            return false;
-        }
-
-        if (seconds is < 0 or > 59 || milliseconds is < 0 or > 999)
-        {
-            return false;
-        }
-
-        value = minutes * 60_000d + seconds * 1_000d + milliseconds;
-        return true;
-    }
 }
