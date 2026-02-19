@@ -20,13 +20,14 @@
                         <StackPanel Spacing="20">
                             <Grid ColumnDefinitions="*,Auto" VerticalAlignment="Center">
                                 <StackPanel Spacing="4">
-                                    <TextBlock Text="Dark Theme" FontWeight="Bold" />
-                                    <TextBlock Text="Switch between light and dark while keeping the MapWizard custom color theme."
+                                    <TextBlock Text="Theme" FontWeight="Bold" />
+                                    <TextBlock Text="Choose System to follow your operating system theme, or force Light/Dark."
                                                TextWrapping="Wrap" />
                                 </StackPanel>
-                                <ToggleSwitch Grid.Column="1"
-                                              IsChecked="{Binding IsDarkTheme, Mode=TwoWay}"
-                                              HorizontalAlignment="Right" />
+                                <ComboBox Grid.Column="1"
+                                          MinWidth="140"
+                                          ItemsSource="{Binding ThemeModes}"
+                                          SelectedItem="{Binding SelectedThemeMode, Mode=TwoWay}" />
                             </Grid>
 
                             <Grid ColumnDefinitions="*,Auto" VerticalAlignment="Center">
