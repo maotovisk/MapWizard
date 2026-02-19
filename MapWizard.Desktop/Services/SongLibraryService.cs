@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.Versioning;
@@ -290,56 +289,233 @@ public sealed class SongLibraryService : ISongLibraryService
     {
         var paths = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
-        void AddPath(string? value)
+        foreach (var candidate in EnumerateWindowsInstallPathCandidates())
         {
-            if (string.IsNullOrWhiteSpace(value))
-            {
-                return;
-            }
-
-            var trimmed = value.Trim().Trim('"');
-            if (File.Exists(trimmed))
-            {
-                trimmed = Path.GetDirectoryName(trimmed) ?? trimmed;
-            }
-
-            if (Directory.Exists(trimmed))
-            {
-                paths.Add(trimmed);
-            }
+            AddNormalizedDirectory(paths, candidate);
         }
-
-        AddPath(ReadRegistryValue(@"HKEY_CURRENT_USER\Software\osu!", "path"));
-        AddPath(ReadRegistryValue(@"HKEY_LOCAL_MACHINE\Software\osu!", "path"));
-
-        AddPath(ExtractExecutableDirectory(ReadRegistryValue(@"HKEY_CLASSES_ROOT\osu\shell\open\command", null)));
-        AddPath(ExtractExecutableDirectory(ReadRegistryValue(@"HKEY_CLASSES_ROOT\osu\DefaultIcon", null)));
-        AddPath(ExtractExecutableDirectory(ReadRegistryValue(@"HKEY_LOCAL_MACHINE\Software\Classes\osu\shell\open\command", null)));
-        AddPath(ExtractExecutableDirectory(ReadRegistryValue(@"HKEY_LOCAL_MACHINE\Software\Classes\osu\DefaultIcon", null)));
 
         var localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
         if (!string.IsNullOrWhiteSpace(localAppData))
         {
-            AddPath(Path.Combine(localAppData, "osu!"));
+            AddNormalizedDirectory(paths, Path.Combine(localAppData, "osu!"));
         }
 
-        foreach (var process in Process.GetProcessesByName("osu!"))
+        return paths;
+    }
+
+    [SupportedOSPlatform("windows")]
+    private static IEnumerable<string?> EnumerateWindowsInstallPathCandidates()
+    {
+        foreach (var value in EnumerateRegistryValues(RegistryHive.CurrentUser, @"Software\osu!", "path"))
         {
+            yield return value;
+        }
+
+        foreach (var value in EnumerateRegistryValues(RegistryHive.LocalMachine, @"Software\osu!", "path"))
+        {
+            yield return value;
+        }
+
+        foreach (var value in EnumerateRegistryValues(RegistryHive.CurrentUser, @"Software\Microsoft\Windows\CurrentVersion\App Paths\osu!.exe", null))
+        {
+            yield return ExtractExecutableDirectory(value);
+        }
+
+        foreach (var value in EnumerateRegistryValues(RegistryHive.LocalMachine, @"Software\Microsoft\Windows\CurrentVersion\App Paths\osu!.exe", null))
+        {
+            yield return ExtractExecutableDirectory(value);
+        }
+
+        foreach (var value in EnumerateRegistryValues(RegistryHive.CurrentUser, @"Software\Microsoft\Windows\CurrentVersion\App Paths\osu!.exe", "Path"))
+        {
+            yield return value;
+        }
+
+        foreach (var value in EnumerateRegistryValues(RegistryHive.LocalMachine, @"Software\Microsoft\Windows\CurrentVersion\App Paths\osu!.exe", "Path"))
+        {
+            yield return value;
+        }
+
+        foreach (var value in EnumerateRegistryValues(RegistryHive.ClassesRoot, @"osu\shell\open\command", null))
+        {
+            yield return ExtractExecutableDirectory(value);
+        }
+
+        foreach (var value in EnumerateRegistryValues(RegistryHive.ClassesRoot, @"osu\DefaultIcon", null))
+        {
+            yield return ExtractExecutableDirectory(value);
+        }
+
+        foreach (var value in EnumerateRegistryValues(RegistryHive.LocalMachine, @"Software\Classes\osu\shell\open\command", null))
+        {
+            yield return ExtractExecutableDirectory(value);
+        }
+
+        foreach (var value in EnumerateRegistryValues(RegistryHive.LocalMachine, @"Software\Classes\osu\DefaultIcon", null))
+        {
+            yield return ExtractExecutableDirectory(value);
+        }
+
+        foreach (var value in EnumerateRegistryValues(RegistryHive.CurrentUser, @"Software\Classes\osu\shell\open\command", null))
+        {
+            yield return ExtractExecutableDirectory(value);
+        }
+
+        foreach (var value in EnumerateRegistryValues(RegistryHive.CurrentUser, @"Software\Classes\osu\DefaultIcon", null))
+        {
+            yield return ExtractExecutableDirectory(value);
+        }
+
+        foreach (var value in EnumerateUninstallInstallPathCandidates())
+        {
+            yield return value;
+        }
+    }
+
+    [SupportedOSPlatform("windows")]
+    private static IEnumerable<string?> EnumerateUninstallInstallPathCandidates()
+    {
+        const string uninstallKeyPath = @"Software\Microsoft\Windows\CurrentVersion\Uninstall";
+        var candidates = new List<string?>();
+
+        foreach (var hive in new[] { RegistryHive.CurrentUser, RegistryHive.LocalMachine })
+        {
+            foreach (var view in new[] { RegistryView.Registry64, RegistryView.Registry32 })
+            {
+                RegistryKey? uninstallRoot = null;
+                try
+                {
+                    uninstallRoot = RegistryKey.OpenBaseKey(hive, view).OpenSubKey(uninstallKeyPath);
+                    if (uninstallRoot is null)
+                    {
+                        continue;
+                    }
+
+                    foreach (var subKeyName in uninstallRoot.GetSubKeyNames())
+                    {
+                        RegistryKey? appKey = null;
+                        try
+                        {
+                            appKey = uninstallRoot.OpenSubKey(subKeyName);
+                            if (appKey is null)
+                            {
+                                continue;
+                            }
+
+                            var displayName = appKey.GetValue("DisplayName")?.ToString();
+                            if (!IsOsuDisplayName(displayName) &&
+                                !subKeyName.Contains("osu", StringComparison.OrdinalIgnoreCase))
+                            {
+                                continue;
+                            }
+
+                            candidates.Add(appKey.GetValue("InstallLocation")?.ToString());
+                            candidates.Add(ExtractExecutableDirectory(appKey.GetValue("DisplayIcon")?.ToString()));
+                            candidates.Add(ExtractExecutableDirectory(appKey.GetValue("UninstallString")?.ToString()));
+                        }
+                        catch
+                        {
+                            // ignored
+                        }
+                        finally
+                        {
+                            appKey?.Dispose();
+                        }
+                    }
+                }
+                catch
+                {
+                    // ignored
+                }
+                finally
+                {
+                    uninstallRoot?.Dispose();
+                }
+            }
+        }
+
+        return candidates;
+    }
+
+    [SupportedOSPlatform("windows")]
+    private static IEnumerable<string?> EnumerateRegistryValues(RegistryHive hive, string subKeyPath, string? valueName)
+    {
+        if (hive == RegistryHive.ClassesRoot)
+        {
+            string? classRootValue = null;
             try
             {
-                AddPath(process.MainModule?.FileName);
+                classRootValue = Registry.ClassesRoot.OpenSubKey(subKeyPath)?.GetValue(valueName)?.ToString();
             }
             catch
             {
                 // ignored
             }
-            finally
+
+            if (!string.IsNullOrWhiteSpace(classRootValue))
             {
-                process.Dispose();
+                yield return classRootValue;
             }
+
+            yield break;
         }
 
-        return paths;
+        foreach (var view in new[] { RegistryView.Registry64, RegistryView.Registry32 })
+        {
+            RegistryKey? subKey = null;
+            try
+            {
+                subKey = RegistryKey.OpenBaseKey(hive, view).OpenSubKey(subKeyPath);
+            }
+            catch
+            {
+                // ignored
+            }
+
+            var value = subKey?.GetValue(valueName)?.ToString();
+            if (!string.IsNullOrWhiteSpace(value))
+            {
+                yield return value;
+            }
+
+            subKey?.Dispose();
+        }
+    }
+
+    private static bool IsOsuDisplayName(string? displayName)
+    {
+        return !string.IsNullOrWhiteSpace(displayName) &&
+               displayName.Contains("osu", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static void AddNormalizedDirectory(HashSet<string> paths, string? pathCandidate)
+    {
+        if (string.IsNullOrWhiteSpace(pathCandidate))
+        {
+            return;
+        }
+
+        var normalized = NormalizeDirectoryPath(pathCandidate);
+        if (normalized is not null)
+        {
+            paths.Add(normalized);
+        }
+    }
+
+    private static string? NormalizeDirectoryPath(string pathCandidate)
+    {
+        var trimmed = pathCandidate.Trim().Trim('"');
+        if (trimmed.Length == 0)
+        {
+            return null;
+        }
+
+        if (File.Exists(trimmed))
+        {
+            trimmed = Path.GetDirectoryName(trimmed) ?? trimmed;
+        }
+
+        return Directory.Exists(trimmed) ? Path.GetFullPath(trimmed) : null;
     }
 
     private static string? TryDetectSongsPathLinux()
@@ -692,19 +868,6 @@ public sealed class SongLibraryService : ISongLibraryService
         }
 
         return Directory.Exists(executablePath) ? executablePath : null;
-    }
-
-    [SupportedOSPlatform("windows")]
-    private static string? ReadRegistryValue(string keyPath, string? valueName)
-    {
-        try
-        {
-            return Registry.GetValue(keyPath, valueName, null)?.ToString();
-        }
-        catch
-        {
-            return null;
-        }
     }
 
     private static string? TryReadFirstLine(string filePath)
