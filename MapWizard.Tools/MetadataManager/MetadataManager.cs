@@ -3,6 +3,7 @@ using BeatmapParser.Colours;
 using BeatmapParser.Enums.Storyboard;
 using BeatmapParser.Events;
 using BeatmapParser.Sections;
+using MapWizard.Tools.HelperExtensions;
 
 namespace MapWizard.Tools.MetadataManager;
 
@@ -89,13 +90,9 @@ public static class MetadataManager
                 // backup the original file
                 if (!File.Exists(targetPath)) continue;
             
-                if (Directory.Exists(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)))
-                {
-                    var backupDirectory = Directory.CreateDirectory(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + "/MapWizard/Backup");
-                    
-                    var currentTimestamp = DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss");
-                    File.Move(targetPath, backupDirectory.FullName + "/" + currentTimestamp + Path.GetFileName(targetPath));
-                }
+                var backupDirectory = Directory.CreateDirectory(MapWizardPathResolver.ResolveBackupDirectoryPath());
+                var currentTimestamp = DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss");
+                File.Move(targetPath, backupDirectory.FullName + "/" + currentTimestamp + Path.GetFileName(targetPath));
                 
                 File.WriteAllText(targetPath, beatmap.Encode().Replace("\r\n", "\n").Replace("\n", "\r\n"));
             }

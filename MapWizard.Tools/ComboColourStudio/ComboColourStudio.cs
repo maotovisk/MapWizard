@@ -5,6 +5,7 @@ using BeatmapParser.Enums;
 using BeatmapParser.Events;
 using BeatmapParser.HitObjects;
 using BeatmapParser.Sections;
+using MapWizard.Tools.HelperExtensions;
 using SkiaSharp;
 
 namespace MapWizard.Tools.ComboColourStudio;
@@ -633,13 +634,7 @@ public static class ComboColourStudio
             return;
         }
 
-        var userProfile = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-        if (!Directory.Exists(userProfile))
-        {
-            return;
-        }
-
-        var backupDirectory = Directory.CreateDirectory(Path.Combine(userProfile, "MapWizard", "Backup"));
+        var backupDirectory = Directory.CreateDirectory(MapWizardPathResolver.ResolveBackupDirectoryPath());
         var currentTimestamp = DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss");
         var backupPath = Path.Combine(backupDirectory.FullName, currentTimestamp + Path.GetFileName(path));
 

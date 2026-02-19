@@ -51,15 +51,11 @@ public static class HitSoundCopier
             var targetFile = Beatmap.Decode(File.ReadAllText(path));
             var output = CopyFromBeatmap(sourceFile, targetFile, options);
 
-            if (!File.Exists(sourcePath)) continue;
-            
-            if (Directory.Exists(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)))
-            {
-                var backupDirectory = Directory.CreateDirectory(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + "/MapWizard/Backup");
-                    
-                var currentTimestamp = DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss");
-                File.Move(path, backupDirectory.FullName + "/" + currentTimestamp + Path.GetFileName(path));
-            }
+            if (!File.Exists(path)) continue;
+
+            var backupDirectory = Directory.CreateDirectory(MapWizardPathResolver.ResolveBackupDirectoryPath());
+            var currentTimestamp = DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss");
+            File.Move(path, backupDirectory.FullName + "/" + currentTimestamp + Path.GetFileName(path));
                 
             File.WriteAllText(path, output.Encode().Replace("\r\n", "\n").Replace("\n", "\r\n"));
         }
