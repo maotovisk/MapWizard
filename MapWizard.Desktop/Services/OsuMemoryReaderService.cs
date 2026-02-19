@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Runtime.Versioning;
 using MapWizard.Desktop.Models;
 using OsuMemoryDataProvider;
 using OsuMemoryDataProvider.OsuMemoryModels.Direct;
@@ -23,6 +24,36 @@ public class OsuMemoryReaderService : IOsuMemoryReaderService
         }
 
         return OperatingSystem.IsWindows() ? GetBeatmapWindows() : GetBeatmapLinux();
+    }
+
+    public Result<int> GetCurrentTimestamp()
+    {
+        if (!OperatingSystem.IsWindows())
+        {
+            return new Result<int>
+            {
+                Value = 0,
+                Status = ResultStatus.Error,
+                ErrorMessage = "Timestamp reading is currently supported only on Windows."
+            };
+        }
+
+        if (FallbackClientIpc.TryReadEditorTime(out var timestamp, out var ipcError))
+        {
+            return new Result<int>
+            {
+                Value = timestamp,
+                Status = ResultStatus.Success,
+                ErrorMessage = null
+            };
+        }
+
+        return new Result<int>
+        {
+            Value = 0,
+            Status = ResultStatus.Error,
+            ErrorMessage = $"Unable to read current timestamp from fallback IPC. {ipcError}"
+        };
     }
 
     private static Result<string> GetBeatmapLinux()
@@ -56,7 +87,31 @@ public class OsuMemoryReaderService : IOsuMemoryReaderService
         }
     }
 
+    [SupportedOSPlatform("windows")]
     private static Result<string> GetBeatmapWindows()
+    {
+        var memoryResult = GetBeatmapWindowsFromMemory();
+        if (memoryResult.Status == ResultStatus.Success && !string.IsNullOrWhiteSpace(memoryResult.Value))
+        {
+            return memoryResult;
+        }
+
+        var fallbackIpcResult = GetBeatmapWindowsFromFallbackIpc();
+        if (fallbackIpcResult.Status == ResultStatus.Success && !string.IsNullOrWhiteSpace(fallbackIpcResult.Value))
+        {
+            return fallbackIpcResult;
+        }
+
+        return new Result<string>
+        {
+            Value = null,
+            Status = ResultStatus.Error,
+            ErrorMessage = $"Could not read from memory"
+        };
+    }
+    
+    [SupportedOSPlatform("windows")]
+    private static Result<string> GetBeatmapWindowsFromMemory()
     {
         var reader = StructuredOsuMemoryReader.GetInstance(null);
 
@@ -113,6 +168,57 @@ public class OsuMemoryReaderService : IOsuMemoryReaderService
         };
     }
 
+    [SupportedOSPlatform("windows")]
+    private static Result<string> GetBeatmapWindowsFromFallbackIpc()
+    {
+        if (!FallbackClientIpc.TryReadBeatmapPath(out var beatmapPath, out var ipcError))
+        {
+            return new Result<string>
+            {
+                Value = null,
+                Status = ResultStatus.Error,
+                ErrorMessage = ipcError ?? "Unable to read beatmap path from fallback IPC."
+            };
+        }
+
+        if (string.IsNullOrWhiteSpace(beatmapPath))
+        {
+            return new Result<string>
+            {
+                Value = null,
+                Status = ResultStatus.Error,
+                ErrorMessage = "Fallback IPC returned an empty beatmap path."
+            };
+        }
+
+        if (!Path.IsPathRooted(beatmapPath))
+        {
+            var songsFolder = GetRunningSongsFolderWindows();
+            if (!string.IsNullOrWhiteSpace(songsFolder))
+            {
+                beatmapPath = Path.Combine(songsFolder, beatmapPath);
+            }
+        }
+
+        if (!File.Exists(beatmapPath))
+        {
+            return new Result<string>
+            {
+                Value = null,
+                Status = ResultStatus.Error,
+                ErrorMessage = "Beatmap file from fallback IPC does not exist."
+            };
+        }
+
+        return new Result<string>
+        {
+            Value = beatmapPath,
+            Status = ResultStatus.Success,
+            ErrorMessage = null
+        };
+    }
+
+    [SupportedOSPlatform("windows")]
     private static string GetRunningSongsFolderWindows()
     {
         var processes = Process.GetProcessesByName("osu!");
