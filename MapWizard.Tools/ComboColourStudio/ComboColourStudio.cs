@@ -204,6 +204,27 @@ public static class ComboColourStudio
             return;
         }
 
+        foreach (var hitObject in hitObjects)
+        {
+            if (IsSpinner(hitObject))
+            {
+                continue;
+            }
+
+            var wasNewCombo = hitObject.NewCombo;
+            if (!wasNewCombo)
+            {
+                hitObject.NewCombo = true;
+            }
+
+            hitObject.ComboOffset = 0;
+
+            if (!wasNewCombo)
+            {
+                hitObject.NewCombo = false;
+            }
+        }
+
         var comboCount = project.ComboColours.Count;
         var orderedColourPoints = project.ColourPoints.OrderBy(point => point.Time).ToList();
 
@@ -842,22 +863,14 @@ public static class ComboColourStudio
             : new SequenceSearchResult(bestSequence, bestContribution, bestCost);
     }
 
-    public static bool IsSubSequence(int[] sequence, int[]? biggerSequence)
+    private static bool IsSubSequence(int[] sequence, int[]? biggerSequence)
     {
         if (biggerSequence is null || sequence.Length > biggerSequence.Length)
         {
             return false;
         }
 
-        for (var i = 0; i < sequence.Length; i++)
-        {
-            if (sequence[i] != biggerSequence[i])
-            {
-                return false;
-            }
-        }
-
-        return true;
+        return !sequence.Where((t, i) => t != biggerSequence[i]).Any();
     }
 
     private static int[]? GetColourSequence(

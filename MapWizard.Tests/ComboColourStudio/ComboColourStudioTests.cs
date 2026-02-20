@@ -55,6 +55,51 @@ public class ComboColourStudioTests
     }
 
     [Fact]
+    public void ApplyProjectToBeatmap_ResetsExistingNoteComboOffsetsBeforeApplying()
+    {
+        // Arrange
+        var beatmap = Beatmap.Decode(BuildBeatmap(new[]
+        {
+            "64,192,1000,5,0,0:0:0:0:",
+            "128,192,1500,1,0,0:0:0:0:",
+            "192,192,2000,5,0,0:0:0:0:"
+        }));
+        beatmap.HitObjects.Objects[1].ComboOffset = 2;
+        beatmap.HitObjects.Objects[1].NewCombo = false;
+
+        var project = new ComboColourProject
+        {
+            ComboColours =
+            [
+                new ComboColour(1, Color.FromArgb(255, 255, 0, 0)),
+                new ComboColour(2, Color.FromArgb(255, 0, 255, 0))
+            ],
+            ColourPoints =
+            [
+                new ComboColourPoint
+                {
+                    Time = 0,
+                    ColourSequence = [0, 1],
+                    Mode = ColourPointMode.Normal
+                }
+            ],
+            MaxBurstLength = 1
+        };
+
+        // Act
+        ComboColourStudioTool.ApplyProjectToBeatmap(beatmap: beatmap, project: project, options: new ComboColourStudioOptions
+        {
+            UpdateComboColoursSection = true,
+            OverrideHitObjectColourShifts = true,
+            CreateColoursSectionIfMissing = true,
+            CreateBackupBeforeWrite = false
+        });
+
+        // Assert
+        Assert.Equal<uint>(0, beatmap.HitObjects.Objects[1].ComboOffset);
+    }
+
+    [Fact]
     public void ExtractColourHaxFromBeatmap_AndReapply_PreservesComboSettings()
     {
         // Arrange
