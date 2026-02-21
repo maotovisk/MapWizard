@@ -85,54 +85,6 @@
 
                 <suki:GlassCard Margin="8" Padding="12" CornerRadius="15">
                     <StackPanel Spacing="8">
-                        <TextBlock Text="Actions" />
-                        <Separator />
-
-                        <Grid ColumnDefinitions="*,Auto">
-                            <TextBlock Text="Analyze samples" />
-                            <ToggleSwitch Grid.Column="1" IsChecked="{Binding AnalyzeSamples}" />
-                        </Grid>
-                        <Grid ColumnDefinitions="*,Auto">
-                            <TextBlock Text="Resnap objects" />
-                            <ToggleSwitch Grid.Column="1" IsChecked="{Binding ResnapObjects}" />
-                        </Grid>
-                        <Grid ColumnDefinitions="*,Auto" IsVisible="{Binding ResnapObjects}">
-                            <TextBlock Text="Resnap slider ends (recalculate length)" />
-                            <ToggleSwitch Grid.Column="1" IsChecked="{Binding ResnapSliderEnds}" />
-                        </Grid>
-                        <Grid ColumnDefinitions="*,Auto">
-                            <TextBlock Text="Resnap greenlines" />
-                            <ToggleSwitch Grid.Column="1" IsChecked="{Binding ResnapGreenLines}" />
-                        </Grid>
-                        <Grid ColumnDefinitions="*,Auto">
-                            <TextBlock Text="Resnap bookmarks" />
-                            <ToggleSwitch Grid.Column="1" IsChecked="{Binding ResnapBookmarks}" />
-                        </Grid>
-                        <Grid ColumnDefinitions="*,Auto">
-                            <TextBlock Text="Remove hitsounds" />
-                            <ToggleSwitch Grid.Column="1" IsChecked="{Binding RemoveHitSounds}" />
-                        </Grid>
-                        <Grid ColumnDefinitions="*,Auto">
-                            <TextBlock Text="Remove unused samples" />
-                            <ToggleSwitch Grid.Column="1" IsChecked="{Binding RemoveUnusedSamples}" />
-                        </Grid>
-                        <Grid ColumnDefinitions="*,Auto">
-                            <TextBlock Text="Remove muting" />
-                            <ToggleSwitch Grid.Column="1" IsChecked="{Binding RemoveMuting}" />
-                        </Grid>
-                        <Grid ColumnDefinitions="*,Auto">
-                            <TextBlock Text="Mute unclickable hitsounds" />
-                            <ToggleSwitch Grid.Column="1" IsChecked="{Binding MuteUnclickableHitsounds}" />
-                        </Grid>
-                        <Grid ColumnDefinitions="*,Auto">
-                            <TextBlock Text="Remove unused inherited timing points" />
-                            <ToggleSwitch Grid.Column="1" IsChecked="{Binding RemoveUnusedInheritedTimingPoints}" />
-                        </Grid>
-                    </StackPanel>
-                </suki:GlassCard>
-
-                <suki:GlassCard Margin="8" Padding="12" CornerRadius="15">
-                    <StackPanel Spacing="8">
                         <TextBlock Text="Beat Snaps" />
                         <Separator />
 
@@ -200,22 +152,69 @@
                                                         </ItemsControl.ItemTemplate>
                                                     </ItemsControl>
                                                 </ScrollViewer>
+                                                <Separator />
+                                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                                    <TextBox Width="170"
+                                                             Watermark="Custom 1/x"
+                                                             Text="{Binding DataContext.CustomSnapInput, Mode=TwoWay, ElementName=Root}" />
+                                                    <Button Classes="Basic Compact"
+                                                            Command="{Binding DataContext.AddCustomSnapCommand, ElementName=Root}">
+                                                        <TextBlock Text="Add" />
+                                                    </Button>
+                                                </StackPanel>
                                             </StackPanel>
                                         </Border>
                                     </Flyout>
                                 </Button.Flyout>
                             </Button>
-
-                            <TextBox Width="150"
-                                     Margin="0,0,6,6"
-                                     Watermark="Custom 1/x"
-                                     Text="{Binding CustomSnapInput, Mode=TwoWay}" />
-                            <Button Classes="Basic Compact"
-                                    Margin="0,0,6,6"
-                                    Command="{Binding AddCustomSnapCommand}">
-                                <TextBlock Text="Add" />
-                            </Button>
                         </WrapPanel>
+                    </StackPanel>
+                </suki:GlassCard>
+                <suki:GlassCard Margin="8" Padding="12" CornerRadius="15">
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="Actions" />
+                        <Separator />
+
+                        <Grid ColumnDefinitions="*,Auto">
+                            <TextBlock Text="Analyze samples" />
+                            <ToggleSwitch Grid.Column="1" IsChecked="{Binding AnalyzeSamples}" />
+                        </Grid>
+                        <Grid ColumnDefinitions="*,Auto">
+                            <TextBlock Text="Resnap objects" />
+                            <ToggleSwitch Grid.Column="1" IsChecked="{Binding ResnapObjects}" />
+                        </Grid>
+                        <Grid ColumnDefinitions="*,Auto" IsVisible="{Binding ResnapObjects}">
+                            <TextBlock Text="Resnap slider ends (recalculate length)" />
+                            <ToggleSwitch Grid.Column="1" IsChecked="{Binding ResnapSliderEnds}" />
+                        </Grid>
+                        <Grid ColumnDefinitions="*,Auto">
+                            <TextBlock Text="Resnap greenlines" />
+                            <ToggleSwitch Grid.Column="1" IsChecked="{Binding ResnapGreenLines}" />
+                        </Grid>
+                        <Grid ColumnDefinitions="*,Auto">
+                            <TextBlock Text="Resnap bookmarks" />
+                            <ToggleSwitch Grid.Column="1" IsChecked="{Binding ResnapBookmarks}" />
+                        </Grid>
+                        <Grid ColumnDefinitions="*,Auto">
+                            <TextBlock Text="Remove hitsounds" />
+                            <ToggleSwitch Grid.Column="1" IsChecked="{Binding RemoveHitSounds}" />
+                        </Grid>
+                        <Grid ColumnDefinitions="*,Auto">
+                            <TextBlock Text="Remove unused samples" />
+                            <ToggleSwitch Grid.Column="1" IsChecked="{Binding RemoveUnusedSamples}" />
+                        </Grid>
+                        <Grid ColumnDefinitions="*,Auto">
+                            <TextBlock Text="Remove muting" />
+                            <ToggleSwitch Grid.Column="1" IsChecked="{Binding RemoveMuting}" />
+                        </Grid>
+                        <Grid ColumnDefinitions="*,Auto">
+                            <TextBlock Text="Mute unclickable hitsounds" />
+                            <ToggleSwitch Grid.Column="1" IsChecked="{Binding MuteUnclickableHitsounds}" />
+                        </Grid>
+                        <Grid ColumnDefinitions="*,Auto">
+                            <TextBlock Text="Remove unused inherited timing points" />
+                            <ToggleSwitch Grid.Column="1" IsChecked="{Binding RemoveUnusedInheritedTimingPoints}" />
+                        </Grid>
                     </StackPanel>
                 </suki:GlassCard>
             </StackPanel>
