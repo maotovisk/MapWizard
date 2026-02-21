@@ -21,6 +21,7 @@ namespace MapWizard.Desktop.ViewModels
         public ViewModelBase HitSoundCopierViewModel { get; }
         public ViewModelBase MetadataManagerViewModel { get; }
         public ViewModelBase ComboColourStudioViewModel { get; }
+        public ViewModelBase MapCleanerViewModel { get; }
         public ViewModelBase WelcomePageViewModel { get; }
         public ViewModelBase SettingsViewModel { get; }
 
@@ -49,6 +50,9 @@ namespace MapWizard.Desktop.ViewModels
         private bool _isComboColourStudioSelected;
 
         [ObservableProperty]
+        private bool _isMapCleanerSelected;
+
+        [ObservableProperty]
         private bool _isSettingsSelected;
 
         partial void OnIsDarkThemeChanged(bool value)
@@ -67,6 +71,7 @@ namespace MapWizard.Desktop.ViewModels
             HitSoundCopierViewModel hitSoundCopierViewModel,
             MetadataManagerViewModel metadataManagerViewModel,
             ComboColourStudioViewModel comboColourStudioViewModel,
+            MapCleanerViewModel mapCleanerViewModel,
             SettingsViewModel settingsViewModel,
             IThemeService themeService,
             IUpdateService updateService,
@@ -79,6 +84,7 @@ namespace MapWizard.Desktop.ViewModels
             HitSoundCopierViewModel = hitSoundCopierViewModel;
             MetadataManagerViewModel = metadataManagerViewModel;
             ComboColourStudioViewModel = comboColourStudioViewModel;
+            MapCleanerViewModel = mapCleanerViewModel;
             WelcomePageViewModel = welcomePageViewModel;
             SettingsViewModel = settingsViewModel;
             CurrentPageViewModel = WelcomePageViewModel;
@@ -101,6 +107,8 @@ namespace MapWizard.Desktop.ViewModels
 
         public void NavigateToComboColourStudio() => SetPage(NavigationPage.ComboColourStudio);
 
+        public void NavigateToMapCleaner() => SetPage(NavigationPage.MapCleaner);
+
         public void NavigateToSettings() => SetPage(NavigationPage.Settings);
 
         private void SetPage(NavigationPage page)
@@ -111,6 +119,7 @@ namespace MapWizard.Desktop.ViewModels
                 NavigationPage.HitSoundCopier => HitSoundCopierViewModel,
                 NavigationPage.MetadataManager => MetadataManagerViewModel,
                 NavigationPage.ComboColourStudio => ComboColourStudioViewModel,
+                NavigationPage.MapCleaner => MapCleanerViewModel,
                 NavigationPage.Settings => SettingsViewModel,
                 _ => WelcomePageViewModel
             };
@@ -119,6 +128,7 @@ namespace MapWizard.Desktop.ViewModels
             IsHitSoundCopierSelected = page == NavigationPage.HitSoundCopier;
             IsMetadataManagerSelected = page == NavigationPage.MetadataManager;
             IsComboColourStudioSelected = page == NavigationPage.ComboColourStudio;
+            IsMapCleanerSelected = page == NavigationPage.MapCleaner;
             IsSettingsSelected = page == NavigationPage.Settings;
         }
 
@@ -157,6 +167,12 @@ namespace MapWizard.Desktop.ViewModels
         private void OpenComboColourStudio()
         {
             SetPage(NavigationPage.ComboColourStudio);
+        }
+
+        [RelayCommand]
+        private void OpenMapCleaner()
+        {
+            SetPage(NavigationPage.MapCleaner);
         }
 
         [RelayCommand]

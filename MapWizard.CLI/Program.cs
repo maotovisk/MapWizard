@@ -4,6 +4,7 @@ using MapWizard.CLI.ConsoleUtils;
 using MapWizard.CLI.Services;
 using MapWizard.Tools.HitSounds.Copier;
 using MapWizard.Tools.HitSounds.Extensions;
+using MapWizard.Tools.MapCleaner;
 
 namespace MapWizard.CLI;
 
@@ -52,8 +53,96 @@ static class Program
                 MapInfo(path);
                 break;
             }
+            case "clean":
+            {
+                var target = args.GetArgumentValue("--path") ??
+                             args.GetArgumentValue("-p") ??
+                             args.GetArgumentValue("--target") ??
+                             args.GetArgumentValue("-t");
+
+                if (target == null)
+                {
+                    Console.WriteLine("Please provide a target path using --path/-p or --target/-t.");
+                    return;
+                }
+
+                var targetPaths = ParseTargetPaths(target);
+
+                var snapsRaw = args.GetArgumentValue("--snaps") ?? "1/8,1/12";
+                var options = new MapCleanerOptions
+                {
+                    SnapDivisors = ParseCsv(snapsRaw),
+                    AnalyzeSamples = !args.ArgumentExists("--skip-analysis"),
+                    ResnapObjects = !args.ArgumentExists("--no-resnap-objects"),
+                    ResnapSliderEnds = !args.ArgumentExists("--no-resnap-slider-ends"),
+                    ResnapGreenLines = !args.ArgumentExists("--no-resnap-greenlines"),
+                    ResnapBookmarks = args.ArgumentExists("--resnap-bookmarks"),
+                    RemoveUnusedInheritedTimingPoints = !args.ArgumentExists("--keep-inherited"),
+                    RemoveHitSounds = args.ArgumentExists("--remove-hitsounds"),
+                    RemoveUnusedSamples = args.ArgumentExists("--remove-unused-samples"),
+                    RemoveMuting = args.ArgumentExists("--remove-muting"),
+                    MuteUnclickableHitsounds = args.ArgumentExists("--mute-unclickable-hitsounds")
+                };
+
+                RunMapCleaner(targetPaths, options);
+                break;
+            }
         }
         
+    }
+
+    private static void RunMapCleaner(string[] targetPaths, MapCleanerOptions options)
+    {
+        var mapCleanerService = new MapCleanerService();
+        var result = mapCleanerService.CleanMaps(targetPaths, options);
+
+        if (result.FailedBeatmaps == 0)
+        {
+            Console.WriteLine(
+                $"Map cleaner finished. Cleaned {result.ProcessedBeatmaps} beatmap(s): " +
+                $"{result.ObjectsResnapped} objects resnapped, " +
+                $"{result.GreenLinesResnapped} greenlines resnapped, " +
+                $"{result.InheritedTimingPointsRemoved} inherited timing points removed.");
+            return;
+        }
+
+        Console.WriteLine(
+            $"Map cleaner finished with issues. Cleaned {result.ProcessedBeatmaps} beatmap(s), " +
+            $"{result.FailedBeatmaps} failed.");
+
+        if (result.FailedPaths.Count > 0)
+        {
+            Console.WriteLine("Failed paths:");
+            foreach (var failedPath in result.FailedPaths)
+            {
+                Console.WriteLine($"- {failedPath}");
+            }
+        }
+
+        if (result.FailureDetails.Count > 0)
+        {
+            Console.WriteLine("Failure details:");
+            foreach (var detail in result.FailureDetails)
+            {
+                Console.WriteLine($"- {detail}");
+            }
+        }
+    }
+
+    private static string[] ParseTargetPaths(string rawInput)
+    {
+        return rawInput
+            .Split([',', ';'], StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToArray();
+    }
+
+    private static List<string> ParseCsv(string rawInput)
+    {
+        return rawInput
+            .Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToList();
     }
 
     private static void MapInfo(string path)
