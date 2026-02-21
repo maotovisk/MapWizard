@@ -55,29 +55,41 @@ public static class MapCleaner
                         var originalEnd = slider.EndTime.TotalMilliseconds;
                         var originalDurationMs = Math.Max(1.0, originalEnd - originalStart);
                         var originalLength = slider.Length;
+                        var slideCount = Math.Max(1, (int)slider.Slides);
+                        var originalSlideDurationMs = Math.Max(1.0, originalDurationMs / slideCount);
 
                         if (options.ResnapSliderEnds)
                         {
-                            var baselineEndMs = slider.Time.TotalMilliseconds + originalDurationMs;
+                            var baselineFirstSlideEndMs = slider.Time.TotalMilliseconds + originalSlideDurationMs;
+                            var currentFirstSlideEndMs = originalStart + originalSlideDurationMs;
                             var snappedFromBaseline = StableSnapEngine.SnapMilliseconds(
-                                baselineEndMs,
+                                baselineFirstSlideEndMs,
                                 beatmap.TimingPoints,
                                 divisors,
                                 options.RedlineLookaheadForEndsMs);
                             var snappedFromCurrent = StableSnapEngine.SnapMilliseconds(
-                                originalEnd,
+                                currentFirstSlideEndMs,
                                 beatmap.TimingPoints,
                                 divisors,
                                 options.RedlineLookaheadForEndsMs);
 
-                            var snappedEnd = Math.Abs(snappedFromBaseline - baselineEndMs) <= Math.Abs(snappedFromCurrent - baselineEndMs)
+                            var snappedFirstSlideEnd = Math.Abs(snappedFromBaseline - baselineFirstSlideEndMs) <= Math.Abs(snappedFromCurrent - baselineFirstSlideEndMs)
                                 ? snappedFromBaseline
                                 : snappedFromCurrent;
+
+                            var minimumFirstSlideEnd = slider.Time.TotalMilliseconds + 1;
+                            if (snappedFirstSlideEnd < minimumFirstSlideEnd)
+                            {
+                                snappedFirstSlideEnd = (int)minimumFirstSlideEnd;
+                            }
+
+                            var snappedSlideDurationMs = Math.Max(1.0, snappedFirstSlideEnd - slider.Time.TotalMilliseconds);
+                            var snappedEnd = StableSnapEngine.StableRound(slider.Time.TotalMilliseconds + (snappedSlideDurationMs * slideCount));
 
                             var minimumEnd = slider.Time.TotalMilliseconds + 1;
                             if (snappedEnd < minimumEnd)
                             {
-                                snappedEnd = (int)minimumEnd;
+                                snappedEnd = StableSnapEngine.StableRound(minimumEnd);
                             }
 
                             if (Math.Abs(snappedEnd - originalEnd) > 0.0001)
