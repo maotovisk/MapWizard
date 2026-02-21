@@ -217,6 +217,7 @@ public partial class ComboColourStudioViewModel(
         }
 
         ColourPoints.Add(point);
+        SetLatestAddedColourPoint(point);
         ObserveColourPoints();
         MarkProjectDirty();
     }
@@ -256,7 +257,13 @@ public partial class ComboColourStudioViewModel(
     [RelayCommand]
     private void RemoveColourPoint(AvaloniaComboColourPoint colourPoint)
     {
+        var removedWasLatest = colourPoint.IsLatestAdded;
         ColourPoints.Remove(colourPoint);
+        if (removedWasLatest)
+        {
+            SetLatestAddedColourPoint(ColourPoints.LastOrDefault());
+        }
+
         MarkProjectDirty();
     }
 
@@ -282,6 +289,7 @@ public partial class ComboColourStudioViewModel(
         };
 
         ColourPoints.Add(newPoint);
+        SetLatestAddedColourPoint(newPoint);
         ObserveColourPoints();
         MarkProjectDirty();
     }
@@ -744,6 +752,8 @@ public partial class ComboColourStudioViewModel(
                                 ComboNumber = index + 1
                             }))
                     }));
+
+                SetLatestAddedColourPoint(null);
             }
 
             MaxBurstLength = project.MaxBurstLength;
@@ -838,6 +848,14 @@ public partial class ComboColourStudioViewModel(
             {
                 token.ComboNumber = Math.Clamp(token.ComboNumber, 1, comboCount);
             }
+        }
+    }
+
+    private void SetLatestAddedColourPoint(AvaloniaComboColourPoint? latestPoint)
+    {
+        foreach (var point in ColourPoints)
+        {
+            point.IsLatestAdded = ReferenceEquals(point, latestPoint);
         }
     }
 

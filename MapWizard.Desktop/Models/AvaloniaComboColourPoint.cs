@@ -9,6 +9,7 @@ public partial class AvaloniaComboColourPoint : ObservableObject
     [ObservableProperty] private double _time;
     [ObservableProperty] private ColourPointMode _mode;
     [ObservableProperty] private ObservableCollection<AvaloniaComboColourToken> _colourSequence = [];
+    [ObservableProperty] private bool _isLatestAdded;
 }
 
 public partial class AvaloniaComboColourToken : ObservableObject
