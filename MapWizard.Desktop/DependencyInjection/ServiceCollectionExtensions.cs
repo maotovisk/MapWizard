@@ -17,6 +17,7 @@ public static class ServiceCollectionExtensions
         collection.AddTransient<HitSoundCopierViewModel>();
         collection.AddTransient<MetadataManagerViewModel>();
         collection.AddTransient<ComboColourStudioViewModel>();
+        collection.AddTransient<MapCleanerViewModel>();
         collection.AddTransient<WelcomePageViewModel>();
         collection.AddTransient<SettingsViewModel>();
         collection.AddTransient<MainWindowViewModel>();
@@ -25,6 +26,7 @@ public static class ServiceCollectionExtensions
         collection.AddTransient<HitSoundCopierView>();
         collection.AddTransient<MetadataManagerView>();
         collection.AddTransient<ComboColourStudioView>();
+        collection.AddTransient<MapCleanerView>();
         collection.AddTransient<WelcomePageView>();
         collection.AddTransient<SettingsView>();
         
@@ -39,6 +41,7 @@ public static class ServiceCollectionExtensions
         collection.AddScoped<IMetadataManagerService, MetadataManagerService>();
         collection.AddScoped<IHitSoundService, HitSoundService>();
         collection.AddScoped<IComboColourStudioService, ComboColourStudioService>();
+        collection.AddScoped<IMapCleanerService, MapCleanerService>();
         collection.AddSingleton<IComboColourProjectStore, ComboColourProjectStore>();
         collection.AddScoped<IOsuMemoryReaderService, OsuMemoryReaderService>();
         collection.AddSingleton<ISongLibraryService, SongLibraryService>();
