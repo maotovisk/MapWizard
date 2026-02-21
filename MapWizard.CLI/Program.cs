@@ -102,7 +102,7 @@ static class Program
                 $"Map cleaner finished. Cleaned {result.ProcessedBeatmaps} beatmap(s): " +
                 $"{result.ObjectsResnapped} objects resnapped, " +
                 $"{result.GreenLinesResnapped} greenlines resnapped, " +
-                $"{result.InheritedTimingPointsRemoved} inherited timing points removed.");
+                $"{result.InheritedTimingPointsRemoved} greenlines removed.");
             return;
         }
 

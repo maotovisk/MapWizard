@@ -216,7 +216,7 @@
                                             CornerRadius="12"
                                             Padding="8"
                                             Margin="0,0,0,8">
-                                        <Grid ColumnDefinitions="Auto,Auto,*,Auto,Auto" ColumnSpacing="8" VerticalAlignment="Center">
+                                        <Grid ColumnDefinitions="Auto,Auto,*,Auto,Auto,Auto" ColumnSpacing="8" VerticalAlignment="Center">
                                             <controls:MillisecondFlyoutInput Width="130"
                                                                              Value="{Binding Time, Mode=TwoWay}" />
 
@@ -254,6 +254,14 @@
                                             </Button>
 
                                             <Button Grid.Column="4"
+                                                    Classes="Basic"
+                                                    Command="{Binding DataContext.AddColourPointFromSequenceCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                    CommandParameter="{Binding}"
+                                                    ToolTip.Tip="Create a new colour point from this sequence">
+                                                <materialIcons:MaterialIcon Kind="ContentCopy" Width="16" Height="16" />
+                                            </Button>
+
+                                            <Button Grid.Column="5"
                                                     Classes="Basic"
                                                     Command="{Binding DataContext.RemoveColourPointCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                     CommandParameter="{Binding}"

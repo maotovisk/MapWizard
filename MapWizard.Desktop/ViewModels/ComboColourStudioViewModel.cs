@@ -261,6 +261,32 @@ public partial class ComboColourStudioViewModel(
     }
 
     [RelayCommand]
+    private async Task AddColourPointFromSequence(AvaloniaComboColourPoint sourcePoint)
+    {
+        if (sourcePoint is null)
+        {
+            return;
+        }
+
+        var latestTime = ColourPoints.Count > 0 ? ColourPoints.Max(point => point.Time) : sourcePoint.Time;
+        var nextTime = await TryGetTimestampFromClipboardAsync() ?? latestTime;
+        var newPoint = new AvaloniaComboColourPoint
+        {
+            Time = nextTime,
+            Mode = sourcePoint.Mode,
+            ColourSequence = new ObservableCollection<AvaloniaComboColourToken>(
+                sourcePoint.ColourSequence.Select(token => new AvaloniaComboColourToken
+                {
+                    ComboNumber = token.ComboNumber
+                }))
+        };
+
+        ColourPoints.Add(newPoint);
+        ObserveColourPoints();
+        MarkProjectDirty();
+    }
+
+    [RelayCommand]
     private void AddColourToPoint(AvaloniaComboColourPoint colourPoint)
     {
         if (ComboColours.Count == 0)
