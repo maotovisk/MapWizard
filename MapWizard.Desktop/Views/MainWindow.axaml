@@ -57,6 +57,9 @@
         <DataTemplate DataType="{x:Type vm:HitSoundCopierViewModel}">
             <views:HitSoundCopierView />
         </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:HitSoundVisualizerViewModel}">
+            <views:HitSoundVisualizerView />
+        </DataTemplate>
         <DataTemplate DataType="{x:Type vm:MetadataManagerViewModel}">
             <views:MetadataManagerView />
         </DataTemplate>
@@ -187,6 +190,35 @@
                                                             VerticalAlignment="Center" />
                             </Grid>
                             <TextBlock Text="Metadata Manager"
+                                       Width="68"
+                                       FontSize="11"
+                                       Foreground="{DynamicResource SukiText}"
+                                       HorizontalAlignment="Center"
+                                       TextAlignment="Center"
+                                       TextWrapping="Wrap" />
+                        </StackPanel>
+                    </Button>
+
+                    <Button Classes="NavButton"
+                            Padding="0"
+                            MinWidth="0"
+                            Width="82"
+                            Foreground="{DynamicResource SukiText}"
+                            HorizontalContentAlignment="Center"
+                            Command="{Binding OpenHitSoundVisualizerCommand}">
+                        <StackPanel Spacing="4" HorizontalAlignment="Center" IsHitTestVisible="False">
+                            <Grid Width="44" Height="30">
+                                <Border Classes="NavIconHoverLayer" />
+                                <Border CornerRadius="15"
+                                        Background="{DynamicResource ThemeAccentBrush}"
+                                        Opacity="0.20"
+                                        IsVisible="{Binding IsHitSoundVisualizerSelected}" />
+                                <materialIcons:MaterialIcon Kind="ChartTimelineVariant"
+                                                            Foreground="{DynamicResource SukiText}"
+                                                            HorizontalAlignment="Center"
+                                                            VerticalAlignment="Center" />
+                            </Grid>
+                            <TextBlock Text="HS Visualizer"
                                        Width="68"
                                        FontSize="11"
                                        Foreground="{DynamicResource SukiText}"

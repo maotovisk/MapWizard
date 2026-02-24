@@ -3,8 +3,13 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using BeatmapParser;
+using BeatmapParser.Enums;
 using BeatmapParser.TimingPoints;
+using MapWizard.Desktop.Models.HitSoundVisualizer;
 using MapWizard.Tools.HitSounds.Copier;
+using MapWizard.Tools.HitSounds.Extensions;
+using MapWizard.Tools.HitSounds.Timeline;
+using MapWizard.Tools.MapCleaner.Snapping;
 
 namespace MapWizard.Desktop.Services;
 
@@ -12,6 +17,8 @@ public class HitSoundService : IHitSoundService
 {
     private const double RedlineTimeToleranceMs = 0.5d;
     private const double BeatLengthToleranceMs = 0.001d;
+    private static readonly IReadOnlyList<SnapDivisor> VisualizerDivisors =
+        Enumerable.Range(1, 16).Select(x => new SnapDivisor(1, x)).ToList();
 
     public HitSoundTimingCompatibilityReport AnalyzeTimingCompatibility(string sourcePath, string[] targetPaths)
     {
@@ -43,6 +50,51 @@ public class HitSoundService : IHitSoundService
         }
         
         return true;
+    }
+
+    public HitSoundVisualizerDocument LoadHitsoundVisualizerDocument(string beatmapPath)
+    {
+        var beatmap = Beatmap.Decode(File.ReadAllText(beatmapPath));
+        var timeline = beatmap.BuildTimeline();
+        var points = BuildVisualizerPoints(timeline);
+        var sampleChanges = timeline.SampleSetTimeline.HitSamples
+            .OrderBy(x => x.Time)
+            .Select(x => new HitSoundVisualizerSampleChange
+            {
+                TimeMs = StableSnapEngine.StableRound(x.Time),
+                SampleSet = NormalizeSampleSet(x.Sample, SampleSet.Normal),
+                Index = x.Index,
+                Volume = (int)Math.Round(x.Volume)
+            })
+            .ToList();
+
+        var endTimeMs = ResolveEndTimeMs(beatmap, points, sampleChanges);
+        var snapTicks = BuildSnapTicks(beatmap, endTimeMs);
+
+        var artist = string.IsNullOrWhiteSpace(beatmap.MetadataSection.ArtistUnicode)
+            ? beatmap.MetadataSection.Artist
+            : beatmap.MetadataSection.ArtistUnicode;
+        var title = string.IsNullOrWhiteSpace(beatmap.MetadataSection.TitleUnicode)
+            ? beatmap.MetadataSection.Title
+            : beatmap.MetadataSection.TitleUnicode;
+        var mapsetDirectory = Path.GetDirectoryName(beatmapPath) ?? string.Empty;
+        var audioFileName = beatmap.GeneralSection.AudioFilename ?? string.Empty;
+        var audioFilePath = string.IsNullOrWhiteSpace(audioFileName) || string.IsNullOrWhiteSpace(mapsetDirectory)
+            ? string.Empty
+            : Path.Combine(mapsetDirectory, audioFileName);
+
+        return new HitSoundVisualizerDocument
+        {
+            BeatmapPath = beatmapPath,
+            MapsetDirectoryPath = mapsetDirectory,
+            AudioFilePath = File.Exists(audioFilePath) ? audioFilePath : string.Empty,
+            DisplayTitle = $"{artist} - {title} [{beatmap.MetadataSection.Version}]",
+            EndTimeMs = endTimeMs,
+            Timeline = timeline,
+            Points = points,
+            SampleChanges = sampleChanges,
+            SnapTicks = snapTicks
+        };
     }
 
     private static HitSoundTimingCompatibilityTargetResult CompareTiming(Beatmap source, Beatmap target, string targetPath)
@@ -132,5 +184,213 @@ public class HitSoundService : IHitSoundService
             .OrderBy(x => x.Time.TotalMilliseconds)
             .ToList()
             ?? [];
+    }
+
+    private static List<HitSoundVisualizerPoint> BuildVisualizerPoints(HitSoundTimeline timeline)
+    {
+        var result = new List<HitSoundVisualizerPoint>();
+        var nextId = 1;
+
+        AddPointsFromTimeline(timeline.NonDraggableSoundTimeline, false, timeline.SampleSetTimeline, result, ref nextId);
+        AddPointsFromTimeline(timeline.DraggableSoundTimeline, true, timeline.SampleSetTimeline, result, ref nextId);
+
+        return result
+            .OrderBy(x => x.TimeMs)
+            .ThenBy(x => x.IsDraggable)
+            .ThenBy(x => HitSoundSortOrder(x.HitSound))
+            .ThenBy(x => SampleSetSortOrder(x.SampleSet))
+            .ToList();
+    }
+
+    private static void AddPointsFromTimeline(
+        SoundTimeline soundTimeline,
+        bool isDraggable,
+        SampleSetTimeline sampleSetTimeline,
+        ICollection<HitSoundVisualizerPoint> target,
+        ref int nextId)
+    {
+        foreach (var soundEvent in soundTimeline.SoundEvents)
+        {
+            var timeMs = StableSnapEngine.StableRound(soundEvent.Time.TotalMilliseconds);
+            var effectiveSampleChange = sampleSetTimeline.GetCurrentSampleAtTime(timeMs);
+            var fallbackSample = NormalizeSampleSet(effectiveSampleChange?.Sample ?? SampleSet.Normal, SampleSet.Normal);
+
+            // In osu!, hitnormal is implicit for hittable sounds even when the flag list only contains additions.
+            // The visualizer models hitnormal as an explicit point, so always include it.
+            var hitSounds = soundEvent.HitSounds
+                .Append(HitSound.Normal)
+                .Distinct()
+                .OrderBy(HitSoundSortOrder)
+                .ToList();
+
+            foreach (var hitSound in hitSounds)
+            {
+                var rawSample = hitSound == HitSound.Normal
+                    ? soundEvent.NormalSample
+                    : soundEvent.AdditionSample;
+
+                target.Add(new HitSoundVisualizerPoint
+                {
+                    Id = nextId++,
+                    TimeMs = timeMs,
+                    HitSound = hitSound,
+                    SampleSet = NormalizeSampleSet(rawSample, fallbackSample),
+                    IsDraggable = isDraggable
+                });
+            }
+        }
+    }
+
+    private static double ResolveEndTimeMs(
+        Beatmap beatmap,
+        IReadOnlyCollection<HitSoundVisualizerPoint> points,
+        IReadOnlyCollection<HitSoundVisualizerSampleChange> sampleChanges)
+    {
+        var maxPoint = points.Count == 0 ? 0 : points.Max(x => x.TimeMs);
+        var maxSample = sampleChanges.Count == 0 ? 0 : sampleChanges.Max(x => x.TimeMs);
+        var maxTiming = beatmap.TimingPoints?.TimingPointList.Count > 0
+            ? beatmap.TimingPoints.TimingPointList.Max(x => x.Time.TotalMilliseconds)
+            : 0;
+
+        var resolved = Math.Max(maxPoint, Math.Max(maxSample, maxTiming));
+        return Math.Max(1000, resolved + 500);
+    }
+
+    private static IReadOnlyList<HitSoundVisualizerSnapTick> BuildSnapTicks(Beatmap beatmap, double endTimeMs)
+    {
+        if (beatmap.TimingPoints == null)
+        {
+            return [];
+        }
+
+        var redlines = beatmap.TimingPoints.TimingPointList
+            .OfType<UninheritedTimingPoint>()
+            .OrderBy(x => x.Time.TotalMilliseconds)
+            .ToList();
+
+        if (redlines.Count == 0)
+        {
+            return [];
+        }
+
+        var ticksByTime = new Dictionary<int, HitSoundVisualizerSnapTick>();
+
+        for (var redlineIndex = 0; redlineIndex < redlines.Count; redlineIndex++)
+        {
+            var redline = redlines[redlineIndex];
+            // Keep the original redline phase (including negative offsets) so snap lines align correctly.
+            var startMs = redline.Time.TotalMilliseconds;
+            var nextRedlineMs = redlineIndex < redlines.Count - 1
+                ? redlines[redlineIndex + 1].Time.TotalMilliseconds
+                : endTimeMs;
+            var segmentEndMs = Math.Min(endTimeMs, nextRedlineMs);
+            var beatLength = Math.Abs(redline.BeatLength);
+            var beatsPerMeasure = redline.TimeSignature <= 0 ? 4 : redline.TimeSignature;
+
+            if (beatLength <= 0.00001 || segmentEndMs < startMs)
+            {
+                continue;
+            }
+
+            foreach (var divisor in VisualizerDivisors)
+            {
+                var step = beatLength * divisor.Numerator / divisor.Denominator;
+                if (step <= 0.00001)
+                {
+                    continue;
+                }
+
+                var totalSteps = (int)Math.Ceiling((segmentEndMs - startMs) / step) + 1;
+                for (var stepIndex = 0; stepIndex <= totalSteps; stepIndex++)
+                {
+                    var tickTime = startMs + (stepIndex * step);
+                    if (tickTime > segmentEndMs + 0.0001)
+                    {
+                        break;
+                    }
+
+                    var rounded = StableSnapEngine.StableRound(tickTime);
+                    if (rounded < 0 || rounded > endTimeMs + 1)
+                    {
+                        continue;
+                    }
+
+                    var newTick = new HitSoundVisualizerSnapTick
+                    {
+                        TimeMs = rounded,
+                        Label = divisor.ToString(),
+                        Strength = TickStrength(divisor),
+                        Denominator = divisor.Denominator,
+                        IsMeasureLine = divisor.Denominator == 1 && stepIndex % beatsPerMeasure == 0
+                    };
+
+                    if (!ticksByTime.TryGetValue(rounded, out var current))
+                    {
+                        ticksByTime[rounded] = newTick;
+                        continue;
+                    }
+
+                    if (newTick.Strength > current.Strength ||
+                        (newTick.Strength == current.Strength && newTick.Denominator < current.Denominator))
+                    {
+                        ticksByTime[rounded] = newTick;
+                        ticksByTime[rounded].IsMeasureLine |= current.IsMeasureLine;
+                        continue;
+                    }
+
+                    current.IsMeasureLine |= newTick.IsMeasureLine;
+                }
+            }
+        }
+
+        return ticksByTime.Values
+            .OrderBy(x => x.TimeMs)
+            .ToList();
+    }
+
+    private static int TickStrength(SnapDivisor divisor)
+    {
+        return divisor.Denominator switch
+        {
+            1 => 4,
+            <= 4 => 3,
+            <= 8 => 2,
+            _ => 1
+        };
+    }
+
+    private static int HitSoundSortOrder(HitSound hitSound)
+    {
+        return hitSound switch
+        {
+            HitSound.Normal => 0,
+            HitSound.Whistle => 1,
+            HitSound.Finish => 2,
+            HitSound.Clap => 3,
+            _ => 9
+        };
+    }
+
+    private static int SampleSetSortOrder(SampleSet sampleSet)
+    {
+        return sampleSet switch
+        {
+            SampleSet.Normal => 0,
+            SampleSet.Soft => 1,
+            SampleSet.Drum => 2,
+            _ => 9
+        };
+    }
+
+    private static SampleSet NormalizeSampleSet(SampleSet rawSampleSet, SampleSet fallback)
+    {
+        if (rawSampleSet is SampleSet.Normal or SampleSet.Soft or SampleSet.Drum)
+        {
+            return rawSampleSet;
+        }
+
+        return fallback is SampleSet.Normal or SampleSet.Soft or SampleSet.Drum
+            ? fallback
+            : SampleSet.Normal;
     }
 }

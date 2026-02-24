@@ -1,0 +1,329 @@
+<UserControl
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:materialIcons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+    xmlns:suki="clr-namespace:SukiUI.Controls;assembly=SukiUI"
+    xmlns:controls="clr-namespace:MapWizard.Desktop.Views.Controls"
+    xmlns:viewModels="clr-namespace:MapWizard.Desktop.ViewModels"
+    xmlns:theme="https://github.com/kikipoulet/SukiUI"
+    mc:Ignorable="d"
+    d:DesignWidth="1200"
+    d:DesignHeight="760"
+    x:Class="MapWizard.Desktop.Views.HitSoundVisualizerView"
+    x:DataType="viewModels:HitSoundVisualizerViewModel"
+    x:Name="Root"
+    Focusable="True"
+    Padding="16">
+
+    <UserControl.Styles>
+        <Style Selector="Border.timeline-shell">
+            <Setter Property="Background" Value="#111522" />
+            <Setter Property="BorderBrush" Value="#2A3142" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="14" />
+            <Setter Property="Padding" Value="12" />
+        </Style>
+        <Style Selector="Border.timeline-panel">
+            <Setter Property="Background" Value="#0F1420" />
+            <Setter Property="BorderBrush" Value="#293245" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="12" />
+        </Style>
+        <Style Selector="Border.timeline-flyout-surface">
+            <Setter Property="Background" Value="#171D2B" />
+            <Setter Property="BorderBrush" Value="#3A465E" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="12" />
+            <Setter Property="Padding" Value="12" />
+        </Style>
+        <Style Selector="Button.timeline-btn">
+            <Setter Property="Background" Value="#171E2D" />
+            <Setter Property="BorderBrush" Value="#314057" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Padding" Value="10,6" />
+            <Setter Property="CornerRadius" Value="9" />
+            <Setter Property="Foreground" Value="#E6EEF9" />
+        </Style>
+        <Style Selector="Button.timeline-btn:pointerover">
+            <Setter Property="Background" Value="#202A3D" />
+            <Setter Property="BorderBrush" Value="#486486" />
+        </Style>
+        <Style Selector="Button.timeline-btn:pressed">
+            <Setter Property="Background" Value="#0F1724" />
+        </Style>
+        <Style Selector="Button.timeline-chip">
+            <Setter Property="Background" Value="#141C2A" />
+            <Setter Property="BorderBrush" Value="#303A4D" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Padding" Value="8,5" />
+            <Setter Property="CornerRadius" Value="8" />
+            <Setter Property="Foreground" Value="#DCE8F7" />
+            <Setter Property="HorizontalAlignment" Value="Stretch" />
+        </Style>
+        <Style Selector="TextBlock.timeline-muted">
+            <Setter Property="Foreground" Value="#98A8C4" />
+        </Style>
+    </UserControl.Styles>
+
+    <Grid RowDefinitions="Auto,Auto,*">
+        <Grid VerticalAlignment="Center">
+            <TextBlock Text="Hitsound Visualizer"
+                       FontSize="24"
+                       FontWeight="Bold"
+                       Margin="16,0" />
+        </Grid>
+
+        <Separator Grid.Row="1" Margin="0,10,0,6" />
+
+        <ScrollViewer Grid.Row="2">
+            <StackPanel Spacing="16">
+                <controls:BeatmapSelectionPanel
+                    ShowDestinationSelection="False"
+                    FromWatermark="Visualize hitsounds from..."
+                    OriginMemoryToolTip="Get the current beatmap selected in the osu! client." />
+
+                <suki:GlassCard Margin="8" Padding="12" CornerRadius="15">
+                    <StackPanel Spacing="6">
+                        <TextBlock Text="{Binding LoadedMapTitle}" FontWeight="Bold" />
+                        <TextBlock Text="{Binding TimelineStats}" Foreground="{DynamicResource SukiLowText}" />
+                        <TextBlock Text="{Binding PlaybackStatus, StringFormat=Playback: {0}}" Foreground="{DynamicResource SukiLowText}" />
+                        <TextBlock Text="{Binding AudioSourceStatus}" Foreground="{DynamicResource SukiLowText}" />
+                        <TextBlock Text="{Binding LegacySkinStatus}" Foreground="{DynamicResource SukiLowText}" />
+                        <TextBlock Text="{Binding SelectedPointSummary}" Foreground="{DynamicResource SukiLowText}" />
+                    </StackPanel>
+                </suki:GlassCard>
+
+                <Border Classes="timeline-shell" Margin="8">
+                    <StackPanel Spacing="10">
+                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
+                            <TextBlock Text="Timeline Player" VerticalAlignment="Center" FontWeight="SemiBold" />
+                            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
+                                <Button x:Name="PointEditorButton" Classes="timeline-btn">
+                                    <StackPanel Orientation="Horizontal" Spacing="6">
+                                        <materialIcons:MaterialIcon Kind="Pencil" Width="16" Height="16" />
+                                        <TextBlock VerticalAlignment="Center" Text="Point Editor" />
+                                    </StackPanel>
+                                    <Button.Flyout>
+                                        <Flyout Placement="BottomEdgeAlignedRight">
+                                            <Border Classes="timeline-flyout-surface">
+                                                <StackPanel Width="380" Spacing="10">
+                                                    <TextBlock Text="Point Editor" FontWeight="Bold" />
+                                                    <TextBlock Classes="timeline-muted"
+                                                               Text="{Binding SelectedPointSummary}"
+                                                               TextWrapping="Wrap" />
+                                                    <Separator />
+
+                                                    <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto,Auto" ColumnSpacing="8" RowSpacing="8">
+                                                        <TextBlock Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" Text="Time" />
+                                                        <NumericUpDown Grid.Row="0" Grid.Column="1" theme:NumericUpDownExtensions.Unit="ms"
+                                                                       Value="{Binding CursorTimeMs}" Minimum="0" />
+
+                                                        <TextBlock Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" Text="SampleSet" />
+                                                        <ComboBox Grid.Row="1" Grid.Column="1"
+                                                                  ItemsSource="{Binding SampleSetNames}"
+                                                                  SelectedItem="{Binding SelectedSampleSetName}" />
+
+                                                        <TextBlock Grid.Row="2" Grid.Column="0" VerticalAlignment="Center" Text="Hitsound" />
+                                                        <ComboBox Grid.Row="2" Grid.Column="1"
+                                                                  ItemsSource="{Binding HitSoundNames}"
+                                                                  SelectedItem="{Binding SelectedHitSoundName}" />
+
+                                                        <TextBlock Grid.Row="3" Grid.Column="0" VerticalAlignment="Center" Text="Source" />
+                                                        <ToggleSwitch Grid.Row="3" Grid.Column="1"
+                                                                      IsChecked="{Binding NewPointIsSliderBody}"
+                                                                      OnContent="Slider-body"
+                                                                      OffContent="Object" />
+                                                    </Grid>
+
+                                                    <WrapPanel ItemWidth="170" Orientation="Horizontal">
+                                                        <Button Classes="timeline-btn" Command="{Binding AddPointCommand}" Margin="0,0,8,8">
+                                                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                                                <materialIcons:MaterialIcon Kind="Plus" Width="16" Height="16" />
+                                                                <TextBlock VerticalAlignment="Center" Text="Add Point" />
+                                                            </StackPanel>
+                                                        </Button>
+                                                        <Button Classes="timeline-btn"
+                                                                Command="{Binding UpdateSelectedPointCommand}"
+                                                                IsEnabled="{Binding HasSelectedPoint}"
+                                                                Margin="0,0,8,8">
+                                                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                                                <materialIcons:MaterialIcon Kind="ContentSaveEdit" Width="16" Height="16" />
+                                                                <TextBlock VerticalAlignment="Center" Text="Apply Selected" />
+                                                            </StackPanel>
+                                                        </Button>
+                                                        <Button Classes="timeline-btn"
+                                                                Command="{Binding PlaySelectedPointCommand}"
+                                                                IsEnabled="{Binding HasSelectedPoint}"
+                                                                Margin="0,0,8,8">
+                                                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                                                <materialIcons:MaterialIcon Kind="Play" Width="16" Height="16" />
+                                                                <TextBlock VerticalAlignment="Center" Text="Play Selected" />
+                                                            </StackPanel>
+                                                        </Button>
+                                                        <Button Classes="timeline-btn"
+                                                                Command="{Binding RemoveSelectedPointCommand}"
+                                                                IsEnabled="{Binding HasSelectedPoint}"
+                                                                Margin="0,0,8,8">
+                                                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                                                <materialIcons:MaterialIcon Kind="Delete" Width="16" Height="16" />
+                                                                <TextBlock VerticalAlignment="Center" Text="Remove Selected" />
+                                                            </StackPanel>
+                                                        </Button>
+                                                    </WrapPanel>
+                                                </StackPanel>
+                                            </Border>
+                                        </Flyout>
+                                    </Button.Flyout>
+                                </Button>
+                            </StackPanel>
+                        </Grid>
+
+                        <Grid ColumnDefinitions="Auto,Auto,Auto,Auto,Auto,*" RowDefinitions="Auto,Auto" ColumnSpacing="8" RowSpacing="8">
+                            <Button Grid.Row="0" Grid.Column="0" Classes="timeline-btn" Command="{Binding CenterViewOnCursorCommand}">Center</Button>
+                            <Button Grid.Row="0" Grid.Column="1" Classes="timeline-btn" Command="{Binding ZoomToSelectionCommand}">Zoom In</Button>
+                            <Button Grid.Row="0" Grid.Column="2" Classes="timeline-btn" Command="{Binding ZoomOutCommand}">Zoom Out</Button>
+
+                            <TextBlock Grid.Row="0" Grid.Column="3" VerticalAlignment="Center" Text="Snap" Classes="timeline-muted" />
+                            <Button Grid.Row="0" Grid.Column="4" Classes="timeline-btn">
+                                <StackPanel Orientation="Horizontal" Spacing="6">
+                                    <TextBlock VerticalAlignment="Center" Text="{Binding SelectedSnapDivisorText}" />
+                                    <materialIcons:MaterialIcon Kind="ChevronDown" Width="16" Height="16" />
+                                </StackPanel>
+                                <Button.Flyout>
+                                    <Flyout Placement="BottomEdgeAlignedLeft">
+                                        <Border Classes="timeline-flyout-surface">
+                                            <StackPanel Width="120" Spacing="6">
+                                                <TextBlock Text="Beat Snap" FontWeight="Bold" />
+                                                <ItemsControl ItemsSource="{Binding SnapDivisorOptions}">
+                                                    <ItemsControl.ItemTemplate>
+                                                        <DataTemplate>
+                                                            <Button Classes="timeline-chip"
+                                                                    Command="{Binding DataContext.SetSnapDivisorCommand, ElementName=Root}"
+                                                                    CommandParameter="{Binding .}">
+                                                                <TextBlock Text="{Binding ., StringFormat=1/{0}}" />
+                                                            </Button>
+                                                        </DataTemplate>
+                                                    </ItemsControl.ItemTemplate>
+                                                </ItemsControl>
+                                            </StackPanel>
+                                        </Border>
+                                    </Flyout>
+                                </Button.Flyout>
+                            </Button>
+
+                            <TextBlock Grid.Row="0" Grid.Column="5"
+                                       VerticalAlignment="Center"
+                                       HorizontalAlignment="Right"
+                                       Classes="timeline-muted"
+                                       Text="{Binding VisiblePointCount, StringFormat=Visible: {0}}" />
+
+                            <TextBlock Grid.Row="1" Grid.ColumnSpan="6"
+                                       VerticalAlignment="Center"
+                                       Classes="timeline-muted"
+                                       Text="Click: seek | Drag: box select | Ctrl+drag: add | Ctrl+click point: toggle | Mouse wheel: pan | Shift + wheel: zoom | Middle drag: pan | Space: play/pause" />
+                        </Grid>
+
+                        <Border Classes="timeline-panel" ClipToBounds="True">
+                            <Grid ColumnDefinitions="170,*">
+                                <Border Grid.Column="0" Background="#0E1320" BorderBrush="#293245" BorderThickness="0,0,1,0">
+                                    <ItemsControl ItemsSource="{Binding TimelineRowLabels}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Border Height="28" Padding="10,0" BorderBrush="#253044" BorderThickness="0,0,0,1">
+                                                    <TextBlock VerticalAlignment="Center"
+                                                               Text="{Binding .}"
+                                                               FontFamily="Consolas"
+                                                               FontSize="12" />
+                                                </Border>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </Border>
+
+                                <controls:HitSoundTimelinePlot
+                                    Grid.Column="1"
+                                    Height="364"
+                                    Points="{Binding Points}"
+                                    SampleChanges="{Binding SampleChanges}"
+                                    SnapTicks="{Binding SnapTicks}"
+                                    ViewStartMs="{Binding ViewStartMs}"
+                                    ViewEndMs="{Binding ViewEndMs}"
+                                    CursorTimeMs="{Binding CursorTimeMs}"
+                                    SnapDivisorDenominator="{Binding SelectedSnapDivisorDenominator}"
+                                    SelectedPointId="{Binding SelectedPointId}"
+                                    SelectedPointIds="{Binding SelectedPointIds}"
+                                    SelectPointCommand="{Binding SelectTimelinePointCommand}"
+                                    SelectPointsCommand="{Binding SelectTimelinePointsCommand}"
+                                    AddPointsToSelectionCommand="{Binding AddTimelinePointsToSelectionCommand}"
+                                    TogglePointSelectionCommand="{Binding ToggleTimelinePointSelectionCommand}"
+                                    SeekTimeCommand="{Binding SeekTimeCommand}"
+                                    PanTimelineCommand="{Binding PanTimelineCommand}"
+                                    ZoomTimelineCommand="{Binding ZoomTimelineCommand}" />
+                            </Grid>
+                        </Border>
+
+                        <Border Classes="timeline-panel" Padding="10">
+                            <StackPanel Spacing="8">
+                                <Grid ColumnDefinitions="Auto,Auto,Auto,Auto,*,Auto" ColumnSpacing="10">
+                                    <ToggleButton Grid.Column="0"
+                                                  Classes="timeline-btn"
+                                                  IsChecked="{Binding FollowPlaybackCursor}"
+                                                  ToolTip.Tip="Follow playback">
+                                        <materialIcons:MaterialIcon Kind="CrosshairsGps" Width="16" Height="16" />
+                                    </ToggleButton>
+
+                                    <Button Grid.Column="1"
+                                            Classes="timeline-btn"
+                                            Command="{Binding ToggleTransportPlaybackCommand}"
+                                            ToolTip.Tip="{Binding TransportButtonText}">
+                                        <materialIcons:MaterialIcon Kind="PlayPause" Width="16" Height="16" />
+                                    </Button>
+                                    <Button Grid.Column="2"
+                                            Classes="timeline-btn"
+                                            Command="{Binding StopTransportCommand}"
+                                            ToolTip.Tip="Stop">
+                                        <materialIcons:MaterialIcon Kind="Stop" Width="16" Height="16" />
+                                    </Button>
+                                    <Button Grid.Column="3"
+                                            Classes="timeline-btn"
+                                            Command="{Binding CommitTransportSeekCommand}"
+                                            ToolTip.Tip="Seek to preview position">
+                                        <materialIcons:MaterialIcon Kind="SkipNext" Width="16" Height="16" />
+                                    </Button>
+
+                                    <TextBlock Grid.Column="5" VerticalAlignment="Center">
+                                        <Run Text="{Binding CursorTimeText}" />
+                                        <Run Text=" / " />
+                                        <Run Text="{Binding TimelineEndText}" />
+                                    </TextBlock>
+                                </Grid>
+
+                                <Grid ColumnDefinitions="*" ColumnSpacing="10">
+                                    <controls:HitSoundTimelineOverviewBar Grid.Column="0"
+                                                                          Height="18"
+                                                                          TimelineEndMs="{Binding TimelineEndMs}"
+                                                                          ViewStartMs="{Binding ViewStartMs}"
+                                                                          ViewEndMs="{Binding ViewEndMs}"
+                                                                          CursorTimeMs="{Binding CursorTimeMs}"
+                                                                          SeekTimeCommand="{Binding SeekTimeCommand}" />
+                                </Grid>
+
+                                <Grid ColumnDefinitions="Auto,*,Auto,Auto,*,Auto" ColumnSpacing="8" RowDefinitions="Auto">
+                                    <TextBlock Grid.Column="0" VerticalAlignment="Center" Classes="timeline-muted" Text="Song Vol" />
+                                    <Slider Grid.Column="1" Minimum="0" Maximum="100" TickFrequency="5" Value="{Binding SongVolumePercent}" />
+                                    <TextBlock Grid.Column="2" VerticalAlignment="Center" Text="{Binding SongVolumeText}" />
+
+                                    <TextBlock Grid.Column="3" VerticalAlignment="Center" Margin="8,0,0,0" Classes="timeline-muted" Text="HS Vol" />
+                                    <Slider Grid.Column="4" Minimum="0" Maximum="100" TickFrequency="5" Value="{Binding HitSoundVolumePercent}" />
+                                    <TextBlock Grid.Column="5" VerticalAlignment="Center" Text="{Binding HitSoundVolumeText}" />
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</UserControl>
