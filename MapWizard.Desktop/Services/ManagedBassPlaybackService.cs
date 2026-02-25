@@ -13,7 +13,7 @@ public sealed class ManagedBassPlaybackService : IAudioPlaybackService, IDisposa
     private const int PlaybackBufferLengthMs = 10;
     private const int UpdatePeriodMs = 5;
     private const int HitsoundSampleMaxVoices = 64; 
-    private const int SongClockCompensationMs = -15;
+    private const int SongClockCompensationMs = 0;
 
     private readonly object _sync = new();
     private readonly Dictionary<string, int> _hitsoundSampleCache = new(StringComparer.OrdinalIgnoreCase);

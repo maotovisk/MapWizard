@@ -49,6 +49,7 @@ public partial class HitSoundVisualizerViewModel(
     private bool _suppressHeaderBankQuickApply;
     private PlaybackRunner? _playbackRunner;
     private long _playbackDebugStatusLastUiTickMs;
+    private int[] _sortedPointTimeCache = [];
 
     [ObservableProperty] private SelectedMap _originBeatmap = new();
     [ObservableProperty] private string _preferredDirectory = string.Empty;
@@ -111,7 +112,7 @@ public partial class HitSoundVisualizerViewModel(
     public IReadOnlyList<int> SnapDivisorOptions { get; } = Enumerable.Range(1, 16).ToList();
 
     public double ViewEndMs => Math.Min(TimelineEndMs, ViewStartMs + Math.Max(100, ViewWindowMs));
-    public int VisiblePointCount => Points.Count(x => x.TimeMs >= ViewStartMs && x.TimeMs <= ViewEndMs);
+    public int VisiblePointCount => CountVisiblePointsCached(ViewStartMs, ViewEndMs);
     public bool HasSelectedPoint => SelectedPointId >= 0;
     public int SelectedPointCount => SelectedPointIds.Count;
     public string CursorTimeText => FormatTimeLabel(CursorTimeMs);
@@ -208,6 +209,7 @@ public partial class HitSoundVisualizerViewModel(
 
     partial void OnPointsChanged(ObservableCollection<HitSoundVisualizerPoint> value)
     {
+        RebuildPointTimeCache(value);
         OnPropertyChanged(nameof(VisiblePointCount));
     }
 
@@ -1843,6 +1845,78 @@ public partial class HitSoundVisualizerViewModel(
         }
 
         return false;
+    }
+
+    private void RebuildPointTimeCache(IReadOnlyList<HitSoundVisualizerPoint>? points)
+    {
+        if (points is null || points.Count == 0)
+        {
+            _sortedPointTimeCache = [];
+            return;
+        }
+
+        var times = new int[points.Count];
+        for (var i = 0; i < points.Count; i++)
+        {
+            times[i] = points[i].TimeMs;
+        }
+
+        _sortedPointTimeCache = times;
+    }
+
+    private int CountVisiblePointsCached(double viewStartMs, double viewEndMs)
+    {
+        var times = _sortedPointTimeCache;
+        if (times.Length == 0)
+        {
+            return 0;
+        }
+
+        var minTimeMs = (int)Math.Floor(Math.Min(viewStartMs, viewEndMs));
+        var maxTimeMs = (int)Math.Ceiling(Math.Max(viewStartMs, viewEndMs));
+        var startIndex = LowerBound(times, minTimeMs);
+        var endIndexExclusive = UpperBound(times, maxTimeMs);
+        return Math.Max(0, endIndexExclusive - startIndex);
+    }
+
+    private static int LowerBound(int[] values, int target)
+    {
+        var lo = 0;
+        var hi = values.Length;
+        while (lo < hi)
+        {
+            var mid = lo + ((hi - lo) / 2);
+            if (values[mid] < target)
+            {
+                lo = mid + 1;
+            }
+            else
+            {
+                hi = mid;
+            }
+        }
+
+        return lo;
+    }
+
+    private static int UpperBound(int[] values, int target)
+    {
+        var lo = 0;
+        var hi = values.Length;
+        while (lo < hi)
+        {
+            var mid = lo + ((hi - lo) / 2);
+            if (values[mid] <= target)
+            {
+                lo = mid + 1;
+            }
+            else
+            {
+                hi = mid;
+            }
+        }
+
+        return lo;
     }
 
     private void NormalizeViewWindow()

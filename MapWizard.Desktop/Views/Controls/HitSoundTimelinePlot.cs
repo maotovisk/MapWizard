@@ -27,6 +27,8 @@ public class HitSoundTimelinePlot : Control
     private const double SampleChangeBarCornerRadius = 4d;
     private const double SampleChangeTextPadding = 6d;
     private const double SampleChangeTextFontSize = 10d;
+    private const double SampleChangeDenseLineSpacingPx = 2d;
+    private const double SampleChangeDenseModeMaxAvgSpacingPx = 36d;
     private const double SnapTickTargetMinSpacingPx = 3d;
     private const double SnapTickMaxSimplifiedSpacingPx = 14d;
     private static readonly IBrush BackgroundBrush = new SolidColorBrush(Color.Parse("#14181D"));
@@ -48,9 +50,19 @@ public class HitSoundTimelinePlot : Control
     private static readonly Pen SampleChangeSelectionAccentPen = new(new SolidColorBrush(Color.Parse("#F5FBFF")), 1);
     private static readonly IBrush SampleChangeLabelBrush = new SolidColorBrush(Color.Parse("#E6EDF7"));
     private static readonly Typeface SampleChangeLabelTypeface = new("Consolas");
+    private static readonly Pen NormalSampleChangeLinePen = new(new SolidColorBrush(Color.Parse("#9BC53D")), 1);
+    private static readonly Pen SoftSampleChangeLinePen = new(new SolidColorBrush(Color.Parse("#5BC0EB")), 1);
+    private static readonly Pen DrumSampleChangeLinePen = new(new SolidColorBrush(Color.Parse("#E55934")), 1);
     private static readonly Pen CursorPen = new(new SolidColorBrush(Color.Parse("#F4C95D")), 1.5);
     private static readonly Pen GhostPreviewPen = new(new SolidColorBrush(Color.Parse("#B3FFD166")), 1.4);
     private static readonly IBrush GhostPreviewFillBrush = new SolidColorBrush(Color.Parse("#33FFD166"));
+    private static readonly Pen MeasureTickPen = new(new SolidColorBrush(Color.Parse("#FFFFFF")), 1.6);
+    private static readonly Pen HalfTickPen = new(new SolidColorBrush(Color.Parse("#FF5A5A")), 1.2);
+    private static readonly Pen TripletTickPen = new(new SolidColorBrush(Color.Parse("#C99BFF")), 1.2);
+    private static readonly Pen QuarterTickPen = new(new SolidColorBrush(Color.Parse("#4EA3FF")), 1.2);
+    private static readonly Pen SixthTickPen = new(new SolidColorBrush(Color.Parse("#8E5CFF")), 1.0);
+    private static readonly Pen EighthTickPen = new(new SolidColorBrush(Color.Parse("#F0D94B")), 1.0);
+    private static readonly Pen GenericTickPen = new(new SolidColorBrush(Color.Parse("#7A848F")), 1.0);
     private bool _isMiddlePanning;
     private bool _isRangeSelecting;
     private bool _isSelectionDragActive;
@@ -61,6 +73,10 @@ public class HitSoundTimelinePlot : Control
     private bool _showPlacementGhost;
     private int _placementGhostRowIndex = -1;
     private int _placementGhostTimeMs = -1;
+    private HitSoundVisualizerPoint[] _pointsCache = [];
+    private HitSoundVisualizerSampleChange[] _sampleChangesCache = [];
+    private HitSoundVisualizerSnapTick[] _snapTicksCache = [];
+    private HashSet<int> _selectedPointIdsCache = [];
 
     public static readonly StyledProperty<IEnumerable<HitSoundVisualizerPoint>?> PointsProperty =
         AvaloniaProperty.Register<HitSoundTimelinePlot, IEnumerable<HitSoundVisualizerPoint>?>(nameof(Points));
@@ -285,6 +301,28 @@ public class HitSoundTimelinePlot : Control
         DrawGridLines(context, timelineWidth, rowHeight, TotalRows);
     }
 
+    protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
+    {
+        base.OnPropertyChanged(change);
+
+        if (change.Property == PointsProperty)
+        {
+            RebuildPointsCache();
+        }
+        else if (change.Property == SampleChangesProperty)
+        {
+            RebuildSampleChangesCache();
+        }
+        else if (change.Property == SnapTicksProperty)
+        {
+            RebuildSnapTicksCache();
+        }
+        else if (change.Property == SelectedPointIdsProperty)
+        {
+            RebuildSelectedPointIdsCache();
+        }
+    }
+
     protected override void OnPointerPressed(PointerPressedEventArgs e)
     {
         base.OnPointerPressed(e);
@@ -353,15 +391,21 @@ public class HitSoundTimelinePlot : Control
 
         if (e.ClickCount >= 2 && clickedRow != SampleRowIndex)
         {
-            var rowIds = (Points ?? [])
-                .Where(p => GetRowIndex(p) == clickedRow)
-                .OrderBy(p => p.TimeMs)
-                .Select(p => p.Id)
-                .ToArray();
-
-            if (rowIds.Length > 0 && SelectPointsCommand?.CanExecute(rowIds) == true)
+            var (visibleStart, visibleEnd) = GetVisiblePointRange();
+            var rowIds = new List<int>();
+            for (var i = visibleStart; i < visibleEnd; i++)
             {
-                SelectPointsCommand.Execute(rowIds);
+                var p = _pointsCache[i];
+                if (GetRowIndex(p) == clickedRow)
+                {
+                    rowIds.Add(p.Id);
+                }
+            }
+
+            var rowIdArray = rowIds.ToArray();
+            if (rowIdArray.Length > 0 && SelectPointsCommand?.CanExecute(rowIdArray) == true)
+            {
+                SelectPointsCommand.Execute(rowIdArray);
             }
 
             if (SeekTimeCommand?.CanExecute(clickedTimeMs) == true)
@@ -495,16 +539,19 @@ public class HitSoundTimelinePlot : Control
                 var minRow = Math.Min(startRow, endRow);
                 var maxRow = Math.Max(startRow, endRow);
 
-                var selectedIds = (Points ?? [])
-                    .Where(p => p.TimeMs >= minTime && p.TimeMs <= maxTime)
-                    .Where(p =>
+                var selectedIdsList = new List<int>();
+                var startIndex = LowerBoundPoints(minTime);
+                var endIndexExclusive = UpperBoundPoints(maxTime);
+                for (var i = startIndex; i < endIndexExclusive; i++)
+                {
+                    var p = _pointsCache[i];
+                    var row = GetRowIndex(p);
+                    if (row >= minRow && row <= maxRow)
                     {
-                        var row = GetRowIndex(p);
-                        return row >= minRow && row <= maxRow;
-                    })
-                    .OrderBy(p => p.TimeMs)
-                    .Select(p => p.Id)
-                    .ToArray();
+                        selectedIdsList.Add(p.Id);
+                    }
+                }
+                var selectedIds = selectedIdsList.ToArray();
 
                 var selectionCommand = _isAdditiveSelection ? AddPointsToSelectionCommand : SelectPointsCommand;
                 if (selectionCommand?.CanExecute(selectedIds) == true)
@@ -599,6 +646,214 @@ public class HitSoundTimelinePlot : Control
         return new Size(width, height);
     }
 
+    private void RebuildPointsCache()
+    {
+        _pointsCache = Points switch
+        {
+            null => [],
+            HitSoundVisualizerPoint[] array => array,
+            IReadOnlyCollection<HitSoundVisualizerPoint> collection when collection.Count == 0 => [],
+            _ => (Points ?? []).ToArray()
+        };
+    }
+
+    private void RebuildSampleChangesCache()
+    {
+        if (SampleChanges is null)
+        {
+            _sampleChangesCache = [];
+            return;
+        }
+
+        _sampleChangesCache = (SampleChanges as IEnumerable<HitSoundVisualizerSampleChange> ?? [])
+            .OrderBy(x => x.TimeMs)
+            .ToArray();
+    }
+
+    private void RebuildSnapTicksCache()
+    {
+        if (SnapTicks is null)
+        {
+            _snapTicksCache = [];
+            return;
+        }
+
+        _snapTicksCache = (SnapTicks as IEnumerable<HitSoundVisualizerSnapTick> ?? [])
+            .OrderBy(x => x.TimeMs)
+            .ToArray();
+    }
+
+    private void RebuildSelectedPointIdsCache()
+    {
+        _selectedPointIdsCache = SelectedPointIds is null
+            ? []
+            : SelectedPointIds.Where(id => id > 0).ToHashSet();
+    }
+
+    private (int StartIndex, int EndIndexExclusive) GetVisiblePointRange()
+    {
+        if (_pointsCache.Length == 0)
+        {
+            return (0, 0);
+        }
+
+        var minTimeMs = (int)Math.Floor(ViewStartMs);
+        var maxTimeMs = (int)Math.Ceiling(ViewEndMs);
+        var start = LowerBoundPoints(minTimeMs);
+        var end = UpperBoundPoints(maxTimeMs);
+        return (start, end);
+    }
+
+    private (int StartIndex, int EndIndexExclusive) GetVisibleSampleChangeRange()
+    {
+        if (_sampleChangesCache.Length == 0)
+        {
+            return (0, 0);
+        }
+
+        var minTimeMs = (int)Math.Floor(ViewStartMs);
+        var maxTimeMs = (int)Math.Ceiling(ViewEndMs);
+
+        // Include one preceding change so segment bars that start before the viewport still render into it.
+        var start = Math.Max(0, LowerBoundSampleChanges(minTimeMs) - 1);
+        var end = UpperBoundSampleChanges(maxTimeMs);
+        return (start, Math.Max(start, end));
+    }
+
+    private (int StartIndex, int EndIndexExclusive) GetVisibleSnapTickRange()
+    {
+        if (_snapTicksCache.Length == 0)
+        {
+            return (0, 0);
+        }
+
+        var minTimeMs = (int)Math.Floor(ViewStartMs);
+        var maxTimeMs = (int)Math.Ceiling(ViewEndMs);
+        var start = LowerBoundSnapTicks(minTimeMs);
+        var end = UpperBoundSnapTicks(maxTimeMs);
+        return (start, end);
+    }
+
+    private int LowerBoundPoints(int targetTimeMs)
+    {
+        var lo = 0;
+        var hi = _pointsCache.Length;
+        while (lo < hi)
+        {
+            var mid = lo + ((hi - lo) / 2);
+            if (_pointsCache[mid].TimeMs < targetTimeMs)
+            {
+                lo = mid + 1;
+            }
+            else
+            {
+                hi = mid;
+            }
+        }
+
+        return lo;
+    }
+
+    private int UpperBoundPoints(int targetTimeMs)
+    {
+        var lo = 0;
+        var hi = _pointsCache.Length;
+        while (lo < hi)
+        {
+            var mid = lo + ((hi - lo) / 2);
+            if (_pointsCache[mid].TimeMs <= targetTimeMs)
+            {
+                lo = mid + 1;
+            }
+            else
+            {
+                hi = mid;
+            }
+        }
+
+        return lo;
+    }
+
+    private int LowerBoundSampleChanges(int targetTimeMs)
+    {
+        var lo = 0;
+        var hi = _sampleChangesCache.Length;
+        while (lo < hi)
+        {
+            var mid = lo + ((hi - lo) / 2);
+            if (_sampleChangesCache[mid].TimeMs < targetTimeMs)
+            {
+                lo = mid + 1;
+            }
+            else
+            {
+                hi = mid;
+            }
+        }
+
+        return lo;
+    }
+
+    private int UpperBoundSampleChanges(int targetTimeMs)
+    {
+        var lo = 0;
+        var hi = _sampleChangesCache.Length;
+        while (lo < hi)
+        {
+            var mid = lo + ((hi - lo) / 2);
+            if (_sampleChangesCache[mid].TimeMs <= targetTimeMs)
+            {
+                lo = mid + 1;
+            }
+            else
+            {
+                hi = mid;
+            }
+        }
+
+        return lo;
+    }
+
+    private int LowerBoundSnapTicks(int targetTimeMs)
+    {
+        var lo = 0;
+        var hi = _snapTicksCache.Length;
+        while (lo < hi)
+        {
+            var mid = lo + ((hi - lo) / 2);
+            if (_snapTicksCache[mid].TimeMs < targetTimeMs)
+            {
+                lo = mid + 1;
+            }
+            else
+            {
+                hi = mid;
+            }
+        }
+
+        return lo;
+    }
+
+    private int UpperBoundSnapTicks(int targetTimeMs)
+    {
+        var lo = 0;
+        var hi = _snapTicksCache.Length;
+        while (lo < hi)
+        {
+            var mid = lo + ((hi - lo) / 2);
+            if (_snapTicksCache[mid].TimeMs <= targetTimeMs)
+            {
+                lo = mid + 1;
+            }
+            else
+            {
+                hi = mid;
+            }
+        }
+
+        return lo;
+    }
+
 
     private void DrawRowBackgrounds(DrawingContext context, double width, double rowHeight, int totalRows)
     {
@@ -627,17 +882,24 @@ public class HitSoundTimelinePlot : Control
 
     private void DrawTicks(DrawingContext context, double width, double height, double windowMs)
     {
-        if (SnapTicks is null)
+        if (_snapTicksCache.Length == 0)
         {
             return;
         }
 
         var selectedDivisor = Math.Clamp(SnapDivisorDenominator, 1, 16);
-        var visibleTicks = SnapTicks
-            .Where(tick => tick.TimeMs >= ViewStartMs && tick.TimeMs <= ViewEndMs)
-            .Where(tick => tick.Denominator <= selectedDivisor && selectedDivisor % Math.Max(1, tick.Denominator) == 0)
-            .OrderBy(tick => tick.TimeMs)
-            .ToList();
+        var (tickStart, tickEnd) = GetVisibleSnapTickRange();
+        var visibleTicks = new List<HitSoundVisualizerSnapTick>(Math.Max(0, tickEnd - tickStart));
+        for (var i = tickStart; i < tickEnd; i++)
+        {
+            var tick = _snapTicksCache[i];
+            if (tick.Denominator > selectedDivisor || selectedDivisor % Math.Max(1, tick.Denominator) != 0)
+            {
+                continue;
+            }
+
+            visibleTicks.Add(tick);
+        }
 
         if (visibleTicks.Count == 0)
         {
@@ -666,14 +928,7 @@ public class HitSoundTimelinePlot : Control
         var ticksToRender = SimplifyTickCandidatesForDensity(tickCandidates, width);
         foreach (var (tick, x) in ticksToRender)
         {
-            var color = SnapTickColor(tick.Denominator);
-            var thickness = tick.Denominator switch
-            {
-                1 => 1.6,
-                2 or 3 or 4 => 1.2,
-                _ => 1.0
-            };
-            context.DrawLine(new Pen(new SolidColorBrush(color), thickness), new Point(x, 0), new Point(x, height));
+            context.DrawLine(SnapTickPen(tick.Denominator), new Point(x, 0), new Point(x, height));
         }
     }
 
@@ -690,15 +945,13 @@ public class HitSoundTimelinePlot : Control
 
     private void DrawSampleChanges(DrawingContext context, double width, double rowHeight, double windowMs)
     {
-        if (SampleChanges is null)
+        if (_sampleChangesCache.Length == 0)
         {
             return;
         }
 
-        var allSampleChanges = SampleChanges
-            .OrderBy(x => x.TimeMs)
-            .ToList();
-        if (allSampleChanges.Count == 0)
+        var allSampleChanges = _sampleChangesCache;
+        if (allSampleChanges.Length == 0)
         {
             return;
         }
@@ -706,10 +959,20 @@ public class HitSoundTimelinePlot : Control
         var rowTop = (SampleRowIndex * rowHeight) + SampleChangeBarVerticalPadding;
         var barHeight = Math.Max(8d, rowHeight - (SampleChangeBarVerticalPadding * 2d));
 
-        for (var i = 0; i < allSampleChanges.Count; i++)
+        var visibleOnlyStart = LowerBoundSampleChanges((int)Math.Floor(ViewStartMs));
+        var visibleOnlyEnd = UpperBoundSampleChanges((int)Math.Ceiling(ViewEndMs));
+        var visibleChangeCount = Math.Max(0, visibleOnlyEnd - visibleOnlyStart);
+        if (ShouldUseDenseSampleChangeMarkers(visibleChangeCount, width))
+        {
+            DrawDenseSampleChangeMarkers(context, width, windowMs, rowTop, barHeight, visibleOnlyStart, visibleOnlyEnd);
+            return;
+        }
+
+        var (sampleStart, sampleEnd) = GetVisibleSampleChangeRange();
+        for (var i = sampleStart; i < sampleEnd && i < allSampleChanges.Length; i++)
         {
             var marker = allSampleChanges[i];
-            var nextTimeMs = i + 1 < allSampleChanges.Count
+            var nextTimeMs = i + 1 < allSampleChanges.Length
                 ? allSampleChanges[i + 1].TimeMs
                 : (int)Math.Ceiling(ViewEndMs);
             var segmentEndMs = Math.Max(nextTimeMs, marker.TimeMs);
@@ -730,38 +993,73 @@ public class HitSoundTimelinePlot : Control
         }
     }
 
-    private void DrawPoints(DrawingContext context, double width, double rowHeight, double windowMs)
+    private void DrawDenseSampleChangeMarkers(
+        DrawingContext context,
+        double width,
+        double windowMs,
+        double rowTop,
+        double barHeight,
+        int startIndex,
+        int endIndexExclusive)
     {
-        if (Points is null)
+        if (startIndex >= endIndexExclusive)
         {
             return;
         }
 
-        var visiblePoints = new List<HitSoundVisualizerPoint>();
-        foreach (var point in Points)
+        var lastDrawnX = double.NegativeInfinity;
+
+        for (var i = startIndex; i < endIndexExclusive && i < _sampleChangesCache.Length; i++)
         {
-            if (point.TimeMs < ViewStartMs || point.TimeMs > ViewEndMs)
+            var marker = _sampleChangesCache[i];
+            var x = TimeToX(marker.TimeMs, width, windowMs);
+            if (x < 0 || x > width)
             {
                 continue;
             }
 
-            visiblePoints.Add(point);
-        }
+            var isSelected = marker.TimeMs == SelectedSampleChangeTimeMs;
+            if (!isSelected && x - lastDrawnX < SampleChangeDenseLineSpacingPx)
+            {
+                continue;
+            }
 
-        if (visiblePoints.Count == 0)
+            lastDrawnX = x;
+            var pen = SampleChangeLinePen(marker.SampleSet);
+            context.DrawLine(pen, new Point(x, rowTop), new Point(x, rowTop + barHeight));
+
+            if (isSelected)
+            {
+                context.DrawLine(SampleChangeSelectionPen, new Point(x, rowTop - 1d), new Point(x, rowTop + barHeight + 1d));
+            }
+        }
+    }
+
+    private void DrawPoints(DrawingContext context, double width, double rowHeight, double windowMs)
+    {
+        if (_pointsCache.Length == 0)
         {
             return;
         }
 
-        var selectedIds = (SelectedPointIds ?? []).ToHashSet();
-        var denseMode = visiblePoints.Count > Math.Max(300, width * 2.25d) || (windowMs / Math.Max(1d, width)) > 24d;
+        var (pointStart, pointEnd) = GetVisiblePointRange();
+        var visibleCount = Math.Max(0, pointEnd - pointStart);
+
+        if (visibleCount == 0)
+        {
+            return;
+        }
+
+        var selectedIds = _selectedPointIdsCache;
+        var denseMode = visibleCount > Math.Max(300, width * 2.25d) || (windowMs / Math.Max(1d, width)) > 24d;
         var lastDrawnXByRowAndSample = denseMode
             ? InitializeLastDrawnX()
             : null;
         var renderRadius = denseMode ? 3d : PointRadius;
 
-        foreach (var point in visiblePoints)
+        for (var i = pointStart; i < pointEnd; i++)
         {
+            var point = _pointsCache[i];
             var rowIndex = GetRowIndex(point);
             var x = TimeToX(point.TimeMs, width, windowMs);
             var y = RowCenterY(rowIndex, rowHeight);
@@ -997,13 +1295,10 @@ public class HitSoundTimelinePlot : Control
         HitSoundVisualizerPoint? nearest = null;
         var bestDistance = double.MaxValue;
 
-        foreach (var item in Points ?? [])
+        var (startIndex, endIndex) = GetVisiblePointRange();
+        for (var i = startIndex; i < endIndex; i++)
         {
-            if (item.TimeMs < ViewStartMs || item.TimeMs > ViewEndMs)
-            {
-                continue;
-            }
-
+            var item = _pointsCache[i];
             var x = TimeToX(item.TimeMs, width, windowMs);
             var y = RowCenterY(GetRowIndex(item), DefaultRowHeight);
             var distance = Math.Sqrt(Math.Pow(clickPosition.X - x, 2) + Math.Pow(clickPosition.Y - y, 2));
@@ -1021,10 +1316,8 @@ public class HitSoundTimelinePlot : Control
     {
         HitSoundVisualizerSampleChange? nearest = null;
         var bestDistance = double.MaxValue;
-        var allSampleChanges = (SampleChanges ?? [])
-            .OrderBy(x => x.TimeMs)
-            .ToList();
-        if (allSampleChanges.Count == 0)
+        var allSampleChanges = _sampleChangesCache;
+        if (allSampleChanges.Length == 0)
         {
             return (null, bestDistance);
         }
@@ -1032,10 +1325,11 @@ public class HitSoundTimelinePlot : Control
         var rowTop = (SampleRowIndex * DefaultRowHeight) + SampleChangeBarVerticalPadding;
         var barHeight = Math.Max(8d, DefaultRowHeight - (SampleChangeBarVerticalPadding * 2d));
 
-        for (var i = 0; i < allSampleChanges.Count; i++)
+        var (startIndex, endIndex) = GetVisibleSampleChangeRange();
+        for (var i = startIndex; i < endIndex && i < allSampleChanges.Length; i++)
         {
             var marker = allSampleChanges[i];
-            var nextTimeMs = i + 1 < allSampleChanges.Count
+            var nextTimeMs = i + 1 < allSampleChanges.Length
                 ? allSampleChanges[i + 1].TimeMs
                 : (int)Math.Ceiling(ViewEndMs);
             var segmentEndMs = Math.Max(nextTimeMs, marker.TimeMs);
@@ -1177,6 +1471,27 @@ public class HitSoundTimelinePlot : Control
         };
     }
 
+    private static bool ShouldUseDenseSampleChangeMarkers(int visibleChangeCount, double width)
+    {
+        if (visibleChangeCount <= 0 || width <= 1)
+        {
+            return false;
+        }
+
+        var avgSpacingPx = width / visibleChangeCount;
+        return avgSpacingPx <= SampleChangeDenseModeMaxAvgSpacingPx;
+    }
+
+    private static Pen SampleChangeLinePen(SampleSet sampleSet)
+    {
+        return sampleSet switch
+        {
+            SampleSet.Soft => SoftSampleChangeLinePen,
+            SampleSet.Drum => DrumSampleChangeLinePen,
+            _ => NormalSampleChangeLinePen
+        };
+    }
+
     private static string FormatSampleChangeLabel(HitSoundVisualizerSampleChange marker)
     {
         var bank = marker.SampleSet switch
@@ -1259,7 +1574,7 @@ public class HitSoundTimelinePlot : Control
         out int snappedTimeMs)
     {
         snappedTimeMs = 0;
-        if (SnapTicks is null || width <= 1 || windowMs <= 0)
+        if (_snapTicksCache.Length == 0 || width <= 1 || windowMs <= 0)
         {
             return false;
         }
@@ -1268,12 +1583,10 @@ public class HitSoundTimelinePlot : Control
         var bestDistancePx = double.MaxValue;
         HitSoundVisualizerSnapTick? bestTick = null;
 
-        foreach (var tick in SnapTicks)
+        var (startIndex, endIndex) = GetVisibleSnapTickRange();
+        for (var i = startIndex; i < endIndex; i++)
         {
-            if (tick.TimeMs < ViewStartMs || tick.TimeMs > ViewEndMs)
-            {
-                continue;
-            }
+            var tick = _snapTicksCache[i];
 
             if (tick.Denominator > selectedDivisor || selectedDivisor % Math.Max(1, tick.Denominator) != 0)
             {
@@ -1314,6 +1627,22 @@ public class HitSoundTimelinePlot : Control
             _ when denominator % 6 == 0 => Color.Parse("#8E5CFF"),
             _ when denominator % 3 == 0 => Color.Parse("#C99BFF"),
             _ => Color.Parse("#7A848F")
+        };
+    }
+
+    private static Pen SnapTickPen(int denominator)
+    {
+        return denominator switch
+        {
+            1 => MeasureTickPen,
+            2 => HalfTickPen,
+            3 => TripletTickPen,
+            4 => QuarterTickPen,
+            6 => SixthTickPen,
+            8 => EighthTickPen,
+            _ when denominator % 6 == 0 => SixthTickPen,
+            _ when denominator % 3 == 0 => TripletTickPen,
+            _ => GenericTickPen
         };
     }
 

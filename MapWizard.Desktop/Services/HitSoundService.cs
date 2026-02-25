@@ -57,16 +57,7 @@ public class HitSoundService : IHitSoundService
         var beatmap = Beatmap.Decode(File.ReadAllText(beatmapPath));
         var timeline = beatmap.BuildTimeline();
         var points = BuildVisualizerPoints(timeline);
-        var sampleChanges = timeline.SampleSetTimeline.HitSamples
-            .OrderBy(x => x.Time)
-            .Select(x => new HitSoundVisualizerSampleChange
-            {
-                TimeMs = StableSnapEngine.StableRound(x.Time),
-                SampleSet = NormalizeSampleSet(x.Sample, SampleSet.Normal),
-                Index = x.Index,
-                Volume = (int)Math.Round(x.Volume)
-            })
-            .ToList();
+        var sampleChanges = BuildVisualizerSampleChanges(timeline);
 
         var endTimeMs = ResolveEndTimeMs(beatmap, points, sampleChanges);
         var snapTicks = BuildSnapTicks(beatmap, endTimeMs);
@@ -204,6 +195,61 @@ public class HitSoundService : IHitSoundService
             .ThenBy(x => HitSoundSortOrder(x.HitSound))
             .ThenBy(x => SampleSetSortOrder(x.SampleSet))
             .ToList();
+    }
+
+    private static List<HitSoundVisualizerSampleChange> BuildVisualizerSampleChanges(HitSoundTimeline timeline)
+    {
+        var sorted = timeline.SampleSetTimeline.HitSamples
+            .OrderBy(x => x.Time)
+            .Select(x => new HitSoundVisualizerSampleChange
+            {
+                TimeMs = StableSnapEngine.StableRound(x.Time),
+                SampleSet = NormalizeSampleSet(x.Sample, SampleSet.Normal),
+                Index = x.Index,
+                Volume = (int)Math.Round(x.Volume)
+            })
+            .ToList();
+
+        if (sorted.Count <= 1)
+        {
+            return sorted;
+        }
+
+        var normalized = new List<HitSoundVisualizerSampleChange>(sorted.Count);
+        foreach (var change in sorted)
+        {
+            if (normalized.Count == 0)
+            {
+                normalized.Add(change);
+                continue;
+            }
+
+            var last = normalized[^1];
+
+            // Multiple timing points can collapse to the same rounded millisecond; keep the latest effective value.
+            if (last.TimeMs == change.TimeMs)
+            {
+                normalized[^1] = change;
+                continue;
+            }
+
+            // Skip redundant entries that don't change the effective sample timeline state.
+            if (HasSameSampleState(last, change))
+            {
+                continue;
+            }
+
+            normalized.Add(change);
+        }
+
+        return normalized;
+    }
+
+    private static bool HasSameSampleState(HitSoundVisualizerSampleChange a, HitSoundVisualizerSampleChange b)
+    {
+        return a.SampleSet == b.SampleSet &&
+               a.Index == b.Index &&
+               a.Volume == b.Volume;
     }
 
     private static void AddPointsFromTimeline(
