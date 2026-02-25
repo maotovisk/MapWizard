@@ -31,6 +31,9 @@ public class HitSoundTimelinePlot : Control
     private const double SampleChangeDenseModeMaxAvgSpacingPx = 36d;
     private const double SnapTickTargetMinSpacingPx = 3d;
     private const double SnapTickMaxSimplifiedSpacingPx = 14d;
+    private const double SnapTickDenseStrongTargetMinSpacingPx = 5d;
+    private const double SnapTickDenseMeasuresTargetMinSpacingPx = 9d;
+    private const double SnapTickDenseMeasuresMaxSpacingPx = 20d;
     private static readonly IBrush BackgroundBrush = new SolidColorBrush(Color.Parse("#14181D"));
     private static readonly IBrush SampleRowBrush = new SolidColorBrush(Color.Parse("#1F2430"));
     private static readonly IBrush EvenRowBrush = new SolidColorBrush(Color.Parse("#151B22"));
@@ -943,7 +946,7 @@ public class HitSoundTimelinePlot : Control
             return;
         }
 
-        var ticksToRender = SimplifyTickCandidatesForDensity(tickCandidates, width);
+        var ticksToRender = SimplifyTickCandidatesForDensity(tickCandidates, width, tickMode);
         foreach (var (tick, x) in ticksToRender)
         {
             context.DrawLine(SnapTickPen(tick.Denominator), new Point(x, 0), new Point(x, height));
@@ -1745,17 +1748,17 @@ public class HitSoundTimelinePlot : Control
         spacings.Sort();
         var medianSpacing = spacings[spacings.Count / 2];
 
-        if (medianSpacing < 2.5)
+        if (medianSpacing < 3.5)
         {
             return TickRenderMode.MeasuresOnly;
         }
 
-        if (medianSpacing < 4.5)
+        if (medianSpacing < 6)
         {
             return TickRenderMode.StrongOnly;
         }
 
-        if (medianSpacing < 7)
+        if (medianSpacing < 9)
         {
             return TickRenderMode.MidOnly;
         }
@@ -1776,14 +1779,25 @@ public class HitSoundTimelinePlot : Control
 
     private static IReadOnlyList<(HitSoundVisualizerSnapTick Tick, double X)> SimplifyTickCandidatesForDensity(
         IReadOnlyList<(HitSoundVisualizerSnapTick Tick, double X)> candidates,
-        double width)
+        double width,
+        TickRenderMode tickMode)
     {
         if (candidates.Count < 2 || width <= 1)
         {
             return candidates;
         }
 
-        var targetMaxTicks = Math.Max(48d, width / SnapTickTargetMinSpacingPx);
+        var baseTargetSpacingPx = tickMode switch
+        {
+            TickRenderMode.MeasuresOnly => SnapTickDenseMeasuresTargetMinSpacingPx,
+            TickRenderMode.StrongOnly => SnapTickDenseStrongTargetMinSpacingPx,
+            _ => SnapTickTargetMinSpacingPx
+        };
+        var maxSpacingPx = tickMode == TickRenderMode.MeasuresOnly
+            ? SnapTickDenseMeasuresMaxSpacingPx
+            : SnapTickMaxSimplifiedSpacingPx;
+
+        var targetMaxTicks = Math.Max(32d, width / baseTargetSpacingPx);
         if (candidates.Count <= targetMaxTicks)
         {
             return candidates;
@@ -1791,9 +1805,9 @@ public class HitSoundTimelinePlot : Control
 
         var overloadRatio = candidates.Count / targetMaxTicks;
         var minSpacingPx = Math.Clamp(
-            SnapTickTargetMinSpacingPx * Math.Sqrt(overloadRatio),
-            SnapTickTargetMinSpacingPx,
-            SnapTickMaxSimplifiedSpacingPx);
+            baseTargetSpacingPx * Math.Sqrt(overloadRatio),
+            baseTargetSpacingPx,
+            maxSpacingPx);
 
         var simplified = new List<(HitSoundVisualizerSnapTick Tick, double X)>(Math.Min(candidates.Count, (int)Math.Ceiling(width)));
         foreach (var candidate in candidates)
