@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Platform.Storage;
@@ -17,7 +19,8 @@ public partial class SettingsViewModel(
     ISettingsService settingsService,
     IFilesService filesService,
     ISongLibraryService songLibraryService,
-    IUpdateService updateService) : ViewModelBase
+    IUpdateService updateService,
+    IAudioPlaybackService audioPlaybackService) : ViewModelBase
 {
     private bool _isUpdatingFromThemeService;
     private bool _isUpdatingSongsPath;
@@ -48,10 +51,19 @@ public partial class SettingsViewModel(
     private string _songsPathStatusText = "Songs folder not configured.";
 
     [ObservableProperty]
-    private int _hitSoundVisualizerSongVolumePercent = 80;
+    private int _audioPreviewSongVolumePercent = 80;
 
     [ObservableProperty]
-    private int _hitSoundVisualizerHitSoundVolumePercent = 100;
+    private int _audioPreviewHitSoundVolumePercent = 100;
+
+    [ObservableProperty]
+    private IReadOnlyList<AudioOutputDeviceOption> _audioOutputDevices = Array.Empty<AudioOutputDeviceOption>();
+
+    [ObservableProperty]
+    private AudioOutputDeviceOption? _selectedAudioOutputDevice;
+
+    [ObservableProperty]
+    private string _audioOutputDeviceStatusText = "Using system default output device.";
 
     public string ConfigDirectoryPath { get; } = settingsService.ConfigDirectoryPath;
     public UpdateStream[] UpdateStreams { get; } = [UpdateStream.Release, UpdateStream.PreRelease];
@@ -63,6 +75,7 @@ public partial class SettingsViewModel(
         themeService.DarkThemeChanged += OnDarkThemeChanged;
         UpdateStream = updateService.CurrentStream;
         InitializeSongsPath();
+        LoadAudioOutputDevices();
         _ = RefreshUpdateStreamBadgeAsync();
     }
 
@@ -115,26 +128,54 @@ public partial class SettingsViewModel(
             : "Folder not found. Map Picker will use manual picker fallback.";
     }
 
-    partial void OnHitSoundVisualizerSongVolumePercentChanged(int value)
+    partial void OnAudioPreviewSongVolumePercentChanged(int value)
     {
-        HitSoundVisualizerSongVolumePercent = Math.Clamp(value, 0, 100);
+        AudioPreviewSongVolumePercent = Math.Clamp(value, 0, 100);
         if (_isLoadingMainSettings)
         {
             return;
         }
 
-        SaveHitSoundVisualizerVolumeDefaults();
+        SaveAudioPreviewVolumeDefaults();
     }
 
-    partial void OnHitSoundVisualizerHitSoundVolumePercentChanged(int value)
+    partial void OnAudioPreviewHitSoundVolumePercentChanged(int value)
     {
-        HitSoundVisualizerHitSoundVolumePercent = Math.Clamp(value, 0, 100);
+        AudioPreviewHitSoundVolumePercent = Math.Clamp(value, 0, 100);
         if (_isLoadingMainSettings)
         {
             return;
         }
 
-        SaveHitSoundVisualizerVolumeDefaults();
+        SaveAudioPreviewVolumeDefaults();
+    }
+
+    partial void OnSelectedAudioOutputDeviceChanged(AudioOutputDeviceOption? value)
+    {
+        if (_isLoadingMainSettings || value is null)
+        {
+            return;
+        }
+
+        var applied = false;
+        try
+        {
+            applied = audioPlaybackService.SetSelectedAudioOutputDevice(value.Id);
+        }
+        catch
+        {
+            applied = false;
+        }
+
+        if (!applied)
+        {
+            AudioOutputDeviceStatusText = "Could not switch audio output device. Reverting selection.";
+            LoadAudioOutputDevices();
+            return;
+        }
+
+        SaveAudioOutputDevice(value.Id);
+        AudioOutputDeviceStatusText = $"Using {value.DisplayName}.";
     }
 
     [RelayCommand]
@@ -307,8 +348,41 @@ public partial class SettingsViewModel(
         try
         {
             var settings = settingsService.GetMainSettings();
-            HitSoundVisualizerSongVolumePercent = Math.Clamp(settings.HitSoundVisualizerSongVolumePercent, 0, 100);
-            HitSoundVisualizerHitSoundVolumePercent = Math.Clamp(settings.HitSoundVisualizerHitSoundVolumePercent, 0, 100);
+            AudioPreviewSongVolumePercent = Math.Clamp(settings.AudioPreviewSongVolumePercent, 0, 100);
+            AudioPreviewHitSoundVolumePercent = Math.Clamp(settings.AudioPreviewHitSoundVolumePercent, 0, 100);
+        }
+        finally
+        {
+            _isLoadingMainSettings = false;
+        }
+    }
+
+    private void LoadAudioOutputDevices()
+    {
+        _isLoadingMainSettings = true;
+        try
+        {
+            var settings = settingsService.GetMainSettings();
+            var devices = audioPlaybackService.GetAudioOutputDevices();
+            AudioOutputDevices = devices;
+
+            var preferredId = string.IsNullOrWhiteSpace(settings.AudioOutputDeviceId)
+                ? audioPlaybackService.GetSelectedAudioOutputDeviceId()
+                : settings.AudioOutputDeviceId;
+
+            var selected = devices.FirstOrDefault(x => string.Equals(x.Id, preferredId, StringComparison.Ordinal))
+                ?? devices.FirstOrDefault(x => string.Equals(x.Id, audioPlaybackService.GetSelectedAudioOutputDeviceId(), StringComparison.Ordinal))
+                ?? devices.FirstOrDefault();
+
+            if (selected is not null)
+            {
+                SelectedAudioOutputDevice = selected;
+                AudioOutputDeviceStatusText = $"Using {selected.DisplayName}.";
+            }
+            else
+            {
+                AudioOutputDeviceStatusText = "No audio output devices available.";
+            }
         }
         finally
         {
@@ -340,20 +414,33 @@ public partial class SettingsViewModel(
         settingsService.SaveMainSettings(settings);
     }
 
-    private void SaveHitSoundVisualizerVolumeDefaults()
+    private void SaveAudioPreviewVolumeDefaults()
     {
         var settings = settingsService.GetMainSettings();
-        var songVolume = Math.Clamp(HitSoundVisualizerSongVolumePercent, 0, 100);
-        var hitsoundVolume = Math.Clamp(HitSoundVisualizerHitSoundVolumePercent, 0, 100);
+        var songVolume = Math.Clamp(AudioPreviewSongVolumePercent, 0, 100);
+        var hitsoundVolume = Math.Clamp(AudioPreviewHitSoundVolumePercent, 0, 100);
 
-        if (settings.HitSoundVisualizerSongVolumePercent == songVolume &&
-            settings.HitSoundVisualizerHitSoundVolumePercent == hitsoundVolume)
+        if (settings.AudioPreviewSongVolumePercent == songVolume &&
+            settings.AudioPreviewHitSoundVolumePercent == hitsoundVolume)
         {
             return;
         }
 
-        settings.HitSoundVisualizerSongVolumePercent = songVolume;
-        settings.HitSoundVisualizerHitSoundVolumePercent = hitsoundVolume;
+        settings.AudioPreviewSongVolumePercent = songVolume;
+        settings.AudioPreviewHitSoundVolumePercent = hitsoundVolume;
+        settingsService.SaveMainSettings(settings);
+    }
+
+    private void SaveAudioOutputDevice(string deviceId)
+    {
+        var normalizedDeviceId = string.IsNullOrWhiteSpace(deviceId) ? "default" : deviceId.Trim();
+        var settings = settingsService.GetMainSettings();
+        if (string.Equals(settings.AudioOutputDeviceId, normalizedDeviceId, StringComparison.Ordinal))
+        {
+            return;
+        }
+
+        settings.AudioOutputDeviceId = normalizedDeviceId;
         settingsService.SaveMainSettings(settings);
     }
 
@@ -374,4 +461,5 @@ public partial class SettingsViewModel(
             return trimmed;
         }
     }
+
 }

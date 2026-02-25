@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Threading;
+using MapWizard.Desktop.Models.Settings;
 using MiniAudioEx.Core.StandardAPI;
 
 namespace MapWizard.Desktop.Services;
@@ -296,6 +297,25 @@ public sealed class MiniAudioPlaybackService : IAudioPlaybackService, IDisposabl
             _hitsoundSource.PlayOneShot(clip);
             return true;
         }
+    }
+
+    public IReadOnlyList<AudioOutputDeviceOption> GetAudioOutputDevices()
+    {
+        return
+        [
+            new AudioOutputDeviceOption("default", "System Default (MiniAudio)", isDefault: true, isEnabled: true)
+        ];
+    }
+
+    public string GetSelectedAudioOutputDeviceId()
+    {
+        return "default";
+    }
+
+    public bool SetSelectedAudioOutputDevice(string deviceId)
+    {
+        // MiniAudio implementation currently uses the default output device only.
+        return true;
     }
 
     public void Dispose()

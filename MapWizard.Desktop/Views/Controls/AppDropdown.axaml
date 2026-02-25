@@ -1,0 +1,86 @@
+<UserControl
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:materialIcons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+    x:Class="MapWizard.Desktop.Views.Controls.AppDropdown"
+    x:Name="Root">
+
+    <UserControl.Styles>
+        <Style Selector="Button.app-dropdown-trigger">
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="10" />
+            <Setter Property="BorderBrush" Value="{DynamicResource ThemeAccentBrush}" />
+            <Setter Property="Background" Value="{DynamicResource SystemControlBackgroundChromeMediumLowBrush}" />
+            <Setter Property="Padding" Value="10,6" />
+            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+        </Style>
+
+        <Style Selector="Button.app-dropdown-trigger:pointerover">
+            <Setter Property="Background" Value="{DynamicResource SystemControlBackgroundAltMediumBrush}" />
+        </Style>
+
+        <Style Selector="Border.app-dropdown-surface">
+            <Setter Property="Padding" Value="6" />
+            <Setter Property="CornerRadius" Value="12" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="BorderBrush" Value="{DynamicResource ThemeAccentBrush}" />
+            <Setter Property="Background" Value="{DynamicResource SystemControlBackgroundAltHighBrush}" />
+        </Style>
+
+        <Style Selector="ListBox.app-dropdown-list">
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Background" Value="Transparent" />
+        </Style>
+
+        <Style Selector="ListBox.app-dropdown-list /template/ Border#border">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+        </Style>
+
+        <Style Selector="ListBox.app-dropdown-list ListBoxItem">
+            <Setter Property="Padding" Value="10,7" />
+            <Setter Property="Margin" Value="0,1,0,1" />
+            <Setter Property="CornerRadius" Value="8" />
+            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+        </Style>
+
+        <Style Selector="ListBox.app-dropdown-list ListBoxItem:pointerover">
+            <Setter Property="Background" Value="{DynamicResource SystemControlBackgroundAltMediumBrush}" />
+        </Style>
+
+        <Style Selector="ListBox.app-dropdown-list ListBoxItem:selected">
+            <Setter Property="Background" Value="{DynamicResource ThemeAccentBrush}" />
+            <Setter Property="Foreground" Value="White" />
+        </Style>
+    </UserControl.Styles>
+
+    <Button x:Name="TriggerButton"
+            Classes="app-dropdown-trigger"
+            HorizontalAlignment="Stretch"
+            Click="TriggerButton_OnClick">
+        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8" VerticalAlignment="Center">
+            <TextBlock VerticalAlignment="Center"
+                       Text="{Binding SelectedText, ElementName=Root}"
+                       TextTrimming="CharacterEllipsis" />
+            <materialIcons:MaterialIcon Grid.Column="1"
+                                        Width="16"
+                                        Height="16"
+                                        Kind="ChevronDown" />
+        </Grid>
+
+        <Button.Flyout>
+            <Flyout Placement="BottomEdgeAlignedLeft"
+                    ShowMode="Transient">
+                <Border Classes="app-dropdown-surface"
+                        MinWidth="{Binding FlyoutMinWidth, ElementName=Root}">
+                    <ListBox x:Name="OptionsListBox"
+                             Classes="app-dropdown-list"
+                             ItemsSource="{Binding ItemsSource, ElementName=Root}"
+                             SelectedItem="{Binding SelectedItem, ElementName=Root, Mode=TwoWay}"
+                             SelectionChanged="OptionsListBox_OnSelectionChanged" />
+                </Border>
+            </Flyout>
+        </Button.Flyout>
+    </Button>
+</UserControl>

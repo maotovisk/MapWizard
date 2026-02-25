@@ -2,18 +2,22 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using ManagedBass;
+using MapWizard.Desktop.Models.Settings;
 
 namespace MapWizard.Desktop.Services;
 
 public sealed class ManagedBassPlaybackService : IAudioPlaybackService, IDisposable
 {
+    private const string DefaultAudioOutputDeviceId = "default";
     private const int OutputSampleRateHz = 44100;
-    private const int PlaybackBufferLengthMs = 25;
+    private const int PlaybackBufferLengthMs = 10;
     private const int UpdatePeriodMs = 5;
-    private const int HitsoundSampleMaxVoices = 64;
+    private const int HitsoundSampleMaxVoices = 64; 
+    private const int SongClockCompensationMs = -15;
 
     private readonly object _sync = new();
     private readonly Dictionary<string, int> _hitsoundSampleCache = new(StringComparer.OrdinalIgnoreCase);
+    private readonly ISettingsService _settingsService;
 
     private bool _initialized;
     private int _songStreamHandle;
@@ -26,6 +30,22 @@ public sealed class ManagedBassPlaybackService : IAudioPlaybackService, IDisposa
     private int _lastSeekObservedMs = -1;
     private int _lastSeekErrorMs;
     private Errors _lastBassError = Errors.OK;
+    private string _selectedAudioOutputDeviceId = DefaultAudioOutputDeviceId;
+
+    public ManagedBassPlaybackService(ISettingsService settingsService)
+    {
+        _settingsService = settingsService;
+
+        try
+        {
+            var configuredDeviceId = settingsService.GetMainSettings().AudioOutputDeviceId;
+            _selectedAudioOutputDeviceId = NormalizeAudioOutputDeviceId(configuredDeviceId);
+        }
+        catch
+        {
+            _selectedAudioOutputDeviceId = DefaultAudioOutputDeviceId;
+        }
+    }
 
     public bool IsSongPlaying
     {
@@ -148,7 +168,7 @@ public sealed class ManagedBassPlaybackService : IAudioPlaybackService, IDisposa
                 return 0;
             }
 
-            return GetObservedSongPositionMs(_songStreamHandle);
+            return GetObservedSongPositionMs(_songStreamHandle, applyCompensation: true);
         }
     }
 
@@ -197,13 +217,14 @@ public sealed class ManagedBassPlaybackService : IAudioPlaybackService, IDisposa
             var lengthBytes = _songLengthBytes > 0 ? _songLengthBytes : SafeChannelGetLengthBytes(_songStreamHandle);
             var lengthMs = lengthBytes > 0 ? StreamBytesToMilliseconds(_songStreamHandle, lengthBytes) : 0;
             var cursorBytes = SafeChannelGetPositionBytes(_songStreamHandle);
-            var cursorMs = StreamBytesToMilliseconds(_songStreamHandle, cursorBytes);
+            var rawCursorMs = StreamBytesToMilliseconds(_songStreamHandle, cursorBytes);
+            var cursorMs = ApplySongClockCompensation(rawCursorMs);
             var state = Bass.ChannelIsActive(_songStreamHandle);
             var seekState = _lastSeekRequestMs < 0
                 ? "seek:none"
                 : $"seek:req {_lastSeekRequestMs} obs {_lastSeekObservedMs} err {_lastSeekErrorMs}ms";
 
-            return $"AudioDbg | backend managedbass ext {ext} state {state} lenB {lengthBytes} lenMs {lengthMs} curB {cursorBytes} curMs {cursorMs} {seekState} err {_lastBassError}";
+            return $"AudioDbg | backend managedbass ext {ext} state {state} lenB {lengthBytes} lenMs {lengthMs} curB {cursorBytes} rawCurMs {rawCursorMs} curMs {cursorMs} comp {SongClockCompensationMs}ms {seekState} err {_lastBassError}";
         }
     }
 
@@ -262,6 +283,71 @@ public sealed class ManagedBassPlaybackService : IAudioPlaybackService, IDisposa
         }
     }
 
+    public IReadOnlyList<AudioOutputDeviceOption> GetAudioOutputDevices()
+    {
+        lock (_sync)
+        {
+            return EnumerateAudioOutputDevices();
+        }
+    }
+
+    public string GetSelectedAudioOutputDeviceId()
+    {
+        lock (_sync)
+        {
+            return _selectedAudioOutputDeviceId;
+        }
+    }
+
+    public bool SetSelectedAudioOutputDevice(string deviceId)
+    {
+        var normalizedDeviceId = NormalizeAudioOutputDeviceId(deviceId);
+
+        lock (_sync)
+        {
+            if (string.Equals(_selectedAudioOutputDeviceId, normalizedDeviceId, StringComparison.Ordinal))
+            {
+                return true;
+            }
+
+            var previousDeviceId = _selectedAudioOutputDeviceId;
+            _selectedAudioOutputDeviceId = normalizedDeviceId;
+
+            // Reinitialize backend on device switch. Existing playback/samples are intentionally dropped.
+            FreeSongStream();
+            FreeHitsoundSamples();
+
+            if (_initialized)
+            {
+                try
+                {
+                    _ = Bass.Free();
+                }
+                catch
+                {
+                    // Ignore backend shutdown failures during device switch.
+                }
+                finally
+                {
+                    _initialized = false;
+                }
+            }
+
+            if (EnsureInitialized())
+            {
+                return true;
+            }
+
+            _selectedAudioOutputDeviceId = previousDeviceId;
+            if (EnsureInitialized())
+            {
+                return false;
+            }
+
+            return false;
+        }
+    }
+
     public void Dispose()
     {
         lock (_sync)
@@ -270,20 +356,10 @@ public sealed class ManagedBassPlaybackService : IAudioPlaybackService, IDisposa
 
             foreach (var sampleHandle in _hitsoundSampleCache.Values)
             {
-                try
-                {
-                    if (sampleHandle != 0)
-                    {
-                        _ = Bass.SampleFree(sampleHandle);
-                    }
-                }
-                catch
-                {
-                    // Ignore sample disposal failures during app shutdown.
-                }
+                _ = sampleHandle;
             }
 
-            _hitsoundSampleCache.Clear();
+            FreeHitsoundSamples();
             ClearLoadedSongState();
 
             if (_initialized)
@@ -323,15 +399,46 @@ public sealed class ManagedBassPlaybackService : IAudioPlaybackService, IDisposa
             // Config is best-effort; continue with defaults if unavailable.
         }
 
-        if (!Bass.Init(Bass.DefaultDevice, OutputSampleRateHz, DeviceInitFlags.Default, IntPtr.Zero, IntPtr.Zero))
+        var targetDevice = ResolveBassDevice(_selectedAudioOutputDeviceId);
+        if (!Bass.Init(targetDevice, OutputSampleRateHz, DeviceInitFlags.Default, IntPtr.Zero, IntPtr.Zero))
         {
             _lastBassError = Bass.LastError;
+
+            if (targetDevice != Bass.DefaultDevice &&
+                Bass.Init(Bass.DefaultDevice, OutputSampleRateHz, DeviceInitFlags.Default, IntPtr.Zero, IntPtr.Zero))
+            {
+                _selectedAudioOutputDeviceId = DefaultAudioOutputDeviceId;
+                _initialized = true;
+                _lastBassError = Errors.OK;
+                return true;
+            }
+
             return false;
         }
 
         _initialized = true;
         _lastBassError = Errors.OK;
         return true;
+    }
+
+    private void FreeHitsoundSamples()
+    {
+        foreach (var sampleHandle in _hitsoundSampleCache.Values)
+        {
+            try
+            {
+                if (sampleHandle != 0)
+                {
+                    _ = Bass.SampleFree(sampleHandle);
+                }
+            }
+            catch
+            {
+                // Ignore sample disposal failures during shutdown/device switch.
+            }
+        }
+
+        _hitsoundSampleCache.Clear();
     }
 
     private int GetOrLoadHitsoundSample(string filePath)
@@ -409,10 +516,11 @@ public sealed class ManagedBassPlaybackService : IAudioPlaybackService, IDisposa
         ResetSongSeekDebugState();
     }
 
-    private int GetObservedSongPositionMs(int streamHandle)
+    private int GetObservedSongPositionMs(int streamHandle, bool applyCompensation)
     {
         var positionBytes = SafeChannelGetPositionBytes(streamHandle);
-        return StreamBytesToMilliseconds(streamHandle, positionBytes);
+        var rawPositionMs = StreamBytesToMilliseconds(streamHandle, positionBytes);
+        return applyCompensation ? ApplySongClockCompensation(rawPositionMs) : rawPositionMs;
     }
 
     private static long MillisecondsToStreamBytes(int streamHandle, int timeMs)
@@ -475,7 +583,7 @@ public sealed class ManagedBassPlaybackService : IAudioPlaybackService, IDisposa
             return;
         }
 
-        var observedMs = GetObservedSongPositionMs(_songStreamHandle);
+        var observedMs = GetObservedSongPositionMs(_songStreamHandle, applyCompensation: false);
         _lastSeekObservedMs = observedMs;
         _lastSeekErrorMs = observedMs - _lastSeekRequestMs;
     }
@@ -488,4 +596,79 @@ public sealed class ManagedBassPlaybackService : IAudioPlaybackService, IDisposa
     }
 
     private static float Clamp01(float value) => Math.Clamp(value, 0f, 1f);
+
+    private static string NormalizeAudioOutputDeviceId(string? deviceId)
+    {
+        if (string.IsNullOrWhiteSpace(deviceId))
+        {
+            return DefaultAudioOutputDeviceId;
+        }
+
+        var trimmed = deviceId.Trim();
+        return trimmed.StartsWith("device:", StringComparison.OrdinalIgnoreCase)
+            ? $"device:{trimmed["device:".Length..]}"
+            : DefaultAudioOutputDeviceId;
+    }
+
+    private static int ResolveBassDevice(string deviceId)
+    {
+        var normalized = NormalizeAudioOutputDeviceId(deviceId);
+        if (string.Equals(normalized, DefaultAudioOutputDeviceId, StringComparison.Ordinal))
+        {
+            return Bass.DefaultDevice;
+        }
+
+        if (normalized.StartsWith("device:", StringComparison.Ordinal) &&
+            int.TryParse(normalized["device:".Length..], out var deviceIndex))
+        {
+            return deviceIndex;
+        }
+
+        return Bass.DefaultDevice;
+    }
+
+    private static IReadOnlyList<AudioOutputDeviceOption> EnumerateAudioOutputDevices()
+    {
+        var devices = new List<AudioOutputDeviceOption>
+        {
+            new(DefaultAudioOutputDeviceId, "System Default", isDefault: true, isEnabled: true)
+        };
+
+        try
+        {
+            var deviceCount = Math.Max(0, Bass.DeviceCount);
+            for (var i = 1; i < deviceCount; i++)
+            {
+                DeviceInfo info;
+                try
+                {
+                    info = Bass.GetDeviceInfo(i);
+                }
+                catch
+                {
+                    continue;
+                }
+
+                if (!info.IsEnabled || info.IsLoopback)
+                {
+                    continue;
+                }
+
+                var name = string.IsNullOrWhiteSpace(info.Name) ? $"Device {i}" : info.Name.Trim();
+                var suffix = info.IsDefault ? " (Default)" : string.Empty;
+                devices.Add(new AudioOutputDeviceOption($"device:{i}", $"{name}{suffix}", info.IsDefault, info.IsEnabled));
+            }
+        }
+        catch
+        {
+            // Return at least the synthetic default option on enumeration failures.
+        }
+
+        return devices;
+    }
+
+    private static int ApplySongClockCompensation(int rawPositionMs)
+    {
+        return Math.Max(0, rawPositionMs - SongClockCompensationMs);
+    }
 }

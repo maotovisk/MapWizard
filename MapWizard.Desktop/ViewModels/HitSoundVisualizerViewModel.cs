@@ -2078,14 +2078,14 @@ public partial class HitSoundVisualizerViewModel(
             var songVolume = Math.Clamp(SongVolumePercent, 0, 100);
             var hitsoundVolume = Math.Clamp(HitSoundVolumePercent, 0, 100);
 
-            if (settings.HitSoundVisualizerSongVolumePercent == songVolume &&
-                settings.HitSoundVisualizerHitSoundVolumePercent == hitsoundVolume)
+            if (settings.AudioPreviewSongVolumePercent == songVolume &&
+                settings.AudioPreviewHitSoundVolumePercent == hitsoundVolume)
             {
                 return;
             }
 
-            settings.HitSoundVisualizerSongVolumePercent = songVolume;
-            settings.HitSoundVisualizerHitSoundVolumePercent = hitsoundVolume;
+            settings.AudioPreviewSongVolumePercent = songVolume;
+            settings.AudioPreviewHitSoundVolumePercent = hitsoundVolume;
             settingsService.SaveMainSettings(settings);
         }
         catch
@@ -2099,7 +2099,7 @@ public partial class HitSoundVisualizerViewModel(
         try
         {
             var settings = settingsService.GetMainSettings();
-            return Math.Clamp(settings.HitSoundVisualizerSongVolumePercent, 0, 100);
+            return Math.Clamp(settings.AudioPreviewSongVolumePercent, 0, 100);
         }
         catch
         {
@@ -2112,7 +2112,7 @@ public partial class HitSoundVisualizerViewModel(
         try
         {
             var settings = settingsService.GetMainSettings();
-            return Math.Clamp(settings.HitSoundVisualizerHitSoundVolumePercent, 0, 100);
+            return Math.Clamp(settings.AudioPreviewHitSoundVolumePercent, 0, 100);
         }
         catch
         {

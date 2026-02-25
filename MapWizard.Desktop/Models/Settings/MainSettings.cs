@@ -11,9 +11,12 @@ public class MainSettings
     [Setting("General", "UpdateStream")]
     public UpdateStream UpdateStream { get; set; } = UpdateStream.Release;
 
-    [Setting("HitSoundVisualizer", "SongVolumePercent")]
-    public int HitSoundVisualizerSongVolumePercent { get; set; } = 80;
+    [Setting("Audio", "PreviewSongVolumePercent")]
+    public int AudioPreviewSongVolumePercent { get; set; } = 80;
 
-    [Setting("HitSoundVisualizer", "HitSoundVolumePercent")]
-    public int HitSoundVisualizerHitSoundVolumePercent { get; set; } = 100;
+    [Setting("Audio", "PreviewHitSoundVolumePercent")]
+    public int AudioPreviewHitSoundVolumePercent { get; set; } = 100;
+
+    [Setting("Audio", "OutputDeviceId")]
+    public string AudioOutputDeviceId { get; set; } = "default";
 }

@@ -1,3 +1,6 @@
+using System.Collections.Generic;
+using MapWizard.Desktop.Models.Settings;
+
 namespace MapWizard.Desktop.Services;
 
 public interface IAudioPlaybackService
@@ -15,4 +18,8 @@ public interface IAudioPlaybackService
     void SetSongVolume(float volume);
     void SetHitsoundVolume(float volume);
     bool PlayHitsound(string filePath);
+
+    IReadOnlyList<AudioOutputDeviceOption> GetAudioOutputDevices();
+    string GetSelectedAudioOutputDeviceId();
+    bool SetSelectedAudioOutputDevice(string deviceId);
 }
