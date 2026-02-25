@@ -7,6 +7,7 @@ public interface IAudioPlaybackService
     void PauseSong();
     void StopSong();
     int GetSongPositionMs();
+    int GetLoadedSongDurationMs();
     bool IsSongPlaying { get; }
 
     void SetSongVolume(float volume);

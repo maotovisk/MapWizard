@@ -131,6 +131,43 @@ public sealed class MiniAudioPlaybackService : IAudioPlaybackService, IDisposabl
         }
     }
 
+    public int GetLoadedSongDurationMs()
+    {
+        lock (_sync)
+        {
+            if (_songClip is null)
+            {
+                return 0;
+            }
+
+            try
+            {
+                EnsureInitialized();
+                if (_songSource is null)
+                {
+                    return 0;
+                }
+
+                _songSource.Stop();
+                _songSource.Cursor = 0;
+                _songSource.Play(_songClip);
+                AudioContext.Update();
+
+                var lengthFrames = _songSource.Length;
+                _songSource.Stop();
+                _songSource.Cursor = 0;
+
+                return lengthFrames > 0
+                    ? FramesToMilliseconds(lengthFrames, AudioContext.SampleRate)
+                    : 0;
+            }
+            catch
+            {
+                return 0;
+            }
+        }
+    }
+
     public void SetSongVolume(float volume)
     {
         lock (_sync)

@@ -12,19 +12,19 @@ namespace MapWizard.Desktop.ViewModels
 {
     public partial class MainWindowViewModel : ObservableObject
     {
-        public ISukiToastManager ToastManager { get; }
+        private ISukiToastManager ToastManager { get; }
         public ISukiDialogManager DialogManager { get; }
 
         private readonly IThemeService _themeService;
         private bool _isUpdatingFromThemeService;
 
-        public ViewModelBase HitSoundCopierViewModel { get; }
-        public ViewModelBase HitSoundVisualizerViewModel { get; }
-        public ViewModelBase MetadataManagerViewModel { get; }
-        public ViewModelBase ComboColourStudioViewModel { get; }
-        public ViewModelBase MapCleanerViewModel { get; }
-        public ViewModelBase WelcomePageViewModel { get; }
-        public ViewModelBase SettingsViewModel { get; }
+        private ViewModelBase HitSoundCopierViewModel { get; }
+        private ViewModelBase HitSoundVisualizerViewModel { get; }
+        private ViewModelBase MetadataManagerViewModel { get; }
+        private ViewModelBase ComboColourStudioViewModel { get; }
+        private ViewModelBase MapCleanerViewModel { get; }
+        private ViewModelBase WelcomePageViewModel { get; }
+        private ViewModelBase SettingsViewModel { get; }
 
         [ObservableProperty]
         private bool _isDarkTheme;

@@ -10,4 +10,10 @@ public class MainSettings
 
     [Setting("General", "UpdateStream")]
     public UpdateStream UpdateStream { get; set; } = UpdateStream.Release;
+
+    [Setting("HitSoundVisualizer", "SongVolumePercent")]
+    public int HitSoundVisualizerSongVolumePercent { get; set; } = 80;
+
+    [Setting("HitSoundVisualizer", "HitSoundVolumePercent")]
+    public int HitSoundVisualizerHitSoundVolumePercent { get; set; } = 100;
 }

@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Controls.Notifications;
@@ -33,12 +34,14 @@ public partial class HitSoundVisualizerViewModel(
     ISukiDialogManager dialogManager,
     ISukiToastManager toastManager) : ViewModelBase
 {
+    private const string PointClipboardFormatId = "MapWizard.HitSoundVisualizer.Points/v1";
     private readonly string[] _sampleExtensions = [".wav", ".ogg", ".mp3"];
     private int _nextPointId = 1;
     private string _loadedMapsetDirectoryPath = string.Empty;
     private string _loadedAudioFilePath = string.Empty;
     private string _legacySkinDirectoryPath = string.Empty;
     private HitSoundTimeline _workingTimeline = new();
+    private bool _suppressHeaderBankQuickApply;
     private CancellationTokenSource? _transportCts;
     private Stopwatch? _transportStopwatch;
     private int _transportStartTimeMs;
@@ -56,6 +59,21 @@ public partial class HitSoundVisualizerViewModel(
     [ObservableProperty] private string _selectedSampleSetName = "Normal";
     [ObservableProperty] private string _selectedHitSoundName = "Hitnormal";
     [ObservableProperty] private bool _newPointIsSliderBody;
+    [ObservableProperty] private int _contextSamplePointTimeMs;
+    [ObservableProperty] private string _contextSampleSetName = "Normal";
+    [ObservableProperty] private int _contextSampleIndex = 1;
+    [ObservableProperty] private int _contextSampleVolume = 100;
+    [ObservableProperty] private bool _contextSamplePointExists;
+    [ObservableProperty] private string _contextSamplePointSummary = "Right-click the timeline to edit a sample point.";
+    [ObservableProperty] private bool _isSampleRowContextActive;
+    [ObservableProperty] private string _headerNormalBankName = "Auto";
+    [ObservableProperty] private string _headerAdditionBankName = "Auto";
+    [ObservableProperty] private string _hsSelectorNormalBankFilterName = "Any";
+    [ObservableProperty] private string _hsSelectorAdditionBankFilterName = "Any";
+    [ObservableProperty] private bool _hsSelectorIncludeHitNormal = true;
+    [ObservableProperty] private bool _hsSelectorIncludeWhistle = true;
+    [ObservableProperty] private bool _hsSelectorIncludeFinish = true;
+    [ObservableProperty] private bool _hsSelectorIncludeClap = true;
     [ObservableProperty] private string _timelineStats = "No beatmap loaded.";
     [ObservableProperty] private string _playbackStatus = "Idle";
     [ObservableProperty] private string _selectedPointSummary = "No point selected.";
@@ -63,9 +81,9 @@ public partial class HitSoundVisualizerViewModel(
     [ObservableProperty] private bool _isTransportPaused;
     [ObservableProperty] private bool _followPlaybackCursor = true;
     [ObservableProperty] private int _transportSeekMs;
-    [ObservableProperty] private int _songVolumePercent = 80;
-    [ObservableProperty] private int _hitSoundVolumePercent = 100;
-    [ObservableProperty] private int _selectedSnapDivisorDenominator = 8;
+    [ObservableProperty] private int _songVolumePercent = LoadPersistedSongVolumePercent(settingsService);
+    [ObservableProperty] private int _hitSoundVolumePercent = LoadPersistedHitSoundVolumePercent(settingsService);
+    [ObservableProperty] private int _selectedSnapDivisorDenominator = 4;
     [ObservableProperty] private ObservableCollection<int> _selectedPointIds = [];
 
     [ObservableProperty] private ObservableCollection<HitSoundVisualizerPoint> _points = [];
@@ -74,21 +92,15 @@ public partial class HitSoundVisualizerViewModel(
     [ObservableProperty] private ObservableCollection<string> _timelineRowLabels =
     [
         "Sample changes",
-        "normal-hitnormal",
-        "normal-hitwhistle",
-        "normal-hitfinish",
-        "normal-hitclap",
-        "soft-hitnormal",
-        "soft-hitwhistle",
-        "soft-hitfinish",
-        "soft-hitclap",
-        "drum-hitnormal",
-        "drum-hitwhistle",
-        "drum-hitfinish",
-        "drum-hitclap"
+        "hitnormal",
+        "hitwhistle",
+        "hitfinish",
+        "hitclap"
     ];
 
     public IReadOnlyList<string> SampleSetNames { get; } = ["Normal", "Soft", "Drum"];
+    public IReadOnlyList<string> HeaderBankNames { get; } = ["Auto", "Normal", "Soft", "Drum"];
+    public IReadOnlyList<string> SelectorBankFilterNames { get; } = ["Any", "Normal", "Soft", "Drum"];
     public IReadOnlyList<string> HitSoundNames { get; } = ["Hitnormal", "Whistle", "Finish", "Clap"];
     public IReadOnlyList<int> SnapDivisorOptions { get; } = Enumerable.Range(1, 16).ToList();
 
@@ -108,6 +120,56 @@ public partial class HitSoundVisualizerViewModel(
     public string SongVolumeText => $"{Math.Clamp(SongVolumePercent, 0, 100)}%";
     public string HitSoundVolumeText => $"{Math.Clamp(HitSoundVolumePercent, 0, 100)}%";
     public string SelectedSnapDivisorText => $"1/{SelectedSnapDivisorDenominator}";
+    public string ContextSamplePointTimeText => FormatTimeLabel(ContextSamplePointTimeMs);
+    public bool ShowSamplePointContextPopup => IsSampleRowContextActive;
+    public bool ShowHitsoundContextPopup => !IsSampleRowContextActive;
+    public bool CanEditHeaderBanks => HasLoadedMap && (IsSampleRowContextActive || HasSelectedPoint);
+    public bool HasAnyHsSelectorAudioTypeEnabled =>
+        HsSelectorIncludeHitNormal || HsSelectorIncludeWhistle || HsSelectorIncludeFinish || HsSelectorIncludeClap;
+    public bool IsHitNormalSelected
+    {
+        get => string.Equals(SelectedHitSoundName, "Hitnormal", StringComparison.OrdinalIgnoreCase);
+        set
+        {
+            if (value)
+            {
+                SelectedHitSoundName = "Hitnormal";
+            }
+        }
+    }
+    public bool IsHitWhistleSelected
+    {
+        get => string.Equals(SelectedHitSoundName, "Whistle", StringComparison.OrdinalIgnoreCase);
+        set
+        {
+            if (value)
+            {
+                SelectedHitSoundName = "Whistle";
+            }
+        }
+    }
+    public bool IsHitFinishSelected
+    {
+        get => string.Equals(SelectedHitSoundName, "Finish", StringComparison.OrdinalIgnoreCase);
+        set
+        {
+            if (value)
+            {
+                SelectedHitSoundName = "Finish";
+            }
+        }
+    }
+    public bool IsHitClapSelected
+    {
+        get => string.Equals(SelectedHitSoundName, "Clap", StringComparison.OrdinalIgnoreCase);
+        set
+        {
+            if (value)
+            {
+                SelectedHitSoundName = "Clap";
+            }
+        }
+    }
 
     partial void OnViewStartMsChanged(double value)
     {
@@ -148,12 +210,19 @@ public partial class HitSoundVisualizerViewModel(
     partial void OnSelectedPointIdChanged(int value)
     {
         OnPropertyChanged(nameof(HasSelectedPoint));
+        OnPropertyChanged(nameof(CanEditHeaderBanks));
     }
 
     partial void OnSelectedPointIdsChanged(ObservableCollection<int> value)
     {
         OnPropertyChanged(nameof(SelectedPointCount));
         OnPropertyChanged(nameof(HasSelectedPoint));
+        OnPropertyChanged(nameof(CanEditHeaderBanks));
+    }
+
+    partial void OnHasLoadedMapChanged(bool value)
+    {
+        OnPropertyChanged(nameof(CanEditHeaderBanks));
     }
 
     partial void OnIsTransportPausedChanged(bool value)
@@ -170,6 +239,7 @@ public partial class HitSoundVisualizerViewModel(
     {
         SongVolumePercent = Math.Clamp(value, 0, 100);
         audioPlaybackService.SetSongVolume(SongVolumePercent / 100f);
+        PersistVisualizerVolumeSettings();
         OnPropertyChanged(nameof(SongVolumeText));
     }
 
@@ -177,6 +247,7 @@ public partial class HitSoundVisualizerViewModel(
     {
         HitSoundVolumePercent = Math.Clamp(value, 0, 100);
         audioPlaybackService.SetHitsoundVolume(HitSoundVolumePercent / 100f);
+        PersistVisualizerVolumeSettings();
         OnPropertyChanged(nameof(HitSoundVolumeText));
     }
 
@@ -184,6 +255,61 @@ public partial class HitSoundVisualizerViewModel(
     {
         SelectedSnapDivisorDenominator = Math.Clamp(value, 1, 16);
         OnPropertyChanged(nameof(SelectedSnapDivisorText));
+    }
+
+    partial void OnSelectedHitSoundNameChanged(string value)
+    {
+        OnPropertyChanged(nameof(IsHitNormalSelected));
+        OnPropertyChanged(nameof(IsHitWhistleSelected));
+        OnPropertyChanged(nameof(IsHitFinishSelected));
+        OnPropertyChanged(nameof(IsHitClapSelected));
+    }
+
+    partial void OnHsSelectorIncludeHitNormalChanged(bool value) => OnPropertyChanged(nameof(HasAnyHsSelectorAudioTypeEnabled));
+    partial void OnHsSelectorIncludeWhistleChanged(bool value) => OnPropertyChanged(nameof(HasAnyHsSelectorAudioTypeEnabled));
+    partial void OnHsSelectorIncludeFinishChanged(bool value) => OnPropertyChanged(nameof(HasAnyHsSelectorAudioTypeEnabled));
+    partial void OnHsSelectorIncludeClapChanged(bool value) => OnPropertyChanged(nameof(HasAnyHsSelectorAudioTypeEnabled));
+
+    partial void OnContextSamplePointTimeMsChanged(int value)
+    {
+        var clamped = Math.Max(0, value);
+        if (clamped != value)
+        {
+            ContextSamplePointTimeMs = clamped;
+            return;
+        }
+
+        ContextSamplePointExists = SampleChanges.Any(x => x.TimeMs == clamped);
+        UpdateContextSamplePointSummary();
+        OnPropertyChanged(nameof(ContextSamplePointTimeText));
+    }
+
+    partial void OnContextSampleIndexChanged(int value)
+    {
+        ContextSampleIndex = Math.Clamp(value, 1, 99);
+    }
+
+    partial void OnContextSampleVolumeChanged(int value)
+    {
+        ContextSampleVolume = Math.Clamp(value, 0, 100);
+    }
+
+    partial void OnIsSampleRowContextActiveChanged(bool value)
+    {
+        OnPropertyChanged(nameof(ShowSamplePointContextPopup));
+        OnPropertyChanged(nameof(ShowHitsoundContextPopup));
+        OnPropertyChanged(nameof(CanEditHeaderBanks));
+        RefreshHeaderBankQuickState();
+    }
+
+    partial void OnHeaderNormalBankNameChanged(string value)
+    {
+        ApplyHeaderBankQuickChange(isNormalBank: true, value);
+    }
+
+    partial void OnHeaderAdditionBankNameChanged(string value)
+    {
+        ApplyHeaderBankQuickChange(isNormalBank: false, value);
     }
 
     [RelayCommand]
@@ -241,6 +367,7 @@ public partial class HitSoundVisualizerViewModel(
 
         try
         {
+            RefreshPersistedPlaybackVolumes();
             StopTransportCore(resetPausedState: true);
             var document = hitSoundService.LoadHitsoundVisualizerDocument(OriginBeatmap.Path);
 
@@ -248,26 +375,42 @@ public partial class HitSoundVisualizerViewModel(
             _loadedAudioFilePath = document.AudioFilePath;
             _legacySkinDirectoryPath = ResolveLegacySkinDirectory();
             _workingTimeline = document.Timeline;
+            _workingTimeline.DraggableSoundTimeline = new SoundTimeline();
             _nextPointId = Math.Max(1, document.Points.Any() ? document.Points.Max(x => x.Id) + 1 : 1);
 
             Points = new ObservableCollection<HitSoundVisualizerPoint>(
-                document.Points.OrderBy(x => x.TimeMs).ThenBy(x => x.IsDraggable).ThenBy(x => (int)x.HitSound));
+                document.Points
+                    .Where(x => !x.IsDraggable)
+                    .OrderBy(x => x.TimeMs)
+                    .ThenBy(x => (int)x.HitSound));
             SampleChanges = new ObservableCollection<HitSoundVisualizerSampleChange>(document.SampleChanges.OrderBy(x => x.TimeMs));
-            SnapTicks = new ObservableCollection<HitSoundVisualizerSnapTick>(document.SnapTicks);
+
+            var songLoaded = audioPlaybackService.LoadSong(_loadedAudioFilePath);
+            var loadedSongDurationMs = songLoaded ? audioPlaybackService.GetLoadedSongDurationMs() : 0;
 
             LoadedMapTitle = document.DisplayTitle;
-            TimelineEndMs = Math.Max(1000, document.EndTimeMs);
+            TimelineEndMs = Math.Max(1000, Math.Max(document.EndTimeMs, loadedSongDurationMs));
+            SnapTicks = new ObservableCollection<HitSoundVisualizerSnapTick>(
+                hitSoundService.BuildHitsoundVisualizerSnapTicks(OriginBeatmap.Path, TimelineEndMs));
             ViewStartMs = 0;
             ViewWindowMs = Math.Min(12000, TimelineEndMs);
             CursorTimeMs = 0;
+            ContextSamplePointTimeMs = 0;
             TransportSeekMs = 0;
             SelectedPointId = -1;
             SelectedPointIds = [];
+            ContextSampleSetName = "Normal";
+            ContextSampleIndex = 1;
+            ContextSampleVolume = 100;
+            ContextSamplePointExists = false;
+            IsSampleRowContextActive = false;
+            HeaderNormalBankName = "Auto";
+            HeaderAdditionBankName = "Auto";
+            UpdateContextSamplePointSummary();
             HasLoadedMap = true;
 
             audioPlaybackService.SetSongVolume(SongVolumePercent / 100f);
             audioPlaybackService.SetHitsoundVolume(HitSoundVolumePercent / 100f);
-            _ = audioPlaybackService.LoadSong(_loadedAudioFilePath);
 
             UpdateTimelineStats();
             UpdateSelectedPointSummary();
@@ -282,9 +425,16 @@ public partial class HitSoundVisualizerViewModel(
         }
     }
 
+    public void RefreshPersistedPlaybackVolumes()
+    {
+        SongVolumePercent = LoadPersistedSongVolumePercent(settingsService);
+        HitSoundVolumePercent = LoadPersistedHitSoundVolumePercent(settingsService);
+    }
+
     [RelayCommand]
     private void SelectTimelinePoint(int pointId)
     {
+        IsSampleRowContextActive = false;
         ApplySelection([pointId], primaryPointId: pointId);
         var point = Points.FirstOrDefault(x => x.Id == pointId);
         if (point is null)
@@ -296,16 +446,19 @@ public partial class HitSoundVisualizerViewModel(
         CursorTimeMs = point.TimeMs;
         SyncEditorFromPoint(point);
         UpdateSelectedPointSummary();
+        RefreshHeaderBankQuickState();
     }
 
     [RelayCommand]
     private void SelectTimelinePoints(IReadOnlyList<int>? pointIds)
     {
+        IsSampleRowContextActive = false;
         var ids = pointIds?.Distinct().ToList() ?? [];
         if (ids.Count == 0)
         {
             ApplySelection([], primaryPointId: -1);
             UpdateSelectedPointSummary();
+            RefreshHeaderBankQuickState();
             return;
         }
 
@@ -318,11 +471,17 @@ public partial class HitSoundVisualizerViewModel(
         }
 
         UpdateSelectedPointSummary();
+        if (primaryPoint is not null)
+        {
+            SyncEditorFromPoint(primaryPoint);
+        }
+        RefreshHeaderBankQuickState();
     }
 
     [RelayCommand]
     private void AddTimelinePointsToSelection(IReadOnlyList<int>? pointIds)
     {
+        IsSampleRowContextActive = false;
         var idsToAdd = pointIds?.Where(id => id > 0).Distinct().ToList() ?? [];
         if (idsToAdd.Count == 0)
         {
@@ -346,11 +505,13 @@ public partial class HitSoundVisualizerViewModel(
         }
 
         UpdateSelectedPointSummary();
+        RefreshHeaderBankQuickState();
     }
 
     [RelayCommand]
     private void ToggleTimelinePointSelection(int pointId)
     {
+        IsSampleRowContextActive = false;
         if (pointId <= 0)
         {
             return;
@@ -376,6 +537,7 @@ public partial class HitSoundVisualizerViewModel(
             }
 
             UpdateSelectedPointSummary();
+            RefreshHeaderBankQuickState();
             return;
         }
 
@@ -384,6 +546,43 @@ public partial class HitSoundVisualizerViewModel(
         CursorTimeMs = point.TimeMs;
         SyncEditorFromPoint(point);
         UpdateSelectedPointSummary();
+        RefreshHeaderBankQuickState();
+    }
+
+    [RelayCommand]
+    private void PrepareTimelineContext(HitSoundTimelineContextRequest? request)
+    {
+        if (!HasLoadedMap || request is null)
+        {
+            return;
+        }
+
+        var clampedTime = Math.Clamp(request.TimeMs, 0, (int)Math.Ceiling(TimelineEndMs));
+        CursorTimeMs = clampedTime;
+
+        if (request.IsSampleRow)
+        {
+            IsSampleRowContextActive = true;
+            ApplySelection([], primaryPointId: -1);
+            UpdateSelectedPointSummary();
+        }
+        else
+        {
+            IsSampleRowContextActive = false;
+        }
+
+        if (!request.IsSampleRow && request.PointId > 0)
+        {
+            var point = Points.FirstOrDefault(x => x.Id == request.PointId);
+            if (point is not null)
+            {
+                SyncEditorFromPoint(point);
+            }
+        }
+
+        var samplePointTime = Math.Clamp(request.SampleChangeTimeMs ?? clampedTime, 0, (int)Math.Ceiling(TimelineEndMs));
+        SyncContextSamplePointEditor(samplePointTime);
+        RefreshHeaderBankQuickState();
     }
 
     [RelayCommand]
@@ -391,6 +590,7 @@ public partial class HitSoundVisualizerViewModel(
     {
         var clamped = Math.Clamp(timeMs, 0, (int)Math.Ceiling(TimelineEndMs));
         CursorTimeMs = clamped;
+        ContextSamplePointTimeMs = clamped;
 
         if (IsTransportPlaying)
         {
@@ -477,7 +677,7 @@ public partial class HitSoundVisualizerViewModel(
             TimeMs = Math.Clamp(CursorTimeMs, 0, (int)Math.Ceiling(TimelineEndMs)),
             SampleSet = ParseSampleSet(SelectedSampleSetName),
             HitSound = ParseHitSound(SelectedHitSoundName),
-            IsDraggable = NewPointIsSliderBody
+            IsDraggable = false
         };
 
         if (HasPointConflict(point, out var conflictMessage))
@@ -489,6 +689,212 @@ public partial class HitSoundVisualizerViewModel(
         var updated = Points.ToList();
         updated.Add(point);
         ApplyUpdatedPoints(updated, selectPointId: point.Id);
+    }
+
+    [RelayCommand]
+    private void AddTimelinePointOnSnapLine(HitSoundTimelineRowAddRequest? request)
+    {
+        if (!HasLoadedMap || request is null)
+        {
+            return;
+        }
+
+        if (!TryGetHitSoundFromRowIndex(request.RowIndex, out var hitSound))
+        {
+            return;
+        }
+
+        var timeMs = Math.Clamp(request.TimeMs, 0, (int)Math.Ceiling(TimelineEndMs));
+        var normalBank = ResolveHeaderBankAtTime(isNormalBank: true, timeMs);
+        var additionBank = ResolveHeaderBankAtTime(isNormalBank: false, timeMs, normalBank);
+        var sampleSet = hitSound == HitSound.Normal ? normalBank : additionBank;
+
+        var point = new HitSoundVisualizerPoint
+        {
+            Id = _nextPointId++,
+            TimeMs = timeMs,
+            SampleSet = sampleSet,
+            HitSound = hitSound,
+            IsDraggable = false
+        };
+
+        if (HasPointConflict(point, out var conflictMessage))
+        {
+            _nextPointId = Math.Max(1, _nextPointId - 1);
+            toastManager.ShowToast(NotificationType.Error, "Hitsound Visualizer", conflictMessage);
+            return;
+        }
+
+        IsSampleRowContextActive = false;
+        CursorTimeMs = timeMs;
+
+        var updated = Points.ToList();
+        updated.Add(point);
+        ApplyUpdatedPoints(updated, selectPointId: point.Id);
+    }
+
+    [RelayCommand]
+    private void SelectHitsoundsByFilter()
+    {
+        if (!HasLoadedMap)
+        {
+            return;
+        }
+
+        if (!HasAnyHsSelectorAudioTypeEnabled)
+        {
+            toastManager.ShowToast(NotificationType.Error, "Hitsound Visualizer", "Select at least one hitsound type in HS Selector.");
+            return;
+        }
+
+        var matched = Points
+            .Where(MatchesHsSelectorFilter)
+            .OrderBy(x => x.TimeMs)
+            .ThenBy(x => HitSoundSortOrder(x.HitSound))
+            .ThenBy(x => SampleSetSortOrder(x.SampleSet))
+            .ToList();
+
+        if (matched.Count == 0)
+        {
+            toastManager.ShowToast(NotificationType.Error, "Hitsound Visualizer", "No hitsound points matched the current HS selector filters.");
+            return;
+        }
+
+        IsSampleRowContextActive = false;
+        var ids = matched.Select(x => x.Id).ToArray();
+        var primary = matched[0];
+        ApplySelection(ids, primary.Id);
+        CursorTimeMs = primary.TimeMs;
+        SyncEditorFromPoint(primary);
+        UpdateSelectedPointSummary();
+        RefreshHeaderBankQuickState();
+    }
+
+    public bool TryBuildPointClipboardPayload(out string payload)
+    {
+        payload = string.Empty;
+
+        var selectedIds = SelectedPointIds.Where(id => id > 0).Distinct().ToHashSet();
+        if (selectedIds.Count == 0 && SelectedPointId > 0)
+        {
+            selectedIds.Add(SelectedPointId);
+        }
+
+        if (selectedIds.Count == 0)
+        {
+            toastManager.ShowToast(NotificationType.Error, "Hitsound Visualizer", "Select at least one hitsound point to copy.");
+            return false;
+        }
+
+        var selectedPoints = Points
+            .Where(point => selectedIds.Contains(point.Id))
+            .OrderBy(point => point.TimeMs)
+            .ThenBy(point => HitSoundSortOrder(point.HitSound))
+            .ThenBy(point => SampleSetSortOrder(point.SampleSet))
+            .ToList();
+
+        if (selectedPoints.Count == 0)
+        {
+            toastManager.ShowToast(NotificationType.Error, "Hitsound Visualizer", "No hitsound points available to copy.");
+            return false;
+        }
+
+        var baseTimeMs = selectedPoints.Min(point => point.TimeMs);
+        var clipboard = new PointClipboardPayload
+        {
+            Format = PointClipboardFormatId,
+            Points = selectedPoints.Select(point => new PointClipboardItem
+            {
+                OffsetMs = point.TimeMs - baseTimeMs,
+                SampleSet = SampleSetToDisplay(point.SampleSet),
+                HitSound = HitSoundToDisplay(point.HitSound)
+            }).ToList()
+        };
+
+        payload = JsonSerializer.Serialize(clipboard);
+        return true;
+    }
+
+    public void PastePointClipboardPayload(string? clipboardText)
+    {
+        if (!HasLoadedMap)
+        {
+            toastManager.ShowToast(NotificationType.Error, "Hitsound Visualizer", "Load a beatmap first.");
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(clipboardText))
+        {
+            toastManager.ShowToast(NotificationType.Error, "Hitsound Visualizer", "Clipboard is empty.");
+            return;
+        }
+
+        PointClipboardPayload? payload;
+        try
+        {
+            payload = JsonSerializer.Deserialize<PointClipboardPayload>(clipboardText);
+        }
+        catch
+        {
+            toastManager.ShowToast(NotificationType.Error, "Hitsound Visualizer", "Clipboard does not contain valid hitsound point data.");
+            return;
+        }
+
+        if (payload?.Points is null || payload.Points.Count == 0 || payload.Format != PointClipboardFormatId)
+        {
+            toastManager.ShowToast(NotificationType.Error, "Hitsound Visualizer", "Clipboard does not contain hitsound point data.");
+            return;
+        }
+
+        var minOffset = payload.Points.Min(point => point.OffsetMs);
+        var anchorTimeMs = Math.Clamp(CursorTimeMs, 0, (int)Math.Ceiling(TimelineEndMs));
+        var pastedPoints = new List<HitSoundVisualizerPoint>(payload.Points.Count);
+
+        foreach (var item in payload.Points.OrderBy(point => point.OffsetMs))
+        {
+            var pastedTime = anchorTimeMs + (item.OffsetMs - minOffset);
+            var candidate = new HitSoundVisualizerPoint
+            {
+                Id = _nextPointId++,
+                TimeMs = Math.Clamp(pastedTime, 0, (int)Math.Ceiling(TimelineEndMs)),
+                SampleSet = ParseSampleSet(item.SampleSet ?? "Normal"),
+                HitSound = ParseHitSound(item.HitSound ?? "Hitnormal"),
+                IsDraggable = false
+            };
+
+            pastedPoints.Add(candidate);
+        }
+
+        var duplicateInPaste = pastedPoints
+            .GroupBy(point => (point.TimeMs, point.HitSound, point.SampleSet))
+            .FirstOrDefault(group => group.Count() > 1);
+        if (duplicateInPaste is not null)
+        {
+            toastManager.ShowToast(
+                NotificationType.Error,
+                "Hitsound Visualizer",
+                $"Paste would create duplicate points at {duplicateInPaste.Key.TimeMs}ms.");
+            _nextPointId = Math.Max(1, _nextPointId - pastedPoints.Count);
+            return;
+        }
+
+        foreach (var candidate in pastedPoints)
+        {
+            if (HasPointConflict(candidate, out var conflictMessage))
+            {
+                toastManager.ShowToast(NotificationType.Error, "Hitsound Visualizer", conflictMessage);
+                _nextPointId = Math.Max(1, _nextPointId - pastedPoints.Count);
+                return;
+            }
+        }
+
+        var updated = Points.ToList();
+        updated.AddRange(pastedPoints);
+
+        IsSampleRowContextActive = false;
+        ApplyUpdatedPoints(updated, selectPointId: pastedPoints[0].Id);
+        ApplySelection(pastedPoints.Select(point => point.Id), pastedPoints[0].Id);
+        UpdateSelectedPointSummary();
     }
 
     [RelayCommand]
@@ -510,7 +916,25 @@ public partial class HitSoundVisualizerViewModel(
     [RelayCommand]
     private void UpdateSelectedPoint()
     {
-        var selected = Points.FirstOrDefault(x => x.Id == SelectedPointId);
+        var ids = SelectedPointIds.Where(id => id > 0).Distinct().ToList();
+        if (ids.Count == 0 && SelectedPointId > 0)
+        {
+            ids.Add(SelectedPointId);
+        }
+
+        if (ids.Count == 0)
+        {
+            toastManager.ShowToast(NotificationType.Error, "Hitsound Visualizer", "Select a point to edit.");
+            return;
+        }
+
+        if (ids.Count > 1)
+        {
+            ApplySelectedPointAttributes();
+            return;
+        }
+
+        var selected = Points.FirstOrDefault(x => x.Id == ids[0]);
         if (selected is null)
         {
             toastManager.ShowToast(NotificationType.Error, "Hitsound Visualizer", "Select a point to edit.");
@@ -523,7 +947,7 @@ public partial class HitSoundVisualizerViewModel(
             TimeMs = Math.Clamp(CursorTimeMs, 0, (int)Math.Ceiling(TimelineEndMs)),
             SampleSet = ParseSampleSet(SelectedSampleSetName),
             HitSound = ParseHitSound(SelectedHitSoundName),
-            IsDraggable = NewPointIsSliderBody
+            IsDraggable = false
         };
 
         if (HasPointConflict(edited, out var conflictMessage, ignorePointId: selected.Id))
@@ -532,11 +956,100 @@ public partial class HitSoundVisualizerViewModel(
             return;
         }
 
-        var updated = Points
-            .Select(x => x.Id == selected.Id ? edited : x)
-            .ToList();
+        var updated = Points.Select(x => x.Id == selected.Id ? edited : x).ToList();
 
         ApplyUpdatedPoints(updated, selectPointId: edited.Id);
+    }
+
+    [RelayCommand]
+    private void ApplySelectedPointAttributes()
+    {
+        var ids = SelectedPointIds.Where(id => id > 0).Distinct().ToHashSet();
+        if (ids.Count == 0 && SelectedPointId > 0)
+        {
+            ids.Add(SelectedPointId);
+        }
+
+        if (ids.Count == 0)
+        {
+            toastManager.ShowToast(NotificationType.Error, "Hitsound Visualizer", "Select at least one point first.");
+            return;
+        }
+
+        var targetSampleSet = ParseSampleSet(SelectedSampleSetName);
+        var targetHitSound = ParseHitSound(SelectedHitSoundName);
+        var updated = Points
+            .Select(point => ids.Contains(point.Id)
+                ? new HitSoundVisualizerPoint
+                {
+                    Id = point.Id,
+                    TimeMs = point.TimeMs,
+                    SampleSet = targetSampleSet,
+                    HitSound = targetHitSound,
+                    IsDraggable = false
+                }
+                : point)
+            .ToList();
+
+        var duplicateLane = updated
+            .GroupBy(x => (x.TimeMs, x.HitSound, x.SampleSet))
+            .FirstOrDefault(g => g.Count() > 1);
+        if (duplicateLane is not null)
+        {
+            toastManager.ShowToast(
+                NotificationType.Error,
+                "Hitsound Visualizer",
+                $"Batch edit would create duplicate points at {duplicateLane.Key.TimeMs}ms ({HitSoundToDisplay(duplicateLane.Key.HitSound)}).");
+            return;
+        }
+
+        var primaryId = SelectedPointId > 0 ? SelectedPointId : ids.First();
+        var selectedIds = ids.ToArray();
+        ApplyUpdatedPoints(updated, selectPointId: primaryId);
+        ApplySelection(selectedIds, primaryId);
+        UpdateSelectedPointSummary();
+    }
+
+    [RelayCommand]
+    private void ApplyContextSamplePoint()
+    {
+        if (!HasLoadedMap)
+        {
+            return;
+        }
+
+        var timeMs = Math.Clamp(ContextSamplePointTimeMs, 0, (int)Math.Ceiling(TimelineEndMs));
+        var updated = SampleChanges
+            .Where(x => x.TimeMs != timeMs)
+            .ToList();
+
+        updated.Add(new HitSoundVisualizerSampleChange
+        {
+            TimeMs = timeMs,
+            SampleSet = ParseSampleSet(ContextSampleSetName),
+            Index = Math.Clamp(ContextSampleIndex, 1, 99),
+            Volume = Math.Clamp(ContextSampleVolume, 0, 100)
+        });
+
+        ApplyUpdatedSampleChanges(updated, timeMs);
+    }
+
+    [RelayCommand]
+    private void RemoveContextSamplePoint()
+    {
+        if (!HasLoadedMap)
+        {
+            return;
+        }
+
+        var timeMs = Math.Clamp(ContextSamplePointTimeMs, 0, (int)Math.Ceiling(TimelineEndMs));
+        if (!SampleChanges.Any(x => x.TimeMs == timeMs))
+        {
+            return;
+        }
+
+        var updated = SampleChanges.Where(x => x.TimeMs != timeMs).ToList();
+        ApplyUpdatedSampleChanges(updated, timeMs);
     }
 
     [RelayCommand]
@@ -765,7 +1278,9 @@ public partial class HitSoundVisualizerViewModel(
                     });
                 }
 
-                var reachedEnd = currentTime >= TimelineEndMs;
+                // When song audio is available, continue transport until the song actually ends instead of
+                // cutting off at the last visualized hitsound/timing point (timeline end).
+                var reachedEnd = !_transportUsesSongClock && currentTime >= TimelineEndMs;
                 if (reachedEnd)
                 {
                     break;
@@ -1009,15 +1524,37 @@ public partial class HitSoundVisualizerViewModel(
         Points = new ObservableCollection<HitSoundVisualizerPoint>(
             updatedPoints
                 .OrderBy(x => x.TimeMs)
-                .ThenBy(x => x.IsDraggable)
                 .ThenBy(x => HitSoundSortOrder(x.HitSound))
                 .ThenBy(x => SampleSetSortOrder(x.SampleSet)));
 
         ApplySelection(selectPointId > 0 ? [selectPointId] : [], selectPointId);
+        SyncContextSamplePointEditor(CursorTimeMs);
+        RefreshHeaderBankQuickState();
         UpdateTimelineStats();
         UpdateSelectedPointSummary();
         OnPropertyChanged(nameof(ViewEndMs));
         OnPropertyChanged(nameof(VisiblePointCount));
+    }
+
+    private void ApplyUpdatedSampleChanges(IReadOnlyCollection<HitSoundVisualizerSampleChange> updatedSampleChanges, int focusTimeMs)
+    {
+        if (!TryRebuildWorkingTimeline(Points.ToList(), out var timeline, out var error, updatedSampleChanges))
+        {
+            toastManager.ShowToast(NotificationType.Error, "Hitsound Visualizer", error);
+            return;
+        }
+
+        _workingTimeline = timeline;
+        SampleChanges = new ObservableCollection<HitSoundVisualizerSampleChange>(
+            updatedSampleChanges
+                .OrderBy(x => x.TimeMs)
+                .ThenBy(x => SampleSetSortOrder(x.SampleSet))
+                .ThenBy(x => x.Index));
+
+        SyncContextSamplePointEditor(focusTimeMs);
+        RefreshHeaderBankQuickState();
+        UpdateTimelineStats();
+        OnPropertyChanged(nameof(ViewEndMs));
     }
 
     private void ApplySelection(IEnumerable<int> pointIds, int primaryPointId)
@@ -1035,13 +1572,234 @@ public partial class HitSoundVisualizerViewModel(
     {
         SelectedSampleSetName = SampleSetToDisplay(point.SampleSet);
         SelectedHitSoundName = HitSoundToDisplay(point.HitSound);
-        NewPointIsSliderBody = point.IsDraggable;
+        NewPointIsSliderBody = false;
+    }
+
+    private void SyncContextSamplePointEditor(int timeMs)
+    {
+        ContextSamplePointTimeMs = Math.Clamp(timeMs, 0, (int)Math.Ceiling(TimelineEndMs));
+
+        var exact = SampleChanges
+            .Where(x => x.TimeMs == ContextSamplePointTimeMs)
+            .OrderBy(x => SampleSetSortOrder(x.SampleSet))
+            .FirstOrDefault();
+
+        var effective = exact ?? SampleChanges
+            .Where(x => x.TimeMs <= ContextSamplePointTimeMs)
+            .OrderBy(x => x.TimeMs)
+            .LastOrDefault();
+
+        ContextSamplePointExists = exact is not null;
+        ContextSampleSetName = SampleSetToDisplay((exact ?? effective)?.SampleSet ?? SampleSet.Normal);
+        ContextSampleIndex = Math.Max(1, (exact ?? effective)?.Index ?? 1);
+        ContextSampleVolume = Math.Clamp((exact ?? effective)?.Volume ?? 100, 0, 100);
+        UpdateContextSamplePointSummary();
+        if (IsSampleRowContextActive)
+        {
+            RefreshHeaderBankQuickState();
+        }
+    }
+
+    private void UpdateContextSamplePointSummary()
+    {
+        ContextSamplePointSummary = ContextSamplePointExists
+            ? $"Sample point at {FormatTimeLabel(ContextSamplePointTimeMs)}"
+            : $"New sample point at {FormatTimeLabel(ContextSamplePointTimeMs)} (uses current values)";
+    }
+
+    private void RefreshHeaderBankQuickState()
+    {
+        _suppressHeaderBankQuickApply = true;
+        try
+        {
+            if (IsSampleRowContextActive)
+            {
+                HeaderNormalBankName = ContextSampleSetName;
+                HeaderAdditionBankName = "Auto";
+                return;
+            }
+
+            var primaryPoint = Points.FirstOrDefault(x => x.Id == SelectedPointId);
+            if (primaryPoint is null)
+            {
+                HeaderNormalBankName = "Normal";
+                HeaderAdditionBankName = "Auto";
+                return;
+            }
+
+            var sameTimePoints = Points
+                .Where(x => x.TimeMs == primaryPoint.TimeMs)
+                .OrderBy(x => HitSoundSortOrder(x.HitSound))
+                .ToList();
+
+            var normalBank = sameTimePoints.FirstOrDefault(x => x.HitSound == HitSound.Normal)?.SampleSet
+                             ?? primaryPoint.SampleSet;
+            var additionBank = sameTimePoints.FirstOrDefault(x => x.HitSound != HitSound.Normal)?.SampleSet
+                               ?? normalBank;
+
+            HeaderNormalBankName = SampleSetToDisplay(normalBank);
+            HeaderAdditionBankName = additionBank == normalBank
+                ? "Auto"
+                : SampleSetToDisplay(additionBank);
+        }
+        finally
+        {
+            _suppressHeaderBankQuickApply = false;
+        }
+    }
+
+    private void ApplyHeaderBankQuickChange(bool isNormalBank, string value)
+    {
+        if (_suppressHeaderBankQuickApply || !HasLoadedMap)
+        {
+            return;
+        }
+
+        if (string.Equals(value, "Auto", StringComparison.OrdinalIgnoreCase))
+        {
+            return;
+        }
+
+        var sampleSet = ParseSampleSet(value);
+
+        if (IsSampleRowContextActive)
+        {
+            ContextSampleSetName = SampleSetToDisplay(sampleSet);
+
+            _suppressHeaderBankQuickApply = true;
+            HeaderNormalBankName = ContextSampleSetName;
+            HeaderAdditionBankName = ContextSampleSetName;
+            _suppressHeaderBankQuickApply = false;
+
+            ApplyContextSamplePoint();
+            return;
+        }
+
+        if (!HasSelectedPoint)
+        {
+            return;
+        }
+
+        ApplySampleSetToSelectionSubset(isNormalBank, sampleSet);
+        RefreshHeaderBankQuickState();
+    }
+
+    private bool MatchesHsSelectorFilter(HitSoundVisualizerPoint point)
+    {
+        if (!MatchesSelectedAudioType(point.HitSound))
+        {
+            return false;
+        }
+
+        var bankFilter = point.HitSound == HitSound.Normal
+            ? HsSelectorNormalBankFilterName
+            : HsSelectorAdditionBankFilterName;
+
+        if (string.Equals(bankFilter, "Any", StringComparison.OrdinalIgnoreCase))
+        {
+            return true;
+        }
+
+        return point.SampleSet == ParseSampleSet(bankFilter);
+    }
+
+    private bool MatchesSelectedAudioType(HitSound hitSound)
+    {
+        return hitSound switch
+        {
+            HitSound.Normal => HsSelectorIncludeHitNormal,
+            HitSound.Whistle => HsSelectorIncludeWhistle,
+            HitSound.Finish => HsSelectorIncludeFinish,
+            HitSound.Clap => HsSelectorIncludeClap,
+            _ => false
+        };
+    }
+
+    private SampleSet ResolveHeaderBankAtTime(bool isNormalBank, int timeMs, SampleSet? resolvedNormalBank = null)
+    {
+        var headerValue = isNormalBank ? HeaderNormalBankName : HeaderAdditionBankName;
+        if (!string.Equals(headerValue, "Auto", StringComparison.OrdinalIgnoreCase))
+        {
+            return ParseSampleSet(headerValue);
+        }
+
+        if (!isNormalBank && resolvedNormalBank is not null)
+        {
+            return resolvedNormalBank.Value;
+        }
+
+        var effectiveSample = SampleChanges
+            .Where(x => x.TimeMs <= timeMs)
+            .OrderBy(x => x.TimeMs)
+            .LastOrDefault()
+            ?.SampleSet;
+
+        return effectiveSample is SampleSet.Normal or SampleSet.Soft or SampleSet.Drum
+            ? effectiveSample.Value
+            : SampleSet.Normal;
+    }
+
+    private static bool TryGetHitSoundFromRowIndex(int rowIndex, out HitSound hitSound)
+    {
+        hitSound = rowIndex switch
+        {
+            1 => HitSound.Normal,
+            2 => HitSound.Whistle,
+            3 => HitSound.Finish,
+            4 => HitSound.Clap,
+            _ => HitSound.Normal
+        };
+
+        return rowIndex is >= 1 and <= 4;
+    }
+
+    private void ApplySampleSetToSelectionSubset(bool affectNormalPoints, SampleSet sampleSet)
+    {
+        var selectedIds = SelectedPointIds.Where(id => id > 0).Distinct().ToHashSet();
+        if (selectedIds.Count == 0 && SelectedPointId > 0)
+        {
+            selectedIds.Add(SelectedPointId);
+        }
+
+        if (selectedIds.Count == 0)
+        {
+            return;
+        }
+
+        bool IsTargetPoint(HitSoundVisualizerPoint point) =>
+            selectedIds.Contains(point.Id) &&
+            (affectNormalPoints ? point.HitSound == HitSound.Normal : point.HitSound != HitSound.Normal);
+
+        if (!Points.Any(IsTargetPoint))
+        {
+            return;
+        }
+
+        var updated = Points
+            .Select(point => IsTargetPoint(point)
+                ? new HitSoundVisualizerPoint
+                {
+                    Id = point.Id,
+                    TimeMs = point.TimeMs,
+                    SampleSet = sampleSet,
+                    HitSound = point.HitSound,
+                    IsDraggable = false
+                }
+                : point)
+            .ToList();
+
+        var primaryId = SelectedPointId > 0 ? SelectedPointId : selectedIds.First();
+        var selectedIdArray = selectedIds.ToArray();
+        ApplyUpdatedPoints(updated, selectPointId: primaryId);
+        ApplySelection(selectedIdArray, primaryId);
+        UpdateSelectedPointSummary();
     }
 
     private bool TryRebuildWorkingTimeline(
         IReadOnlyCollection<HitSoundVisualizerPoint> sourcePoints,
         out HitSoundTimeline timeline,
-        out string error)
+        out string error,
+        IReadOnlyCollection<HitSoundVisualizerSampleChange>? sampleChangesOverride = null)
     {
         error = string.Empty;
 
@@ -1051,19 +1809,15 @@ public partial class HitSoundVisualizerViewModel(
             return false;
         }
 
-        if (!TryBuildSoundTimeline(sourcePoints.Where(x => x.IsDraggable), out var draggable, out error))
-        {
-            timeline = new HitSoundTimeline();
-            return false;
-        }
+        var sampleChanges = sampleChangesOverride ?? SampleChanges.ToList();
 
         timeline = new HitSoundTimeline
         {
             NonDraggableSoundTimeline = nonDraggable,
-            DraggableSoundTimeline = draggable,
+            DraggableSoundTimeline = new SoundTimeline(),
             SampleSetTimeline = new SampleSetTimeline
             {
-                HitSamples = SampleChanges
+                HitSamples = sampleChanges
                     .OrderBy(x => x.TimeMs)
                     .Select(x => new SampleSetEvent(x.TimeMs, x.SampleSet, x.Index, x.Volume))
                     .ToList()
@@ -1132,7 +1886,6 @@ public partial class HitSoundVisualizerViewModel(
 
         if (otherPoints.Any(x =>
                 x.TimeMs == candidate.TimeMs &&
-                x.IsDraggable == candidate.IsDraggable &&
                 x.HitSound == candidate.HitSound &&
                 x.SampleSet == candidate.SampleSet))
         {
@@ -1144,7 +1897,6 @@ public partial class HitSoundVisualizerViewModel(
         {
             var existingNormal = otherPoints.FirstOrDefault(x =>
                 x.TimeMs == candidate.TimeMs &&
-                x.IsDraggable == candidate.IsDraggable &&
                 x.HitSound == HitSound.Normal);
 
             if (existingNormal is not null && existingNormal.SampleSet != candidate.SampleSet)
@@ -1156,7 +1908,7 @@ public partial class HitSoundVisualizerViewModel(
         else
         {
             var additionSampleSet = otherPoints
-                .Where(x => x.TimeMs == candidate.TimeMs && x.IsDraggable == candidate.IsDraggable && x.HitSound != HitSound.Normal)
+                .Where(x => x.TimeMs == candidate.TimeMs && x.HitSound != HitSound.Normal)
                 .Select(x => x.SampleSet)
                 .Distinct()
                 .ToList();
@@ -1177,16 +1929,13 @@ public partial class HitSoundVisualizerViewModel(
         ViewStartMs = Math.Clamp(ViewStartMs, 0, Math.Max(0, TimelineEndMs - ViewWindowMs));
         CursorTimeMs = Math.Clamp(CursorTimeMs, 0, (int)Math.Ceiling(TimelineEndMs));
         TransportSeekMs = Math.Clamp(TransportSeekMs, 0, (int)Math.Ceiling(TimelineEndMs));
+        ContextSamplePointTimeMs = Math.Clamp(ContextSamplePointTimeMs, 0, (int)Math.Ceiling(TimelineEndMs));
     }
 
     private void UpdateTimelineStats()
     {
-        var grouped = Points.GroupBy(x => x.IsDraggable).ToDictionary(x => x.Key, x => x.Count());
-        var nonDraggableCount = grouped.GetValueOrDefault(false, 0);
-        var draggableCount = grouped.GetValueOrDefault(true, 0);
-
         TimelineStats =
-            $"Points: {Points.Count} (object: {nonDraggableCount}, slider-body: {draggableCount}) | " +
+            $"Points: {Points.Count} (hittables) | " +
             $"Sample changes: {SampleChanges.Count} | Visible: {VisiblePointCount}";
     }
 
@@ -1205,7 +1954,7 @@ public partial class HitSoundVisualizerViewModel(
         var point = Points.FirstOrDefault(x => x.Id == SelectedPointId);
         SelectedPointSummary = point is null
             ? "No point selected."
-            : $"{point.TimeMs}ms | {SampleSetToDisplay(point.SampleSet)}-{HitSoundToDisplay(point.HitSound).ToLowerInvariant()} | {(point.IsDraggable ? "slider-body" : "object")}";
+            : $"{point.TimeMs}ms | {SampleSetToDisplay(point.SampleSet)}-{HitSoundToDisplay(point.HitSound).ToLowerInvariant()}";
     }
 
     private async Task PlayPointAsync(HitSoundVisualizerPoint point, CancellationToken cancellationToken)
@@ -1250,7 +1999,7 @@ public partial class HitSoundVisualizerViewModel(
     private string ResolveSampleFilePath(HitSoundVisualizerPoint point)
     {
         var sampleChange = SampleChanges
-            .Where(x => x.TimeMs <= point.TimeMs + 2)
+            .Where(x => x.TimeMs <= point.TimeMs)
             .OrderBy(x => x.TimeMs)
             .LastOrDefault();
 
@@ -1339,7 +2088,7 @@ public partial class HitSoundVisualizerViewModel(
             _ => 880
         };
 
-        var duration = point.IsDraggable ? 18 : 26;
+        const int duration = 26;
 
         try
         {
@@ -1367,6 +2116,69 @@ public partial class HitSoundVisualizerViewModel(
         return ts.TotalHours >= 1
             ? $"{(int)ts.TotalHours}:{ts.Minutes:00}:{ts.Seconds:00}.{ts.Milliseconds:000}"
             : $"{ts.Minutes}:{ts.Seconds:00}.{ts.Milliseconds:000}";
+    }
+
+    private void PersistVisualizerVolumeSettings()
+    {
+        try
+        {
+            var settings = settingsService.GetMainSettings();
+            var songVolume = Math.Clamp(SongVolumePercent, 0, 100);
+            var hitsoundVolume = Math.Clamp(HitSoundVolumePercent, 0, 100);
+
+            if (settings.HitSoundVisualizerSongVolumePercent == songVolume &&
+                settings.HitSoundVisualizerHitSoundVolumePercent == hitsoundVolume)
+            {
+                return;
+            }
+
+            settings.HitSoundVisualizerSongVolumePercent = songVolume;
+            settings.HitSoundVisualizerHitSoundVolumePercent = hitsoundVolume;
+            settingsService.SaveMainSettings(settings);
+        }
+        catch
+        {
+            // Ignore settings persistence failures to avoid breaking volume interaction.
+        }
+    }
+
+    private static int LoadPersistedSongVolumePercent(ISettingsService settingsService)
+    {
+        try
+        {
+            var settings = settingsService.GetMainSettings();
+            return Math.Clamp(settings.HitSoundVisualizerSongVolumePercent, 0, 100);
+        }
+        catch
+        {
+            return 80;
+        }
+    }
+
+    private static int LoadPersistedHitSoundVolumePercent(ISettingsService settingsService)
+    {
+        try
+        {
+            var settings = settingsService.GetMainSettings();
+            return Math.Clamp(settings.HitSoundVisualizerHitSoundVolumePercent, 0, 100);
+        }
+        catch
+        {
+            return 100;
+        }
+    }
+
+    private sealed class PointClipboardPayload
+    {
+        public string Format { get; set; } = string.Empty;
+        public List<PointClipboardItem> Points { get; set; } = [];
+    }
+
+    private sealed class PointClipboardItem
+    {
+        public int OffsetMs { get; set; }
+        public string? SampleSet { get; set; }
+        public string? HitSound { get; set; }
     }
 
     private static SampleSet ParseSampleSet(string display) => display switch

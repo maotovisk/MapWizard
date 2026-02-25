@@ -21,6 +21,7 @@ public partial class SettingsViewModel(
 {
     private bool _isUpdatingFromThemeService;
     private bool _isUpdatingSongsPath;
+    private bool _isLoadingMainSettings;
     private int _updateStatusRequestId;
     private UpdateInfo? _availableUpdate;
     private bool _isUpdateActionRunning;
@@ -46,16 +47,28 @@ public partial class SettingsViewModel(
     [ObservableProperty]
     private string _songsPathStatusText = "Songs folder not configured.";
 
+    [ObservableProperty]
+    private int _hitSoundVisualizerSongVolumePercent = 80;
+
+    [ObservableProperty]
+    private int _hitSoundVisualizerHitSoundVolumePercent = 100;
+
     public string ConfigDirectoryPath { get; } = settingsService.ConfigDirectoryPath;
     public UpdateStream[] UpdateStreams { get; } = [UpdateStream.Release, UpdateStream.PreRelease];
 
     public void Initialize()
     {
+        LoadMainSettingsValues();
         UpdateThemeState(themeService.IsDarkTheme);
         themeService.DarkThemeChanged += OnDarkThemeChanged;
         UpdateStream = updateService.CurrentStream;
         InitializeSongsPath();
         _ = RefreshUpdateStreamBadgeAsync();
+    }
+
+    public void RefreshPersistedValues()
+    {
+        LoadMainSettingsValues();
     }
 
     partial void OnIsDarkThemeChanged(bool value)
@@ -100,6 +113,28 @@ public partial class SettingsViewModel(
         SongsPathStatusText = songLibraryService.IsValidSongsPath(normalized)
             ? "Using configured Songs folder."
             : "Folder not found. Map Picker will use manual picker fallback.";
+    }
+
+    partial void OnHitSoundVisualizerSongVolumePercentChanged(int value)
+    {
+        HitSoundVisualizerSongVolumePercent = Math.Clamp(value, 0, 100);
+        if (_isLoadingMainSettings)
+        {
+            return;
+        }
+
+        SaveHitSoundVisualizerVolumeDefaults();
+    }
+
+    partial void OnHitSoundVisualizerHitSoundVolumePercentChanged(int value)
+    {
+        HitSoundVisualizerHitSoundVolumePercent = Math.Clamp(value, 0, 100);
+        if (_isLoadingMainSettings)
+        {
+            return;
+        }
+
+        SaveHitSoundVisualizerVolumeDefaults();
     }
 
     [RelayCommand]
@@ -266,6 +301,21 @@ public partial class SettingsViewModel(
         SongsPathStatusText = "Songs folder not found. Use Browse or Auto Detect.";
     }
 
+    private void LoadMainSettingsValues()
+    {
+        _isLoadingMainSettings = true;
+        try
+        {
+            var settings = settingsService.GetMainSettings();
+            HitSoundVisualizerSongVolumePercent = Math.Clamp(settings.HitSoundVisualizerSongVolumePercent, 0, 100);
+            HitSoundVisualizerHitSoundVolumePercent = Math.Clamp(settings.HitSoundVisualizerHitSoundVolumePercent, 0, 100);
+        }
+        finally
+        {
+            _isLoadingMainSettings = false;
+        }
+    }
+
     private void SetSongsPath(string path, bool persist)
     {
         _isUpdatingSongsPath = true;
@@ -287,6 +337,23 @@ public partial class SettingsViewModel(
         }
 
         settings.SongsPath = path;
+        settingsService.SaveMainSettings(settings);
+    }
+
+    private void SaveHitSoundVisualizerVolumeDefaults()
+    {
+        var settings = settingsService.GetMainSettings();
+        var songVolume = Math.Clamp(HitSoundVisualizerSongVolumePercent, 0, 100);
+        var hitsoundVolume = Math.Clamp(HitSoundVisualizerHitSoundVolumePercent, 0, 100);
+
+        if (settings.HitSoundVisualizerSongVolumePercent == songVolume &&
+            settings.HitSoundVisualizerHitSoundVolumePercent == hitsoundVolume)
+        {
+            return;
+        }
+
+        settings.HitSoundVisualizerSongVolumePercent = songVolume;
+        settings.HitSoundVisualizerHitSoundVolumePercent = hitsoundVolume;
         settingsService.SaveMainSettings(settings);
     }
 

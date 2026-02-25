@@ -53,14 +53,58 @@
         <Style Selector="Button.timeline-btn:pressed">
             <Setter Property="Background" Value="#0F1724" />
         </Style>
-        <Style Selector="Button.timeline-chip">
+        <Style Selector="Button.timeline-select">
             <Setter Property="Background" Value="#141C2A" />
             <Setter Property="BorderBrush" Value="#303A4D" />
             <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Padding" Value="10,6" />
+            <Setter Property="CornerRadius" Value="8" />
+            <Setter Property="Foreground" Value="#E6EEF9" />
+        </Style>
+        <Style Selector="Button.timeline-select:pointerover">
+            <Setter Property="Background" Value="#1B2537" />
+            <Setter Property="BorderBrush" Value="#42516A" />
+        </Style>
+        <Style Selector="ToggleButton.timeline-seg-btn">
+            <Setter Property="Background" Value="#141C2A" />
+            <Setter Property="BorderBrush" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Padding" Value="10,8" />
+            <Setter Property="CornerRadius" Value="8" />
+            <Setter Property="Foreground" Value="#CFE0F8" />
+        </Style>
+        <Style Selector="ToggleButton.timeline-seg-btn:pointerover">
+            <Setter Property="Background" Value="#1A2435" />
+        </Style>
+        <Style Selector="ToggleButton.timeline-seg-btn:checked">
+            <Setter Property="Background" Value="#2B4772" />
+            <Setter Property="Foreground" Value="#FFFFFF" />
+        </Style>
+        <Style Selector="ListBox.timeline-snap-list">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Padding" Value="0" />
+        </Style>
+        <Style Selector="ListBox.timeline-snap-list /template/ Border#border">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+        </Style>
+        <Style Selector="ListBox.timeline-snap-list ListBoxItem">
+            <Setter Property="Background" Value="#141C2A" />
+            <Setter Property="BorderBrush" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
             <Setter Property="Padding" Value="8,5" />
+            <Setter Property="Margin" Value="0,0,0,4" />
             <Setter Property="CornerRadius" Value="8" />
             <Setter Property="Foreground" Value="#DCE8F7" />
-            <Setter Property="HorizontalAlignment" Value="Stretch" />
+            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+        </Style>
+        <Style Selector="ListBox.timeline-snap-list ListBoxItem:pointerover">
+            <Setter Property="Background" Value="#1A2435" />
+        </Style>
+        <Style Selector="ListBox.timeline-snap-list ListBoxItem:selected">
+            <Setter Property="Background" Value="#2B4772" />
+            <Setter Property="Foreground" Value="#FFFFFF" />
         </Style>
         <Style Selector="TextBlock.timeline-muted">
             <Setter Property="Foreground" Value="#98A8C4" />
@@ -99,94 +143,277 @@
                     <StackPanel Spacing="10">
                         <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
                             <TextBlock Text="Timeline Player" VerticalAlignment="Center" FontWeight="SemiBold" />
-                            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
-                                <Button x:Name="PointEditorButton" Classes="timeline-btn">
-                                    <StackPanel Orientation="Horizontal" Spacing="6">
-                                        <materialIcons:MaterialIcon Kind="Pencil" Width="16" Height="16" />
-                                        <TextBlock VerticalAlignment="Center" Text="Point Editor" />
-                                    </StackPanel>
-                                    <Button.Flyout>
-                                        <Flyout Placement="BottomEdgeAlignedRight">
-                                            <Border Classes="timeline-flyout-surface">
-                                                <StackPanel Width="380" Spacing="10">
-                                                    <TextBlock Text="Point Editor" FontWeight="Bold" />
-                                                    <TextBlock Classes="timeline-muted"
-                                                               Text="{Binding SelectedPointSummary}"
-                                                               TextWrapping="Wrap" />
-                                                    <Separator />
+                            <Button Grid.Column="1" Classes="timeline-btn" ToolTip.Tip="Hitsound Editor">
+                                <materialIcons:MaterialIcon Kind="Pencil" Width="16" Height="16" />
+                                <Button.Flyout>
+                                    <Flyout Placement="BottomEdgeAlignedRight">
+                                        <Border Classes="timeline-flyout-surface">
+                                            <StackPanel Width="360" Spacing="10">
+                                                <TextBlock Text="Hitsound Editor" FontWeight="Bold" />
+                                                <TextBlock Classes="timeline-muted"
+                                                           Text="{Binding SelectedPointSummary}"
+                                                           TextWrapping="Wrap" />
 
-                                                    <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto,Auto" ColumnSpacing="8" RowSpacing="8">
-                                                        <TextBlock Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" Text="Time" />
-                                                        <NumericUpDown Grid.Row="0" Grid.Column="1" theme:NumericUpDownExtensions.Unit="ms"
-                                                                       Value="{Binding CursorTimeMs}" Minimum="0" />
+                                                <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto" ColumnSpacing="8" RowSpacing="8">
+                                                    <TextBlock Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" Text="SampleSet" />
+                                                    <Button Grid.Row="0" Grid.Column="1" Classes="timeline-select">
+                                                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="6">
+                                                            <TextBlock VerticalAlignment="Center" Text="{Binding SelectedSampleSetName}" />
+                                                            <materialIcons:MaterialIcon Grid.Column="1" Kind="ChevronDown" Width="16" Height="16" />
+                                                        </Grid>
+                                                        <Button.Flyout>
+                                                            <Flyout Placement="BottomEdgeAlignedLeft">
+                                                                <Border Classes="timeline-flyout-surface">
+                                                                    <ListBox Classes="timeline-snap-list"
+                                                                             Width="140"
+                                                                             ItemsSource="{Binding SampleSetNames}"
+                                                                             SelectedItem="{Binding SelectedSampleSetName}" />
+                                                                </Border>
+                                                            </Flyout>
+                                                        </Button.Flyout>
+                                                    </Button>
 
-                                                        <TextBlock Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" Text="SampleSet" />
-                                                        <ComboBox Grid.Row="1" Grid.Column="1"
-                                                                  ItemsSource="{Binding SampleSetNames}"
-                                                                  SelectedItem="{Binding SelectedSampleSetName}" />
+                                                    <TextBlock Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" Text="Hitsound" />
+                                                    <Border Grid.Row="1"
+                                                            Grid.Column="1"
+                                                            Background="#111827"
+                                                            BorderBrush="#2B374B"
+                                                            BorderThickness="1"
+                                                            CornerRadius="10"
+                                                            Padding="4">
+                                                        <Grid ColumnDefinitions="*,*,*,*" ColumnSpacing="4">
+                                                            <ToggleButton Grid.Column="0" Classes="timeline-seg-btn" IsChecked="{Binding IsHitNormalSelected}">
+                                                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="6">
+                                                                    <materialIcons:MaterialIcon Kind="MusicNote" Width="14" Height="14" />
+                                                                    <TextBlock Text="Normal" />
+                                                                </StackPanel>
+                                                            </ToggleButton>
+                                                            <ToggleButton Grid.Column="1" Classes="timeline-seg-btn" IsChecked="{Binding IsHitWhistleSelected}" ToolTip.Tip="Whistle">
+                                                                <materialIcons:MaterialIcon Kind="Bullhorn" Width="14" Height="14" HorizontalAlignment="Center" />
+                                                            </ToggleButton>
+                                                            <ToggleButton Grid.Column="2" Classes="timeline-seg-btn" IsChecked="{Binding IsHitFinishSelected}" ToolTip.Tip="Finish">
+                                                                <materialIcons:MaterialIcon Kind="Star" Width="14" Height="14" HorizontalAlignment="Center" />
+                                                            </ToggleButton>
+                                                            <ToggleButton Grid.Column="3" Classes="timeline-seg-btn" IsChecked="{Binding IsHitClapSelected}" ToolTip.Tip="Clap">
+                                                                <materialIcons:MaterialIcon Kind="HandClap" Width="14" Height="14" HorizontalAlignment="Center" />
+                                                            </ToggleButton>
+                                                        </Grid>
+                                                    </Border>
+                                                </Grid>
 
-                                                        <TextBlock Grid.Row="2" Grid.Column="0" VerticalAlignment="Center" Text="Hitsound" />
-                                                        <ComboBox Grid.Row="2" Grid.Column="1"
-                                                                  ItemsSource="{Binding HitSoundNames}"
-                                                                  SelectedItem="{Binding SelectedHitSoundName}" />
-
-                                                        <TextBlock Grid.Row="3" Grid.Column="0" VerticalAlignment="Center" Text="Source" />
-                                                        <ToggleSwitch Grid.Row="3" Grid.Column="1"
-                                                                      IsChecked="{Binding NewPointIsSliderBody}"
-                                                                      OnContent="Slider-body"
-                                                                      OffContent="Object" />
-                                                    </Grid>
-
-                                                    <WrapPanel ItemWidth="170" Orientation="Horizontal">
-                                                        <Button Classes="timeline-btn" Command="{Binding AddPointCommand}" Margin="0,0,8,8">
-                                                            <StackPanel Orientation="Horizontal" Spacing="6">
-                                                                <materialIcons:MaterialIcon Kind="Plus" Width="16" Height="16" />
-                                                                <TextBlock VerticalAlignment="Center" Text="Add Point" />
-                                                            </StackPanel>
-                                                        </Button>
-                                                        <Button Classes="timeline-btn"
-                                                                Command="{Binding UpdateSelectedPointCommand}"
-                                                                IsEnabled="{Binding HasSelectedPoint}"
-                                                                Margin="0,0,8,8">
-                                                            <StackPanel Orientation="Horizontal" Spacing="6">
-                                                                <materialIcons:MaterialIcon Kind="ContentSaveEdit" Width="16" Height="16" />
-                                                                <TextBlock VerticalAlignment="Center" Text="Apply Selected" />
-                                                            </StackPanel>
-                                                        </Button>
-                                                        <Button Classes="timeline-btn"
-                                                                Command="{Binding PlaySelectedPointCommand}"
-                                                                IsEnabled="{Binding HasSelectedPoint}"
-                                                                Margin="0,0,8,8">
-                                                            <StackPanel Orientation="Horizontal" Spacing="6">
-                                                                <materialIcons:MaterialIcon Kind="Play" Width="16" Height="16" />
-                                                                <TextBlock VerticalAlignment="Center" Text="Play Selected" />
-                                                            </StackPanel>
-                                                        </Button>
-                                                        <Button Classes="timeline-btn"
-                                                                Command="{Binding RemoveSelectedPointCommand}"
-                                                                IsEnabled="{Binding HasSelectedPoint}"
-                                                                Margin="0,0,8,8">
-                                                            <StackPanel Orientation="Horizontal" Spacing="6">
-                                                                <materialIcons:MaterialIcon Kind="Delete" Width="16" Height="16" />
-                                                                <TextBlock VerticalAlignment="Center" Text="Remove Selected" />
-                                                            </StackPanel>
-                                                        </Button>
-                                                    </WrapPanel>
-                                                </StackPanel>
-                                            </Border>
-                                        </Flyout>
-                                    </Button.Flyout>
-                                </Button>
-                            </StackPanel>
+                                                <WrapPanel ItemWidth="170" Orientation="Horizontal">
+                                                    <Button Classes="timeline-btn"
+                                                            Click="CopyHitsoundSelectionToClipboard_OnClick"
+                                                            IsEnabled="{Binding HasSelectedPoint}"
+                                                            Margin="0,0,8,8">
+                                                        <StackPanel Orientation="Horizontal" Spacing="6">
+                                                            <materialIcons:MaterialIcon Kind="ContentCopy" Width="16" Height="16" />
+                                                            <TextBlock VerticalAlignment="Center" Text="Copy Selected" />
+                                                        </StackPanel>
+                                                    </Button>
+                                                    <Button Classes="timeline-btn"
+                                                            Command="{Binding ApplySelectedPointAttributesCommand}"
+                                                            IsEnabled="{Binding HasSelectedPoint}"
+                                                            Margin="0,0,8,8">
+                                                        <StackPanel Orientation="Horizontal" Spacing="6">
+                                                            <materialIcons:MaterialIcon Kind="ContentSaveEdit" Width="16" Height="16" />
+                                                            <TextBlock VerticalAlignment="Center" Text="Apply To Selection" />
+                                                        </StackPanel>
+                                                    </Button>
+                                                    <Button Classes="timeline-btn"
+                                                            Command="{Binding PlaySelectedPointCommand}"
+                                                            IsEnabled="{Binding HasSelectedPoint}"
+                                                            Margin="0,0,8,8">
+                                                        <StackPanel Orientation="Horizontal" Spacing="6">
+                                                            <materialIcons:MaterialIcon Kind="Play" Width="16" Height="16" />
+                                                            <TextBlock VerticalAlignment="Center" Text="Play Selected" />
+                                                        </StackPanel>
+                                                    </Button>
+                                                    <Button Classes="timeline-btn"
+                                                            Command="{Binding RemoveSelectedPointCommand}"
+                                                            IsEnabled="{Binding HasSelectedPoint}"
+                                                            Margin="0,0,8,8">
+                                                        <StackPanel Orientation="Horizontal" Spacing="6">
+                                                            <materialIcons:MaterialIcon Kind="Delete" Width="16" Height="16" />
+                                                            <TextBlock VerticalAlignment="Center" Text="Remove Selected" />
+                                                        </StackPanel>
+                                                    </Button>
+                                                </WrapPanel>
+                                            </StackPanel>
+                                        </Border>
+                                    </Flyout>
+                                </Button.Flyout>
+                            </Button>
                         </Grid>
 
-                        <Grid ColumnDefinitions="Auto,Auto,Auto,Auto,Auto,*" RowDefinitions="Auto,Auto" ColumnSpacing="8" RowSpacing="8">
-                            <Button Grid.Row="0" Grid.Column="0" Classes="timeline-btn" Command="{Binding CenterViewOnCursorCommand}">Center</Button>
-                            <Button Grid.Row="0" Grid.Column="1" Classes="timeline-btn" Command="{Binding ZoomToSelectionCommand}">Zoom In</Button>
-                            <Button Grid.Row="0" Grid.Column="2" Classes="timeline-btn" Command="{Binding ZoomOutCommand}">Zoom Out</Button>
+                        <Grid ColumnDefinitions="Auto,Auto,Auto,*,Auto,Auto,Auto,Auto,Auto,Auto,Auto" RowDefinitions="Auto" ColumnSpacing="8" RowSpacing="8">
+                            <Button Grid.Row="0"
+                                    Grid.Column="0"
+                                    Classes="timeline-btn"
+                                    Command="{Binding CenterViewOnCursorCommand}"
+                                    ToolTip.Tip="Center on Cursor">
+                                <materialIcons:MaterialIcon Kind="CrosshairsGps" Width="16" Height="16" />
+                            </Button>
+                            <Button Grid.Row="0"
+                                    Grid.Column="1"
+                                    Classes="timeline-btn"
+                                    Command="{Binding ZoomToSelectionCommand}"
+                                    ToolTip.Tip="Zoom In">
+                                <materialIcons:MaterialIcon Kind="MagnifyPlus" Width="16" Height="16" />
+                            </Button>
+                            <Button Grid.Row="0"
+                                    Grid.Column="2"
+                                    Classes="timeline-btn"
+                                    Command="{Binding ZoomOutCommand}"
+                                    ToolTip.Tip="Zoom Out">
+                                <materialIcons:MaterialIcon Kind="MagnifyMinus" Width="16" Height="16" />
+                            </Button>
 
-                            <TextBlock Grid.Row="0" Grid.Column="3" VerticalAlignment="Center" Text="Snap" Classes="timeline-muted" />
-                            <Button Grid.Row="0" Grid.Column="4" Classes="timeline-btn">
+                            <Button Grid.Row="0" Grid.Column="4" Classes="timeline-select" ToolTip.Tip="HS Selector">
+                                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="6" MinWidth="110">
+                                    <materialIcons:MaterialIcon Kind="FilterVariant" Width="16" Height="16" />
+                                    <TextBlock Grid.Column="1" VerticalAlignment="Center" Text="HS Selector" />
+                                </Grid>
+                                <Button.Flyout>
+                                    <Flyout Placement="BottomEdgeAlignedRight">
+                                        <Border Classes="timeline-flyout-surface">
+                                            <StackPanel Width="380" Spacing="10">
+                                                <TextBlock Text="HS Selector" FontWeight="Bold" />
+                                                <TextBlock Classes="timeline-muted"
+                                                           Text="Select matching hitsound points across the entire timeline."
+                                                           TextWrapping="Wrap" />
+
+                                                <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto" ColumnSpacing="8" RowSpacing="8">
+                                                    <TextBlock Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" Text="Hitnormal Bank" />
+                                                    <Button Grid.Row="0" Grid.Column="1" Classes="timeline-select">
+                                                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="6">
+                                                            <TextBlock VerticalAlignment="Center" Text="{Binding HsSelectorNormalBankFilterName}" />
+                                                            <materialIcons:MaterialIcon Grid.Column="1" Kind="ChevronDown" Width="16" Height="16" />
+                                                        </Grid>
+                                                        <Button.Flyout>
+                                                            <Flyout Placement="BottomEdgeAlignedLeft">
+                                                                <Border Classes="timeline-flyout-surface">
+                                                                    <ListBox Classes="timeline-snap-list"
+                                                                             Width="140"
+                                                                             ItemsSource="{Binding SelectorBankFilterNames}"
+                                                                             SelectedItem="{Binding HsSelectorNormalBankFilterName}" />
+                                                                </Border>
+                                                            </Flyout>
+                                                        </Button.Flyout>
+                                                    </Button>
+
+                                                    <TextBlock Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" Text="Addition Bank" />
+                                                    <Button Grid.Row="1" Grid.Column="1" Classes="timeline-select">
+                                                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="6">
+                                                            <TextBlock VerticalAlignment="Center" Text="{Binding HsSelectorAdditionBankFilterName}" />
+                                                            <materialIcons:MaterialIcon Grid.Column="1" Kind="ChevronDown" Width="16" Height="16" />
+                                                        </Grid>
+                                                        <Button.Flyout>
+                                                            <Flyout Placement="BottomEdgeAlignedLeft">
+                                                                <Border Classes="timeline-flyout-surface">
+                                                                    <ListBox Classes="timeline-snap-list"
+                                                                             Width="140"
+                                                                             ItemsSource="{Binding SelectorBankFilterNames}"
+                                                                             SelectedItem="{Binding HsSelectorAdditionBankFilterName}" />
+                                                                </Border>
+                                                            </Flyout>
+                                                        </Button.Flyout>
+                                                    </Button>
+                                                </Grid>
+
+                                                <StackPanel Spacing="6">
+                                                    <TextBlock Text="Hitsound Types" FontWeight="SemiBold" />
+                                                    <Border Background="#111827"
+                                                            BorderBrush="#2B374B"
+                                                            BorderThickness="1"
+                                                            CornerRadius="10"
+                                                            Padding="4">
+                                                        <Grid ColumnDefinitions="*,*,*,*" ColumnSpacing="4">
+                                                            <ToggleButton Grid.Column="0" Classes="timeline-seg-btn" IsChecked="{Binding HsSelectorIncludeHitNormal}">
+                                                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="6">
+                                                                    <materialIcons:MaterialIcon Kind="MusicNote" Width="14" Height="14" />
+                                                                    <TextBlock Text="Normal" />
+                                                                </StackPanel>
+                                                            </ToggleButton>
+                                                            <ToggleButton Grid.Column="1" Classes="timeline-seg-btn" IsChecked="{Binding HsSelectorIncludeWhistle}" ToolTip.Tip="Whistle">
+                                                                <materialIcons:MaterialIcon Kind="Bullhorn" Width="14" Height="14" HorizontalAlignment="Center" />
+                                                            </ToggleButton>
+                                                            <ToggleButton Grid.Column="2" Classes="timeline-seg-btn" IsChecked="{Binding HsSelectorIncludeFinish}" ToolTip.Tip="Finish">
+                                                                <materialIcons:MaterialIcon Kind="Star" Width="14" Height="14" HorizontalAlignment="Center" />
+                                                            </ToggleButton>
+                                                            <ToggleButton Grid.Column="3" Classes="timeline-seg-btn" IsChecked="{Binding HsSelectorIncludeClap}" ToolTip.Tip="Clap">
+                                                                <materialIcons:MaterialIcon Kind="HandClap" Width="14" Height="14" HorizontalAlignment="Center" />
+                                                            </ToggleButton>
+                                                        </Grid>
+                                                    </Border>
+                                                </StackPanel>
+
+                                                <Button Classes="timeline-btn"
+                                                        Command="{Binding SelectHitsoundsByFilterCommand}"
+                                                        IsEnabled="{Binding HasAnyHsSelectorAudioTypeEnabled}">
+                                                    <StackPanel Orientation="Horizontal" Spacing="6">
+                                                        <materialIcons:MaterialIcon Kind="Check" Width="16" Height="16" />
+                                                        <TextBlock VerticalAlignment="Center" Text="Select" />
+                                                    </StackPanel>
+                                                </Button>
+                                            </StackPanel>
+                                        </Border>
+                                    </Flyout>
+                                </Button.Flyout>
+                            </Button>
+
+                            <TextBlock Grid.Row="0"
+                                       Grid.Column="5"
+                                       VerticalAlignment="Center"
+                                       Text="Normal Bank"
+                                       Classes="timeline-muted" />
+                            <Button Grid.Row="0"
+                                    Grid.Column="6"
+                                    Classes="timeline-select"
+                                    IsEnabled="{Binding CanEditHeaderBanks}">
+                                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="6" MinWidth="108">
+                                    <TextBlock VerticalAlignment="Center" Text="{Binding HeaderNormalBankName}" />
+                                    <materialIcons:MaterialIcon Grid.Column="1" Kind="ChevronDown" Width="16" Height="16" />
+                                </Grid>
+                                <Button.Flyout>
+                                    <Flyout Placement="BottomEdgeAlignedLeft">
+                                        <Border Classes="timeline-flyout-surface">
+                                            <ListBox Classes="timeline-snap-list"
+                                                     Width="140"
+                                                     ItemsSource="{Binding HeaderBankNames}"
+                                                     SelectedItem="{Binding HeaderNormalBankName}" />
+                                        </Border>
+                                    </Flyout>
+                                </Button.Flyout>
+                            </Button>
+
+                            <TextBlock Grid.Row="0"
+                                       Grid.Column="7"
+                                       VerticalAlignment="Center"
+                                       Text="Addition Bank"
+                                       Classes="timeline-muted" />
+                            <Button Grid.Row="0"
+                                    Grid.Column="8"
+                                    Classes="timeline-select"
+                                    IsEnabled="{Binding CanEditHeaderBanks}">
+                                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="6" MinWidth="108">
+                                    <TextBlock VerticalAlignment="Center" Text="{Binding HeaderAdditionBankName}" />
+                                    <materialIcons:MaterialIcon Grid.Column="1" Kind="ChevronDown" Width="16" Height="16" />
+                                </Grid>
+                                <Button.Flyout>
+                                    <Flyout Placement="BottomEdgeAlignedLeft">
+                                        <Border Classes="timeline-flyout-surface">
+                                            <ListBox Classes="timeline-snap-list"
+                                                     Width="140"
+                                                     ItemsSource="{Binding HeaderBankNames}"
+                                                     SelectedItem="{Binding HeaderAdditionBankName}" />
+                                        </Border>
+                                    </Flyout>
+                                </Button.Flyout>
+                            </Button>
+
+                            <TextBlock Grid.Row="0" Grid.Column="9" VerticalAlignment="Center" Text="Snap" Classes="timeline-muted" />
+                            <Button Grid.Row="0" Grid.Column="10" Classes="timeline-btn">
                                 <StackPanel Orientation="Horizontal" Spacing="6">
                                     <TextBlock VerticalAlignment="Center" Text="{Binding SelectedSnapDivisorText}" />
                                     <materialIcons:MaterialIcon Kind="ChevronDown" Width="16" Height="16" />
@@ -196,33 +423,22 @@
                                         <Border Classes="timeline-flyout-surface">
                                             <StackPanel Width="120" Spacing="6">
                                                 <TextBlock Text="Beat Snap" FontWeight="Bold" />
-                                                <ItemsControl ItemsSource="{Binding SnapDivisorOptions}">
-                                                    <ItemsControl.ItemTemplate>
+                                                <ListBox Classes="timeline-snap-list"
+                                                         ItemsSource="{Binding SnapDivisorOptions}"
+                                                         SelectedItem="{Binding SelectedSnapDivisorDenominator}"
+                                                         SelectionMode="Single">
+                                                    <ListBox.ItemTemplate>
                                                         <DataTemplate>
-                                                            <Button Classes="timeline-chip"
-                                                                    Command="{Binding DataContext.SetSnapDivisorCommand, ElementName=Root}"
-                                                                    CommandParameter="{Binding .}">
-                                                                <TextBlock Text="{Binding ., StringFormat=1/{0}}" />
-                                                            </Button>
+                                                            <TextBlock HorizontalAlignment="Center"
+                                                                       Text="{Binding ., StringFormat=1/{0}}" />
                                                         </DataTemplate>
-                                                    </ItemsControl.ItemTemplate>
-                                                </ItemsControl>
+                                                    </ListBox.ItemTemplate>
+                                                </ListBox>
                                             </StackPanel>
                                         </Border>
                                     </Flyout>
                                 </Button.Flyout>
                             </Button>
-
-                            <TextBlock Grid.Row="0" Grid.Column="5"
-                                       VerticalAlignment="Center"
-                                       HorizontalAlignment="Right"
-                                       Classes="timeline-muted"
-                                       Text="{Binding VisiblePointCount, StringFormat=Visible: {0}}" />
-
-                            <TextBlock Grid.Row="1" Grid.ColumnSpan="6"
-                                       VerticalAlignment="Center"
-                                       Classes="timeline-muted"
-                                       Text="Click: seek | Drag: box select | Ctrl+drag: add | Ctrl+click point: toggle | Mouse wheel: pan | Shift + wheel: zoom | Middle drag: pan | Space: play/pause" />
                         </Grid>
 
                         <Border Classes="timeline-panel" ClipToBounds="True">
@@ -244,23 +460,188 @@
 
                                 <controls:HitSoundTimelinePlot
                                     Grid.Column="1"
-                                    Height="364"
+                                    Height="140"
                                     Points="{Binding Points}"
                                     SampleChanges="{Binding SampleChanges}"
                                     SnapTicks="{Binding SnapTicks}"
                                     ViewStartMs="{Binding ViewStartMs}"
                                     ViewEndMs="{Binding ViewEndMs}"
                                     CursorTimeMs="{Binding CursorTimeMs}"
+                                    IsTransportPlaying="{Binding IsTransportPlaying}"
                                     SnapDivisorDenominator="{Binding SelectedSnapDivisorDenominator}"
                                     SelectedPointId="{Binding SelectedPointId}"
+                                    SelectedSampleChangeTimeMs="{Binding ContextSamplePointTimeMs}"
                                     SelectedPointIds="{Binding SelectedPointIds}"
                                     SelectPointCommand="{Binding SelectTimelinePointCommand}"
                                     SelectPointsCommand="{Binding SelectTimelinePointsCommand}"
                                     AddPointsToSelectionCommand="{Binding AddTimelinePointsToSelectionCommand}"
                                     TogglePointSelectionCommand="{Binding ToggleTimelinePointSelectionCommand}"
+                                    AddPointOnSnapLineCommand="{Binding AddTimelinePointOnSnapLineCommand}"
+                                    OpenContextEditorCommand="{Binding PrepareTimelineContextCommand}"
                                     SeekTimeCommand="{Binding SeekTimeCommand}"
                                     PanTimelineCommand="{Binding PanTimelineCommand}"
-                                    ZoomTimelineCommand="{Binding ZoomTimelineCommand}" />
+                                    ZoomTimelineCommand="{Binding ZoomTimelineCommand}">
+                                    <controls:HitSoundTimelinePlot.ContextFlyout>
+                                        <Flyout Placement="Pointer">
+                                            <Border Classes="timeline-flyout-surface">
+                                                <StackPanel Width="360" Spacing="10">
+                                                    <StackPanel Spacing="10" IsVisible="{Binding ShowHitsoundContextPopup}">
+                                                        <TextBlock Text="Hitsound Editor" FontWeight="Bold" />
+                                                        <TextBlock Classes="timeline-muted"
+                                                                   Text="{Binding SelectedPointSummary}"
+                                                                   TextWrapping="Wrap" />
+
+                                                        <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto" ColumnSpacing="8" RowSpacing="8">
+                                                            <TextBlock Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" Text="SampleSet" />
+                                                            <Button Grid.Row="0" Grid.Column="1" Classes="timeline-select">
+                                                                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="6">
+                                                                    <TextBlock VerticalAlignment="Center" Text="{Binding SelectedSampleSetName}" />
+                                                                    <materialIcons:MaterialIcon Grid.Column="1" Kind="ChevronDown" Width="16" Height="16" />
+                                                                </Grid>
+                                                                <Button.Flyout>
+                                                                    <Flyout Placement="BottomEdgeAlignedLeft">
+                                                                        <Border Classes="timeline-flyout-surface">
+                                                                            <ListBox Classes="timeline-snap-list"
+                                                                                     Width="140"
+                                                                                     ItemsSource="{Binding SampleSetNames}"
+                                                                                     SelectedItem="{Binding SelectedSampleSetName}" />
+                                                                        </Border>
+                                                                    </Flyout>
+                                                                </Button.Flyout>
+                                                            </Button>
+
+                                                            <TextBlock Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" Text="Hitsound" />
+                                                            <Border Grid.Row="1"
+                                                                    Grid.Column="1"
+                                                                    Background="#111827"
+                                                                    BorderBrush="#2B374B"
+                                                                    BorderThickness="1"
+                                                                    CornerRadius="10"
+                                                                    Padding="4">
+                                                                <Grid ColumnDefinitions="*,*,*,*" ColumnSpacing="4">
+                                                                    <ToggleButton Grid.Column="0" Classes="timeline-seg-btn" IsChecked="{Binding IsHitNormalSelected}">
+                                                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="6">
+                                                                            <materialIcons:MaterialIcon Kind="MusicNote" Width="14" Height="14" />
+                                                                            <TextBlock Text="Normal" />
+                                                                        </StackPanel>
+                                                                    </ToggleButton>
+                                                                    <ToggleButton Grid.Column="1" Classes="timeline-seg-btn" IsChecked="{Binding IsHitWhistleSelected}" ToolTip.Tip="Whistle">
+                                                                        <materialIcons:MaterialIcon Kind="Bullhorn" Width="14" Height="14" HorizontalAlignment="Center" />
+                                                                    </ToggleButton>
+                                                                    <ToggleButton Grid.Column="2" Classes="timeline-seg-btn" IsChecked="{Binding IsHitFinishSelected}" ToolTip.Tip="Finish">
+                                                                        <materialIcons:MaterialIcon Kind="Star" Width="14" Height="14" HorizontalAlignment="Center" />
+                                                                    </ToggleButton>
+                                                                    <ToggleButton Grid.Column="3" Classes="timeline-seg-btn" IsChecked="{Binding IsHitClapSelected}" ToolTip.Tip="Clap">
+                                                                        <materialIcons:MaterialIcon Kind="HandClap" Width="14" Height="14" HorizontalAlignment="Center" />
+                                                                    </ToggleButton>
+                                                                </Grid>
+                                                            </Border>
+                                                        </Grid>
+
+                                                        <WrapPanel ItemWidth="170" Orientation="Horizontal">
+                                                            <Button Classes="timeline-btn"
+                                                                    Click="CopyHitsoundSelectionToClipboard_OnClick"
+                                                                    IsEnabled="{Binding HasSelectedPoint}"
+                                                                    Margin="0,0,8,8">
+                                                                <StackPanel Orientation="Horizontal" Spacing="6">
+                                                                    <materialIcons:MaterialIcon Kind="ContentCopy" Width="16" Height="16" />
+                                                                    <TextBlock VerticalAlignment="Center" Text="Copy Selected" />
+                                                                </StackPanel>
+                                                            </Button>
+                                                            <Button Classes="timeline-btn"
+                                                                    Command="{Binding ApplySelectedPointAttributesCommand}"
+                                                                    IsEnabled="{Binding HasSelectedPoint}"
+                                                                    Margin="0,0,8,8">
+                                                                <StackPanel Orientation="Horizontal" Spacing="6">
+                                                                    <materialIcons:MaterialIcon Kind="ContentSaveEdit" Width="16" Height="16" />
+                                                                    <TextBlock VerticalAlignment="Center" Text="Apply To Selection" />
+                                                                </StackPanel>
+                                                            </Button>
+                                                            <Button Classes="timeline-btn"
+                                                                    Command="{Binding PlaySelectedPointCommand}"
+                                                                    IsEnabled="{Binding HasSelectedPoint}"
+                                                                    Margin="0,0,8,8">
+                                                                <StackPanel Orientation="Horizontal" Spacing="6">
+                                                                    <materialIcons:MaterialIcon Kind="Play" Width="16" Height="16" />
+                                                                    <TextBlock VerticalAlignment="Center" Text="Play Selected" />
+                                                                </StackPanel>
+                                                            </Button>
+                                                            <Button Classes="timeline-btn"
+                                                                    Command="{Binding RemoveSelectedPointCommand}"
+                                                                    IsEnabled="{Binding HasSelectedPoint}"
+                                                                    Margin="0,0,8,8">
+                                                                <StackPanel Orientation="Horizontal" Spacing="6">
+                                                                    <materialIcons:MaterialIcon Kind="Delete" Width="16" Height="16" />
+                                                                    <TextBlock VerticalAlignment="Center" Text="Remove Selected" />
+                                                                </StackPanel>
+                                                            </Button>
+                                                        </WrapPanel>
+                                                    </StackPanel>
+
+                                                    <StackPanel Spacing="8" IsVisible="{Binding ShowSamplePointContextPopup}">
+                                                        <TextBlock Text="Sample Point Editor" FontWeight="Bold" />
+                                                        <TextBlock Classes="timeline-muted"
+                                                                   Text="{Binding ContextSamplePointSummary}"
+                                                                   TextWrapping="Wrap" />
+
+                                                        <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto" ColumnSpacing="8" RowSpacing="8">
+                                                            <TextBlock Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" Text="SampleSet" />
+                                                            <Button Grid.Row="0" Grid.Column="1" Classes="timeline-select">
+                                                                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="6">
+                                                                    <TextBlock VerticalAlignment="Center" Text="{Binding ContextSampleSetName}" />
+                                                                    <materialIcons:MaterialIcon Grid.Column="1" Kind="ChevronDown" Width="16" Height="16" />
+                                                                </Grid>
+                                                                <Button.Flyout>
+                                                                    <Flyout Placement="BottomEdgeAlignedLeft">
+                                                                        <Border Classes="timeline-flyout-surface">
+                                                                            <ListBox Classes="timeline-snap-list"
+                                                                                     Width="140"
+                                                                                     ItemsSource="{Binding SampleSetNames}"
+                                                                                     SelectedItem="{Binding ContextSampleSetName}" />
+                                                                        </Border>
+                                                                    </Flyout>
+                                                                </Button.Flyout>
+                                                            </Button>
+
+                                                            <TextBlock Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" Text="Index" />
+                                                            <NumericUpDown Grid.Row="1" Grid.Column="1"
+                                                                           Value="{Binding ContextSampleIndex}"
+                                                                           Minimum="1"
+                                                                           Maximum="99" />
+
+                                                            <TextBlock Grid.Row="2" Grid.Column="0" VerticalAlignment="Center" Text="Volume" />
+                                                            <NumericUpDown Grid.Row="2" Grid.Column="1"
+                                                                           theme:NumericUpDownExtensions.Unit="%"
+                                                                           Value="{Binding ContextSampleVolume}"
+                                                                           Minimum="0"
+                                                                           Maximum="100" />
+                                                        </Grid>
+
+                                                        <WrapPanel ItemWidth="190" Orientation="Horizontal">
+                                                            <Button Classes="timeline-btn"
+                                                                    Command="{Binding ApplyContextSamplePointCommand}"
+                                                                    Margin="0,0,8,8">
+                                                                <StackPanel Orientation="Horizontal" Spacing="6">
+                                                                    <materialIcons:MaterialIcon Kind="ContentSave" Width="16" Height="16" />
+                                                                    <TextBlock VerticalAlignment="Center" Text="Save Sample Point" />
+                                                                </StackPanel>
+                                                            </Button>
+                                                            <Button Classes="timeline-btn"
+                                                                    Command="{Binding RemoveContextSamplePointCommand}"
+                                                                    IsEnabled="{Binding ContextSamplePointExists}"
+                                                                    Margin="0,0,8,8">
+                                                                <StackPanel Orientation="Horizontal" Spacing="6">
+                                                                    <materialIcons:MaterialIcon Kind="Delete" Width="16" Height="16" />
+                                                                    <TextBlock VerticalAlignment="Center" Text="Delete Sample Point" />
+                                                                </StackPanel>
+                                                            </Button>
+                                                        </WrapPanel>
+                                                    </StackPanel>
+                                                </StackPanel>
+                                            </Border>
+                                        </Flyout>
+                                    </controls:HitSoundTimelinePlot.ContextFlyout>
+                                </controls:HitSoundTimelinePlot>
                             </Grid>
                         </Border>
 

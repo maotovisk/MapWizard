@@ -97,6 +97,12 @@ public class HitSoundService : IHitSoundService
         };
     }
 
+    public IReadOnlyList<HitSoundVisualizerSnapTick> BuildHitsoundVisualizerSnapTicks(string beatmapPath, double endTimeMs)
+    {
+        var beatmap = Beatmap.Decode(File.ReadAllText(beatmapPath));
+        return BuildSnapTicks(beatmap, Math.Max(1000, endTimeMs));
+    }
+
     private static HitSoundTimingCompatibilityTargetResult CompareTiming(Beatmap source, Beatmap target, string targetPath)
     {
         var sourceRedlines = GetRedlines(source);
@@ -192,11 +198,9 @@ public class HitSoundService : IHitSoundService
         var nextId = 1;
 
         AddPointsFromTimeline(timeline.NonDraggableSoundTimeline, false, timeline.SampleSetTimeline, result, ref nextId);
-        AddPointsFromTimeline(timeline.DraggableSoundTimeline, true, timeline.SampleSetTimeline, result, ref nextId);
 
         return result
             .OrderBy(x => x.TimeMs)
-            .ThenBy(x => x.IsDraggable)
             .ThenBy(x => HitSoundSortOrder(x.HitSound))
             .ThenBy(x => SampleSetSortOrder(x.SampleSet))
             .ToList();
@@ -211,8 +215,9 @@ public class HitSoundService : IHitSoundService
     {
         foreach (var soundEvent in soundTimeline.SoundEvents)
         {
+            var sourceTimeMs = soundEvent.Time.TotalMilliseconds;
             var timeMs = StableSnapEngine.StableRound(soundEvent.Time.TotalMilliseconds);
-            var effectiveSampleChange = sampleSetTimeline.GetCurrentSampleAtTime(timeMs);
+            var effectiveSampleChange = sampleSetTimeline.GetCurrentSampleAtTime(sourceTimeMs, leniency: 0);
             var fallbackSample = NormalizeSampleSet(effectiveSampleChange?.Sample ?? SampleSet.Normal, SampleSet.Normal);
 
             // In osu!, hitnormal is implicit for hittable sounds even when the flag list only contains additions.

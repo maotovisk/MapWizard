@@ -183,7 +183,7 @@ public partial class HitSoundCopierViewModel(
     private async Task CopyHitSounds()
     {
         var type = NotificationType.Error;
-        var message = string.Empty;
+        string message;
 
         try
         {
