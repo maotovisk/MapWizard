@@ -138,6 +138,12 @@ public class HitSoundTimelinePlot : Control
     public static readonly StyledProperty<ICommand?> OpenContextEditorCommandProperty =
         AvaloniaProperty.Register<HitSoundTimelinePlot, ICommand?>(nameof(OpenContextEditorCommand));
 
+    public static readonly StyledProperty<ICommand?> DeleteSelectedPointCommandProperty =
+        AvaloniaProperty.Register<HitSoundTimelinePlot, ICommand?>(nameof(DeleteSelectedPointCommand));
+
+    public static readonly StyledProperty<ICommand?> DeleteSampleChangeCommandProperty =
+        AvaloniaProperty.Register<HitSoundTimelinePlot, ICommand?>(nameof(DeleteSampleChangeCommand));
+
     static HitSoundTimelinePlot()
     {
         AffectsRender<HitSoundTimelinePlot>(
@@ -273,6 +279,18 @@ public class HitSoundTimelinePlot : Control
         set => SetValue(OpenContextEditorCommandProperty, value);
     }
 
+    public ICommand? DeleteSelectedPointCommand
+    {
+        get => GetValue(DeleteSelectedPointCommandProperty);
+        set => SetValue(DeleteSelectedPointCommandProperty, value);
+    }
+
+    public ICommand? DeleteSampleChangeCommand
+    {
+        get => GetValue(DeleteSampleChangeCommandProperty);
+        set => SetValue(DeleteSampleChangeCommandProperty, value);
+    }
+
     public override void Render(DrawingContext context)
     {
         base.Render(context);
@@ -345,7 +363,7 @@ public class HitSoundTimelinePlot : Control
 
         if (point.Properties.IsRightButtonPressed)
         {
-            HandleRightClick(point.Position, bounds);
+            HandleRightClick(point.Position, bounds, e.KeyModifiers);
             return;
         }
 
@@ -1514,11 +1532,12 @@ public class HitSoundTimelinePlot : Control
         return Math.Clamp(volume, 0, 100);
     }
 
-    private void HandleRightClick(Point clickPosition, Rect bounds)
+    private void HandleRightClick(Point clickPosition, Rect bounds, KeyModifiers keyModifiers)
     {
         var windowMs = Math.Max(1d, ViewEndMs - ViewStartMs);
         var clickedRow = YToRowIndex(clickPosition.Y, DefaultRowHeight);
         var isSampleRow = clickedRow == SampleRowIndex;
+        var isCtrlDelete = keyModifiers.HasFlag(KeyModifiers.Control);
         var clickedTimeMs = ResolveClickedTimeMs(clickPosition.X, bounds.Width, windowMs, 12d);
         var (nearestPoint, pointDistance) = isSampleRow
             ? (null, double.MaxValue)
@@ -1527,7 +1546,53 @@ public class HitSoundTimelinePlot : Control
             ? FindNearestSampleChange(clickPosition, bounds.Width, windowMs)
             : (null, double.MaxValue);
 
-        if (nearestPoint is not null && pointDistance <= PointHitTestRadius)
+        var hasPointTarget = nearestPoint is not null && pointDistance <= PointHitTestRadius;
+        var hasSampleChangeTarget = nearestSampleChange is not null && sampleChangeDistance <= SampleChangeHitTestRadius;
+
+        if (isCtrlDelete)
+        {
+            if (hasPointTarget && nearestPoint is not null)
+            {
+                if (SelectPointCommand?.CanExecute(nearestPoint.Id) == true)
+                {
+                    SelectPointCommand.Execute(nearestPoint.Id);
+                }
+
+                if (DeleteSelectedPointCommand?.CanExecute(null) == true)
+                {
+                    DeleteSelectedPointCommand.Execute(null);
+                }
+
+                return;
+            }
+
+            if (hasSampleChangeTarget && nearestSampleChange is not null)
+            {
+                var deleteContextRequest = new HitSoundTimelineContextRequest
+                {
+                    TimeMs = nearestSampleChange.TimeMs,
+                    PointId = -1,
+                    SampleChangeTimeMs = nearestSampleChange.TimeMs,
+                    IsSampleRow = true
+                };
+
+                if (OpenContextEditorCommand?.CanExecute(deleteContextRequest) == true)
+                {
+                    OpenContextEditorCommand.Execute(deleteContextRequest);
+                }
+
+                if (DeleteSampleChangeCommand?.CanExecute(null) == true)
+                {
+                    DeleteSampleChangeCommand.Execute(null);
+                }
+
+                return;
+            }
+
+            return;
+        }
+
+        if (hasPointTarget && nearestPoint is not null)
         {
             var selectedIds = (SelectedPointIds ?? []).ToHashSet();
             if (!selectedIds.Contains(nearestPoint.Id))
@@ -1540,7 +1605,7 @@ public class HitSoundTimelinePlot : Control
 
             clickedTimeMs = nearestPoint.TimeMs;
         }
-        else if (nearestSampleChange is not null && sampleChangeDistance <= SampleChangeHitTestRadius)
+        else if (hasSampleChangeTarget && nearestSampleChange is not null)
         {
             clickedTimeMs = nearestSampleChange.TimeMs;
         }
@@ -1553,8 +1618,8 @@ public class HitSoundTimelinePlot : Control
         var contextRequest = new HitSoundTimelineContextRequest
         {
             TimeMs = clickedTimeMs,
-            PointId = nearestPoint is not null && pointDistance <= PointHitTestRadius ? nearestPoint.Id : -1,
-            SampleChangeTimeMs = nearestSampleChange is not null && sampleChangeDistance <= SampleChangeHitTestRadius
+            PointId = hasPointTarget && nearestPoint is not null ? nearestPoint.Id : -1,
+            SampleChangeTimeMs = hasSampleChangeTarget && nearestSampleChange is not null
                 ? nearestSampleChange.TimeMs
                 : null,
             IsSampleRow = isSampleRow
