@@ -1,7 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
-using Avalonia.Threading;
+using System.Threading;
 using MiniAudioEx.Core.StandardAPI;
 
 namespace MapWizard.Desktop.Services;
@@ -12,16 +13,31 @@ public sealed class MiniAudioPlaybackService : IAudioPlaybackService, IDisposabl
     private const uint Channels = 2;
     // Smaller period lowers output latency for editor-preview style transport.
     private const uint PeriodSizeInFrames = 256;
+    // Drive MiniAudioEx updates off the UI thread at a fixed high rate for stable transport timing.
+    private const int AudioUpdateRateHz = 1000;
+    private const string AudioUpdateThreadName = "MapWizard.AudioUpdate";
+    private static readonly TimeSpan AudioUpdateShutdownWait = TimeSpan.FromMilliseconds(500);
 
     private readonly object _sync = new();
     private readonly Dictionary<string, AudioClip> _clipCache = new(StringComparer.OrdinalIgnoreCase);
 
     private bool _initialized;
-    private DispatcherTimer? _updateTimer;
+    private CancellationTokenSource? _updateLoopCts;
+    private Thread? _updateLoopThread;
     private AudioSource? _songSource;
     private AudioSource? _hitsoundSource;
     private AudioClip? _songClip;
     private string _songPath = string.Empty;
+    private ulong _songSourceLengthFrames;
+    private int _songDurationMs;
+    private int _lastSeekRequestMs = -1;
+    private int _lastSeekObservedMs = -1;
+    private int _lastSeekErrorMs;
+    private long _audioUpdateLastTickMs;
+    private int _audioUpdateLastIntervalMs;
+    private int _audioUpdateMaxIntervalMs;
+    private int _audioUpdateLastLoopMs;
+    private int _audioUpdateMaxLoopMs;
 
     public bool IsSongPlaying
     {
@@ -40,8 +56,7 @@ public sealed class MiniAudioPlaybackService : IAudioPlaybackService, IDisposabl
         {
             lock (_sync)
             {
-                _songClip = null;
-                _songPath = string.Empty;
+                ClearLoadedSongState();
             }
 
             return false;
@@ -58,6 +73,12 @@ public sealed class MiniAudioPlaybackService : IAudioPlaybackService, IDisposabl
 
             _songClip = GetOrCreateClip(filePath, streamFromDisk: true);
             _songPath = filePath;
+            ResetLoadedSongRuntimeState();
+            if (_songClip is null)
+            {
+                ResetLoadedSongRuntimeState();
+            }
+
             return _songClip is not null;
         }
     }
@@ -77,20 +98,22 @@ public sealed class MiniAudioPlaybackService : IAudioPlaybackService, IDisposabl
                 return false;
             }
 
-            var targetFrame = MillisecondsToFrames(startTimeMs, AudioContext.SampleRate);
             _songSource.Stop();
             _songSource.Cursor = 0;
             _songSource.Play(_songClip);
             AudioContext.Update();
+            var targetFrame = MillisecondsToFrames(startTimeMs, GetAudioFrameRateHz());
             SetSongCursor(_songSource, targetFrame);
 
             // Streaming clips may not expose a seekable length/cursor immediately on the same tick.
             // Retry once after another update so transport seeks do not restart from 0.
-            if (targetFrame > 0 && _songSource.Cursor == 0)
+            if (startTimeMs > 0 && _songSource.Cursor == 0)
             {
                 AudioContext.Update();
                 SetSongCursor(_songSource, targetFrame);
             }
+
+            UpdateLastSeekDebug(_songSource, startTimeMs);
 
             return true;
         }
@@ -127,7 +150,7 @@ public sealed class MiniAudioPlaybackService : IAudioPlaybackService, IDisposabl
                 return 0;
             }
 
-            return FramesToMilliseconds(_songSource.Cursor, AudioContext.SampleRate);
+            return GetObservedSongPositionMs(_songSource);
         }
     }
 
@@ -145,26 +168,82 @@ public sealed class MiniAudioPlaybackService : IAudioPlaybackService, IDisposabl
                 EnsureInitialized();
                 if (_songSource is null)
                 {
-                    return 0;
+                    return Math.Max(0, _songDurationMs);
                 }
 
-                _songSource.Stop();
-                _songSource.Cursor = 0;
+                ResetSongSourcePlaybackState(_songSource);
                 _songSource.Play(_songClip);
-                AudioContext.Update();
 
-                var lengthFrames = _songSource.Length;
-                _songSource.Stop();
-                _songSource.Cursor = 0;
+                var lengthFrames = TryReadSongSourceLengthFrames(_songSource, attempts: 8);
 
-                return lengthFrames > 0
-                    ? FramesToMilliseconds(lengthFrames, AudioContext.SampleRate)
-                    : 0;
+                if (lengthFrames > 0)
+                {
+                    _songSourceLengthFrames = lengthFrames;
+                    var durationMs = FramesToMilliseconds(lengthFrames, GetAudioFrameRateHz());
+                    _songDurationMs = durationMs;
+                    ResetSongSourcePlaybackState(_songSource);
+                    return durationMs;
+                }
+
+                ResetSongSourcePlaybackState(_songSource);
+
+                // Fallback when source length is unavailable (can happen on some files/code paths).
+                _songDurationMs = 0;
+                _songSourceLengthFrames = 0;
+                return _songDurationMs;
             }
             catch
             {
                 return 0;
             }
+        }
+    }
+
+    public string GetTimingTelemetryStatus()
+    {
+        var isInitialized = _initialized;
+        var isThreadAlive = _updateLoopThread?.IsAlive == true;
+        var lastIntervalMs = Volatile.Read(ref _audioUpdateLastIntervalMs);
+        var maxIntervalMs = Volatile.Read(ref _audioUpdateMaxIntervalMs);
+        var lastLoopMs = Volatile.Read(ref _audioUpdateLastLoopMs);
+        var maxLoopMs = Volatile.Read(ref _audioUpdateMaxLoopMs);
+
+        if (!isInitialized)
+        {
+            return $"Audio[{AudioUpdateThreadName}]: idle";
+        }
+
+        var threadState = isThreadAlive ? "alive" : "stopped";
+        return $"Audio[{AudioUpdateThreadName}/{AudioUpdateRateHz}Hz/{threadState}] dt {lastIntervalMs}ms (max {maxIntervalMs}ms) loop {lastLoopMs}ms (max {maxLoopMs}ms)";
+    }
+
+    public string GetSongDebugStatus()
+    {
+        lock (_sync)
+        {
+            if (_songClip is null)
+            {
+                return "AudioDbg: no song";
+            }
+
+            var outputRateHz = _initialized ? Math.Max(1, AudioContext.SampleRate) : (int)SampleRate;
+            var sourceLengthFrames = _songSourceLengthFrames;
+            if (sourceLengthFrames == 0 && _songSource is not null)
+            {
+                sourceLengthFrames = SafeReadSourceLength(_songSource);
+            }
+
+            var cursorFrames = _songSource is not null ? SafeReadSourceCursor(_songSource) : 0UL;
+
+            var rateHz = GetAudioFrameRateHz();
+            var cursorMs = FramesToMilliseconds(cursorFrames, rateHz);
+            var sourceDurationMs = sourceLengthFrames > 0 ? FramesToMilliseconds(sourceLengthFrames, rateHz) : 0;
+            var ext = Path.GetExtension(_songPath);
+            var seekState = _lastSeekRequestMs < 0
+                ? "seek:none"
+                : $"seek:req {_lastSeekRequestMs} obs {_lastSeekObservedMs} err {_lastSeekErrorMs}ms";
+
+            return $"AudioDbg | ext {ext} out {outputRateHz}Hz srcLenF {sourceLengthFrames} srcMs {sourceDurationMs} curF {cursorFrames} curMs {cursorMs} {seekState}";
         }
     }
 
@@ -221,11 +300,44 @@ public sealed class MiniAudioPlaybackService : IAudioPlaybackService, IDisposabl
 
     public void Dispose()
     {
+        CancellationTokenSource? updateLoopCts;
+        Thread? updateLoopThread;
+
         lock (_sync)
         {
-            _updateTimer?.Stop();
-            _updateTimer = null;
+            updateLoopCts = _updateLoopCts;
+            updateLoopThread = _updateLoopThread;
+            _updateLoopCts = null;
+            _updateLoopThread = null;
+        }
 
+        if (updateLoopCts is not null)
+        {
+            try
+            {
+                updateLoopCts.Cancel();
+            }
+            catch
+            {
+                // Ignore shutdown cancellation failures.
+            }
+
+            try
+            {
+                updateLoopThread?.Join(AudioUpdateShutdownWait);
+            }
+            catch
+            {
+                // Ignore worker shutdown failures during app shutdown/disposal.
+            }
+            finally
+            {
+                updateLoopCts.Dispose();
+            }
+        }
+
+        lock (_sync)
+        {
             _songSource?.Dispose();
             _songSource = null;
             _hitsoundSource?.Dispose();
@@ -244,8 +356,7 @@ public sealed class MiniAudioPlaybackService : IAudioPlaybackService, IDisposabl
             }
 
             _clipCache.Clear();
-            _songClip = null;
-            _songPath = string.Empty;
+            ClearLoadedSongState();
 
             if (_initialized)
             {
@@ -275,19 +386,114 @@ public sealed class MiniAudioPlaybackService : IAudioPlaybackService, IDisposabl
         AudioContext.Initialize(SampleRate, Channels, PeriodSizeInFrames, deviceInfo: null!);
         _songSource = new AudioSource(maxSources: 1);
         _hitsoundSource = new AudioSource(maxSources: 64);
-
-        _updateTimer = new DispatcherTimer
-        {
-            Interval = TimeSpan.FromMilliseconds(2)
-        };
-        _updateTimer.Tick += (_, _) => AudioContext.Update();
-        _updateTimer.Start();
-
         _initialized = true;
+        ResetAudioUpdateTelemetry();
+        _updateLoopCts = new CancellationTokenSource();
+        _updateLoopThread = new Thread(() => RunAudioUpdateLoop(_updateLoopCts.Token))
+        {
+            IsBackground = true,
+            Name = AudioUpdateThreadName
+        };
+        _updateLoopThread.Start();
+    }
+
+    private void RunAudioUpdateLoop(CancellationToken token)
+    {
+        var targetStepTicks = Math.Max(1L, Stopwatch.Frequency / Math.Max(1, AudioUpdateRateHz));
+        var clock = Stopwatch.StartNew();
+        var nextTick = clock.ElapsedTicks;
+
+        while (!token.IsCancellationRequested)
+        {
+            var loopStartTickMs = Environment.TickCount64;
+            var previousTickMs = Interlocked.Exchange(ref _audioUpdateLastTickMs, loopStartTickMs);
+            if (previousTickMs > 0)
+            {
+                var intervalMs = (int)Math.Clamp(loopStartTickMs - previousTickMs, 0, int.MaxValue);
+                Volatile.Write(ref _audioUpdateLastIntervalMs, intervalMs);
+                UpdateMax(ref _audioUpdateMaxIntervalMs, intervalMs);
+            }
+
+            try
+            {
+                lock (_sync)
+                {
+                    if (!_initialized)
+                    {
+                        return;
+                    }
+
+                    AudioContext.Update();
+                }
+            }
+            catch
+            {
+                // Keep the audio update loop resilient; a transient update failure should not crash the app.
+            }
+
+            nextTick += targetStepTicks;
+
+            while (!token.IsCancellationRequested)
+            {
+                var remainingTicks = nextTick - clock.ElapsedTicks;
+                if (remainingTicks <= 0)
+                {
+                    break;
+                }
+
+                var remainingMs = (remainingTicks * 1000d) / Stopwatch.Frequency;
+                if (remainingMs >= 2d)
+                {
+                    Thread.Sleep(Math.Max(0, (int)remainingMs - 1));
+                }
+                else
+                {
+                    Thread.Yield();
+                }
+            }
+
+            // If the app was stalled, resync instead of trying to "catch up" thousands of iterations.
+            var driftTicks = clock.ElapsedTicks - nextTick;
+            if (driftTicks > targetStepTicks * 8)
+            {
+                nextTick = clock.ElapsedTicks;
+            }
+
+            var loopDurationMs = (int)Math.Clamp(Environment.TickCount64 - loopStartTickMs, 0, int.MaxValue);
+            Volatile.Write(ref _audioUpdateLastLoopMs, loopDurationMs);
+            UpdateMax(ref _audioUpdateMaxLoopMs, loopDurationMs);
+        }
+    }
+
+    private void ResetAudioUpdateTelemetry()
+    {
+        Interlocked.Exchange(ref _audioUpdateLastTickMs, 0);
+        Volatile.Write(ref _audioUpdateLastIntervalMs, 0);
+        Volatile.Write(ref _audioUpdateMaxIntervalMs, 0);
+        Volatile.Write(ref _audioUpdateLastLoopMs, 0);
+        Volatile.Write(ref _audioUpdateMaxLoopMs, 0);
+    }
+
+    private static void UpdateMax(ref int target, int candidate)
+    {
+        while (true)
+        {
+            var current = Volatile.Read(ref target);
+            if (candidate <= current)
+            {
+                return;
+            }
+
+            if (Interlocked.CompareExchange(ref target, candidate, current) == current)
+            {
+                return;
+            }
+        }
     }
 
     private AudioClip? GetOrCreateClip(string filePath, bool streamFromDisk)
     {
+        var fullPath = Path.GetFullPath(filePath);
         var cacheKey = $"{(streamFromDisk ? "stream" : "mem")}::{Path.GetFullPath(filePath)}";
         if (_clipCache.TryGetValue(cacheKey, out var existing))
         {
@@ -296,7 +502,7 @@ public sealed class MiniAudioPlaybackService : IAudioPlaybackService, IDisposabl
 
         try
         {
-            var clip = new AudioClip(filePath, streamFromDisk);
+            var clip = new AudioClip(fullPath, streamFromDisk);
             _clipCache[cacheKey] = clip;
             return clip;
         }
@@ -353,4 +559,100 @@ public sealed class MiniAudioPlaybackService : IAudioPlaybackService, IDisposabl
     }
 
     private static float Clamp01(float value) => Math.Clamp(value, 0f, 1f);
+
+    private void ClearLoadedSongState()
+    {
+        _songClip = null;
+        _songPath = string.Empty;
+        ResetLoadedSongRuntimeState();
+    }
+
+    private void ResetLoadedSongRuntimeState()
+    {
+        _songSourceLengthFrames = 0;
+        _songDurationMs = 0;
+        ResetSongSeekDebugState();
+    }
+
+    private static void ResetSongSourcePlaybackState(AudioSource source)
+    {
+        source.Stop();
+        source.Cursor = 0;
+    }
+
+    private ulong TryReadSongSourceLengthFrames(AudioSource source, int attempts)
+    {
+        ulong lengthFrames = 0;
+        for (var i = 0; i < Math.Max(1, attempts); i++)
+        {
+            AudioContext.Update();
+            lengthFrames = SafeReadSourceLength(source);
+            if (lengthFrames > 0)
+            {
+                return lengthFrames;
+            }
+        }
+
+        return 0;
+    }
+
+    private int GetObservedSongPositionMs(AudioSource source)
+    {
+        return FramesToMilliseconds(SafeReadSourceCursor(source), GetAudioFrameRateHz());
+    }
+
+    private int GetAudioFrameRateHz()
+    {
+        return _initialized ? Math.Max(1, AudioContext.SampleRate) : (int)SampleRate;
+    }
+
+    private static ulong SafeReadSourceLength(AudioSource source)
+    {
+        try
+        {
+            return source.Length;
+        }
+        catch
+        {
+            return 0;
+        }
+    }
+
+    private static ulong SafeReadSourceCursor(AudioSource source)
+    {
+        try
+        {
+            return source.Cursor;
+        }
+        catch
+        {
+            return 0;
+        }
+    }
+
+    private void UpdateLastSeekDebug(AudioSource source, int targetTimeMs)
+    {
+        _lastSeekRequestMs = Math.Max(0, targetTimeMs);
+
+        try
+        {
+            AudioContext.Update();
+            var observedMs = GetObservedSongPositionMs(source);
+            _lastSeekObservedMs = observedMs;
+            _lastSeekErrorMs = observedMs - _lastSeekRequestMs;
+        }
+        catch
+        {
+            _lastSeekObservedMs = -1;
+            _lastSeekErrorMs = 0;
+        }
+    }
+
+    private void ResetSongSeekDebugState()
+    {
+        _lastSeekRequestMs = -1;
+        _lastSeekObservedMs = -1;
+        _lastSeekErrorMs = 0;
+    }
+
 }

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
@@ -15,6 +16,7 @@ using CommunityToolkit.Mvvm.Input;
 using MapWizard.Desktop.Extensions;
 using MapWizard.Desktop.Models;
 using MapWizard.Desktop.Models.HitSoundVisualizer;
+using MapWizard.Desktop.Playback;
 using MapWizard.Desktop.Services;
 using MapWizard.Desktop.Utils;
 using MapWizard.Tools.HitSounds.Event;
@@ -35,22 +37,24 @@ public partial class HitSoundVisualizerViewModel(
     ISukiToastManager toastManager) : ViewModelBase
 {
     private const string PointClipboardFormatId = "MapWizard.HitSoundVisualizer.Points/v1";
+    private const int PlaybackDebugInfoUpdateIntervalMs = 250;
     private readonly string[] _sampleExtensions = [".wav", ".ogg", ".mp3"];
+    private readonly ConcurrentDictionary<string, string> _resolvedPlaybackSamplePathCache =
+        new(StringComparer.OrdinalIgnoreCase);
     private int _nextPointId = 1;
     private string _loadedMapsetDirectoryPath = string.Empty;
     private string _loadedAudioFilePath = string.Empty;
     private string _legacySkinDirectoryPath = string.Empty;
     private HitSoundTimeline _workingTimeline = new();
     private bool _suppressHeaderBankQuickApply;
-    private CancellationTokenSource? _transportCts;
-    private Stopwatch? _transportStopwatch;
-    private int _transportStartTimeMs;
-    private bool _transportUsesSongClock;
+    private PlaybackRunner? _playbackRunner;
+    private long _playbackDebugStatusLastUiTickMs;
 
     [ObservableProperty] private SelectedMap _originBeatmap = new();
     [ObservableProperty] private string _preferredDirectory = string.Empty;
     [ObservableProperty] private string _loadedMapTitle = string.Empty;
     [ObservableProperty] private bool _hasLoadedMap;
+    [ObservableProperty] private bool _hasLoadedSongAudio;
     [ObservableProperty] private double _timelineEndMs = 1000;
     [ObservableProperty] private double _viewStartMs;
     [ObservableProperty] private double _viewWindowMs = 8000;
@@ -76,11 +80,13 @@ public partial class HitSoundVisualizerViewModel(
     [ObservableProperty] private bool _hsSelectorIncludeClap = true;
     [ObservableProperty] private string _timelineStats = "No beatmap loaded.";
     [ObservableProperty] private string _playbackStatus = "Idle";
+    [ObservableProperty] private string _timingDebugStatus = "Timing: playback idle";
+    [ObservableProperty] private string _audioDebugStatus = "AudioDbg: no song";
     [ObservableProperty] private string _selectedPointSummary = "No point selected.";
-    [ObservableProperty] private bool _isTransportPlaying;
-    [ObservableProperty] private bool _isTransportPaused;
+    [ObservableProperty] private bool _isPlaybackRunning;
+    [ObservableProperty] private bool _isPlaybackPaused;
     [ObservableProperty] private bool _followPlaybackCursor = true;
-    [ObservableProperty] private int _transportSeekMs;
+    [ObservableProperty] private int _playbackSeekMs;
     [ObservableProperty] private int _songVolumePercent = LoadPersistedSongVolumePercent(settingsService);
     [ObservableProperty] private int _hitSoundVolumePercent = LoadPersistedHitSoundVolumePercent(settingsService);
     [ObservableProperty] private int _selectedSnapDivisorDenominator = 4;
@@ -110,10 +116,12 @@ public partial class HitSoundVisualizerViewModel(
     public int SelectedPointCount => SelectedPointIds.Count;
     public string CursorTimeText => FormatTimeLabel(CursorTimeMs);
     public string TimelineEndText => FormatTimeLabel((int)Math.Round(TimelineEndMs));
-    public string TransportButtonText => IsTransportPlaying ? "Pause" : (IsTransportPaused ? "Resume" : "Play");
-    public string AudioSourceStatus => string.IsNullOrWhiteSpace(_loadedAudioFilePath)
-        ? "Song audio unavailable (hitsound-only playback)."
+    public string PlaybackButtonText => IsPlaybackRunning ? "Pause" : (IsPlaybackPaused ? "Resume" : "Play");
+    public string AudioSourceStatus => !HasLoadedSongAudio || string.IsNullOrWhiteSpace(_loadedAudioFilePath)
+        ? "Song audio unavailable (playback disabled)."
         : $"Song: {Path.GetFileName(_loadedAudioFilePath)}";
+    public bool ShowPlaybackTimeline => HasLoadedMap && HasLoadedSongAudio;
+    public bool ShowDebugInfoCard => Debugger.IsAttached;
     public string LegacySkinStatus => string.IsNullOrWhiteSpace(_legacySkinDirectoryPath)
         ? "Legacy fallback skin: not found (place osu-resources legacy skin locally)."
         : $"Legacy fallback skin: {Path.GetFileName(_legacySkinDirectoryPath)}";
@@ -171,6 +179,8 @@ public partial class HitSoundVisualizerViewModel(
         }
     }
 
+    private PlaybackRunner PlaybackRunner => _playbackRunner ??= new(audioPlaybackService);
+
     partial void OnViewStartMsChanged(double value)
     {
         NormalizeViewWindow();
@@ -204,7 +214,7 @@ public partial class HitSoundVisualizerViewModel(
     partial void OnCursorTimeMsChanged(int value)
     {
         OnPropertyChanged(nameof(CursorTimeText));
-        TransportSeekMs = value;
+        PlaybackSeekMs = value;
     }
 
     partial void OnSelectedPointIdChanged(int value)
@@ -223,16 +233,25 @@ public partial class HitSoundVisualizerViewModel(
     partial void OnHasLoadedMapChanged(bool value)
     {
         OnPropertyChanged(nameof(CanEditHeaderBanks));
+        OnPropertyChanged(nameof(ShowPlaybackTimeline));
     }
 
-    partial void OnIsTransportPausedChanged(bool value)
+    partial void OnHasLoadedSongAudioChanged(bool value)
     {
-        OnPropertyChanged(nameof(TransportButtonText));
+        OnPropertyChanged(nameof(AudioSourceStatus));
+        OnPropertyChanged(nameof(ShowPlaybackTimeline));
     }
 
-    partial void OnIsTransportPlayingChanged(bool value)
+    partial void OnIsPlaybackPausedChanged(bool value)
     {
-        OnPropertyChanged(nameof(TransportButtonText));
+        OnPropertyChanged(nameof(PlaybackButtonText));
+        RefreshTimingDebugStatus(force: true);
+    }
+
+    partial void OnIsPlaybackRunningChanged(bool value)
+    {
+        OnPropertyChanged(nameof(PlaybackButtonText));
+        RefreshTimingDebugStatus(force: true);
     }
 
     partial void OnSongVolumePercentChanged(int value)
@@ -368,12 +387,13 @@ public partial class HitSoundVisualizerViewModel(
         try
         {
             RefreshPersistedPlaybackVolumes();
-            StopTransportCore(resetPausedState: true);
+            StopPlaybackCore(resetPausedState: true);
             var document = hitSoundService.LoadHitsoundVisualizerDocument(OriginBeatmap.Path);
 
             _loadedMapsetDirectoryPath = document.MapsetDirectoryPath;
             _loadedAudioFilePath = document.AudioFilePath;
             _legacySkinDirectoryPath = ResolveLegacySkinDirectory();
+            _resolvedPlaybackSamplePathCache.Clear();
             _workingTimeline = document.Timeline;
             _workingTimeline.DraggableSoundTimeline = new SoundTimeline();
             _nextPointId = Math.Max(1, document.Points.Any() ? document.Points.Max(x => x.Id) + 1 : 1);
@@ -396,7 +416,7 @@ public partial class HitSoundVisualizerViewModel(
             ViewWindowMs = Math.Min(12000, TimelineEndMs);
             CursorTimeMs = 0;
             ContextSamplePointTimeMs = 0;
-            TransportSeekMs = 0;
+            PlaybackSeekMs = 0;
             SelectedPointId = -1;
             SelectedPointIds = [];
             ContextSampleSetName = "Normal";
@@ -407,6 +427,7 @@ public partial class HitSoundVisualizerViewModel(
             HeaderNormalBankName = "Auto";
             HeaderAdditionBankName = "Auto";
             UpdateContextSamplePointSummary();
+            HasLoadedSongAudio = songLoaded;
             HasLoadedMap = true;
 
             audioPlaybackService.SetSongVolume(SongVolumePercent / 100f);
@@ -414,7 +435,6 @@ public partial class HitSoundVisualizerViewModel(
 
             UpdateTimelineStats();
             UpdateSelectedPointSummary();
-            OnPropertyChanged(nameof(AudioSourceStatus));
             OnPropertyChanged(nameof(LegacySkinStatus));
             OnPropertyChanged(nameof(TimelineEndText));
             PlaybackStatus = "Loaded";
@@ -589,12 +609,26 @@ public partial class HitSoundVisualizerViewModel(
     private void SeekTime(int timeMs)
     {
         var clamped = Math.Clamp(timeMs, 0, (int)Math.Ceiling(TimelineEndMs));
+
+        if (IsPlaybackRunning)
+        {
+            var currentPlaybackTimeMs = GetCurrentPlaybackTimeMs();
+            if (clamped < currentPlaybackTimeMs)
+            {
+                // Backward seeks should restart playback immediately from the target position
+                // instead of waiting for the current runner clock to drift back via UI state.
+                ContextSamplePointTimeMs = clamped;
+                RestartPlaybackAt(clamped);
+                return;
+            }
+        }
+
         CursorTimeMs = clamped;
         ContextSamplePointTimeMs = clamped;
 
-        if (IsTransportPlaying)
+        if (IsPlaybackRunning)
         {
-            RestartTransportAt(clamped);
+            RestartPlaybackAt(clamped);
         }
     }
 
@@ -1062,37 +1096,37 @@ public partial class HitSoundVisualizerViewModel(
             return;
         }
 
-        StopTransportCore(resetPausedState: true);
+        StopPlaybackCore(resetPausedState: true);
         PlaybackStatus = $"Playing {point.TimeMs}ms";
         await PlayPointAsync(point, CancellationToken.None);
         PlaybackStatus = "Idle";
     }
 
     [RelayCommand]
-    private void ToggleTransportPlayback()
+    private void TogglePlayback()
     {
         if (!HasLoadedMap)
         {
             return;
         }
 
-        if (IsTransportPlaying)
+        if (IsPlaybackRunning)
         {
-            PauseTransport();
+            PausePlayback();
             return;
         }
 
-        if (IsTransportPaused)
+        if (IsPlaybackPaused)
         {
-            ResumeTransport();
+            ResumePlayback();
             return;
         }
 
-        PlayTransportFromCursor();
+        PlayPlaybackFromCursor();
     }
 
     [RelayCommand]
-    private void PlayTransportFromCursor()
+    private void PlayPlaybackFromCursor()
     {
         if (!HasLoadedMap)
         {
@@ -1100,233 +1134,110 @@ public partial class HitSoundVisualizerViewModel(
         }
 
         var startTime = CursorTimeMs >= Math.Max(0, TimelineEndMs - 1) ? 0 : CursorTimeMs;
-        StartTransportAt(startTime);
+        StartPlaybackAt(startTime);
     }
 
     [RelayCommand]
-    private void PauseTransport()
+    private void PausePlayback()
     {
-        if (!IsTransportPlaying)
+        if (!IsPlaybackRunning)
         {
             return;
         }
 
-        var currentTime = GetCurrentTransportTimeMs();
-        StopTransportCore(resetPausedState: false, stopSongPlayback: false);
+        var currentTime = PlaybackRunner.Pause();
+        IsPlaybackRunning = false;
         CursorTimeMs = currentTime;
         PlaybackStatus = "Paused";
-        IsTransportPaused = true;
+        IsPlaybackPaused = true;
+        RefreshTimingDebugStatus(force: true);
     }
 
     [RelayCommand]
-    private void ResumeTransport()
+    private void ResumePlayback()
     {
         if (!HasLoadedMap)
         {
             return;
         }
 
-        StartTransportAt(CursorTimeMs);
+        StartPlaybackAt(CursorTimeMs);
     }
 
     [RelayCommand]
-    private void StopTransport()
+    private void StopPlaybackSession()
     {
-        StopTransportCore(resetPausedState: true);
+        StopPlaybackCore(resetPausedState: true);
         PlaybackStatus = "Stopped";
     }
 
     [RelayCommand]
-    private void CommitTransportSeek()
+    private void CommitPlaybackSeek()
     {
-        SeekTime(TransportSeekMs);
+        SeekTime(PlaybackSeekMs);
     }
 
     [RelayCommand]
     private void StopPlayback()
     {
-        StopTransportCore(resetPausedState: true);
+        StopPlaybackCore(resetPausedState: true);
         PlaybackStatus = "Stopped";
     }
 
-    private void StartTransportAt(int startTimeMs)
+    private void StartPlaybackAt(int startTimeMs)
     {
         startTimeMs = Math.Clamp(startTimeMs, 0, (int)Math.Ceiling(TimelineEndMs));
 
-        StopTransportCore(resetPausedState: false);
+        StopPlaybackCore(resetPausedState: false);
 
-        _transportStartTimeMs = startTimeMs;
         audioPlaybackService.SetSongVolume(SongVolumePercent / 100f);
         audioPlaybackService.SetHitsoundVolume(HitSoundVolumePercent / 100f);
-        var songStarted = audioPlaybackService.LoadSong(_loadedAudioFilePath) && audioPlaybackService.PlaySong(startTimeMs);
-        _transportUsesSongClock = songStarted;
-        _transportStopwatch = Stopwatch.StartNew();
-        var cts = new CancellationTokenSource();
-        _transportCts = cts;
+        var playbackSampleChanges = SampleChanges.OrderBy(x => x.TimeMs).ToList();
+        var startResult = PlaybackRunner.Start(
+            _loadedAudioFilePath,
+            startTimeMs,
+            TimelineEndMs,
+            Points,
+            postToUi: action => Dispatcher.UIThread.Post(action),
+            onCursorUpdatedOnUi: UpdatePlaybackCursor,
+            onPlaybackCompletedOnUi: OnPlaybackRunnerCompleted,
+            onPlayPoint: (point, token) => PlayPointForPlayback(point, playbackSampleChanges, token));
+        if (startResult != PlaybackRunnerStartResult.Started)
+        {
+            CursorTimeMs = startTimeMs;
+            PlaybackSeekMs = startTimeMs;
+            PlaybackStatus = "Playback requires song audio";
+            RefreshTimingDebugStatus(force: true);
+            return;
+        }
 
         CursorTimeMs = startTimeMs;
-        TransportSeekMs = startTimeMs;
-        IsTransportPlaying = true;
-        IsTransportPaused = false;
+        PlaybackSeekMs = startTimeMs;
+        IsPlaybackRunning = true;
+        IsPlaybackPaused = false;
 
-        PlaybackStatus = songStarted
-            ? $"Playing from {FormatTimeLabel(startTimeMs)}"
-            : $"Playing hitsounds from {FormatTimeLabel(startTimeMs)}";
-
-        _ = RunTransportLoopAsync(startTimeMs, cts);
+        PlaybackStatus = $"Playing from {FormatTimeLabel(startTimeMs)}";
+        RefreshTimingDebugStatus(force: true);
     }
 
-    private void RestartTransportAt(int startTimeMs)
+    private void RestartPlaybackAt(int startTimeMs)
     {
-        if (!IsTransportPlaying)
+        if (!IsPlaybackRunning)
         {
             return;
         }
 
-        StartTransportAt(startTimeMs);
+        StartPlaybackAt(startTimeMs);
     }
 
-    private int GetCurrentTransportTimeMs()
+    private int GetCurrentPlaybackTimeMs()
     {
-        if (!IsTransportPlaying)
-        {
-            return Math.Clamp(CursorTimeMs, 0, (int)Math.Ceiling(TimelineEndMs));
-        }
-
-        var fallbackTime = _transportStartTimeMs;
-        if (_transportStopwatch is not null)
-        {
-            fallbackTime = _transportStartTimeMs + (int)_transportStopwatch.ElapsedMilliseconds;
-        }
-
-        if (_transportUsesSongClock)
-        {
-            var songTime = Math.Clamp(audioPlaybackService.GetSongPositionMs(), 0, (int)Math.Ceiling(TimelineEndMs));
-
-            // MiniAudio stream cursor can report 0/invalid briefly right after starting or seeking.
-            // Use the local transport clock during this warm-up window, then lock to the audio clock
-            // to prevent long-map drift between song and hitsounds.
-            if (_transportStopwatch is not null)
-            {
-                var warmupMs = _transportStopwatch.ElapsedMilliseconds;
-                var isWarmup = warmupMs < 300;
-                var warmupDriftFromExpected = Math.Abs(songTime - fallbackTime);
-                var isClearlyInvalidWarmupReading =
-                    isWarmup &&
-                    (
-                        songTime == 0 && fallbackTime > 0 ||
-                        warmupDriftFromExpected > 150
-                    );
-
-                if (!isClearlyInvalidWarmupReading)
-                {
-                    return songTime;
-                }
-            }
-            else
-            {
-                return songTime;
-            }
-        }
-
-        return Math.Clamp(fallbackTime, 0, (int)Math.Ceiling(TimelineEndMs));
+        return PlaybackRunner.GetCurrentTimeMs();
     }
 
-    private async Task RunTransportLoopAsync(int startTimeMs, CancellationTokenSource cts)
+    private void UpdatePlaybackCursor(int currentTimeMs)
     {
-        var token = cts.Token;
-        var playbackPoints = Points
-            .Where(x => x.TimeMs >= startTimeMs)
-            .OrderBy(x => x.TimeMs)
-            .ToList();
-
-        var nextPointIndex = 0;
-        var lastUiUpdateTicks = 0L;
-        var sawSongPlaying = false;
-
-        try
-        {
-            while (!token.IsCancellationRequested)
-            {
-                if (_transportUsesSongClock && audioPlaybackService.IsSongPlaying)
-                {
-                    sawSongPlaying = true;
-                }
-
-                var currentTime = GetCurrentTransportTimeMs();
-
-                while (nextPointIndex < playbackPoints.Count &&
-                       playbackPoints[nextPointIndex].TimeMs <= currentTime)
-                {
-                    var point = playbackPoints[nextPointIndex++];
-                    PlayPointForTransport(point, token);
-                }
-
-                var uiTick = Environment.TickCount64;
-                if (uiTick - lastUiUpdateTicks >= 16)
-                {
-                    lastUiUpdateTicks = uiTick;
-                    var uiTime = Math.Clamp(currentTime, 0, (int)Math.Ceiling(TimelineEndMs));
-                    Dispatcher.UIThread.Post(() =>
-                    {
-                        if (!ReferenceEquals(_transportCts, cts))
-                        {
-                            return;
-                        }
-
-                        UpdateTransportCursor(uiTime);
-                    });
-                }
-
-                // When song audio is available, continue transport until the song actually ends instead of
-                // cutting off at the last visualized hitsound/timing point (timeline end).
-                var reachedEnd = !_transportUsesSongClock && currentTime >= TimelineEndMs;
-                if (reachedEnd)
-                {
-                    break;
-                }
-
-                // Some beatmaps end playback before the visualizer timeline end (or the audio source stops
-                // slightly early at EOF). Once we have observed song playback and it has stopped, end the
-                // transport cleanly so replay can start again without leaving transport state "running".
-                var songEndedNaturally = _transportUsesSongClock && sawSongPlaying && !audioPlaybackService.IsSongPlaying;
-                if (songEndedNaturally)
-                {
-                    break;
-                }
-
-                var nextDue = nextPointIndex < playbackPoints.Count
-                    ? Math.Max(1, playbackPoints[nextPointIndex].TimeMs - currentTime)
-                    : 4;
-                await Task.Delay((int)Math.Clamp(nextDue, 1, 4), token);
-            }
-        }
-        catch (OperationCanceledException)
-        {
-            return;
-        }
-
-        if (token.IsCancellationRequested)
-        {
-            return;
-        }
-
-        Dispatcher.UIThread.Post(() =>
-        {
-            if (!ReferenceEquals(_transportCts, cts))
-            {
-                return;
-            }
-
-            StopTransportCore(resetPausedState: true);
-            CursorTimeMs = Math.Clamp((int)Math.Ceiling(TimelineEndMs), 0, (int)Math.Ceiling(TimelineEndMs));
-            PlaybackStatus = "Playback complete";
-        });
-    }
-
-    private void UpdateTransportCursor(int currentTimeMs)
-    {
-        if (FollowPlaybackCursor && IsTransportPlaying)
+        if (FollowPlaybackCursor && IsPlaybackRunning)
         {
             var window = Math.Max(100, ViewWindowMs);
             const double playheadAnchorRatio = 0.38d;
@@ -1335,35 +1246,46 @@ public partial class HitSoundVisualizerViewModel(
         }
 
         CursorTimeMs = currentTimeMs;
+        RefreshTimingDebugStatus();
     }
 
-    private void StopTransportCore(bool resetPausedState, bool stopSongPlayback = true)
+    private void OnPlaybackRunnerCompleted(int endTimeMs)
     {
+        IsPlaybackRunning = false;
+        IsPlaybackPaused = false;
+        CursorTimeMs = Math.Clamp(endTimeMs, 0, (int)Math.Ceiling(TimelineEndMs));
+        PlaybackStatus = "Playback complete";
+        RefreshTimingDebugStatus(force: true);
+    }
+
+    private void StopPlaybackCore(bool resetPausedState)
+    {
+        PlaybackRunner.Stop();
+
         if (resetPausedState)
         {
-            IsTransportPaused = false;
+            IsPlaybackPaused = false;
         }
 
-        IsTransportPlaying = false;
-        _transportStopwatch?.Stop();
-        _transportStopwatch = null;
+        IsPlaybackRunning = false;
+        RefreshTimingDebugStatus(force: true);
+    }
 
-        _transportCts?.Cancel();
-        _transportCts?.Dispose();
-        _transportCts = null;
-        if (_transportUsesSongClock)
+    private void RefreshTimingDebugStatus(bool force = false)
+    {
+        var nowTickMs = Environment.TickCount64;
+        var lastTickMs = Interlocked.Read(ref _playbackDebugStatusLastUiTickMs);
+        if (!force && lastTickMs > 0 && nowTickMs - lastTickMs < PlaybackDebugInfoUpdateIntervalMs)
         {
-            if (stopSongPlayback)
-            {
-                audioPlaybackService.StopSong();
-            }
-            else
-            {
-                audioPlaybackService.PauseSong();
-            }
+            return;
         }
 
-        _transportUsesSongClock = false;
+        Interlocked.Exchange(ref _playbackDebugStatusLastUiTickMs, nowTickMs);
+
+        var runnerTiming = _playbackRunner?.GetTimingTelemetryStatus() ?? "PlaybackRunner[idle]";
+        var audioTiming = audioPlaybackService.GetTimingTelemetryStatus();
+        TimingDebugStatus = $"Timing | {runnerTiming} | {audioTiming}";
+        AudioDebugStatus = audioPlaybackService.GetSongDebugStatus();
     }
 
     private string ResolveLegacySkinDirectory()
@@ -1928,7 +1850,7 @@ public partial class HitSoundVisualizerViewModel(
         ViewWindowMs = Math.Clamp(ViewWindowMs, 100, Math.Max(100, TimelineEndMs));
         ViewStartMs = Math.Clamp(ViewStartMs, 0, Math.Max(0, TimelineEndMs - ViewWindowMs));
         CursorTimeMs = Math.Clamp(CursorTimeMs, 0, (int)Math.Ceiling(TimelineEndMs));
-        TransportSeekMs = Math.Clamp(TransportSeekMs, 0, (int)Math.Ceiling(TimelineEndMs));
+        PlaybackSeekMs = Math.Clamp(PlaybackSeekMs, 0, (int)Math.Ceiling(TimelineEndMs));
         ContextSamplePointTimeMs = Math.Clamp(ContextSamplePointTimeMs, 0, (int)Math.Ceiling(TimelineEndMs));
     }
 
@@ -1968,7 +1890,10 @@ public partial class HitSoundVisualizerViewModel(
         await PlayToneFallbackAsync(point, cancellationToken);
     }
 
-    private void PlayPointForTransport(HitSoundVisualizerPoint point, CancellationToken cancellationToken)
+    private void PlayPointForPlayback(
+        HitSoundVisualizerPoint point,
+        IReadOnlyList<HitSoundVisualizerSampleChange> playbackSampleChanges,
+        CancellationToken cancellationToken)
     {
         if (cancellationToken.IsCancellationRequested)
         {
@@ -1977,7 +1902,7 @@ public partial class HitSoundVisualizerViewModel(
 
         try
         {
-            if (TryPlayPointSample(point))
+            if (TryPlayPointSample(point, playbackSampleChanges))
             {
                 return;
             }
@@ -1986,34 +1911,61 @@ public partial class HitSoundVisualizerViewModel(
         }
         catch
         {
-            // Ignore point playback failures during transport preview.
+            // Ignore point playback failures during playback preview.
         }
     }
 
     private bool TryPlayPointSample(HitSoundVisualizerPoint point)
     {
-        var sampleFilePath = ResolveSampleFilePath(point);
+        var sampleFilePath = ResolveSampleFilePath(point, SampleChanges);
         return !string.IsNullOrWhiteSpace(sampleFilePath) && audioPlaybackService.PlayHitsound(sampleFilePath);
     }
 
-    private string ResolveSampleFilePath(HitSoundVisualizerPoint point)
+    private bool TryPlayPointSample(HitSoundVisualizerPoint point, IReadOnlyList<HitSoundVisualizerSampleChange> sampleChanges)
     {
-        var sampleChange = SampleChanges
-            .Where(x => x.TimeMs <= point.TimeMs)
-            .OrderBy(x => x.TimeMs)
-            .LastOrDefault();
+        var sampleFilePath = ResolveSampleFilePath(point, sampleChanges);
+        return !string.IsNullOrWhiteSpace(sampleFilePath) && audioPlaybackService.PlayHitsound(sampleFilePath);
+    }
 
-        var index = Math.Max(1, sampleChange?.Index ?? 1);
-        var mapsetPath = ResolveSampleFilePathFromDirectory(_loadedMapsetDirectoryPath, point.SampleSet, point.HitSound, index);
+    private string ResolveSampleFilePath(HitSoundVisualizerPoint point, IReadOnlyList<HitSoundVisualizerSampleChange> sampleChanges)
+    {
+        var index = ResolvePlaybackSampleIndex(point.TimeMs, sampleChanges);
+        var mapsetPath = ResolveSampleFilePathFromDirectoryCached(_loadedMapsetDirectoryPath, point.SampleSet, point.HitSound, index);
         if (!string.IsNullOrWhiteSpace(mapsetPath))
         {
             return mapsetPath;
         }
 
-        return ResolveSampleFilePathFromDirectory(_legacySkinDirectoryPath, point.SampleSet, point.HitSound, index);
+        return ResolveSampleFilePathFromDirectoryCached(_legacySkinDirectoryPath, point.SampleSet, point.HitSound, index);
     }
 
-    private string ResolveSampleFilePathFromDirectory(string directoryPath, SampleSet sampleSet, HitSound hitSound, int index)
+    private int ResolvePlaybackSampleIndex(int pointTimeMs, IReadOnlyList<HitSoundVisualizerSampleChange> sampleChanges)
+    {
+        for (var i = sampleChanges.Count - 1; i >= 0; i--)
+        {
+            if (sampleChanges[i].TimeMs <= pointTimeMs)
+            {
+                return Math.Max(1, sampleChanges[i].Index);
+            }
+        }
+
+        return 1;
+    }
+
+    private string ResolveSampleFilePathFromDirectoryCached(string directoryPath, SampleSet sampleSet, HitSound hitSound, int index)
+    {
+        if (string.IsNullOrWhiteSpace(directoryPath))
+        {
+            return string.Empty;
+        }
+
+        var cacheKey = $"{directoryPath}|{(int)sampleSet}|{(int)hitSound}|{Math.Max(1, index)}";
+        return _resolvedPlaybackSamplePathCache.GetOrAdd(
+            cacheKey,
+            _ => ResolveSampleFilePathFromDirectoryUncached(directoryPath, sampleSet, hitSound, index));
+    }
+
+    private string ResolveSampleFilePathFromDirectoryUncached(string directoryPath, SampleSet sampleSet, HitSound hitSound, int index)
     {
         if (string.IsNullOrWhiteSpace(directoryPath) || !Directory.Exists(directoryPath))
         {

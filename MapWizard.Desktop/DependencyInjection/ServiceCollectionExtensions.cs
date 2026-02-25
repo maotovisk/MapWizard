@@ -44,7 +44,7 @@ public static class ServiceCollectionExtensions
         collection.AddScoped<IHitSoundService, HitSoundService>();
         collection.AddScoped<IComboColourStudioService, ComboColourStudioService>();
         collection.AddScoped<IMapCleanerService, MapCleanerService>();
-        collection.AddSingleton<IAudioPlaybackService, MiniAudioPlaybackService>();
+        collection.AddSingleton<IAudioPlaybackService, ManagedBassPlaybackService>();
         collection.AddSingleton<IComboColourProjectStore, ComboColourProjectStore>();
         collection.AddScoped<IOsuMemoryReaderService, OsuMemoryReaderService>();
         collection.AddSingleton<ISongLibraryService, SongLibraryService>();

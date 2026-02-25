@@ -27,6 +27,8 @@ public class HitSoundTimelinePlot : Control
     private const double SampleChangeBarCornerRadius = 4d;
     private const double SampleChangeTextPadding = 6d;
     private const double SampleChangeTextFontSize = 10d;
+    private const double SnapTickTargetMinSpacingPx = 3d;
+    private const double SnapTickMaxSimplifiedSpacingPx = 14d;
     private static readonly IBrush BackgroundBrush = new SolidColorBrush(Color.Parse("#14181D"));
     private static readonly IBrush SampleRowBrush = new SolidColorBrush(Color.Parse("#1F2430"));
     private static readonly IBrush EvenRowBrush = new SolidColorBrush(Color.Parse("#151B22"));
@@ -81,8 +83,8 @@ public class HitSoundTimelinePlot : Control
     public static readonly StyledProperty<int> SnapDivisorDenominatorProperty =
         AvaloniaProperty.Register<HitSoundTimelinePlot, int>(nameof(SnapDivisorDenominator), 4);
 
-    public static readonly StyledProperty<bool> IsTransportPlayingProperty =
-        AvaloniaProperty.Register<HitSoundTimelinePlot, bool>(nameof(IsTransportPlaying));
+    public static readonly StyledProperty<bool> IsPlaybackRunningProperty =
+        AvaloniaProperty.Register<HitSoundTimelinePlot, bool>(nameof(IsPlaybackRunning));
 
     public static readonly StyledProperty<int> SelectedPointIdProperty =
         AvaloniaProperty.Register<HitSoundTimelinePlot, int>(nameof(SelectedPointId), -1);
@@ -177,10 +179,10 @@ public class HitSoundTimelinePlot : Control
         set => SetValue(SnapDivisorDenominatorProperty, value);
     }
 
-    public bool IsTransportPlaying
+    public bool IsPlaybackRunning
     {
-        get => GetValue(IsTransportPlayingProperty);
-        set => SetValue(IsTransportPlayingProperty, value);
+        get => GetValue(IsPlaybackRunningProperty);
+        set => SetValue(IsPlaybackRunningProperty, value);
     }
 
     public int SelectedPointId
@@ -553,7 +555,7 @@ public class HitSoundTimelinePlot : Control
     protected override void OnPointerWheelChanged(PointerWheelEventArgs e)
     {
         base.OnPointerWheelChanged(e);
-
+        
         var bounds = Bounds;
         if (bounds.Width <= 1 || bounds.Height <= 1)
         {
@@ -644,6 +646,7 @@ public class HitSoundTimelinePlot : Control
 
         var tickMode = ResolveTickRenderMode(visibleTicks, width, windowMs);
 
+        var tickCandidates = new List<(HitSoundVisualizerSnapTick Tick, double X)>(visibleTicks.Count);
         foreach (var tick in visibleTicks)
         {
             if (!ShouldRenderTickForMode(tick, tickMode))
@@ -652,6 +655,17 @@ public class HitSoundTimelinePlot : Control
             }
 
             var x = TimeToX(tick.TimeMs, width, windowMs);
+            tickCandidates.Add((tick, x));
+        }
+
+        if (tickCandidates.Count == 0)
+        {
+            return;
+        }
+
+        var ticksToRender = SimplifyTickCandidatesForDensity(tickCandidates, width);
+        foreach (var (tick, x) in ticksToRender)
+        {
             var color = SnapTickColor(tick.Denominator);
             var thickness = tick.Denominator switch
             {
@@ -871,7 +885,7 @@ public class HitSoundTimelinePlot : Control
     private int ResolveClickedTimeMs(double clickX, double width, double windowMs, double snapTolerancePx)
     {
         var rawTimeMs = XToTime(clickX, width, windowMs);
-        if (IsTransportPlaying)
+        if (IsPlaybackRunning)
         {
             return rawTimeMs;
         }
@@ -890,7 +904,7 @@ public class HitSoundTimelinePlot : Control
 
     private void UpdatePlacementGhost(Point pointerPosition, Rect bounds, KeyModifiers keyModifiers)
     {
-        if (IsTransportPlaying || !keyModifiers.HasFlag(KeyModifiers.Control))
+        if (IsPlaybackRunning || !keyModifiers.HasFlag(KeyModifiers.Control))
         {
             ClearPlacementGhost();
             return;
@@ -1364,6 +1378,68 @@ public class HitSoundTimelinePlot : Control
             TickRenderMode.MidOnly => tick.Denominator is 1 or 2 or 3 or 4 or 6 or 8,
             _ => true
         };
+    }
+
+    private static IReadOnlyList<(HitSoundVisualizerSnapTick Tick, double X)> SimplifyTickCandidatesForDensity(
+        IReadOnlyList<(HitSoundVisualizerSnapTick Tick, double X)> candidates,
+        double width)
+    {
+        if (candidates.Count < 2 || width <= 1)
+        {
+            return candidates;
+        }
+
+        var targetMaxTicks = Math.Max(48d, width / SnapTickTargetMinSpacingPx);
+        if (candidates.Count <= targetMaxTicks)
+        {
+            return candidates;
+        }
+
+        var overloadRatio = candidates.Count / targetMaxTicks;
+        var minSpacingPx = Math.Clamp(
+            SnapTickTargetMinSpacingPx * Math.Sqrt(overloadRatio),
+            SnapTickTargetMinSpacingPx,
+            SnapTickMaxSimplifiedSpacingPx);
+
+        var simplified = new List<(HitSoundVisualizerSnapTick Tick, double X)>(Math.Min(candidates.Count, (int)Math.Ceiling(width)));
+        foreach (var candidate in candidates)
+        {
+            if (simplified.Count == 0)
+            {
+                simplified.Add(candidate);
+                continue;
+            }
+
+            var last = simplified[^1];
+            if (candidate.X - last.X >= minSpacingPx)
+            {
+                simplified.Add(candidate);
+                continue;
+            }
+
+            if (GetTickRenderPriority(candidate.Tick) > GetTickRenderPriority(last.Tick))
+            {
+                simplified[^1] = candidate;
+            }
+        }
+
+        return simplified;
+    }
+
+    private static int GetTickRenderPriority(HitSoundVisualizerSnapTick tick)
+    {
+        var priority = tick.IsMeasureLine ? 10_000 : 0;
+        priority += tick.Denominator switch
+        {
+            1 => 2_000,
+            2 or 3 or 4 => 1_000,
+            6 or 8 => 500,
+            _ => 0
+        };
+
+        // Prefer lower denominators when density pruning needs to choose.
+        priority += Math.Max(0, 256 - Math.Min(255, tick.Denominator));
+        return priority;
     }
 
     private enum TickRenderMode

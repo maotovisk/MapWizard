@@ -128,18 +128,20 @@
                     FromWatermark="Visualize hitsounds from..."
                     OriginMemoryToolTip="Get the current beatmap selected in the osu! client." />
 
-                <suki:GlassCard Margin="8" Padding="12" CornerRadius="15">
+                <suki:GlassCard Margin="8" Padding="12" CornerRadius="15" IsVisible="{Binding ShowDebugInfoCard}">
                     <StackPanel Spacing="6">
                         <TextBlock Text="{Binding LoadedMapTitle}" FontWeight="Bold" />
                         <TextBlock Text="{Binding TimelineStats}" Foreground="{DynamicResource SukiLowText}" />
                         <TextBlock Text="{Binding PlaybackStatus, StringFormat=Playback: {0}}" Foreground="{DynamicResource SukiLowText}" />
+                        <TextBlock Text="{Binding TimingDebugStatus}" Foreground="{DynamicResource SukiLowText}" TextWrapping="Wrap" />
+                        <TextBlock Text="{Binding AudioDebugStatus}" Foreground="{DynamicResource SukiLowText}" TextWrapping="Wrap" />
                         <TextBlock Text="{Binding AudioSourceStatus}" Foreground="{DynamicResource SukiLowText}" />
                         <TextBlock Text="{Binding LegacySkinStatus}" Foreground="{DynamicResource SukiLowText}" />
                         <TextBlock Text="{Binding SelectedPointSummary}" Foreground="{DynamicResource SukiLowText}" />
                     </StackPanel>
                 </suki:GlassCard>
 
-                <Border Classes="timeline-shell" Margin="8">
+                <Border Classes="timeline-shell" Margin="8" IsVisible="{Binding ShowPlaybackTimeline}">
                     <StackPanel Spacing="10">
                         <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
                             <TextBlock Text="Timeline Player" VerticalAlignment="Center" FontWeight="SemiBold" />
@@ -467,7 +469,7 @@
                                     ViewStartMs="{Binding ViewStartMs}"
                                     ViewEndMs="{Binding ViewEndMs}"
                                     CursorTimeMs="{Binding CursorTimeMs}"
-                                    IsTransportPlaying="{Binding IsTransportPlaying}"
+                                    IsPlaybackRunning="{Binding IsPlaybackRunning}"
                                     SnapDivisorDenominator="{Binding SelectedSnapDivisorDenominator}"
                                     SelectedPointId="{Binding SelectedPointId}"
                                     SelectedSampleChangeTimeMs="{Binding ContextSamplePointTimeMs}"
@@ -610,32 +612,32 @@
                                                                            Maximum="99" />
 
                                                             <TextBlock Grid.Row="2" Grid.Column="0" VerticalAlignment="Center" Text="Volume" />
-                                                            <NumericUpDown Grid.Row="2" Grid.Column="1"
-                                                                           theme:NumericUpDownExtensions.Unit="%"
-                                                                           Value="{Binding ContextSampleVolume}"
-                                                                           Minimum="0"
-                                                                           Maximum="100" />
+                                                            <Grid Grid.Row="2" Grid.Column="1" ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                                                                <Slider Grid.Column="0"
+                                                                        Minimum="0"
+                                                                        Maximum="100"
+                                                                        TickFrequency="1"
+                                                                        Value="{Binding ContextSampleVolume}" />
+                                                                <TextBlock Grid.Column="1" VerticalAlignment="Center">
+                                                                    <Run Text="{Binding ContextSampleVolume}" />
+                                                                    <Run Text="%" />
+                                                                </TextBlock>
+                                                            </Grid>
                                                         </Grid>
 
-                                                        <WrapPanel ItemWidth="190" Orientation="Horizontal">
+                                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
                                                             <Button Classes="timeline-btn"
                                                                     Command="{Binding ApplyContextSamplePointCommand}"
-                                                                    Margin="0,0,8,8">
-                                                                <StackPanel Orientation="Horizontal" Spacing="6">
-                                                                    <materialIcons:MaterialIcon Kind="ContentSave" Width="16" Height="16" />
-                                                                    <TextBlock VerticalAlignment="Center" Text="Save Sample Point" />
-                                                                </StackPanel>
+                                                                    ToolTip.Tip="Save Sample Point">
+                                                                <materialIcons:MaterialIcon Kind="ContentSave" Width="16" Height="16" />
                                                             </Button>
                                                             <Button Classes="timeline-btn"
                                                                     Command="{Binding RemoveContextSamplePointCommand}"
                                                                     IsEnabled="{Binding ContextSamplePointExists}"
-                                                                    Margin="0,0,8,8">
-                                                                <StackPanel Orientation="Horizontal" Spacing="6">
-                                                                    <materialIcons:MaterialIcon Kind="Delete" Width="16" Height="16" />
-                                                                    <TextBlock VerticalAlignment="Center" Text="Delete Sample Point" />
-                                                                </StackPanel>
+                                                                    ToolTip.Tip="Delete Sample Point">
+                                                                <materialIcons:MaterialIcon Kind="Delete" Width="16" Height="16" />
                                                             </Button>
-                                                        </WrapPanel>
+                                                        </StackPanel>
                                                     </StackPanel>
                                                 </StackPanel>
                                             </Border>
@@ -657,19 +659,19 @@
 
                                     <Button Grid.Column="1"
                                             Classes="timeline-btn"
-                                            Command="{Binding ToggleTransportPlaybackCommand}"
-                                            ToolTip.Tip="{Binding TransportButtonText}">
+                                            Command="{Binding TogglePlaybackCommand}"
+                                            ToolTip.Tip="{Binding PlaybackButtonText}">
                                         <materialIcons:MaterialIcon Kind="PlayPause" Width="16" Height="16" />
                                     </Button>
                                     <Button Grid.Column="2"
                                             Classes="timeline-btn"
-                                            Command="{Binding StopTransportCommand}"
+                                            Command="{Binding StopPlaybackSessionCommand}"
                                             ToolTip.Tip="Stop">
                                         <materialIcons:MaterialIcon Kind="Stop" Width="16" Height="16" />
                                     </Button>
                                     <Button Grid.Column="3"
                                             Classes="timeline-btn"
-                                            Command="{Binding CommitTransportSeekCommand}"
+                                            Command="{Binding CommitPlaybackSeekCommand}"
                                             ToolTip.Tip="Seek to preview position">
                                         <materialIcons:MaterialIcon Kind="SkipNext" Width="16" Height="16" />
                                     </Button>

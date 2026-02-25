@@ -9,6 +9,8 @@ public interface IAudioPlaybackService
     int GetSongPositionMs();
     int GetLoadedSongDurationMs();
     bool IsSongPlaying { get; }
+    string GetTimingTelemetryStatus();
+    string GetSongDebugStatus();
 
     void SetSongVolume(float volume);
     void SetHitsoundVolume(float volume);

@@ -64,7 +64,7 @@ public partial class HitSoundVisualizerView : UserControl
             return;
         }
 
-        vm.ToggleTransportPlaybackCommand.Execute(null);
+        vm.TogglePlaybackCommand.Execute(null);
         e.Handled = true;
     }
 
