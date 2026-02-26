@@ -7,6 +7,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Media;
+using Avalonia.Styling;
 using MapWizard.Desktop.Models.HitSoundVisualizer;
 using BeatmapParser.Enums;
 
@@ -14,8 +15,8 @@ namespace MapWizard.Desktop.Views.Controls;
 
 public class HitSoundTimelinePlot : Control
 {
-    private const double DefaultRowHeight = 28d;
-    private const double PointRadius = 4d;
+    private const double DefaultRowHeight = 34d;
+    private const double PointRadius = 5d;
     private const int SampleRowIndex = 0;
     private const int HitSoundRowStartIndex = 1;
     private const int TotalRows = 5;
@@ -41,17 +42,29 @@ public class HitSoundTimelinePlot : Control
     private static readonly Pen GridPen = new(new SolidColorBrush(Color.Parse("#2B3440")), 1);
     private static readonly Pen BorderPen = new(new SolidColorBrush(Color.Parse("#324050")), 1);
     private static readonly Pen PointOutlinePen = new(new SolidColorBrush(Color.Parse("#0C1117")), 1);
+    private static readonly IBrush LightBackgroundBrush = new SolidColorBrush(Color.Parse("#F6F8FB"));
+    private static readonly IBrush LightSampleRowBrush = new SolidColorBrush(Color.Parse("#E8EEF6"));
+    private static readonly IBrush LightEvenRowBrush = new SolidColorBrush(Color.Parse("#F8FAFD"));
+    private static readonly IBrush LightOddRowBrush = new SolidColorBrush(Color.Parse("#F1F5FA"));
+    private static readonly Pen LightGridPen = new(new SolidColorBrush(Color.Parse("#CCD8E6")), 1);
+    private static readonly Pen LightBorderPen = new(new SolidColorBrush(Color.Parse("#B8C7D8")), 1);
+    private static readonly Pen LightPointOutlinePen = new(new SolidColorBrush(Color.Parse("#E6ECF4")), 1);
     private static readonly Pen DenseNormalPen = new(new SolidColorBrush(Color.Parse("#9BC53D")), 1.4);
     private static readonly Pen DenseSoftPen = new(new SolidColorBrush(Color.Parse("#5BC0EB")), 1.4);
     private static readonly Pen DenseDrumPen = new(new SolidColorBrush(Color.Parse("#E55934")), 1.4);
+    private static readonly Pen DenseAutoPen = new(new SolidColorBrush(Color.Parse("#8A96A3")), 1.4);
     private static readonly IBrush NormalPointBrush = new SolidColorBrush(Color.Parse("#9BC53D"));
     private static readonly IBrush SoftPointBrush = new SolidColorBrush(Color.Parse("#5BC0EB"));
     private static readonly IBrush DrumPointBrush = new SolidColorBrush(Color.Parse("#E55934"));
+    private static readonly IBrush AutoPointBrush = new SolidColorBrush(Color.Parse("#8A96A3"));
     private static readonly Pen PrimarySelectionPen = new(new SolidColorBrush(Color.Parse("#FFD166")), 2);
     private static readonly Pen SecondarySelectionPen = new(new SolidColorBrush(Color.Parse("#FFFFFF")), 1.2);
+    private static readonly Pen LightSecondarySelectionPen = new(new SolidColorBrush(Color.Parse("#1F2937")), 1.2);
     private static readonly Pen SampleChangeSelectionPen = new(new SolidColorBrush(Color.Parse("#89E5FF")), 1.8);
     private static readonly Pen SampleChangeSelectionAccentPen = new(new SolidColorBrush(Color.Parse("#F5FBFF")), 1);
+    private static readonly Pen LightSampleChangeSelectionAccentPen = new(new SolidColorBrush(Color.Parse("#0F172A")), 1);
     private static readonly IBrush SampleChangeLabelBrush = new SolidColorBrush(Color.Parse("#E6EDF7"));
+    private static readonly IBrush LightSampleChangeLabelBrush = new SolidColorBrush(Color.Parse("#0F172A"));
     private static readonly Typeface SampleChangeLabelTypeface = new("Consolas");
     private static readonly Pen NormalSampleChangeLinePen = new(new SolidColorBrush(Color.Parse("#9BC53D")), 1);
     private static readonly Pen SoftSampleChangeLinePen = new(new SolidColorBrush(Color.Parse("#5BC0EB")), 1);
@@ -60,12 +73,14 @@ public class HitSoundTimelinePlot : Control
     private static readonly Pen GhostPreviewPen = new(new SolidColorBrush(Color.Parse("#B3FFD166")), 1.4);
     private static readonly IBrush GhostPreviewFillBrush = new SolidColorBrush(Color.Parse("#33FFD166"));
     private static readonly Pen MeasureTickPen = new(new SolidColorBrush(Color.Parse("#FFFFFF")), 1.6);
+    private static readonly Pen LightMeasureTickPen = new(new SolidColorBrush(Color.Parse("#334155")), 1.6);
     private static readonly Pen HalfTickPen = new(new SolidColorBrush(Color.Parse("#FF5A5A")), 1.2);
     private static readonly Pen TripletTickPen = new(new SolidColorBrush(Color.Parse("#C99BFF")), 1.2);
     private static readonly Pen QuarterTickPen = new(new SolidColorBrush(Color.Parse("#4EA3FF")), 1.2);
     private static readonly Pen SixthTickPen = new(new SolidColorBrush(Color.Parse("#8E5CFF")), 1.0);
     private static readonly Pen EighthTickPen = new(new SolidColorBrush(Color.Parse("#F0D94B")), 1.0);
     private static readonly Pen GenericTickPen = new(new SolidColorBrush(Color.Parse("#7A848F")), 1.0);
+    private static readonly Pen LightGenericTickPen = new(new SolidColorBrush(Color.Parse("#64748B")), 1.0);
     private bool _isMiddlePanning;
     private bool _isRangeSelecting;
     private bool _isSelectionDragActive;
@@ -294,6 +309,8 @@ public class HitSoundTimelinePlot : Control
         set => SetValue(DeleteSampleChangeCommandProperty, value);
     }
 
+    private bool UseLightPalette => ActualThemeVariant == ThemeVariant.Light;
+
     public override void Render(DrawingContext context)
     {
         base.Render(context);
@@ -310,7 +327,7 @@ public class HitSoundTimelinePlot : Control
         var timelineRect = new Rect(0, 0, timelineWidth, timelineHeight);
         var windowMs = Math.Max(1d, ViewEndMs - ViewStartMs);
 
-        context.FillRectangle(BackgroundBrush, timelineRect);
+        context.FillRectangle(CurrentBackgroundBrush(), timelineRect);
 
         DrawRowBackgrounds(context, timelineWidth, rowHeight, TotalRows);
         DrawTicks(context, timelineWidth, timelineHeight, windowMs);
@@ -881,10 +898,10 @@ public class HitSoundTimelinePlot : Control
         for (var row = 0; row < totalRows; row++)
         {
             var brush = row == 0
-                ? SampleRowBrush
+                ? CurrentSampleRowBrush()
                 : row % 2 == 0
-                    ? EvenRowBrush
-                    : OddRowBrush;
+                    ? CurrentEvenRowBrush()
+                    : CurrentOddRowBrush();
 
             context.FillRectangle(brush, new Rect(0, row * rowHeight, width, rowHeight));
         }
@@ -895,10 +912,10 @@ public class HitSoundTimelinePlot : Control
         for (var row = 0; row <= totalRows; row++)
         {
             var y = row * rowHeight;
-            context.DrawLine(GridPen, new Point(0, y), new Point(width, y));
+            context.DrawLine(CurrentGridPen(), new Point(0, y), new Point(width, y));
         }
 
-        context.DrawRectangle(BorderPen, new Rect(0, 0, width, totalRows * rowHeight));
+        context.DrawRectangle(CurrentBorderPen(), new Rect(0, 0, width, totalRows * rowHeight));
     }
 
     private void DrawTicks(DrawingContext context, double width, double height, double windowMs)
@@ -1099,15 +1116,15 @@ public class HitSoundTimelinePlot : Control
             if (denseMode)
             {
                 context.DrawLine(
-                    DenseSampleSetPen(point.SampleSet),
+                    DenseSampleSetPen(point),
                     new Point(x, y - 5),
                     new Point(x, y + 5));
             }
             else
             {
                 context.DrawEllipse(
-                    SampleSetBrush(point.SampleSet),
-                    PointOutlinePen,
+                    SampleSetBrush(point),
+                    CurrentPointOutlinePen(),
                     new Point(x, y),
                     renderRadius,
                     renderRadius);
@@ -1117,7 +1134,7 @@ public class HitSoundTimelinePlot : Control
             {
                 context.DrawEllipse(
                     null,
-                    point.Id == SelectedPointId ? PrimarySelectionPen : SecondarySelectionPen,
+                    point.Id == SelectedPointId ? PrimarySelectionPen : CurrentSecondarySelectionPen(),
                     new Point(x, y),
                     renderRadius + 3,
                     renderRadius + 3);
@@ -1267,6 +1284,40 @@ public class HitSoundTimelinePlot : Control
         InvalidateVisual();
     }
 
+    private IBrush CurrentBackgroundBrush() => UseLightPalette ? LightBackgroundBrush : BackgroundBrush;
+
+    private IBrush CurrentSampleRowBrush() => UseLightPalette ? LightSampleRowBrush : SampleRowBrush;
+
+    private IBrush CurrentEvenRowBrush() => UseLightPalette ? LightEvenRowBrush : EvenRowBrush;
+
+    private IBrush CurrentOddRowBrush() => UseLightPalette ? LightOddRowBrush : OddRowBrush;
+
+    private Pen CurrentGridPen() => UseLightPalette ? LightGridPen : GridPen;
+
+    private Pen CurrentBorderPen() => UseLightPalette ? LightBorderPen : BorderPen;
+
+    private Pen CurrentPointOutlinePen() => UseLightPalette ? LightPointOutlinePen : PointOutlinePen;
+
+    private Pen CurrentSecondarySelectionPen() => UseLightPalette ? LightSecondarySelectionPen : SecondarySelectionPen;
+
+    private Pen CurrentSampleChangeSelectionAccentPen() => UseLightPalette ? LightSampleChangeSelectionAccentPen : SampleChangeSelectionAccentPen;
+
+    private IBrush CurrentSampleChangeLabelBrush() => UseLightPalette ? LightSampleChangeLabelBrush : SampleChangeLabelBrush;
+
+    private Pen CurrentMeasureTickPen() => UseLightPalette ? LightMeasureTickPen : MeasureTickPen;
+
+    private Pen CurrentGenericTickPen() => UseLightPalette ? LightGenericTickPen : GenericTickPen;
+
+    private static IBrush SampleSetBrush(HitSoundVisualizerPoint point)
+    {
+        if (point.IsAutoSampleSet)
+        {
+            return AutoPointBrush;
+        }
+
+        return SampleSetBrush(point.SampleSet);
+    }
+
     private static IBrush SampleSetBrush(SampleSet sampleSet)
     {
         return sampleSet switch
@@ -1275,6 +1326,16 @@ public class HitSoundTimelinePlot : Control
             SampleSet.Drum => DrumPointBrush,
             _ => NormalPointBrush
         };
+    }
+
+    private static Pen DenseSampleSetPen(HitSoundVisualizerPoint point)
+    {
+        if (point.IsAutoSampleSet)
+        {
+            return DenseAutoPen;
+        }
+
+        return DenseSampleSetPen(point.SampleSet);
     }
 
     private static Pen DenseSampleSetPen(SampleSet sampleSet)
@@ -1406,7 +1467,7 @@ public class HitSoundTimelinePlot : Control
         {
             var selectionRect = new Rect(barRect.X - 1d, barRect.Y - 1d, barRect.Width + 2d, barRect.Height + 2d);
             context.DrawRectangle(null, SampleChangeSelectionPen, new RoundedRect(selectionRect, SampleChangeBarCornerRadius + 1d));
-            context.DrawRectangle(null, SampleChangeSelectionAccentPen, roundedRect);
+            context.DrawRectangle(null, CurrentSampleChangeSelectionAccentPen(), roundedRect);
         }
 
         var label = FormatSampleChangeLabel(marker);
@@ -1416,7 +1477,7 @@ public class HitSoundTimelinePlot : Control
             FlowDirection.LeftToRight,
             SampleChangeLabelTypeface,
             SampleChangeTextFontSize,
-            SampleChangeLabelBrush);
+            CurrentSampleChangeLabelBrush());
 
         var maxTextWidth = barRect.Width - (SampleChangeTextPadding * 2d);
         if (maxTextWidth < 28d || text.Width > maxTextWidth)
@@ -1698,11 +1759,11 @@ public class HitSoundTimelinePlot : Control
         };
     }
 
-    private static Pen SnapTickPen(int denominator)
+    private Pen SnapTickPen(int denominator)
     {
         return denominator switch
         {
-            1 => MeasureTickPen,
+            1 => CurrentMeasureTickPen(),
             2 => HalfTickPen,
             3 => TripletTickPen,
             4 => QuarterTickPen,
@@ -1710,7 +1771,7 @@ public class HitSoundTimelinePlot : Control
             8 => EighthTickPen,
             _ when denominator % 6 == 0 => SixthTickPen,
             _ when denominator % 3 == 0 => TripletTickPen,
-            _ => GenericTickPen
+            _ => CurrentGenericTickPen()
         };
     }
 

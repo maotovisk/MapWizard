@@ -107,7 +107,7 @@ public partial class HitSoundVisualizerViewModel(
 
     public IReadOnlyList<string> SampleSetNames { get; } = ["Normal", "Soft", "Drum"];
     public IReadOnlyList<string> HeaderBankNames { get; } = ["Auto", "Normal", "Soft", "Drum"];
-    public IReadOnlyList<string> SelectorBankFilterNames { get; } = ["Any", "Normal", "Soft", "Drum"];
+    public IReadOnlyList<string> SelectorBankFilterNames { get; } = ["Any", "Auto", "Normal", "Soft", "Drum"];
     public IReadOnlyList<string> HitSoundNames { get; } = ["Hitnormal", "Whistle", "Finish", "Clap"];
     public IReadOnlyList<int> SnapDivisorOptions { get; } = Enumerable.Range(1, 16).ToList();
 
@@ -1014,33 +1014,46 @@ public partial class HitSoundVisualizerViewModel(
 
         var targetSampleSet = ParseSampleSet(SelectedSampleSetName);
         var targetHitSound = ParseHitSound(SelectedHitSoundName);
-        var updated = Points
-            .Select(point => ids.Contains(point.Id)
-                ? new HitSoundVisualizerPoint
-                {
-                    Id = point.Id,
-                    TimeMs = point.TimeMs,
-                    SampleSet = targetSampleSet,
-                    HitSound = targetHitSound,
-                    IsDraggable = false
-                }
-                : point)
+        var selectedPoints = Points
+            .Where(point => ids.Contains(point.Id))
             .ToList();
 
-        var duplicateLane = updated
-            .GroupBy(x => (x.TimeMs, x.HitSound, x.SampleSet))
-            .FirstOrDefault(g => g.Count() > 1);
-        if (duplicateLane is not null)
+        var destinationLanes = selectedPoints
+            .Select(point => (point.TimeMs, HitSound: targetHitSound))
+            .ToHashSet();
+
+        var transformedPoints = selectedPoints
+            .Select(point => new HitSoundVisualizerPoint
+            {
+                Id = point.Id,
+                TimeMs = point.TimeMs,
+                SampleSet = targetSampleSet,
+                HitSound = targetHitSound,
+                IsAutoSampleSet = false,
+                IsDraggable = false
+            })
+            .GroupBy(point => (point.TimeMs, point.HitSound))
+            .Select(group => group.First())
+            .ToList();
+
+        var updated = Points
+            .Where(point => !ids.Contains(point.Id) && !destinationLanes.Contains((point.TimeMs, point.HitSound)))
+            .Concat(transformedPoints)
+            .ToList();
+
+        var primaryId = SelectedPointId > 0 ? SelectedPointId : ids.First();
+        var selectedIds = transformedPoints.Select(point => point.Id).ToArray();
+        if (selectedIds.Length == 0)
         {
-            toastManager.ShowToast(
-                NotificationType.Error,
-                "Hitsound Visualizer",
-                $"Batch edit would create duplicate points at {duplicateLane.Key.TimeMs}ms ({HitSoundToDisplay(duplicateLane.Key.HitSound)}).");
+            toastManager.ShowToast(NotificationType.Error, "Hitsound Visualizer", "Batch edit produced no points.");
             return;
         }
 
-        var primaryId = SelectedPointId > 0 ? SelectedPointId : ids.First();
-        var selectedIds = ids.ToArray();
+        if (!selectedIds.Contains(primaryId))
+        {
+            primaryId = selectedIds[0];
+        }
+
         ApplyUpdatedPoints(updated, selectPointId: primaryId);
         ApplySelection(selectedIds, primaryId);
         UpdateSelectedPointSummary();
@@ -1624,6 +1637,11 @@ public partial class HitSoundVisualizerViewModel(
             return true;
         }
 
+        if (string.Equals(bankFilter, "Auto", StringComparison.OrdinalIgnoreCase))
+        {
+            return point.IsAutoSampleSet;
+        }
+
         return point.SampleSet == ParseSampleSet(bankFilter);
     }
 
@@ -1690,8 +1708,21 @@ public partial class HitSoundVisualizerViewModel(
             return;
         }
 
+        // Header bank quick-edit is column-based (timestamp-based), not point-based.
+        // Selecting one addition point should still target the hitnormal bank (or all additions) at that timestamp.
+        var selectedTimes = Points
+            .Where(point => selectedIds.Contains(point.Id))
+            .Select(point => point.TimeMs)
+            .Distinct()
+            .ToHashSet();
+
+        if (selectedTimes.Count == 0)
+        {
+            return;
+        }
+
         bool IsTargetPoint(HitSoundVisualizerPoint point) =>
-            selectedIds.Contains(point.Id) &&
+            selectedTimes.Contains(point.TimeMs) &&
             (affectNormalPoints ? point.HitSound == HitSound.Normal : point.HitSound != HitSound.Normal);
 
         if (!Points.Any(IsTargetPoint))
@@ -1706,8 +1737,9 @@ public partial class HitSoundVisualizerViewModel(
                     Id = point.Id,
                     TimeMs = point.TimeMs,
                     SampleSet = sampleSet,
+                    IsAutoSampleSet = false,
                     HitSound = point.HitSound,
-                    IsDraggable = false
+                    IsDraggable = point.IsDraggable
                 }
                 : point)
             .ToList();

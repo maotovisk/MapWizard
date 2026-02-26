@@ -19,39 +19,39 @@
 
     <UserControl.Styles>
         <Style Selector="Border.timeline-shell">
-            <Setter Property="Background" Value="#111522" />
-            <Setter Property="BorderBrush" Value="#2A3142" />
+            <Setter Property="Background" Value="{DynamicResource SystemControlBackgroundChromeMediumLowBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource SukiBorderBrush}" />
             <Setter Property="BorderThickness" Value="1" />
             <Setter Property="CornerRadius" Value="14" />
             <Setter Property="Padding" Value="12" />
         </Style>
         <Style Selector="Border.timeline-panel">
-            <Setter Property="Background" Value="#0F1420" />
-            <Setter Property="BorderBrush" Value="#293245" />
+            <Setter Property="Background" Value="{DynamicResource SystemControlBackgroundAltMediumBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource SukiBorderBrush}" />
             <Setter Property="BorderThickness" Value="1" />
             <Setter Property="CornerRadius" Value="12" />
         </Style>
         <Style Selector="Border.timeline-flyout-surface">
-            <Setter Property="Background" Value="#171D2B" />
-            <Setter Property="BorderBrush" Value="#3A465E" />
+            <Setter Property="Background" Value="{DynamicResource SystemControlBackgroundAltHighBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource SukiBorderBrush}" />
             <Setter Property="BorderThickness" Value="1" />
             <Setter Property="CornerRadius" Value="12" />
             <Setter Property="Padding" Value="12" />
         </Style>
         <Style Selector="Button.timeline-btn">
-            <Setter Property="Background" Value="#171E2D" />
-            <Setter Property="BorderBrush" Value="#314057" />
+            <Setter Property="Background" Value="{DynamicResource SystemControlBackgroundChromeMediumLowBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource SukiBorderBrush}" />
             <Setter Property="BorderThickness" Value="1" />
             <Setter Property="Padding" Value="10,6" />
             <Setter Property="CornerRadius" Value="9" />
-            <Setter Property="Foreground" Value="#E6EEF9" />
+            <Setter Property="Foreground" Value="{DynamicResource SukiText}" />
         </Style>
         <Style Selector="Button.timeline-btn:pointerover">
-            <Setter Property="Background" Value="#202A3D" />
-            <Setter Property="BorderBrush" Value="#486486" />
+            <Setter Property="Background" Value="{DynamicResource SystemControlBackgroundAltMediumBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource ThemeAccentBrush}" />
         </Style>
         <Style Selector="Button.timeline-btn:pressed">
-            <Setter Property="Background" Value="#0F1724" />
+            <Setter Property="Background" Value="{DynamicResource SystemControlBackgroundAltHighBrush}" />
         </Style>
         <Style Selector="Button.timeline-transport-btn">
             <Setter Property="Background" Value="Transparent" />
@@ -59,56 +59,56 @@
             <Setter Property="BorderThickness" Value="0" />
             <Setter Property="Padding" Value="8,6" />
             <Setter Property="CornerRadius" Value="8" />
-            <Setter Property="Foreground" Value="#E6EEF9" />
+            <Setter Property="Foreground" Value="{DynamicResource SukiText}" />
         </Style>
         <Style Selector="Button.timeline-transport-btn:pointerover">
-            <Setter Property="Background" Value="#1A2333" />
+            <Setter Property="Background" Value="{DynamicResource SystemControlBackgroundAltMediumBrush}" />
         </Style>
         <Style Selector="Button.timeline-transport-btn:pressed">
-            <Setter Property="Background" Value="#111928" />
+            <Setter Property="Background" Value="{DynamicResource SystemControlBackgroundAltHighBrush}" />
         </Style>
         <Style Selector="ToggleButton.timeline-toolbar-toggle">
-            <Setter Property="Background" Value="#171E2D" />
-            <Setter Property="BorderBrush" Value="#314057" />
+            <Setter Property="Background" Value="{DynamicResource SystemControlBackgroundChromeMediumLowBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource SukiBorderBrush}" />
             <Setter Property="BorderThickness" Value="1" />
             <Setter Property="Padding" Value="10,6" />
             <Setter Property="CornerRadius" Value="9" />
-            <Setter Property="Foreground" Value="#E6EEF9" />
+            <Setter Property="Foreground" Value="{DynamicResource SukiText}" />
         </Style>
         <Style Selector="ToggleButton.timeline-toolbar-toggle:pointerover">
-            <Setter Property="Background" Value="#202A3D" />
-            <Setter Property="BorderBrush" Value="#486486" />
+            <Setter Property="Background" Value="{DynamicResource SystemControlBackgroundAltMediumBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource ThemeAccentBrush}" />
         </Style>
         <Style Selector="ToggleButton.timeline-toolbar-toggle:checked">
-            <Setter Property="Background" Value="#3A2E83" />
-            <Setter Property="BorderBrush" Value="#6A5CE6" />
+            <Setter Property="Background" Value="{DynamicResource ThemeAccentBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource ThemeAccentBrush}" />
             <Setter Property="Foreground" Value="#FFFFFF" />
         </Style>
         <Style Selector="Button.timeline-select">
-            <Setter Property="Background" Value="#141C2A" />
-            <Setter Property="BorderBrush" Value="#303A4D" />
+            <Setter Property="Background" Value="{DynamicResource SystemControlBackgroundChromeMediumLowBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource SukiBorderBrush}" />
             <Setter Property="BorderThickness" Value="1" />
             <Setter Property="Padding" Value="10,6" />
             <Setter Property="CornerRadius" Value="8" />
-            <Setter Property="Foreground" Value="#E6EEF9" />
+            <Setter Property="Foreground" Value="{DynamicResource SukiText}" />
         </Style>
         <Style Selector="Button.timeline-select:pointerover">
-            <Setter Property="Background" Value="#1B2537" />
-            <Setter Property="BorderBrush" Value="#42516A" />
+            <Setter Property="Background" Value="{DynamicResource SystemControlBackgroundAltMediumBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource ThemeAccentBrush}" />
         </Style>
         <Style Selector="ToggleButton.timeline-seg-btn">
-            <Setter Property="Background" Value="#141C2A" />
+            <Setter Property="Background" Value="{DynamicResource SystemControlBackgroundChromeMediumLowBrush}" />
             <Setter Property="BorderBrush" Value="Transparent" />
             <Setter Property="BorderThickness" Value="0" />
             <Setter Property="Padding" Value="10,8" />
             <Setter Property="CornerRadius" Value="8" />
-            <Setter Property="Foreground" Value="#CFE0F8" />
+            <Setter Property="Foreground" Value="{DynamicResource SukiText}" />
         </Style>
         <Style Selector="ToggleButton.timeline-seg-btn:pointerover">
-            <Setter Property="Background" Value="#1A2435" />
+            <Setter Property="Background" Value="{DynamicResource SystemControlBackgroundAltMediumBrush}" />
         </Style>
         <Style Selector="ToggleButton.timeline-seg-btn:checked">
-            <Setter Property="Background" Value="#2B4772" />
+            <Setter Property="Background" Value="{DynamicResource ThemeAccentBrush}" />
             <Setter Property="Foreground" Value="#FFFFFF" />
         </Style>
         <Style Selector="ListBox.timeline-snap-list">
@@ -121,24 +121,24 @@
             <Setter Property="BorderThickness" Value="0" />
         </Style>
         <Style Selector="ListBox.timeline-snap-list ListBoxItem">
-            <Setter Property="Background" Value="#141C2A" />
+            <Setter Property="Background" Value="{DynamicResource SystemControlBackgroundChromeMediumLowBrush}" />
             <Setter Property="BorderBrush" Value="Transparent" />
             <Setter Property="BorderThickness" Value="0" />
             <Setter Property="Padding" Value="8,5" />
             <Setter Property="Margin" Value="0,0,0,4" />
             <Setter Property="CornerRadius" Value="8" />
-            <Setter Property="Foreground" Value="#DCE8F7" />
+            <Setter Property="Foreground" Value="{DynamicResource SukiText}" />
             <Setter Property="HorizontalContentAlignment" Value="Stretch" />
         </Style>
         <Style Selector="ListBox.timeline-snap-list ListBoxItem:pointerover">
-            <Setter Property="Background" Value="#1A2435" />
+            <Setter Property="Background" Value="{DynamicResource SystemControlBackgroundAltMediumBrush}" />
         </Style>
         <Style Selector="ListBox.timeline-snap-list ListBoxItem:selected">
-            <Setter Property="Background" Value="#2B4772" />
+            <Setter Property="Background" Value="{DynamicResource ThemeAccentBrush}" />
             <Setter Property="Foreground" Value="#FFFFFF" />
         </Style>
         <Style Selector="TextBlock.timeline-muted">
-            <Setter Property="Foreground" Value="#98A8C4" />
+            <Setter Property="Foreground" Value="{DynamicResource SukiLowText}" />
         </Style>
     </UserControl.Styles>
 
@@ -172,7 +172,7 @@
                     </StackPanel>
                 </suki:GlassCard>
 
-                <Border Classes="timeline-shell" Margin="8" IsVisible="{Binding ShowPlaybackTimeline}">
+                <suki:GlassCard Margin="8" Padding="12" CornerRadius="14" IsVisible="{Binding ShowPlaybackTimeline}">
                     <StackPanel Spacing="10">
                         <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
                             <TextBlock Text="Timeline Player" VerticalAlignment="Center" FontWeight="SemiBold" />
@@ -209,8 +209,8 @@
                                                     <TextBlock Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" Text="Hitsound" />
                                                     <Border Grid.Row="1"
                                                             Grid.Column="1"
-                                                            Background="#111827"
-                                                            BorderBrush="#2B374B"
+                                                            Background="{DynamicResource SystemControlBackgroundChromeMediumLowBrush}"
+                                                            BorderBrush="{DynamicResource SukiBorderBrush}"
                                                             BorderThickness="1"
                                                             CornerRadius="10"
                                                             Padding="4">
@@ -279,7 +279,7 @@
                             </Button>
                         </Grid>
 
-                        <Grid ColumnDefinitions="Auto,Auto,Auto,Auto,*,Auto,Auto,Auto,Auto,Auto,Auto,Auto" RowDefinitions="Auto" ColumnSpacing="8" RowSpacing="8">
+                        <Grid ColumnDefinitions="Auto,Auto,Auto,*,Auto,Auto,Auto,Auto,Auto,Auto,Auto" RowDefinitions="Auto" ColumnSpacing="8" RowSpacing="8">
                             <ToggleButton Grid.Row="0"
                                           Grid.Column="0"
                                           Classes="timeline-toolbar-toggle"
@@ -290,26 +290,19 @@
                             <Button Grid.Row="0"
                                     Grid.Column="1"
                                     Classes="timeline-btn"
-                                    Command="{Binding CenterViewOnCursorCommand}"
-                                    ToolTip.Tip="Center on Cursor">
-                                <materialIcons:MaterialIcon Kind="CrosshairsGps" Width="16" Height="16" />
-                            </Button>
-                            <Button Grid.Row="0"
-                                    Grid.Column="2"
-                                    Classes="timeline-btn"
                                     Command="{Binding ZoomToSelectionCommand}"
                                     ToolTip.Tip="Zoom In">
                                 <materialIcons:MaterialIcon Kind="MagnifyPlus" Width="16" Height="16" />
                             </Button>
                             <Button Grid.Row="0"
-                                    Grid.Column="3"
+                                    Grid.Column="2"
                                     Classes="timeline-btn"
                                     Command="{Binding ZoomOutCommand}"
                                     ToolTip.Tip="Zoom Out">
                                 <materialIcons:MaterialIcon Kind="MagnifyMinus" Width="16" Height="16" />
                             </Button>
 
-                            <Button Grid.Row="0" Grid.Column="5" Classes="timeline-select" ToolTip.Tip="HS Selector">
+                            <Button Grid.Row="0" Grid.Column="4" Classes="timeline-select" ToolTip.Tip="HS Selector">
                                 <Grid ColumnDefinitions="Auto,*" ColumnSpacing="6" MinWidth="110">
                                     <materialIcons:MaterialIcon Kind="FilterVariant" Width="16" Height="16" />
                                     <TextBlock Grid.Column="1" VerticalAlignment="Center" Text="HS Selector" />
@@ -363,8 +356,8 @@
 
                                                 <StackPanel Spacing="6">
                                                     <TextBlock Text="Hitsound Types" FontWeight="SemiBold" />
-                                                    <Border Background="#111827"
-                                                            BorderBrush="#2B374B"
+                                                    <Border Background="{DynamicResource SystemControlBackgroundChromeMediumLowBrush}"
+                                                            BorderBrush="{DynamicResource SukiBorderBrush}"
                                                             BorderThickness="1"
                                                             CornerRadius="10"
                                                             Padding="4">
@@ -403,12 +396,12 @@
                             </Button>
 
                             <TextBlock Grid.Row="0"
-                                       Grid.Column="6"
+                                       Grid.Column="5"
                                        VerticalAlignment="Center"
                                        Text="Normal Bank"
                                        Classes="timeline-muted" />
                             <Button Grid.Row="0"
-                                    Grid.Column="7"
+                                    Grid.Column="6"
                                     Classes="timeline-select"
                                     IsEnabled="{Binding CanEditHeaderBanks}">
                                 <Grid ColumnDefinitions="*,Auto" ColumnSpacing="6" MinWidth="108">
@@ -428,12 +421,12 @@
                             </Button>
 
                             <TextBlock Grid.Row="0"
-                                       Grid.Column="8"
+                                       Grid.Column="7"
                                        VerticalAlignment="Center"
                                        Text="Addition Bank"
                                        Classes="timeline-muted" />
                             <Button Grid.Row="0"
-                                    Grid.Column="9"
+                                    Grid.Column="8"
                                     Classes="timeline-select"
                                     IsEnabled="{Binding CanEditHeaderBanks}">
                                 <Grid ColumnDefinitions="*,Auto" ColumnSpacing="6" MinWidth="108">
@@ -452,8 +445,8 @@
                                 </Button.Flyout>
                             </Button>
 
-                            <TextBlock Grid.Row="0" Grid.Column="10" VerticalAlignment="Center" Text="Snap" Classes="timeline-muted" />
-                            <Button Grid.Row="0" Grid.Column="11" Classes="timeline-btn">
+                            <TextBlock Grid.Row="0" Grid.Column="9" VerticalAlignment="Center" Text="Snap" Classes="timeline-muted" />
+                            <Button Grid.Row="0" Grid.Column="10" Classes="timeline-btn">
                                 <StackPanel Orientation="Horizontal" Spacing="6">
                                     <TextBlock VerticalAlignment="Center" Text="{Binding SelectedSnapDivisorText}" />
                                     <materialIcons:MaterialIcon Kind="ChevronDown" Width="16" Height="16" />
@@ -483,11 +476,14 @@
 
                         <Border Classes="timeline-panel" ClipToBounds="True">
                             <Grid ColumnDefinitions="170,*">
-                                <Border Grid.Column="0" Background="#0E1320" BorderBrush="#293245" BorderThickness="0,0,1,0">
+                                <Border Grid.Column="0"
+                                        Background="{DynamicResource SystemControlBackgroundChromeMediumLowBrush}"
+                                        BorderBrush="{DynamicResource SukiBorderBrush}"
+                                        BorderThickness="0,0,1,0">
                                     <ItemsControl ItemsSource="{Binding TimelineRowLabels}">
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate>
-                                                <Border Height="28" Padding="10,0" BorderBrush="#253044" BorderThickness="0,0,0,1">
+                                                <Border Height="34" Padding="10,0" BorderBrush="{DynamicResource SukiBorderBrush}" BorderThickness="0,0,0,1">
                                                     <TextBlock VerticalAlignment="Center"
                                                                Text="{Binding .}"
                                                                FontFamily="Consolas"
@@ -500,7 +496,7 @@
 
                                 <controls:HitSoundTimelinePlot
                                     Grid.Column="1"
-                                    Height="140"
+                                    Height="170"
                                     Points="{Binding Points}"
                                     SampleChanges="{Binding SampleChanges}"
                                     SnapTicks="{Binding SnapTicks}"
@@ -555,8 +551,8 @@
                                                             <TextBlock Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" Text="Hitsound" />
                                                             <Border Grid.Row="1"
                                                                     Grid.Column="1"
-                                                                    Background="#111827"
-                                                                    BorderBrush="#2B374B"
+                                                                    Background="{DynamicResource SystemControlBackgroundChromeMediumLowBrush}"
+                                                                    BorderBrush="{DynamicResource SukiBorderBrush}"
                                                                     BorderThickness="1"
                                                                     CornerRadius="10"
                                                                     Padding="4">
@@ -744,7 +740,7 @@
                             </Grid>
                         </Border>
                     </StackPanel>
-                </Border>
+                </suki:GlassCard>
             </StackPanel>
         </ScrollViewer>
     </Grid>

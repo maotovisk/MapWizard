@@ -6,6 +6,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Media;
+using Avalonia.Styling;
 using BeatmapParser.Enums;
 using MapWizard.Desktop.Models.HitSoundVisualizer;
 
@@ -23,6 +24,18 @@ public class HitSoundTimelineOverviewBar : Control
     private static readonly Pen NormalSampleChangeTintPen = new(new SolidColorBrush(Color.Parse("#4D9BC53D")), 1);
     private static readonly Pen SoftSampleChangeTintPen = new(new SolidColorBrush(Color.Parse("#4D5BC0EB")), 1);
     private static readonly Pen DrumSampleChangeTintPen = new(new SolidColorBrush(Color.Parse("#4DE55934")), 1);
+    private static readonly IBrush TrackBackgroundBrush = new SolidColorBrush(Color.Parse("#10151D"));
+    private static readonly IBrush TrackStripeBrush = new SolidColorBrush(Color.Parse("#1A2230"));
+    private static readonly IBrush TrackViewFillBrush = new SolidColorBrush(Color.Parse("#2A5D8F"));
+    private static readonly Pen TrackViewBorderPen = new(new SolidColorBrush(Color.Parse("#8CC8FF")), 1.2);
+    private static readonly Pen TrackCursorPen = new(new SolidColorBrush(Color.Parse("#FFD166")), 1.8);
+    private static readonly Pen TrackBorderPen = new(new SolidColorBrush(Color.Parse("#334255")), 1);
+    private static readonly IBrush LightTrackBackgroundBrush = new SolidColorBrush(Color.Parse("#EEF3F9"));
+    private static readonly IBrush LightTrackStripeBrush = new SolidColorBrush(Color.Parse("#DCE6F2"));
+    private static readonly IBrush LightTrackViewFillBrush = new SolidColorBrush(Color.Parse("#B8D9F6"));
+    private static readonly Pen LightTrackViewBorderPen = new(new SolidColorBrush(Color.Parse("#2F74B5")), 1.2);
+    private static readonly Pen LightTrackCursorPen = new(new SolidColorBrush(Color.Parse("#C08900")), 1.8);
+    private static readonly Pen LightTrackBorderPen = new(new SolidColorBrush(Color.Parse("#B8C7D8")), 1);
     private const double SampleChangeOverviewMinSpacingPx = 1.5d;
     private const double OverviewCornerRadius = 7d;
     private bool _isScrubbing;
@@ -114,10 +127,10 @@ public class HitSoundTimelineOverviewBar : Control
         var total = Math.Max(1d, TimelineEndMs);
         var trackRect = new Rect(0, 0, bounds.Width, bounds.Height);
         var trackRoundedRect = new RoundedRect(trackRect, OverviewCornerRadius);
-        context.DrawRectangle(new SolidColorBrush(Color.Parse("#10151D")), null, trackRoundedRect);
+        context.DrawRectangle(CurrentTrackBackgroundBrush(), null, trackRoundedRect);
 
         // subtle measure-ish stripes to improve spatial reading
-        var stripeBrush = new SolidColorBrush(Color.Parse("#1A2230"));
+        var stripeBrush = CurrentTrackStripeBrush();
         using (context.PushClip(trackRect.Deflate(1)))
         {
             for (var i = 0; i < 40; i++)
@@ -138,14 +151,14 @@ public class HitSoundTimelineOverviewBar : Control
             Math.Max(2, bounds.Height - 4));
 
         var viewRoundedRect = new RoundedRect(viewRect, Math.Min(OverviewCornerRadius - 1d, Math.Max(2d, viewRect.Height / 2d)));
-        context.DrawRectangle(new SolidColorBrush(Color.Parse("#2A5D8F")), null, viewRoundedRect);
-        context.DrawRectangle(null, new Pen(new SolidColorBrush(Color.Parse("#8CC8FF")), 1.2), viewRoundedRect);
+        context.DrawRectangle(CurrentTrackViewFillBrush(), null, viewRoundedRect);
+        context.DrawRectangle(null, CurrentTrackViewBorderPen(), viewRoundedRect);
 
         var cursorRatio = Math.Clamp(CursorTimeMs / total, 0, 1);
         var cursorX = cursorRatio * bounds.Width;
-        context.DrawLine(new Pen(new SolidColorBrush(Color.Parse("#FFD166")), 1.8), new Point(cursorX, 0), new Point(cursorX, bounds.Height));
+        context.DrawLine(CurrentTrackCursorPen(), new Point(cursorX, 0), new Point(cursorX, bounds.Height));
 
-        context.DrawRectangle(null, new Pen(new SolidColorBrush(Color.Parse("#334255")), 1), trackRoundedRect);
+        context.DrawRectangle(null, CurrentTrackBorderPen(), trackRoundedRect);
     }
 
     protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
@@ -309,6 +322,20 @@ public class HitSoundTimelineOverviewBar : Control
             .OrderBy(static x => x.TimeMs)
             .ToArray();
     }
+
+    private bool UseLightPalette => ActualThemeVariant == ThemeVariant.Light;
+
+    private IBrush CurrentTrackBackgroundBrush() => UseLightPalette ? LightTrackBackgroundBrush : TrackBackgroundBrush;
+
+    private IBrush CurrentTrackStripeBrush() => UseLightPalette ? LightTrackStripeBrush : TrackStripeBrush;
+
+    private IBrush CurrentTrackViewFillBrush() => UseLightPalette ? LightTrackViewFillBrush : TrackViewFillBrush;
+
+    private Pen CurrentTrackViewBorderPen() => UseLightPalette ? LightTrackViewBorderPen : TrackViewBorderPen;
+
+    private Pen CurrentTrackCursorPen() => UseLightPalette ? LightTrackCursorPen : TrackCursorPen;
+
+    private Pen CurrentTrackBorderPen() => UseLightPalette ? LightTrackBorderPen : TrackBorderPen;
 
     private static Pen SampleChangeTintPen(SampleSet sampleSet)
     {

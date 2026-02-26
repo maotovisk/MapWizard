@@ -7,6 +7,7 @@ public class HitSoundVisualizerPoint
     public int Id { get; set; }
     public int TimeMs { get; set; }
     public SampleSet SampleSet { get; set; } = SampleSet.Normal;
+    public bool IsAutoSampleSet { get; set; }
     public HitSound HitSound { get; set; } = HitSound.Normal;
     public bool IsDraggable { get; set; }
 }

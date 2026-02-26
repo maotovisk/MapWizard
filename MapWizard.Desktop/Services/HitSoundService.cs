@@ -264,7 +264,9 @@ public class HitSoundService : IHitSoundService
             var sourceTimeMs = soundEvent.Time.TotalMilliseconds;
             var timeMs = StableSnapEngine.StableRound(soundEvent.Time.TotalMilliseconds);
             var effectiveSampleChange = sampleSetTimeline.GetCurrentSampleAtTime(sourceTimeMs, leniency: 0);
-            var fallbackSample = NormalizeSampleSet(effectiveSampleChange?.Sample ?? SampleSet.Normal, SampleSet.Normal);
+            var timelineSample = NormalizeSampleSet(effectiveSampleChange?.Sample ?? SampleSet.Normal, SampleSet.Normal);
+            var resolvedNormalSample = NormalizeSampleSet(soundEvent.NormalSample, timelineSample);
+            var normalUsesAutoSampleSet = !IsExplicitSampleSet(soundEvent.NormalSample);
 
             // In osu!, hitnormal is implicit for hittable sounds even when the flag list only contains additions.
             // The visualizer models hitnormal as an explicit point, so always include it.
@@ -279,13 +281,20 @@ public class HitSoundService : IHitSoundService
                 var rawSample = hitSound == HitSound.Normal
                     ? soundEvent.NormalSample
                     : soundEvent.AdditionSample;
+                var usesAutoSampleSet = hitSound == HitSound.Normal
+                    ? normalUsesAutoSampleSet
+                    : !IsExplicitSampleSet(soundEvent.AdditionSample);
+                var resolvedSample = hitSound == HitSound.Normal
+                    ? resolvedNormalSample
+                    : NormalizeSampleSet(rawSample, resolvedNormalSample);
 
                 target.Add(new HitSoundVisualizerPoint
                 {
                     Id = nextId++,
                     TimeMs = timeMs,
                     HitSound = hitSound,
-                    SampleSet = NormalizeSampleSet(rawSample, fallbackSample),
+                    SampleSet = resolvedSample,
+                    IsAutoSampleSet = usesAutoSampleSet,
                     IsDraggable = isDraggable
                 });
             }
@@ -435,13 +444,18 @@ public class HitSoundService : IHitSoundService
 
     private static SampleSet NormalizeSampleSet(SampleSet rawSampleSet, SampleSet fallback)
     {
-        if (rawSampleSet is SampleSet.Normal or SampleSet.Soft or SampleSet.Drum)
+        if (IsExplicitSampleSet(rawSampleSet))
         {
             return rawSampleSet;
         }
 
-        return fallback is SampleSet.Normal or SampleSet.Soft or SampleSet.Drum
+        return IsExplicitSampleSet(fallback)
             ? fallback
             : SampleSet.Normal;
+    }
+
+    private static bool IsExplicitSampleSet(SampleSet sampleSet)
+    {
+        return sampleSet is SampleSet.Normal or SampleSet.Soft or SampleSet.Drum;
     }
 }

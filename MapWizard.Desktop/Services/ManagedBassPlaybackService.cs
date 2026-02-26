@@ -10,7 +10,7 @@ public sealed class ManagedBassPlaybackService : IAudioPlaybackService, IDisposa
 {
     private const string DefaultAudioOutputDeviceId = "default";
     private const int OutputSampleRateHz = 44100;
-    private const int PlaybackBufferLengthMs = 10;
+    private const int PlaybackBufferLengthMs = 25;
     private const int UpdatePeriodMs = 5;
     private const int HitsoundSampleMaxVoices = 64; 
     private const int SongClockCompensationMs = -40;
