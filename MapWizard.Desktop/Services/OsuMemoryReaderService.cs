@@ -13,6 +13,8 @@ namespace MapWizard.Desktop.Services;
 public class OsuMemoryReaderService(ISettingsService settingsService, ISongLibraryService songLibraryService)
     : IOsuMemoryReaderService
 {
+    [SupportedOSPlatform("windows")]
+    [SupportedOSPlatform("linux")]
     public Result<string> GetBeatmapPath()
     {
         if (!OperatingSystem.IsLinux() && !OperatingSystem.IsWindows())
@@ -30,13 +32,13 @@ public class OsuMemoryReaderService(ISettingsService settingsService, ISongLibra
 
     public Result<int> GetCurrentTimestamp()
     {
-        if (!OperatingSystem.IsWindows())
+        if (!OperatingSystem.IsWindows() && !OperatingSystem.IsLinux())
         {
             return new Result<int>
             {
                 Value = 0,
                 Status = ResultStatus.Error,
-                ErrorMessage = "Timestamp reading is currently supported only on Windows."
+                ErrorMessage = "Timestamp reading is currently supported only on Windows and Linux."
             };
         }
 
@@ -58,7 +60,30 @@ public class OsuMemoryReaderService(ISettingsService settingsService, ISongLibra
         };
     }
 
+    [SupportedOSPlatform("linux")]
     private static Result<string> GetBeatmapLinux()
+    {
+        var memoryResult = GetBeatmapLinuxFromMemory();
+        if (memoryResult.Status == ResultStatus.Success && !string.IsNullOrWhiteSpace(memoryResult.Value))
+        {
+            return memoryResult;
+        }
+        
+        var fallbackIpcResult = GetBeatmapLinuxFromFallbackIpc();
+        if (fallbackIpcResult.Status == ResultStatus.Success && !string.IsNullOrWhiteSpace(fallbackIpcResult.Value))
+        {
+            return fallbackIpcResult;
+        }
+
+        return new Result<string>
+        {
+            Value = null,
+            Status = ResultStatus.Error,
+            ErrorMessage = $"Memory read failed and fallback IPC path could not be resolved."
+        };
+    }
+
+    private static Result<string> GetBeatmapLinuxFromMemory()
     {
         var options = new OsuMemory.OsuMemoryOptions()
         {
@@ -87,6 +112,47 @@ public class OsuMemoryReaderService(ISettingsService settingsService, ISongLibra
                 ErrorMessage = exception.Message
             };
         }
+    }
+    
+    [SupportedOSPlatform("linux")]
+    private static Result<string> GetBeatmapLinuxFromFallbackIpc()
+    {
+        if (!FallbackClientIpc.TryReadBeatmapPath(out var beatmapPath, out var ipcError))
+        {
+            return new Result<string>
+            {
+                Value = null,
+                Status = ResultStatus.Error,
+                ErrorMessage = ipcError ?? "Unable to read beatmap path from fallback IPC."
+            };
+        }
+
+        if (string.IsNullOrWhiteSpace(beatmapPath))
+        {
+            return new Result<string>
+            {
+                Value = null,
+                Status = ResultStatus.Error,
+                ErrorMessage = "Fallback IPC returned an empty beatmap path."
+            };
+        }
+
+        if (!File.Exists(beatmapPath))
+        {
+            return new Result<string>
+            {
+                Value = null,
+                Status = ResultStatus.Error,
+                ErrorMessage = "Beatmap file from fallback IPC does not exist."
+            };
+        }
+
+        return new Result<string>
+        {
+            Value = Path.GetFullPath(beatmapPath),
+            Status = ResultStatus.Success,
+            ErrorMessage = null
+        };
     }
 
     [SupportedOSPlatform("windows")]

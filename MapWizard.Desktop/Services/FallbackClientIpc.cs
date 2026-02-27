@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Pipes;
 using System.Linq;
+using System.Net.Sockets;
 using System.Runtime.Versioning;
 using System.Threading;
 
@@ -12,9 +13,11 @@ internal static class FallbackClientIpc
 {
     private const string PipeName = "mtipc";
     private static readonly Lock Sync = new();
-    private static NamedPipeClientStream? _client;
+    private static NamedPipeClientStream? _pipeClient;
+    private static Socket? _socketClient;
 
     [SupportedOSPlatform("windows")]
+    [SupportedOSPlatform("linux")]
     public static bool TryReadBeatmapPath(out string? beatmapPath, out string? error)
     {
         beatmapPath = null;
@@ -52,6 +55,7 @@ internal static class FallbackClientIpc
     }
 
     [SupportedOSPlatform("windows")]
+    [SupportedOSPlatform("linux")]
     public static bool TryReadEditorTime(out int timestamp, out string? error)
     {
         timestamp = 0;
@@ -71,30 +75,62 @@ internal static class FallbackClientIpc
         }
     }
 
+    private static BinaryReader SendMessage(MessageType messageType) => OperatingSystem.IsWindows()
+        ? SendMessageWindows(messageType)
+        : SendMessageLinux(messageType);
+
     [SupportedOSPlatform("windows")]
-    private static BinaryReader SendMessage(MessageType messageType)
+    private static BinaryReader SendMessageWindows(MessageType messageType)
     {
         lock (Sync)
         {
             EnsureConnection();
 
             var payload = BitConverter.GetBytes((int)messageType);
-            _client!.Write(payload, 0, payload.Length);
+            _pipeClient!.Write(payload, 0, payload.Length);
 
             var buffer = new byte[1024];
             var bytes = new List<byte>();
             do
             {
-                var count = _client.Read(buffer, 0, buffer.Length);
+                var count = _pipeClient.Read(buffer, 0, buffer.Length);
                 if (count <= 0)
                 {
                     throw new EndOfStreamException("Fallback IPC closed the pipe while reading.");
                 }
 
                 bytes.AddRange(buffer.Take(count));
-            } while (!_client.IsMessageComplete);
+            } while (!_pipeClient.IsMessageComplete);
 
             return new BinaryReader(new MemoryStream(bytes.ToArray()));
+        }
+    }
+
+    private static BinaryReader SendMessageLinux(MessageType messageType)
+    {
+        lock (Sync)
+        {
+            EnsureConnection();
+
+            var payload = BitConverter.GetBytes((int)messageType);
+            _socketClient!.Send(BitConverter.GetBytes(payload.Length));
+            _socketClient.Send(payload);
+
+            var buffer = new byte[1024];
+            var bytes = new List<byte>();
+            using var stream = new NetworkStream(_socketClient);
+            do
+            {
+                var count = stream.Read(buffer, 0, buffer.Length);
+                if (count <= 0)
+                {
+                    throw new EndOfStreamException("Fallback IPC closed the socket while reading.");
+                }
+
+                bytes.AddRange(buffer.Take(count));
+            } while (bytes.Count < 4 || bytes.Count < BitConverter.ToInt32(bytes.Take(4).ToArray()) + 4);
+
+            return new BinaryReader(new MemoryStream(bytes.Skip(4).ToArray()));
         }
     }
 
@@ -125,19 +161,49 @@ internal static class FallbackClientIpc
 
         return (containingFolder, filename);
     }
-    
-    [SupportedOSPlatform("windows")]
+
     private static void EnsureConnection()
     {
-        if (_client is { IsConnected: true })
+        if (OperatingSystem.IsWindows())
+        {
+            EnsureConnectionWindows();
+        }
+        else
+        {
+            EnsureConnectionLinux();
+        }
+    }
+    
+    [SupportedOSPlatform("windows")]
+    private static void EnsureConnectionWindows()
+    {
+        if (_pipeClient is { IsConnected: true })
         {
             return;
         }
 
-        _client?.Dispose();
-        _client = new NamedPipeClientStream(".", PipeName, PipeDirection.InOut);
-        _client.Connect(1000);
-        _client.ReadMode = PipeTransmissionMode.Message;
+        _pipeClient?.Dispose();
+        _pipeClient = new NamedPipeClientStream(".", PipeName, PipeDirection.InOut);
+        _pipeClient.Connect(1000);
+        _pipeClient.ReadMode = PipeTransmissionMode.Message;
+
+        using var reader = SendMessage(MessageType.Hello);
+        if (reader.ReadInt32() != 1337)
+        {
+            throw new InvalidOperationException("Fallback IPC returned an unexpected hello result.");
+        }
+    }
+
+    private static void EnsureConnectionLinux()
+    {
+        if (_socketClient is { Connected: true })
+        {
+            return;
+        }
+
+        _socketClient?.Dispose();
+        _socketClient = new Socket(AddressFamily.Unix, SocketType.Stream, ProtocolType.IP);
+        _socketClient.Connect(new UnixDomainSocketEndPoint($"/tmp/{PipeName}.sock"));
 
         using var reader = SendMessage(MessageType.Hello);
         if (reader.ReadInt32() != 1337)
@@ -150,8 +216,11 @@ internal static class FallbackClientIpc
     {
         lock (Sync)
         {
-            _client?.Dispose();
-            _client = null;
+            _pipeClient?.Dispose();
+            _pipeClient = null;
+            
+            _socketClient?.Dispose();
+            _socketClient = null;
         }
     }
 
