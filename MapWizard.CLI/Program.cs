@@ -37,8 +37,14 @@ static class Program
                     Console.WriteLine("Please provide a target path using the --target or -t argument.");
                     return;
                 }
-            
-                HsCopy(sourcePath, targetPath);
+
+                var hsOptions = new HitSoundCopierOptions
+                {
+                    CopyUsedSamplesIfDifferentMapset = args.ArgumentExists("--copy-used-samples")
+                                                       || args.ArgumentExists("--copy-used-samples-if-different-mapset")
+                };
+
+                HsCopy(sourcePath, targetPath, hsOptions);
                 break;
             case "info":
             {
@@ -160,11 +166,11 @@ static class Program
         }
     }
 
-    private static void HsCopy(string sourcePath, string targetPath)
+    private static void HsCopy(string sourcePath, string targetPath, HitSoundCopierOptions options)
     {
         var hitSoundService = new HitSoundService();
         
-        hitSoundService.CopyHitsounds(sourcePath, targetPath, new HitSoundCopierOptions());
+        hitSoundService.CopyHitsounds(sourcePath, targetPath, options);
         
         Console.WriteLine("Hitsounds copied successfully!");
     }

@@ -50,16 +50,31 @@ public class HitSoundTimeline
             {
                 case Circle circle:
                 {
-                    var currentSound = new SoundEvent(circle.Time, circle.HitSounds.Sounds, circle.HitSounds.SampleData.NormalSet, circle.HitSounds.SampleData.AdditionSet);
+                    var currentSound = new SoundEvent(
+                        circle.Time,
+                        circle.HitSounds.Sounds,
+                        circle.HitSounds.SampleData.NormalSet,
+                        circle.HitSounds.SampleData.AdditionSet,
+                        circle.HitSounds.SampleData.FileName);
                     hitSoundTimeLine.SoundEvents.Add(currentSound);
                     break;
                 }
                 case Slider slider:
                 {
-                    var currentBodySound = new SoundEvent(slider.Time, slider.HitSounds.Sounds, slider.HitSounds.SampleData.NormalSet, slider.HitSounds.SampleData.AdditionSet);
+                    var currentBodySound = new SoundEvent(
+                        slider.Time,
+                        slider.HitSounds.Sounds,
+                        slider.HitSounds.SampleData.NormalSet,
+                        slider.HitSounds.SampleData.AdditionSet,
+                        slider.HitSounds.SampleData.FileName);
                     sliderBodyTimeline.SoundEvents.Add(currentBodySound);
 
-                    var currentHeadSound = new SoundEvent(slider.Time, slider.HeadSounds.Sounds, slider.HeadSounds.SampleData.NormalSet, slider.HeadSounds.SampleData.AdditionSet);
+                    var currentHeadSound = new SoundEvent(
+                        slider.Time,
+                        slider.HeadSounds.Sounds,
+                        slider.HeadSounds.SampleData.NormalSet,
+                        slider.HeadSounds.SampleData.AdditionSet,
+                        slider.HeadSounds.SampleData.FileName);
                     hitSoundTimeLine.SoundEvents.Add(currentHeadSound);
 
                     // Update the repeats sounds
@@ -74,19 +89,34 @@ public class HitSoundTimeline
                                 )
                             );
                             
-                            var currentRepeatSound = new SoundEvent(repeatSoundTime, repeatSound.Sounds, repeatSound.SampleData.NormalSet, repeatSound.SampleData.AdditionSet);
+                            var currentRepeatSound = new SoundEvent(
+                                repeatSoundTime,
+                                repeatSound.Sounds,
+                                repeatSound.SampleData.NormalSet,
+                                repeatSound.SampleData.AdditionSet,
+                                repeatSound.SampleData.FileName);
                             hitSoundTimeLine.SoundEvents.Add(currentRepeatSound);
                         }
                     }
 
                     // Update the tail sound
-                    var currentEndSound = new SoundEvent(slider.EndTime, slider.TailSounds.Sounds, slider.TailSounds.SampleData.NormalSet, slider.TailSounds.SampleData.AdditionSet);
+                    var currentEndSound = new SoundEvent(
+                        slider.EndTime,
+                        slider.TailSounds.Sounds,
+                        slider.TailSounds.SampleData.NormalSet,
+                        slider.TailSounds.SampleData.AdditionSet,
+                        slider.TailSounds.SampleData.FileName);
                     hitSoundTimeLine.SoundEvents.Add(currentEndSound);
                     break;
                 }
                 case Spinner spinner:
                 {
-                    var currentSound = new SoundEvent(spinner.End, spinner.HitSounds.Sounds, spinner.HitSounds.SampleData.NormalSet, spinner.HitSounds.SampleData.AdditionSet);
+                    var currentSound = new SoundEvent(
+                        spinner.End,
+                        spinner.HitSounds.Sounds,
+                        spinner.HitSounds.SampleData.NormalSet,
+                        spinner.HitSounds.SampleData.AdditionSet,
+                        spinner.HitSounds.SampleData.FileName);
                     hitSoundTimeLine.SoundEvents.Add(currentSound);
                     break;
                 }

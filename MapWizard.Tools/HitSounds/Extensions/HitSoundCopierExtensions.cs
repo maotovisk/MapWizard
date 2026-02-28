@@ -50,7 +50,7 @@ public static class HitSoundCopierExtensions
                                 circle.HitSounds = (new HitSample(
                                     normalSet: currentSound.NormalSample,
                                     additionSet: currentSound.AdditionSample,
-                                    circle.HitSounds.SampleData.FileName
+                                    ResolveSampleFileName(options, currentSound.FileName, circle.HitSounds.SampleData.FileName)
                                 ), currentSound.HitSounds);
                             }
                             
@@ -72,7 +72,7 @@ public static class HitSoundCopierExtensions
                                 slider.HeadSounds = (new HitSample(
                                     normalSet: currentHeadSound.NormalSample,
                                     additionSet: currentHeadSound.AdditionSample,
-                                    slider.HeadSounds.SampleData.FileName
+                                    ResolveSampleFileName(options, currentHeadSound.FileName, slider.HeadSounds.SampleData.FileName)
                                 ), currentHeadSound.HitSounds);
                             }
 
@@ -103,7 +103,7 @@ public static class HitSoundCopierExtensions
                                         {
                                             AdditionSet = repeatSound.AdditionSample,
                                             NormalSet = repeatSound.NormalSample,
-                                            FileName = slider.RepeatSounds[i].SampleData.FileName
+                                            FileName = ResolveSampleFileName(options, repeatSound.FileName, slider.RepeatSounds[i].SampleData.FileName)
                                         }, repeatSound.HitSounds);
                                     }
                                 }
@@ -114,7 +114,7 @@ public static class HitSoundCopierExtensions
                                 slider.TailSounds = (new HitSample(
                                     currentEndSound.NormalSample,
                                     currentEndSound.AdditionSample,
-                                    slider.TailSounds.SampleData.FileName
+                                    ResolveSampleFileName(options, currentEndSound.FileName, slider.TailSounds.SampleData.FileName)
                                 ), currentEndSound.HitSounds);
                             }
                             
@@ -135,7 +135,7 @@ public static class HitSoundCopierExtensions
                                 spinner.HitSounds = (new HitSample(
                                    currentSound.NormalSample,
                                    currentSound.AdditionSample,
-                                   spinner.HitSounds.SampleData.FileName
+                                   ResolveSampleFileName(options, currentSound.FileName, spinner.HitSounds.SampleData.FileName)
                                 ), currentSound.HitSounds);
                             }
                             
@@ -171,7 +171,7 @@ public static class HitSoundCopierExtensions
                     slider.HitSounds = (new HitSample(
                         currentBodySound.NormalSample,
                         currentBodySound.AdditionSample,
-                        slider.TailSounds.SampleData.FileName
+                        ResolveSampleFileName(options, currentBodySound.FileName, slider.HitSounds.SampleData.FileName)
                     ), currentBodySound.HitSounds);
                 }
                 
@@ -272,5 +272,12 @@ public static class HitSoundCopierExtensions
         var indexSuffix = index > 1 ? $"{index}" : "";
 
         return $"{baseName}{suffix}{indexSuffix}";
+    }
+
+    private static string ResolveSampleFileName(HitSoundCopierOptions options, string? sourceFileName, string? fallbackFileName)
+    {
+        return options.CopyUsedSamplesIfDifferentMapset && !string.IsNullOrWhiteSpace(sourceFileName)
+            ? sourceFileName
+            : fallbackFileName ?? string.Empty;
     }
 }

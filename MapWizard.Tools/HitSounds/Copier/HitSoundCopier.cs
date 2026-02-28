@@ -50,6 +50,7 @@ public static class HitSoundCopier
         {
             var targetFile = Beatmap.Decode(File.ReadAllText(path));
             var output = CopyFromBeatmap(sourceFile, targetFile, options);
+            HitSoundSampleSynchronizer.SynchronizeIfNeeded(sourceFile, sourcePath, output, path, options);
 
             if (!File.Exists(path)) continue;
 
