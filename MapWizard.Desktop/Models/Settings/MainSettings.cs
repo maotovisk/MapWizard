@@ -2,8 +2,8 @@ namespace MapWizard.Desktop.Models.Settings;
 
 public class MainSettings
 {
-    [Setting("General", "DarkMode")]
-    public bool DarkMode { get; set; } = false;
+    [Setting("General", "ThemeMode")]
+    public ThemeMode ThemeMode { get; set; } = ThemeMode.System;
 
     [Setting("General", "SongsPath")]
     public string SongsPath { get; set; } = string.Empty;

@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Material.Icons;
 using MapWizard.Desktop.Models.Settings;
 using MapWizard.Desktop.Services;
 using Velopack;
@@ -26,10 +25,7 @@ public partial class SettingsViewModel(
     private bool _isUpdateActionRunning;
 
     [ObservableProperty]
-    private bool _isDarkTheme;
-
-    [ObservableProperty]
-    private MaterialIconKind _themeToggleIcon;
+    private ThemeMode _selectedThemeMode;
 
     [ObservableProperty]
     private UpdateStream _updateStream;
@@ -48,37 +44,36 @@ public partial class SettingsViewModel(
 
     public string ConfigDirectoryPath { get; } = settingsService.ConfigDirectoryPath;
     public UpdateStream[] UpdateStreams { get; } = [UpdateStream.Release, UpdateStream.PreRelease];
+    public ThemeMode[] ThemeModes { get; } = [ThemeMode.System, ThemeMode.Light, ThemeMode.Dark];
 
     public void Initialize()
     {
-        UpdateThemeState(themeService.IsDarkTheme);
-        themeService.DarkThemeChanged += OnDarkThemeChanged;
+        UpdateThemeState(themeService.ThemeMode);
+        themeService.ThemeModeChanged += OnThemeModeChanged;
         UpdateStream = updateService.CurrentStream;
         InitializeSongsPath();
         _ = RefreshUpdateStreamBadgeAsync();
     }
 
-    partial void OnIsDarkThemeChanged(bool value)
+    private void OnThemeModeChanged(object? sender, ThemeMode themeMode)
     {
-        ThemeToggleIcon = value ? MaterialIconKind.WeatherNight : MaterialIconKind.WhiteBalanceSunny;
+        UpdateThemeState(themeMode);
+    }
+
+    partial void OnSelectedThemeModeChanged(ThemeMode value)
+    {
         if (_isUpdatingFromThemeService)
         {
             return;
         }
 
-        themeService.SetDarkTheme(value);
+        themeService.SetThemeMode(value);
     }
 
-    private void OnDarkThemeChanged(object? sender, bool isDarkTheme)
-    {
-        UpdateThemeState(isDarkTheme);
-    }
-
-    private void UpdateThemeState(bool isDarkTheme)
+    private void UpdateThemeState(ThemeMode themeMode)
     {
         _isUpdatingFromThemeService = true;
-        ThemeToggleIcon = isDarkTheme ? MaterialIconKind.WeatherNight : MaterialIconKind.WhiteBalanceSunny;
-        IsDarkTheme = isDarkTheme;
+        SelectedThemeMode = themeMode;
         _isUpdatingFromThemeService = false;
     }
 
