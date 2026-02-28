@@ -217,6 +217,7 @@ public partial class ComboColourStudioViewModel(
         }
 
         ColourPoints.Add(point);
+        SetLatestAddedColourPoint(point);
         ObserveColourPoints();
         MarkProjectDirty();
     }
@@ -256,7 +257,40 @@ public partial class ComboColourStudioViewModel(
     [RelayCommand]
     private void RemoveColourPoint(AvaloniaComboColourPoint colourPoint)
     {
+        var removedWasLatest = colourPoint.IsLatestAdded;
         ColourPoints.Remove(colourPoint);
+        if (removedWasLatest)
+        {
+            SetLatestAddedColourPoint(ColourPoints.LastOrDefault());
+        }
+
+        MarkProjectDirty();
+    }
+
+    [RelayCommand]
+    private async Task AddColourPointFromSequence(AvaloniaComboColourPoint sourcePoint)
+    {
+        if (sourcePoint is null)
+        {
+            return;
+        }
+
+        var latestTime = ColourPoints.Count > 0 ? ColourPoints.Max(point => point.Time) : sourcePoint.Time;
+        var nextTime = await TryGetTimestampFromClipboardAsync() ?? latestTime;
+        var newPoint = new AvaloniaComboColourPoint
+        {
+            Time = nextTime,
+            Mode = sourcePoint.Mode,
+            ColourSequence = new ObservableCollection<AvaloniaComboColourToken>(
+                sourcePoint.ColourSequence.Select(token => new AvaloniaComboColourToken
+                {
+                    ComboNumber = token.ComboNumber
+                }))
+        };
+
+        ColourPoints.Add(newPoint);
+        SetLatestAddedColourPoint(newPoint);
+        ObserveColourPoints();
         MarkProjectDirty();
     }
 
@@ -718,6 +752,8 @@ public partial class ComboColourStudioViewModel(
                                 ComboNumber = index + 1
                             }))
                     }));
+
+                SetLatestAddedColourPoint(null);
             }
 
             MaxBurstLength = project.MaxBurstLength;
@@ -812,6 +848,14 @@ public partial class ComboColourStudioViewModel(
             {
                 token.ComboNumber = Math.Clamp(token.ComboNumber, 1, comboCount);
             }
+        }
+    }
+
+    private void SetLatestAddedColourPoint(AvaloniaComboColourPoint? latestPoint)
+    {
+        foreach (var point in ColourPoints)
+        {
+            point.IsLatestAdded = ReferenceEquals(point, latestPoint);
         }
     }
 

@@ -28,8 +28,13 @@ public static class MetadataManager
                     beatmap.MetadataSection.Creator = metadata.Creator;
                     beatmap.MetadataSection.Source = metadata.Source;
                     beatmap.MetadataSection.Tags = metadata.Tags.Split(' ').ToList();
-                    beatmap.MetadataSection.BeatmapID = metadata.BeatmapId;
                     beatmap.MetadataSection.BeatmapSetID = metadata.BeatmapSetId;
+                }
+
+                if (options.ResetBeatmapIds)
+                {
+                    beatmap.MetadataSection.BeatmapID = 0;
+                    beatmap.MetadataSection.BeatmapSetID = -1;
                 }
                 
                 // General field

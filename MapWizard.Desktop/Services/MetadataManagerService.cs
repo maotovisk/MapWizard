@@ -17,7 +17,6 @@ public class MetadataManagerService : IMetadataManagerService
             Creator = metadata.Creator,
             Source = metadata.Source,
             Tags = metadata.Tags,
-            BeatmapId = metadata.BeatmapId,
             BeatmapSetId = metadata.BeatmapSetId,
             AudioFilename = metadata.AudioFilename,
             BackgroundFilename = metadata.BackgroundFilename,

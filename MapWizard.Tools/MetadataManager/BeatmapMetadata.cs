@@ -12,7 +12,6 @@ public class BeatmapMetadata
     public string Creator { get; set; } = string.Empty;
     public string Source { get; set; } = string.Empty;
     public string Tags { get; set; } = string.Empty;
-    public int BeatmapId { get; set; } = 0;
     public int BeatmapSetId { get; set; } = -1;
     public string AudioFilename { get; set; }  = string.Empty;
     public string BackgroundFilename { get; set; } = string.Empty;

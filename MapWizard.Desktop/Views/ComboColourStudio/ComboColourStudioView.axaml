@@ -20,6 +20,52 @@
         <local:AvaloniaColorToColorConverter x:Key="AvaloniaColorToColorConverter" />
     </UserControl.Resources>
 
+    <UserControl.Styles>
+        <Style Selector="Border.ColourPointCard">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Transitions">
+                <Transitions>
+                    <BrushTransition Property="Background" Duration="0:0:0.2" />
+                </Transitions>
+            </Setter>
+        </Style>
+
+        <Style Selector="Border.ColourPointCard.latest">
+            <Setter Property="Background">
+                <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                    <GradientStop Offset="0" Color="#3342B36D" />
+                    <GradientStop Offset="1" Color="#0D42B36D" />
+                </LinearGradientBrush>
+            </Setter>
+        </Style>
+
+        <Style Selector="Border.SequenceTokenDragHost">
+            <Setter Property="CornerRadius" Value="10" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="BorderBrush" Value="Transparent" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Opacity" Value="1" />
+            <Setter Property="Transitions">
+                <Transitions>
+                    <BrushTransition Property="Background" Duration="0:0:0.12" />
+                    <BrushTransition Property="BorderBrush" Duration="0:0:0.12" />
+                    <DoubleTransition Property="Opacity" Duration="0:0:0.12" />
+                </Transitions>
+            </Setter>
+        </Style>
+
+        <Style Selector="Border.SequenceTokenDragHost.drag-over">
+            <Setter Property="Background" Value="#2A42B36D" />
+            <Setter Property="BorderBrush" Value="#8842B36D" />
+        </Style>
+
+        <Style Selector="Border.SequenceTokenDragHost.drag-source">
+            <Setter Property="Background" Value="#3342B36D" />
+            <Setter Property="BorderBrush" Value="#AA42B36D" />
+            <Setter Property="Opacity" Value="0.58" />
+        </Style>
+    </UserControl.Styles>
+
     <UserControl.KeyBindings>
         <KeyBinding Gesture="Ctrl+S" Command="{Binding SaveProjectCommand}" />
     </UserControl.KeyBindings>
@@ -182,7 +228,7 @@
 
                 <suki:GlassCard Margin="8" Padding="12" CornerRadius="15">
                     <StackPanel Spacing="8">
-                        <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="8" VerticalAlignment="Center">
+                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8" VerticalAlignment="Center">
                             <TextBlock Text="Colour Points" FontWeight="Bold" FontSize="16" />
 
                             <Button Grid.Column="1"
@@ -194,16 +240,6 @@
                                     <TextBlock Text="Import ColourHax" VerticalAlignment="Center" />
                                 </StackPanel>
                             </Button>
-
-                            <Button Grid.Column="2"
-                                    Classes="Basic"
-                                    Command="{Binding AddColourPointCommand}"
-                                    ToolTip.Tip="Add colour point">
-                                <StackPanel Orientation="Horizontal" Spacing="4">
-                                    <materialIcons:MaterialIcon Kind="Add" Width="18" Height="18" />
-                                    <TextBlock Text="Add Point" VerticalAlignment="Center" />
-                                </StackPanel>
-                            </Button>
                         </Grid>
 
                         <Separator />
@@ -211,12 +247,14 @@
                         <ItemsControl ItemsSource="{Binding ColourPoints}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <Border BorderBrush="{DynamicResource ThemeAccentBrush}"
+                                    <Border Classes="ColourPointCard"
+                                            Classes.latest="{Binding IsLatestAdded}"
+                                            BorderBrush="{DynamicResource ThemeAccentBrush}"
                                             BorderThickness="1"
                                             CornerRadius="12"
                                             Padding="8"
                                             Margin="0,0,0,8">
-                                        <Grid ColumnDefinitions="Auto,Auto,*,Auto,Auto" ColumnSpacing="8" VerticalAlignment="Center">
+                                        <Grid ColumnDefinitions="Auto,Auto,*,Auto" ColumnSpacing="8" VerticalAlignment="Center">
                                             <controls:MillisecondFlyoutInput Width="130"
                                                                              Value="{Binding Time, Mode=TwoWay}" />
 
@@ -226,7 +264,8 @@
 
                                             <ScrollViewer Grid.Column="2"
                                                           HorizontalScrollBarVisibility="Auto"
-                                                          VerticalScrollBarVisibility="Disabled">
+                                                          VerticalScrollBarVisibility="Disabled"
+                                                          VerticalAlignment="Center">
                                                 <ItemsControl ItemsSource="{Binding ColourSequence}">
                                                     <ItemsControl.ItemsPanel>
                                                         <ItemsPanelTemplate>
@@ -235,36 +274,61 @@
                                                     </ItemsControl.ItemsPanel>
                                                     <ItemsControl.ItemTemplate>
                                                         <DataTemplate>
-                                                            <controls:ComboColourDropdown
-                                                                Options="{Binding DataContext.ColourDropdownOptions, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                                SelectedComboNumber="{Binding ComboNumber, Mode=TwoWay}"
-                                                                RemoveTokenCommand="{Binding DataContext.RemoveColourFromPointCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                                RemoveTokenCommandParameter="{Binding}" />
+                                                            <Border Classes="SequenceTokenDragHost"
+                                                                    DragDrop.AllowDrop="True"
+                                                                    DragDrop.DragOver="SequenceToken_OnDragOver"
+                                                                    DragDrop.Drop="SequenceToken_OnDrop">
+                                                                <controls:ComboColourDropdown
+                                                                    Options="{Binding DataContext.ColourDropdownOptions, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                                    SelectedComboNumber="{Binding ComboNumber, Mode=TwoWay}"
+                                                                    RemoveTokenCommand="{Binding DataContext.RemoveColourFromPointCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                                    RemoveTokenCommandParameter="{Binding}" />
+                                                            </Border>
                                                         </DataTemplate>
                                                     </ItemsControl.ItemTemplate>
                                                 </ItemsControl>
                                             </ScrollViewer>
 
-                                            <Button Grid.Column="3"
-                                                    Classes="Basic"
-                                                    Command="{Binding DataContext.AddColourToPointCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                    CommandParameter="{Binding}"
-                                                    ToolTip.Tip="Add combo colour to this point sequence">
-                                                <materialIcons:MaterialIcon Kind="Add" Width="16" Height="16" />
-                                            </Button>
+                                            <StackPanel Grid.Column="3"
+                                                        Orientation="Horizontal"
+                                                        Spacing="6"
+                                                        HorizontalAlignment="Right">
+                                                <Button Classes="Basic"
+                                                        Command="{Binding DataContext.AddColourToPointCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                        CommandParameter="{Binding}"
+                                                        ToolTip.Tip="Add combo colour to this point sequence">
+                                                    <materialIcons:MaterialIcon Kind="Add" Width="16" Height="16" />
+                                                </Button>
 
-                                            <Button Grid.Column="4"
-                                                    Classes="Basic"
-                                                    Command="{Binding DataContext.RemoveColourPointCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                    CommandParameter="{Binding}"
-                                                    ToolTip.Tip="Remove this colour point">
-                                                <materialIcons:MaterialIcon Kind="Delete" Width="18" Height="18" />
-                                            </Button>
+                                                <Button Classes="Basic"
+                                                        Command="{Binding DataContext.AddColourPointFromSequenceCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                        CommandParameter="{Binding}"
+                                                        ToolTip.Tip="Create a new colour point from this sequence">
+                                                    <materialIcons:MaterialIcon Kind="ContentCopy" Width="16" Height="16" />
+                                                </Button>
+
+                                                <Button Classes="Basic"
+                                                        Command="{Binding DataContext.RemoveColourPointCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                        CommandParameter="{Binding}"
+                                                        ToolTip.Tip="Remove this colour point">
+                                                    <materialIcons:MaterialIcon Kind="Delete" Width="18" Height="18" />
+                                                </Button>
+                                            </StackPanel>
                                         </Grid>
                                     </Border>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
+
+                        <Button HorizontalAlignment="Right"
+                                Classes="Basic"
+                                Command="{Binding AddColourPointCommand}"
+                                ToolTip.Tip="Add colour point">
+                            <StackPanel Orientation="Horizontal" Spacing="4">
+                                <materialIcons:MaterialIcon Kind="Add" Width="18" Height="18" />
+                                <TextBlock Text="Add Point" VerticalAlignment="Center" />
+                            </StackPanel>
+                        </Button>
                     </StackPanel>
                 </suki:GlassCard>
 

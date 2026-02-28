@@ -63,6 +63,9 @@
         <DataTemplate DataType="{x:Type vm:ComboColourStudioViewModel}">
             <views:ComboColourStudioView />
         </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:MapCleanerViewModel}">
+            <views:MapCleanerView />
+        </DataTemplate>
         <DataTemplate DataType="{x:Type vm:SettingsViewModel}">
             <views:SettingsView />
         </DataTemplate>
@@ -213,6 +216,35 @@
                                                             VerticalAlignment="Center" />
                             </Grid>
                             <TextBlock Text="Combo Colour Studio"
+                                       Width="68"
+                                       FontSize="11"
+                                       Foreground="{DynamicResource SukiText}"
+                                       HorizontalAlignment="Center"
+                                       TextAlignment="Center"
+                                       TextWrapping="Wrap" />
+                        </StackPanel>
+                    </Button>
+
+                    <Button Classes="NavButton"
+                            Padding="0"
+                            MinWidth="0"
+                            Width="82"
+                            Foreground="{DynamicResource SukiText}"
+                            HorizontalContentAlignment="Center"
+                            Command="{Binding OpenMapCleanerCommand}">
+                        <StackPanel Spacing="4" HorizontalAlignment="Center" IsHitTestVisible="False">
+                            <Grid Width="44" Height="30">
+                                <Border Classes="NavIconHoverLayer" />
+                                <Border CornerRadius="15"
+                                        Background="{DynamicResource ThemeAccentBrush}"
+                                        Opacity="0.20"
+                                        IsVisible="{Binding IsMapCleanerSelected}" />
+                                <materialIcons:MaterialIcon Kind="Broom"
+                                                            Foreground="{DynamicResource SukiText}"
+                                                            HorizontalAlignment="Center"
+                                                            VerticalAlignment="Center" />
+                            </Grid>
+                            <TextBlock Text="Map Cleaner"
                                        Width="68"
                                        FontSize="11"
                                        Foreground="{DynamicResource SukiText}"

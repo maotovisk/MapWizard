@@ -1,0 +1,223 @@
+<UserControl
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:materialIcons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+    xmlns:suki="clr-namespace:SukiUI.Controls;assembly=SukiUI"
+    xmlns:controls="clr-namespace:MapWizard.Desktop.Views.Controls"
+    xmlns:viewModels="clr-namespace:MapWizard.Desktop.ViewModels"
+    mc:Ignorable="d"
+    d:DesignWidth="800"
+    d:DesignHeight="450"
+    x:Class="MapWizard.Desktop.Views.MapCleanerView"
+    x:DataType="viewModels:MapCleanerViewModel"
+    x:Name="Root"
+    Padding="16">
+    <UserControl.Styles>
+        <Style Selector="Border.SnapChip">
+            <Setter Property="Background" Value="#1F2536" />
+            <Setter Property="BorderBrush" Value="#36415D" />
+            <Setter Property="BorderThickness" Value="1" />
+        </Style>
+        <Style Selector="Button.SnapChipClose">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderBrush" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Padding" Value="2" />
+            <Setter Property="MinWidth" Value="0" />
+            <Setter Property="CornerRadius" Value="8" />
+        </Style>
+        <Style Selector="Button.SnapChipClose:pointerover">
+            <Setter Property="Background" Value="#2B3550" />
+        </Style>
+        <Style Selector="Button.SnapPresetBadge">
+            <Setter Property="Background" Value="#232C42" />
+            <Setter Property="BorderBrush" Value="#3B4A6C" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="999" />
+            <Setter Property="Padding" Value="10,5" />
+            <Setter Property="MinWidth" Value="48" />
+        </Style>
+        <Style Selector="Button.SnapPresetBadge:pointerover">
+            <Setter Property="Background" Value="#2C3956" />
+            <Setter Property="BorderBrush" Value="#4D6391" />
+        </Style>
+    </UserControl.Styles>
+
+    <Grid RowDefinitions="Auto,Auto,*">
+        <Grid ColumnDefinitions="*,Auto" VerticalAlignment="Center">
+            <TextBlock
+                Grid.Row="0"
+                Text="Map Cleaner"
+                FontSize="24"
+                FontWeight="Bold"
+                VerticalAlignment="Center"
+                Margin="16,0" />
+
+            <Button Grid.Column="1"
+                    Classes="Flat Large"
+                    Command="{Binding CleanMapsCommand}"
+                    ToolTip.Tip="Apply map cleaner actions">
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <materialIcons:MaterialIcon Kind="ContentSave" Width="24" Height="24" />
+                    <TextBlock
+                        VerticalAlignment="Center"
+                        FontWeight="Bold"
+                        FontSize="16"
+                        Text="Clean Beatmap" />
+                </StackPanel>
+            </Button>
+        </Grid>
+
+        <Separator Grid.Row="1" Margin="0 10 0 5" />
+
+        <ScrollViewer Grid.Row="2">
+            <StackPanel Spacing="16">
+                <controls:BeatmapSelectionPanel
+                    SectionTitle="Beatmap Selection"
+                    FromWatermark="Select beatmap..."
+                    ShowDestinationSelection="False"
+                    ShowHeaderBackground="{Binding HasHeaderBackgroundImage}"
+                    HeaderBackgroundImage="{Binding HeaderBackgroundImage}"
+                    HeaderTopLine="{Binding OriginContextTopLine}"
+                    OriginPathChangedCommand="{Binding ReanalyzeOriginAfterPathChangeCommand}" />
+
+                <suki:GlassCard Margin="8" Padding="12" CornerRadius="15">
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="Beat Snaps" />
+                        <Separator />
+
+                        <WrapPanel>
+                            <ItemsControl ItemsSource="{Binding ActiveSnapDivisors}" VerticalAlignment="Center">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <WrapPanel />
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border CornerRadius="999"
+                                                Padding="10,5"
+                                                Margin="0,0,6,6"
+                                                Classes="SnapChip">
+                                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                                <TextBlock VerticalAlignment="Center" Text="{Binding}" />
+                                                <Button Classes="SnapChipClose"
+                                                        Command="{Binding DataContext.RemoveSnapCommand, ElementName=Root}"
+                                                        CommandParameter="{Binding}"
+                                                        ToolTip.Tip="Remove snap">
+                                                    <materialIcons:MaterialIcon Kind="Close" Width="14" Height="14" />
+                                                </Button>
+                                            </StackPanel>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+
+                            <Button Classes="Basic Compact"
+                                    Margin="0,0,6,6"
+                                    ToolTip.Tip="Add snap from presets">
+                                <TextBlock Text="+ Presets" />
+                                <Button.Flyout>
+                                    
+                                    <Flyout Placement="BottomEdgeAlignedLeft">
+                                        <Border Width="290"
+                                                Padding="10"
+                                                CornerRadius="12"
+                                                Background="{DynamicResource SystemControlBackgroundChromeMediumLowBrush}"
+                                                BorderBrush="{DynamicResource SukiBorderBrush}"
+                                                BorderThickness="1">
+                                            <StackPanel Spacing="8">
+                                                <TextBlock Text="Preset Snaps"
+                                                           FontWeight="SemiBold"
+                                                           FontSize="13" />
+                                                <Separator />
+                                                <ScrollViewer MaxHeight="220">
+                                                    <ItemsControl ItemsSource="{Binding DataContext.SnapPresets, ElementName=Root}">
+                                                        <ItemsControl.ItemsPanel>
+                                                            <ItemsPanelTemplate>
+                                                                <WrapPanel />
+                                                            </ItemsPanelTemplate>
+                                                        </ItemsControl.ItemsPanel>
+                                                        <ItemsControl.ItemTemplate>
+                                                            <DataTemplate>
+                                                                <Button Classes="SnapPresetBadge Compact"
+                                                                        Margin="0,0,6,6"
+                                                                        Command="{Binding DataContext.AddSnapFromFlyoutCommand, ElementName=Root}"
+                                                                        CommandParameter="{Binding}">
+                                                                    <TextBlock Text="{Binding}" />
+                                                                </Button>
+                                                            </DataTemplate>
+                                                        </ItemsControl.ItemTemplate>
+                                                    </ItemsControl>
+                                                </ScrollViewer>
+                                                <Separator />
+                                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                                    <TextBox Width="170"
+                                                             Watermark="Custom 1/x"
+                                                             Text="{Binding DataContext.CustomSnapInput, Mode=TwoWay, ElementName=Root}" />
+                                                    <Button Classes="Basic Compact"
+                                                            Command="{Binding DataContext.AddCustomSnapCommand, ElementName=Root}">
+                                                        <TextBlock Text="Add" />
+                                                    </Button>
+                                                </StackPanel>
+                                            </StackPanel>
+                                        </Border>
+                                    </Flyout>
+                                </Button.Flyout>
+                            </Button>
+                        </WrapPanel>
+                    </StackPanel>
+                </suki:GlassCard>
+                <suki:GlassCard Margin="8" Padding="12" CornerRadius="15">
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="Actions" />
+                        <Separator />
+
+                        <Grid ColumnDefinitions="*,Auto">
+                            <TextBlock Text="Analyze samples" />
+                            <ToggleSwitch Grid.Column="1" IsChecked="{Binding AnalyzeSamples}" />
+                        </Grid>
+                        <Grid ColumnDefinitions="*,Auto">
+                            <TextBlock Text="Resnap objects" />
+                            <ToggleSwitch Grid.Column="1" IsChecked="{Binding ResnapObjects}" />
+                        </Grid>
+                        <Grid ColumnDefinitions="*,Auto" IsVisible="{Binding ResnapObjects}">
+                            <TextBlock Text="Resnap slider ends (recalculate length)" />
+                            <ToggleSwitch Grid.Column="1" IsChecked="{Binding ResnapSliderEnds}" />
+                        </Grid>
+                        <Grid ColumnDefinitions="*,Auto">
+                            <TextBlock Text="Resnap greenlines" />
+                            <ToggleSwitch Grid.Column="1" IsChecked="{Binding ResnapGreenLines}" />
+                        </Grid>
+                        <Grid ColumnDefinitions="*,Auto">
+                            <TextBlock Text="Resnap bookmarks" />
+                            <ToggleSwitch Grid.Column="1" IsChecked="{Binding ResnapBookmarks}" />
+                        </Grid>
+                        <Grid ColumnDefinitions="*,Auto">
+                            <TextBlock Text="Remove hitsounds" />
+                            <ToggleSwitch Grid.Column="1" IsChecked="{Binding RemoveHitSounds}" />
+                        </Grid>
+                        <Grid ColumnDefinitions="*,Auto">
+                            <TextBlock Text="Remove unused samples" />
+                            <ToggleSwitch Grid.Column="1" IsChecked="{Binding RemoveUnusedSamples}" />
+                        </Grid>
+                        <Grid ColumnDefinitions="*,Auto">
+                            <TextBlock Text="Remove muting" />
+                            <ToggleSwitch Grid.Column="1" IsChecked="{Binding RemoveMuting}" />
+                        </Grid>
+                        <Grid ColumnDefinitions="*,Auto">
+                            <TextBlock Text="Mute unclickable hitsounds" />
+                            <ToggleSwitch Grid.Column="1" IsChecked="{Binding MuteUnclickableHitsounds}" />
+                        </Grid>
+                        <Grid ColumnDefinitions="*,Auto">
+                            <TextBlock Text="Remove unused inherited timing points" />
+                            <ToggleSwitch Grid.Column="1" IsChecked="{Binding RemoveUnusedInheritedTimingPoints}" />
+                        </Grid>
+                    </StackPanel>
+                </suki:GlassCard>
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</UserControl>

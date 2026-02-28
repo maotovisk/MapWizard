@@ -41,6 +41,9 @@ public partial class BeatmapSelectionPanel : UserControl
             nameof(DestinationMemoryToolTip),
             "Add currently-selected osu! map");
 
+    public static readonly StyledProperty<bool> ShowDestinationSelectionProperty =
+        AvaloniaProperty.Register<BeatmapSelectionPanel, bool>(nameof(ShowDestinationSelection), true);
+
     public static readonly StyledProperty<bool> ShowHeaderBackgroundProperty =
         AvaloniaProperty.Register<BeatmapSelectionPanel, bool>(nameof(ShowHeaderBackground));
 
@@ -131,6 +134,12 @@ public partial class BeatmapSelectionPanel : UserControl
     {
         get => GetValue(DestinationMemoryToolTipProperty);
         set => SetValue(DestinationMemoryToolTipProperty, value);
+    }
+
+    public bool ShowDestinationSelection
+    {
+        get => GetValue(ShowDestinationSelectionProperty);
+        set => SetValue(ShowDestinationSelectionProperty, value);
     }
 
     public bool ShowHeaderBackground

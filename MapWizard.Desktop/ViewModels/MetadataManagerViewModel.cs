@@ -127,7 +127,6 @@ public partial class MetadataManagerViewModel(
                 Creator = originMetadata.MetadataSection.Creator,
                 Source = originMetadata.MetadataSection.Source,
                 Tags = string.Join(" ", originMetadata.MetadataSection.Tags),
-                BeatmapId = originMetadata.MetadataSection.BeatmapID,
                 BeatmapSetId = originMetadata.MetadataSection.BeatmapSetID,
                 AudioFilename = originMetadata.GeneralSection.AudioFilename,
                 BackgroundFilename = originMetadata.Events.GetBackgroundImage() ?? string.Empty,
@@ -384,12 +383,6 @@ public partial class MetadataManagerViewModel(
 
         var appliedMetadata = Metadata;
 
-        if (ResetBeatmapIds)
-        {
-            appliedMetadata.BeatmapId = 0;
-            appliedMetadata.BeatmapSetId = -1;
-        }
-
         if (RemoveDuplicateTags)
         {
             appliedMetadata.Tags = string.Join(" ", appliedMetadata.Tags.Split(' ').Distinct());
@@ -402,6 +395,7 @@ public partial class MetadataManagerViewModel(
                 var options = new MetadataManagerOptions
                 {
                     ApplyMetadataSection = ApplyMetadataSection,
+                    ResetBeatmapIds = ResetBeatmapIds,
                     ApplyGeneralSection = ApplyGeneralSection,
                     ApplyColoursSection = ApplyColoursSection,
                     ApplyCombosSection = ApplyCombosSection,

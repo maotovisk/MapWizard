@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Controls.Notifications;
@@ -179,40 +180,143 @@ public partial class HitSoundCopierViewModel(
             preferredMapsetDirectoryPath);
 
     [RelayCommand]
-    private void CopyHitSounds()
+    private async Task CopyHitSounds()
     {
         var type = NotificationType.Error;
         var message = string.Empty;
 
-        var options = new HitSoundCopierOptions
+        try
         {
-            CopySampleAndVolumeChanges = CopySampleAndVolumeChanges,
-            CopySliderBodySounds = CopySliderBodySounds,
-            Leniency = Leniency,
-            OverwriteMuting = OverwriteMuting,
-            OverwriteEverything = OverwriteEverything
-        };
+            var options = new HitSoundCopierOptions
+            {
+                CopySampleAndVolumeChanges = CopySampleAndVolumeChanges,
+                CopySliderBodySounds = CopySliderBodySounds,
+                Leniency = Leniency,
+                OverwriteMuting = OverwriteMuting,
+                OverwriteEverything = OverwriteEverything
+            };
 
-        var destinationPaths = DestinationBeatmaps
-            .Select(x => x.Path)
-            .Where(path => !string.IsNullOrWhiteSpace(path))
-            .Distinct(StringComparer.OrdinalIgnoreCase)
-            .ToArray();
+            var destinationPaths = DestinationBeatmaps
+                .Select(x => x.Path)
+                .Where(path => !string.IsNullOrWhiteSpace(path))
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToArray();
 
-        if (string.IsNullOrWhiteSpace(OriginBeatmap.Path))
-        {
-            message = "Please select an origin beatmap!";
+            if (string.IsNullOrWhiteSpace(OriginBeatmap.Path))
+            {
+                message = "Please select an origin beatmap!";
+            }
+            else if (destinationPaths.Length == 0)
+            {
+                message = "Please select at least one destination beatmap!";
+            }
+            else
+            {
+                var compatibility = hitSoundService.AnalyzeTimingCompatibility(OriginBeatmap.Path, destinationPaths);
+
+                if (compatibility.HasTimingMismatch)
+                {
+                    var shouldProceed = await dialogManager.CreateDialog()
+                        .WithTitle("Timing Mismatch Warning")
+                        .WithContent(BuildTimingMismatchDialogContent(compatibility))
+                        .WithYesNoResult("Copy Anyway", "Cancel")
+                        .TryShowAsync();
+
+                    if (!shouldProceed)
+                    {
+                        return;
+                    }
+                }
+                else if (compatibility.HasOffsetOnlyMismatch)
+                {
+                    var suggestedLeniency = Math.Max(Leniency, compatibility.SuggestedLeniencyMs);
+                    var shouldProceed = await dialogManager.CreateDialog()
+                        .WithTitle("Offset Detected")
+                        .WithContent(BuildOffsetDialogContent(compatibility, suggestedLeniency))
+                        .WithYesNoResult($"Copy with {suggestedLeniency}ms leniency", "Cancel")
+                        .TryShowAsync();
+
+                    if (!shouldProceed)
+                    {
+                        return;
+                    }
+
+                    options.Leniency = suggestedLeniency;
+                    Leniency = suggestedLeniency;
+                }
+
+                if (hitSoundService.CopyHitsoundsAsync(OriginBeatmap.Path, destinationPaths, options))
+                {
+                    type = NotificationType.Success;
+                    message = $"HitSounds applied successfully to {destinationPaths.Length} beatmap(s)!";
+                }
+                else
+                {
+                    message = "Failed to copy hitsounds. Check the console/log output for more details.";
+                }
+            }
         }
-        else if (destinationPaths.Length == 0)
+        catch (Exception ex)
         {
-            message = "Please select at least one destination beatmap!";
-        }
-        else if (hitSoundService.CopyHitsoundsAsync(OriginBeatmap.Path, destinationPaths, options))
-        {
-            type = NotificationType.Success;
-            message = $"HitSounds applied successfully to {destinationPaths.Length} beatmap(s)!";
+            message = ex.Message;
         }
 
         toastManager.ShowToast(type, "HitSound Copier", message);
+    }
+
+    private static string BuildOffsetDialogContent(HitSoundTimingCompatibilityReport compatibility, int suggestedLeniency)
+    {
+        var builder = new StringBuilder();
+        builder.AppendLine("A constant timing offset was detected between the origin and target redlines.");
+        builder.AppendLine($"Suggested leniency: {suggestedLeniency} ms.");
+        builder.AppendLine();
+        builder.AppendLine(compatibility.OffsetOnlyMismatchCount == 1
+            ? "Affected target:"
+            : $"Affected targets ({compatibility.OffsetOnlyMismatchCount}):");
+        AppendTargetList(
+            builder,
+            compatibility.Targets.Where(x => x.Kind == HitSoundTimingCompatibilityKind.OffsetOnlyMismatch).Select(x => x.TargetPath));
+        return builder.ToString().TrimEnd();
+    }
+
+    private static string BuildTimingMismatchDialogContent(HitSoundTimingCompatibilityReport compatibility)
+    {
+        var builder = new StringBuilder();
+        builder.AppendLine("The target timing differs from the origin (different redlines/BPMs).");
+        builder.AppendLine("Hitsounds can still be copied, but alignment may be incorrect.");
+        builder.AppendLine();
+
+        if (compatibility.TimingMismatchCount > 0)
+        {
+            builder.AppendLine(compatibility.TimingMismatchCount == 1
+                ? "Timing-mismatched target:"
+                : $"Timing-mismatched targets ({compatibility.TimingMismatchCount}):");
+            AppendTargetList(
+                builder,
+                compatibility.Targets.Where(x => x.Kind == HitSoundTimingCompatibilityKind.TimingMismatch).Select(x => x.TargetPath));
+        }
+
+        return builder.ToString().TrimEnd();
+    }
+
+    private static void AppendTargetList(StringBuilder builder, IEnumerable<string> targetPaths)
+    {
+        const int maxDisplayed = 5;
+        var names = targetPaths
+            .Select(Path.GetFileName)
+            .Where(name => !string.IsNullOrWhiteSpace(name))
+            .Cast<string>()
+            .Take(maxDisplayed + 1)
+            .ToList();
+
+        for (var i = 0; i < Math.Min(maxDisplayed, names.Count); i++)
+        {
+            builder.AppendLine($"- {names[i]}");
+        }
+
+        if (names.Count > maxDisplayed)
+        {
+            builder.AppendLine($"...and {names.Count - maxDisplayed} more.");
+        }
     }
 }
