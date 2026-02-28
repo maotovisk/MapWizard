@@ -1,14 +1,13 @@
 using System;
 using System.ComponentModel;
 using System.Linq;
-using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
 using MapWizard.Desktop.ViewModels;
 
-namespace MapWizard.Desktop.Views;
+namespace MapWizard.Desktop.Views.HitSoundVisualizer;
 
 public partial class HitSoundVisualizerView : UserControl
 {

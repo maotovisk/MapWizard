@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using MapWizard.Desktop.Models.Settings;
 
-namespace MapWizard.Desktop.Services;
+namespace MapWizard.Desktop.Services.Playback;
 
 public interface IAudioPlaybackService
 {

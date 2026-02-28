@@ -1,6 +1,6 @@
 using MapWizard.Desktop.Models;
 
-namespace MapWizard.Desktop.Services;
+namespace MapWizard.Desktop.Services.MemoryService;
 
 public interface IOsuMemoryReaderService
 {

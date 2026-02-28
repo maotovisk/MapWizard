@@ -1,7 +1,7 @@
 ﻿using MapWizard.Desktop.Models;
 using MapWizard.Tools.MetadataManager;
 
-namespace MapWizard.Desktop.Services;
+namespace MapWizard.Desktop.Services.MetadataService;
 
 public interface IMetadataManagerService
 {

@@ -4,7 +4,7 @@ using BeatmapParser.Colours;
 using MapWizard.Desktop.Models;
 using MapWizard.Tools.MetadataManager;
 
-namespace MapWizard.Desktop.Services;
+namespace MapWizard.Desktop.Services.MetadataService;
 
 public class MetadataManagerService : IMetadataManagerService
 {

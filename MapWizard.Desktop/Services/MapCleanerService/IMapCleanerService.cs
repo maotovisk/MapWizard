@@ -1,6 +1,6 @@
 using MapWizard.Tools.MapCleaner;
 
-namespace MapWizard.Desktop.Services;
+namespace MapWizard.Desktop.Services.MapCleanerService;
 
 public interface IMapCleanerService
 {

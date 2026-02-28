@@ -7,7 +7,7 @@ using System.Net.Sockets;
 using System.Runtime.Versioning;
 using System.Threading;
 
-namespace MapWizard.Desktop.Services;
+namespace MapWizard.Desktop.Services.MemoryService;
 
 internal static class FallbackClientIpc
 {

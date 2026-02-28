@@ -2,13 +2,14 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.Versioning;
+using MapWizard.Desktop.Enums;
 using MapWizard.Desktop.Models;
 using MapWizard.Desktop.Utils;
 using OsuMemoryDataProvider;
 using OsuMemoryDataProvider.OsuMemoryModels.Direct;
 using OsuWineMemReader;
 
-namespace MapWizard.Desktop.Services;
+namespace MapWizard.Desktop.Services.MemoryService;
 
 public class OsuMemoryReaderService(ISettingsService settingsService, ISongLibraryService songLibraryService)
     : IOsuMemoryReaderService

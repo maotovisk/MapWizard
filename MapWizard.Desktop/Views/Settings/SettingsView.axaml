@@ -7,7 +7,7 @@
     xmlns:controls="clr-namespace:MapWizard.Desktop.Views.Controls"
     xmlns:suki="clr-namespace:SukiUI.Controls;assembly=SukiUI"
     xmlns:objectModel="clr-namespace:System.Collections.ObjectModel;assembly=System.ObjectModel"
-    x:Class="MapWizard.Desktop.Views.SettingsView"
+    x:Class="MapWizard.Desktop.Views.Settings.SettingsView"
     x:DataType="vm:SettingsViewModel"
     d:DesignWidth="800"
     d:DesignHeight="450"

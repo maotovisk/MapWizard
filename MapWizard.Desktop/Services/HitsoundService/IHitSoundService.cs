@@ -1,8 +1,8 @@
-using MapWizard.Tools.HitSounds.Copier;
-using MapWizard.Desktop.Models.HitSoundVisualizer;
 using System.Collections.Generic;
+using MapWizard.Desktop.Models.HitSoundVisualizer;
+using MapWizard.Tools.HitSounds.Copier;
 
-namespace MapWizard.Desktop.Services;
+namespace MapWizard.Desktop.Services.HitsoundService;
 
 public interface IHitSoundService
 {

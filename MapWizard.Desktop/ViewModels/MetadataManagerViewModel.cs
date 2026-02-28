@@ -16,6 +16,8 @@ using CommunityToolkit.Mvvm.Input;
 using MapWizard.Desktop.Extensions;
 using MapWizard.Desktop.Models;
 using MapWizard.Desktop.Services;
+using MapWizard.Desktop.Services.MemoryService;
+using MapWizard.Desktop.Services.MetadataService;
 using MapWizard.Desktop.Utils;
 using MapWizard.Tools.MetadataManager;
 using SukiUI.Dialogs;

@@ -9,6 +9,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MapWizard.Desktop.Models.Settings;
 using MapWizard.Desktop.Services;
+using MapWizard.Desktop.Services.Playback;
 using Velopack;
 
 namespace MapWizard.Desktop.ViewModels;

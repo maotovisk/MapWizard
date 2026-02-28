@@ -12,6 +12,8 @@ using CommunityToolkit.Mvvm.Input;
 using MapWizard.Desktop.Extensions;
 using MapWizard.Desktop.Models;
 using MapWizard.Desktop.Services;
+using MapWizard.Desktop.Services.HitsoundService;
+using MapWizard.Desktop.Services.MemoryService;
 using MapWizard.Desktop.Utils;
 using MapWizard.Tools.HitSounds.Copier;
 using SukiUI.Dialogs;

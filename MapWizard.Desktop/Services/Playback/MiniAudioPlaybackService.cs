@@ -6,7 +6,7 @@ using System.Threading;
 using MapWizard.Desktop.Models.Settings;
 using MiniAudioEx.Core.StandardAPI;
 
-namespace MapWizard.Desktop.Services;
+namespace MapWizard.Desktop.Services.Playback;
 
 public sealed class MiniAudioPlaybackService : IAudioPlaybackService, IDisposable
 {

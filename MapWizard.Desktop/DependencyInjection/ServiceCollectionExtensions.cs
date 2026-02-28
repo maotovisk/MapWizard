@@ -1,11 +1,23 @@
 using System;
 using Avalonia.Controls;
 using MapWizard.Desktop.Services;
+using MapWizard.Desktop.Services.ComboColourService;
+using MapWizard.Desktop.Services.HitsoundService;
+using MapWizard.Desktop.Services.MapCleanerService;
+using MapWizard.Desktop.Services.MemoryService;
+using MapWizard.Desktop.Services.MetadataService;
+using MapWizard.Desktop.Services.Playback;
 using MapWizard.Desktop.ViewModels;
 using MapWizard.Desktop.Views;
 using Microsoft.Extensions.DependencyInjection;
 using SukiUI.Dialogs;
 using SukiUI.Toasts;
+using ComboColourStudioView = MapWizard.Desktop.Views.ComboColourStudio.ComboColourStudioView;
+using HitSoundVisualizerView = MapWizard.Desktop.Views.HitSoundVisualizer.HitSoundVisualizerView;
+using MapCleanerView = MapWizard.Desktop.Views.MapCleaner.MapCleanerView;
+using MetadataManagerView = MapWizard.Desktop.Views.MetadataManager.MetadataManagerView;
+using SettingsView = MapWizard.Desktop.Views.Settings.SettingsView;
+using WelcomePageView = MapWizard.Desktop.Views.WelcomePage.WelcomePageView;
 
 namespace MapWizard.Desktop.DependencyInjection;
 

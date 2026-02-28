@@ -1,6 +1,6 @@
 using MapWizard.Tools.ComboColourStudio;
 
-namespace MapWizard.Desktop.Services;
+namespace MapWizard.Desktop.Services.ComboColourService;
 
 public interface IComboColourProjectStore
 {

@@ -5,7 +5,7 @@ using System.Threading;
 using ManagedBass;
 using MapWizard.Desktop.Models.Settings;
 
-namespace MapWizard.Desktop.Services;
+namespace MapWizard.Desktop.Services.Playback;
 
 public sealed class ManagedBassPlaybackService : IAudioPlaybackService, IDisposable
 {
@@ -424,7 +424,8 @@ public sealed class ManagedBassPlaybackService : IAudioPlaybackService, IDisposa
             _lastBassError = Bass.LastError;
 
             if (targetDevice != Bass.DefaultDevice &&
-                Bass.Init(Bass.DefaultDevice, OutputSampleRateHz, DeviceInitFlags.Default, IntPtr.Zero, IntPtr.Zero))
+                Bass.Init(Bass.DefaultDevice, OutputSampleRateHz, DeviceInitFlags.Default, IntPtr.Zero,
+                    IntPtr.Zero))
             {
                 _selectedAudioOutputDeviceId = DefaultAudioOutputDeviceId;
                 _initialized = true;
@@ -433,6 +434,7 @@ public sealed class ManagedBassPlaybackService : IAudioPlaybackService, IDisposa
             }
 
             return false;
+
         }
 
         _initialized = true;

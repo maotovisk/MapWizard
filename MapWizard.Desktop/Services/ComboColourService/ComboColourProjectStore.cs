@@ -4,10 +4,9 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
-using BeatmapParser.Colours;
 using MapWizard.Tools.ComboColourStudio;
 
-namespace MapWizard.Desktop.Services;
+namespace MapWizard.Desktop.Services.ComboColourService;
 
 public class ComboColourProjectStore : IComboColourProjectStore
 {
@@ -140,7 +139,7 @@ public class ComboColourProjectStore : IComboColourProjectStore
         var comboColours = persistedProject.ComboColours
             .Take(8)
             .Select((colour, index) =>
-                new ComboColour((uint)(index + 1), Color.FromArgb(255, colour.R, colour.G, colour.B)))
+                new BeatmapParser.Colours.ComboColour((uint)(index + 1), Color.FromArgb(255, colour.R, colour.G, colour.B)))
             .ToList();
 
         if (comboColours.Count == 0)

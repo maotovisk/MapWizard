@@ -1,8 +1,7 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace MapWizard.Desktop.Services;
+namespace MapWizard.Desktop.Services.HitsoundService;
 
 public enum HitSoundTimingCompatibilityKind
 {

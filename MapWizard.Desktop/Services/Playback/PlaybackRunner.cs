@@ -1,13 +1,11 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using MapWizard.Desktop.Models.HitSoundVisualizer;
-using MapWizard.Desktop.Services;
 
-namespace MapWizard.Desktop.Playback;
+namespace MapWizard.Desktop.Services.Playback;
 
 internal enum PlaybackRunnerStartResult
 {
@@ -22,8 +20,7 @@ internal sealed class PlaybackRunner(IAudioPlaybackService audioPlaybackService)
     private const int ClockWarmupWindowMs = 300;
     private const int ClockWarmupJumpToleranceMs = 150;
 
-    private readonly object _sync = new();
-    private readonly IAudioPlaybackService _audioPlaybackService = audioPlaybackService;
+    private readonly Lock _sync = new();
 
     private CancellationTokenSource? _runCts;
     private int _runIdSequence;
@@ -45,10 +42,10 @@ internal sealed class PlaybackRunner(IAudioPlaybackService audioPlaybackService)
     private int _uiLoopLastIntervalMs;
     private int _uiLoopMaxIntervalMs;
 
-    public bool IsRunning => Volatile.Read(ref _isRunning) != 0;
-    public bool IsPaused => Volatile.Read(ref _isPaused) != 0;
+    private bool IsRunning => Volatile.Read(ref _isRunning) != 0;
+    private bool IsPaused => Volatile.Read(ref _isPaused) != 0;
 
-    public int CurrentTimeMs
+    private int CurrentTimeMs
     {
         get
         {
@@ -72,7 +69,7 @@ internal sealed class PlaybackRunner(IAudioPlaybackService audioPlaybackService)
 
         StopInternal(resetPausedState: false, stopSongPlayback: true);
 
-        var songStarted = _audioPlaybackService.LoadSong(songPath) && _audioPlaybackService.PlaySong(clampedStartTimeMs);
+        var songStarted = audioPlaybackService.LoadSong(songPath) && audioPlaybackService.PlaySong(clampedStartTimeMs);
         if (!songStarted)
         {
             Volatile.Write(ref _isRunning, 0);
@@ -136,7 +133,7 @@ internal sealed class PlaybackRunner(IAudioPlaybackService audioPlaybackService)
             return Math.Clamp(CurrentTimeMs, 0, timelineEndMs);
         }
 
-        return Math.Clamp(_audioPlaybackService.GetSongPositionMs(), 0, timelineEndMs);
+        return Math.Clamp(audioPlaybackService.GetSongPositionMs(), 0, timelineEndMs);
     }
 
     public string GetTimingTelemetryStatus()
@@ -170,7 +167,7 @@ internal sealed class PlaybackRunner(IAudioPlaybackService audioPlaybackService)
         Action<HitSoundVisualizerPoint, CancellationToken> onPlayPoint)
     {
         using var clockTickSignal = new SemaphoreSlim(0, 1);
-        var completedNaturally = false;
+        bool completedNaturally;
         var clockLoopTask = RunClockLoopAsync(runId, startTimeMs, cts, clockTickSignal, postToUi, onCursorUpdatedOnUi);
 
         try
@@ -181,7 +178,7 @@ internal sealed class PlaybackRunner(IAudioPlaybackService audioPlaybackService)
         {
             try
             {
-                cts.Cancel();
+                await cts.CancelAsync();
             }
             catch
             {
@@ -305,7 +302,7 @@ internal sealed class PlaybackRunner(IAudioPlaybackService audioPlaybackService)
                 }
 
                 RecordIntervalTelemetry(ref _schedulerLoopLastTickMs, ref _schedulerLoopLastIntervalMs, ref _schedulerLoopMaxIntervalMs);
-                if (_audioPlaybackService.IsSongPlaying)
+                if (audioPlaybackService.IsSongPlaying)
                 {
                     sawSongPlaying = true;
                 }
@@ -325,7 +322,7 @@ internal sealed class PlaybackRunner(IAudioPlaybackService audioPlaybackService)
                     onPlayPoint(point, token);
                 }
 
-                var songEndedNaturally = sawSongPlaying && !_audioPlaybackService.IsSongPlaying;
+                var songEndedNaturally = sawSongPlaying && !audioPlaybackService.IsSongPlaying;
                 if (songEndedNaturally)
                 {
                     break;
@@ -376,11 +373,11 @@ internal sealed class PlaybackRunner(IAudioPlaybackService audioPlaybackService)
 
         if (stopSongPlayback)
         {
-            _audioPlaybackService.StopSong();
+            audioPlaybackService.StopSong();
         }
         else
         {
-            _audioPlaybackService.PauseSong();
+            audioPlaybackService.PauseSong();
         }
     }
 

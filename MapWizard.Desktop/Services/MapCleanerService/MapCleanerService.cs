@@ -3,7 +3,7 @@ using System.IO;
 using BeatmapParser;
 using MapWizard.Tools.MapCleaner;
 
-namespace MapWizard.Desktop.Services;
+namespace MapWizard.Desktop.Services.MapCleanerService;
 
 public class MapCleanerService : IMapCleanerService
 {

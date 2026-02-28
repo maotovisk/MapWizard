@@ -11,7 +11,7 @@
     mc:Ignorable="d"
     d:DesignWidth="1200"
     d:DesignHeight="760"
-    x:Class="MapWizard.Desktop.Views.HitSoundVisualizerView"
+    x:Class="MapWizard.Desktop.Views.HitSoundVisualizer.HitSoundVisualizerView"
     x:DataType="viewModels:HitSoundVisualizerViewModel"
     x:Name="Root"
     Focusable="True"

@@ -1,7 +1,7 @@
 using Avalonia.Controls;
 using MapWizard.Desktop.ViewModels;
 
-namespace MapWizard.Desktop.Views;
+namespace MapWizard.Desktop.Views.Settings;
 
 public partial class SettingsView : UserControl
 {

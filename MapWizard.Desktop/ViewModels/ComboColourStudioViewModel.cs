@@ -21,6 +21,8 @@ using CommunityToolkit.Mvvm.Input;
 using MapWizard.Desktop.Extensions;
 using MapWizard.Desktop.Models;
 using MapWizard.Desktop.Services;
+using MapWizard.Desktop.Services.ComboColourService;
+using MapWizard.Desktop.Services.MemoryService;
 using MapWizard.Desktop.Utils;
 using MapWizard.Tools.ComboColourStudio;
 using SukiUI.Dialogs;

@@ -11,7 +11,7 @@ using MapWizard.Tools.HitSounds.Extensions;
 using MapWizard.Tools.HitSounds.Timeline;
 using MapWizard.Tools.MapCleaner.Snapping;
 
-namespace MapWizard.Desktop.Services;
+namespace MapWizard.Desktop.Services.HitsoundService;
 
 public class HitSoundService : IHitSoundService
 {

@@ -2,7 +2,7 @@ using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.VisualTree;
 
-namespace MapWizard.Desktop.Views;
+namespace MapWizard.Desktop.Views.WelcomePage;
 
 public partial class WelcomePageView : UserControl
 {
