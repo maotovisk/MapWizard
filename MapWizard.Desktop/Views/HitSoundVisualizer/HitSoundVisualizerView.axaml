@@ -62,9 +62,6 @@
             <Setter Property="Foreground" Value="{DynamicResource SukiText}" />
             
         </Style>
-        <Style Selector="Button.timeline-transport-btn:pointerover">
-            <Setter Property="Background" Value="{DynamicResource SystemControlBackgroundAltMediumBrush}" />
-        </Style>
         <Style Selector="Button.timeline-transport-btn:pressed">
             <Setter Property="Background" Value="{DynamicResource SystemControlBackgroundAltHighBrush}" />
         </Style>
@@ -730,17 +727,12 @@
                         <Button Classes="timeline-transport-btn"
                                 Command="{Binding TogglePlaybackCommand}"
                                 ToolTip.Tip="{Binding PlaybackButtonText}">
-                            <materialIcons:MaterialIcon Kind="PlayPause" Width="16" Height="16" />
+                            <materialIcons:MaterialIcon Kind="{Binding PlaybackButtonIconKind}" Width="16" Height="16" />
                         </Button>
                         <Button Classes="timeline-transport-btn"
                                 Command="{Binding StopPlaybackSessionCommand}"
                                 ToolTip.Tip="Stop">
                             <materialIcons:MaterialIcon Kind="Stop" Width="16" Height="16" />
-                        </Button>
-                        <Button Classes="timeline-transport-btn"
-                                Command="{Binding CommitPlaybackSeekCommand}"
-                                ToolTip.Tip="Seek to preview position">
-                            <materialIcons:MaterialIcon Kind="SkipNext" Width="16" Height="16" />
                         </Button>
 
                         <Button Classes="timeline-mute-btn"

@@ -142,6 +142,9 @@ public partial class HitSoundVisualizerViewModel(
     public string CursorTimeText => FormatTimeLabel(CursorTimeMs);
     public string TimelineEndText => FormatTimeLabel((int)Math.Round(TimelineEndMs));
     public string PlaybackButtonText => IsPlaybackRunning ? "Pause" : (IsPlaybackPaused ? "Resume" : "Play");
+    public MaterialIconKind PlaybackButtonIconKind => IsPlaybackRunning
+        ? MaterialIconKind.Pause
+        : MaterialIconKind.Play;
     public string AudioSourceStatus => !HasLoadedSongAudio || string.IsNullOrWhiteSpace(_loadedAudioFilePath)
         ? "Song audio unavailable (playback disabled)."
         : $"Song: {Path.GetFileName(_loadedAudioFilePath)}";
@@ -280,12 +283,14 @@ public partial class HitSoundVisualizerViewModel(
     partial void OnIsPlaybackPausedChanged(bool value)
     {
         OnPropertyChanged(nameof(PlaybackButtonText));
+        OnPropertyChanged(nameof(PlaybackButtonIconKind));
         RefreshTimingDebugStatus(force: true);
     }
 
     partial void OnIsPlaybackRunningChanged(bool value)
     {
         OnPropertyChanged(nameof(PlaybackButtonText));
+        OnPropertyChanged(nameof(PlaybackButtonIconKind));
         RefreshTimingDebugStatus(force: true);
     }
 
