@@ -26,7 +26,8 @@ public sealed class MiniAudioPlaybackService : IAudioPlaybackService, IDisposabl
     private CancellationTokenSource? _updateLoopCts;
     private Thread? _updateLoopThread;
     private AudioSource? _songSource;
-    private AudioSource? _hitsoundSource;
+    private readonly Dictionary<int, AudioSource> _hitsoundSourcesByVolumePercent = [];
+    private float _hitsoundVolume = 1f;
     private AudioClip? _songClip;
     private string _songPath = string.Empty;
     private ulong _songSourceLengthFrames;
@@ -265,14 +266,16 @@ public sealed class MiniAudioPlaybackService : IAudioPlaybackService, IDisposabl
         lock (_sync)
         {
             EnsureInitialized();
-            if (_hitsoundSource is not null)
+
+            _hitsoundVolume = Clamp01(volume);
+            foreach (var entry in _hitsoundSourcesByVolumePercent)
             {
-                _hitsoundSource.Volume = Clamp01(volume);
+                entry.Value.Volume = _hitsoundVolume * (entry.Key / 100f);
             }
         }
     }
 
-    public bool PlayHitsound(string filePath)
+    public bool PlayHitsound(string filePath, float volumeMultiplier = 1f)
     {
         if (string.IsNullOrWhiteSpace(filePath) || !File.Exists(filePath))
         {
@@ -283,7 +286,9 @@ public sealed class MiniAudioPlaybackService : IAudioPlaybackService, IDisposabl
         {
             EnsureInitialized();
 
-            if (_hitsoundSource is null)
+            var effectiveVolumePercent = (int)Math.Round(Clamp01(volumeMultiplier) * 100f);
+            var source = GetOrCreateHitsoundSource(effectiveVolumePercent);
+            if (source is null)
             {
                 return false;
             }
@@ -294,7 +299,7 @@ public sealed class MiniAudioPlaybackService : IAudioPlaybackService, IDisposabl
                 return false;
             }
 
-            _hitsoundSource.PlayOneShot(clip);
+            source.PlayOneShot(clip);
             return true;
         }
     }
@@ -360,8 +365,20 @@ public sealed class MiniAudioPlaybackService : IAudioPlaybackService, IDisposabl
         {
             _songSource?.Dispose();
             _songSource = null;
-            _hitsoundSource?.Dispose();
-            _hitsoundSource = null;
+
+            foreach (var source in _hitsoundSourcesByVolumePercent.Values)
+            {
+                try
+                {
+                    source.Dispose();
+                }
+                catch
+                {
+                    // Ignore hitsound source disposal failures on shutdown.
+                }
+            }
+
+            _hitsoundSourcesByVolumePercent.Clear();
 
             foreach (var clip in _clipCache.Values)
             {
@@ -405,7 +422,11 @@ public sealed class MiniAudioPlaybackService : IAudioPlaybackService, IDisposabl
 
         AudioContext.Initialize(SampleRate, Channels, PeriodSizeInFrames, deviceInfo: null!);
         _songSource = new AudioSource(maxSources: 1);
-        _hitsoundSource = new AudioSource(maxSources: 64);
+        _hitsoundSourcesByVolumePercent.Clear();
+        _hitsoundSourcesByVolumePercent[100] = new AudioSource(maxSources: 64)
+        {
+            Volume = _hitsoundVolume
+        };
         _initialized = true;
         ResetAudioUpdateTelemetry();
         _updateLoopCts = new CancellationTokenSource();
@@ -579,6 +600,29 @@ public sealed class MiniAudioPlaybackService : IAudioPlaybackService, IDisposabl
     }
 
     private static float Clamp01(float value) => Math.Clamp(value, 0f, 1f);
+
+    private AudioSource? GetOrCreateHitsoundSource(int volumePercent)
+    {
+        var clampedPercent = Math.Clamp(volumePercent, 0, 100);
+        if (_hitsoundSourcesByVolumePercent.TryGetValue(clampedPercent, out var source))
+        {
+            return source;
+        }
+
+        try
+        {
+            source = new AudioSource(maxSources: 64)
+            {
+                Volume = _hitsoundVolume * (clampedPercent / 100f)
+            };
+            _hitsoundSourcesByVolumePercent[clampedPercent] = source;
+            return source;
+        }
+        catch
+        {
+            return null;
+        }
+    }
 
     private void ClearLoadedSongState()
     {

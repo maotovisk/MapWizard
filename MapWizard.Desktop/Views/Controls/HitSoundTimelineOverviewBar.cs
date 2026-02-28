@@ -63,6 +63,12 @@ public class HitSoundTimelineOverviewBar : Control
     public static readonly StyledProperty<ICommand?> SeekTimeCommandProperty =
         AvaloniaProperty.Register<HitSoundTimelineOverviewBar, ICommand?>(nameof(SeekTimeCommand));
 
+    public static readonly StyledProperty<ICommand?> BeginPeekCommandProperty =
+        AvaloniaProperty.Register<HitSoundTimelineOverviewBar, ICommand?>(nameof(BeginPeekCommand));
+
+    public static readonly StyledProperty<ICommand?> EndPeekCommandProperty =
+        AvaloniaProperty.Register<HitSoundTimelineOverviewBar, ICommand?>(nameof(EndPeekCommand));
+
     static HitSoundTimelineOverviewBar()
     {
         AffectsRender<HitSoundTimelineOverviewBar>(
@@ -113,6 +119,18 @@ public class HitSoundTimelineOverviewBar : Control
     {
         get => GetValue(PanTimelineCommandProperty);
         set => SetValue(PanTimelineCommandProperty, value);
+    }
+
+    public ICommand? BeginPeekCommand
+    {
+        get => GetValue(BeginPeekCommandProperty);
+        set => SetValue(BeginPeekCommandProperty, value);
+    }
+
+    public ICommand? EndPeekCommand
+    {
+        get => GetValue(EndPeekCommandProperty);
+        set => SetValue(EndPeekCommandProperty, value);
     }
 
     public override void Render(DrawingContext context)
@@ -186,6 +204,11 @@ public class HitSoundTimelineOverviewBar : Control
 
         _isScrubbing = true;
         _interactionMode = ResolveInteractionMode(e.GetPosition(this));
+        if (BeginPeekCommand?.CanExecute(null) == true)
+        {
+            BeginPeekCommand.Execute(null);
+        }
+
         e.Pointer.Capture(this);
         HandlePointerAction(e.GetPosition(this));
         e.Handled = true;
@@ -208,9 +231,25 @@ public class HitSoundTimelineOverviewBar : Control
         base.OnPointerReleased(e);
         _isScrubbing = false;
         _interactionMode = OverviewInteractionMode.None;
+        if (EndPeekCommand?.CanExecute(null) == true)
+        {
+            EndPeekCommand.Execute(null);
+        }
+
         if (e.Pointer.Captured == this)
         {
             e.Pointer.Capture(null);
+        }
+    }
+
+    protected override void OnPointerCaptureLost(PointerCaptureLostEventArgs e)
+    {
+        base.OnPointerCaptureLost(e);
+        _isScrubbing = false;
+        _interactionMode = OverviewInteractionMode.None;
+        if (EndPeekCommand?.CanExecute(null) == true)
+        {
+            EndPeekCommand.Execute(null);
         }
     }
 

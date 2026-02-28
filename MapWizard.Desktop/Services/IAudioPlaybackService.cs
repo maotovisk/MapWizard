@@ -17,7 +17,7 @@ public interface IAudioPlaybackService
 
     void SetSongVolume(float volume);
     void SetHitsoundVolume(float volume);
-    bool PlayHitsound(string filePath);
+    bool PlayHitsound(string filePath, float volumeMultiplier = 1f);
 
     IReadOnlyList<AudioOutputDeviceOption> GetAudioOutputDevices();
     string GetSelectedAudioOutputDeviceId();

@@ -245,7 +245,7 @@ public sealed class ManagedBassPlaybackService : IAudioPlaybackService, IDisposa
         }
     }
 
-    public bool PlayHitsound(string filePath)
+    public bool PlayHitsound(string filePath, float volumeMultiplier = 1f)
     {
         if (string.IsNullOrWhiteSpace(filePath) || !File.Exists(filePath))
         {
@@ -272,7 +272,8 @@ public sealed class ManagedBassPlaybackService : IAudioPlaybackService, IDisposa
                 return false;
             }
 
-            _ = Bass.ChannelSetAttribute(channelHandle, ChannelAttribute.Volume, _hitsoundVolume);
+            var effectiveVolume = Clamp01(_hitsoundVolume * Clamp01(volumeMultiplier));
+            _ = Bass.ChannelSetAttribute(channelHandle, ChannelAttribute.Volume, effectiveVolume);
             if (!Bass.ChannelPlay(channelHandle, false))
             {
                 _lastBassError = Bass.LastError;
