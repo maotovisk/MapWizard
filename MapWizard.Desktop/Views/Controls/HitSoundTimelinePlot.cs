@@ -81,6 +81,8 @@ public class HitSoundTimelinePlot : Control
     private static readonly Pen EighthTickPen = new(new SolidColorBrush(Color.Parse("#F0D94B")), 1.0);
     private static readonly Pen GenericTickPen = new(new SolidColorBrush(Color.Parse("#7A848F")), 1.0);
     private static readonly Pen LightGenericTickPen = new(new SolidColorBrush(Color.Parse("#64748B")), 1.0);
+    private const double PlaybackSeekWheelStepThreshold = 0.6d;
+    private const int PlaybackSeekWheelBurstTimeoutMs = 320;
     private bool _isMiddlePanning;
     private bool _isRangeSelecting;
     private bool _isSelectionDragActive;
@@ -91,6 +93,10 @@ public class HitSoundTimelinePlot : Control
     private bool _showPlacementGhost;
     private int _placementGhostRowIndex = -1;
     private int _placementGhostTimeMs = -1;
+    private double _playbackSeekWheelAccumulator;
+    private int _playbackSeekWheelAnchorTimeMs = -1;
+    private long _lastPlaybackSeekWheelTickMs;
+    private int[] _playbackSeekSnapTimesCache = [];
     private HitSoundVisualizerPoint[] _pointsCache = [];
     private HitSoundVisualizerSampleChange[] _sampleChangesCache = [];
     private HitSoundVisualizerSnapTick[] _snapTicksCache = [];
@@ -119,6 +125,9 @@ public class HitSoundTimelinePlot : Control
 
     public static readonly StyledProperty<bool> IsPlaybackRunningProperty =
         AvaloniaProperty.Register<HitSoundTimelinePlot, bool>(nameof(IsPlaybackRunning));
+
+    public static readonly StyledProperty<bool> FollowPlaybackCursorProperty =
+        AvaloniaProperty.Register<HitSoundTimelinePlot, bool>(nameof(FollowPlaybackCursor));
 
     public static readonly StyledProperty<int> SelectedPointIdProperty =
         AvaloniaProperty.Register<HitSoundTimelinePlot, int>(nameof(SelectedPointId), -1);
@@ -223,6 +232,12 @@ public class HitSoundTimelinePlot : Control
     {
         get => GetValue(IsPlaybackRunningProperty);
         set => SetValue(IsPlaybackRunningProperty, value);
+    }
+
+    public bool FollowPlaybackCursor
+    {
+        get => GetValue(FollowPlaybackCursorProperty);
+        set => SetValue(FollowPlaybackCursorProperty, value);
     }
 
     public int SelectedPointId
@@ -358,6 +373,13 @@ public class HitSoundTimelinePlot : Control
         {
             RebuildSelectedPointIdsCache();
         }
+        else if (change.Property == IsPlaybackRunningProperty || change.Property == FollowPlaybackCursorProperty)
+        {
+            if (!IsPlaybackRunning || !FollowPlaybackCursor)
+            {
+                ResetPlaybackWheelSeekState();
+            }
+        }
     }
 
     protected override void OnPointerPressed(PointerPressedEventArgs e)
@@ -428,9 +450,8 @@ public class HitSoundTimelinePlot : Control
 
         if (e.ClickCount >= 2 && clickedRow != SampleRowIndex)
         {
-            var (visibleStart, visibleEnd) = GetVisiblePointRange();
             var rowIds = new List<int>();
-            for (var i = visibleStart; i < visibleEnd; i++)
+            for (var i = 0; i < _pointsCache.Length; i++)
             {
                 var p = _pointsCache[i];
                 if (GetRowIndex(p) == clickedRow)
@@ -603,6 +624,11 @@ public class HitSoundTimelinePlot : Control
                 {
                     SeekTimeCommand.Execute(clickedTimeMs);
                 }
+
+                if (SelectPointsCommand?.CanExecute(Array.Empty<int>()) == true)
+                {
+                    SelectPointsCommand.Execute(Array.Empty<int>());
+                }
             }
 
             _isRangeSelecting = false;
@@ -668,6 +694,20 @@ public class HitSoundTimelinePlot : Control
         }
 
         var wheelDelta = Math.Abs(e.Delta.Y) >= Math.Abs(e.Delta.X) ? e.Delta.Y : e.Delta.X;
+        if (FollowPlaybackCursor &&
+            IsPlaybackRunning &&
+            wheelDelta != 0 &&
+            TryResolvePlaybackWheelSeekTarget(wheelDelta, out var seekTimeMs))
+        {
+            e.Handled = true;
+            if (SeekTimeCommand?.CanExecute(seekTimeMs) == true)
+            {
+                SeekTimeCommand.Execute(seekTimeMs);
+            }
+
+            return;
+        }
+
         var panDeltaMs = -wheelDelta * windowMs * 0.1d;
         if (PanTimelineCommand?.CanExecute(panDeltaMs) == true)
         {
@@ -712,12 +752,37 @@ public class HitSoundTimelinePlot : Control
         if (SnapTicks is null)
         {
             _snapTicksCache = [];
+            _playbackSeekSnapTimesCache = [];
+            ResetPlaybackWheelSeekState();
             return;
         }
 
+        foreach (var tick in SnapTicks)
+        {
+            if (tick is null)
+            {
+                continue;
+            }
+
+            if (tick.ExactTimeMs == 0d && tick.TimeMs != 0)
+            {
+                tick.ExactTimeMs = tick.TimeMs;
+            }
+        }
+
         _snapTicksCache = (SnapTicks as IEnumerable<HitSoundVisualizerSnapTick> ?? [])
-            .OrderBy(x => x.TimeMs)
+            .OrderBy(x => x.ExactTimeMs)
             .ToArray();
+
+        var measureSnapTimes = _snapTicksCache
+            .Where(tick => tick.IsMeasureLine || tick.Denominator == 1)
+            .Select(tick => tick.TimeMs)
+            .Distinct()
+            .ToArray();
+        _playbackSeekSnapTimesCache = measureSnapTimes.Length > 0
+            ? measureSnapTimes
+            : _snapTicksCache.Select(tick => tick.TimeMs).Distinct().ToArray();
+        ResetPlaybackWheelSeekState();
     }
 
     private void RebuildSelectedPointIdsCache()
@@ -858,7 +923,7 @@ public class HitSoundTimelinePlot : Control
         while (lo < hi)
         {
             var mid = lo + ((hi - lo) / 2);
-            if (_snapTicksCache[mid].TimeMs < targetTimeMs)
+            if (_snapTicksCache[mid].ExactTimeMs < targetTimeMs)
             {
                 lo = mid + 1;
             }
@@ -878,7 +943,7 @@ public class HitSoundTimelinePlot : Control
         while (lo < hi)
         {
             var mid = lo + ((hi - lo) / 2);
-            if (_snapTicksCache[mid].TimeMs <= targetTimeMs)
+            if (_snapTicksCache[mid].ExactTimeMs <= targetTimeMs)
             {
                 lo = mid + 1;
             }
@@ -926,7 +991,7 @@ public class HitSoundTimelinePlot : Control
 
         var selectedDivisor = Math.Clamp(SnapDivisorDenominator, 1, 16);
         var (tickStart, tickEnd) = GetVisibleSnapTickRange();
-        var visibleTicks = new List<HitSoundVisualizerSnapTick>(Math.Max(0, tickEnd - tickStart));
+        var visibleTicksByRoundedTime = new Dictionary<int, HitSoundVisualizerSnapTick>(Math.Max(0, tickEnd - tickStart));
         for (var i = tickStart; i < tickEnd; i++)
         {
             var tick = _snapTicksCache[i];
@@ -935,8 +1000,21 @@ public class HitSoundTimelinePlot : Control
                 continue;
             }
 
-            visibleTicks.Add(tick);
+            if (!visibleTicksByRoundedTime.TryGetValue(tick.TimeMs, out var current))
+            {
+                visibleTicksByRoundedTime[tick.TimeMs] = tick;
+                continue;
+            }
+
+            if (GetTickRenderPriority(tick) > GetTickRenderPriority(current))
+            {
+                visibleTicksByRoundedTime[tick.TimeMs] = tick;
+            }
         }
+
+        var visibleTicks = visibleTicksByRoundedTime.Values
+            .OrderBy(tick => tick.ExactTimeMs)
+            .ToList();
 
         if (visibleTicks.Count == 0)
         {
@@ -953,7 +1031,7 @@ public class HitSoundTimelinePlot : Control
                 continue;
             }
 
-            var x = TimeToX(tick.TimeMs, width, windowMs);
+            var x = TimeToX(tick.ExactTimeMs, width, windowMs);
             tickCandidates.Add((tick, x));
         }
 
@@ -1721,7 +1799,7 @@ public class HitSoundTimelinePlot : Control
                 continue;
             }
 
-            var x = TimeToX(tick.TimeMs, width, windowMs);
+            var x = TimeToX(tick.ExactTimeMs, width, windowMs);
             var distancePx = Math.Abs(x - clickX);
             if (distancePx < bestDistancePx)
             {
@@ -1737,6 +1815,128 @@ public class HitSoundTimelinePlot : Control
 
         snappedTimeMs = bestTick.TimeMs;
         return true;
+    }
+
+    private bool TryResolvePlaybackWheelSeekTarget(double wheelDelta, out int seekTimeMs)
+    {
+        seekTimeMs = 0;
+        if (_playbackSeekSnapTimesCache.Length == 0 || wheelDelta == 0 || !IsPlaybackRunning || !FollowPlaybackCursor)
+        {
+            return false;
+        }
+
+        var nowTickMs = Environment.TickCount64;
+        if (_playbackSeekWheelAnchorTimeMs < 0 || nowTickMs - _lastPlaybackSeekWheelTickMs > PlaybackSeekWheelBurstTimeoutMs)
+        {
+            _playbackSeekWheelAccumulator = 0;
+            _playbackSeekWheelAnchorTimeMs = CursorTimeMs;
+        }
+
+        _lastPlaybackSeekWheelTickMs = nowTickMs;
+        _playbackSeekWheelAccumulator += wheelDelta;
+
+        var stepCount = (int)Math.Truncate(_playbackSeekWheelAccumulator / PlaybackSeekWheelStepThreshold);
+        if (stepCount == 0)
+        {
+            return false;
+        }
+
+        _playbackSeekWheelAccumulator -= stepCount * PlaybackSeekWheelStepThreshold;
+
+        var signedSnapSteps = -stepCount;
+        var currentAnchor = _playbackSeekWheelAnchorTimeMs >= 0 ? _playbackSeekWheelAnchorTimeMs : CursorTimeMs;
+        if (!TryStepPlaybackBySnapTime(currentAnchor, signedSnapSteps, out var steppedTimeMs) ||
+            steppedTimeMs == _playbackSeekWheelAnchorTimeMs)
+        {
+            return false;
+        }
+
+        _playbackSeekWheelAnchorTimeMs = steppedTimeMs;
+        seekTimeMs = steppedTimeMs;
+        return true;
+    }
+
+    private bool TryStepPlaybackBySnapTime(int fromTimeMs, int signedSteps, out int seekTimeMs)
+    {
+        seekTimeMs = fromTimeMs;
+        if (_playbackSeekSnapTimesCache.Length == 0 || signedSteps == 0)
+        {
+            return false;
+        }
+
+        var snapTimes = _playbackSeekSnapTimesCache;
+        if (signedSteps > 0)
+        {
+            var firstForwardIndex = UpperBoundPlaybackSeekSnapTimes(fromTimeMs);
+            if (firstForwardIndex >= snapTimes.Length)
+            {
+                return false;
+            }
+
+            var targetIndex = Math.Min(snapTimes.Length - 1, firstForwardIndex + (signedSteps - 1));
+            seekTimeMs = snapTimes[targetIndex];
+            return true;
+        }
+
+        var backwardSteps = Math.Abs(signedSteps);
+        var firstBackwardIndex = LowerBoundPlaybackSeekSnapTimes(fromTimeMs) - 1;
+        if (firstBackwardIndex < 0)
+        {
+            return false;
+        }
+
+        var targetBackwardIndex = Math.Max(0, firstBackwardIndex - (backwardSteps - 1));
+        seekTimeMs = snapTimes[targetBackwardIndex];
+        return true;
+    }
+
+    private int LowerBoundPlaybackSeekSnapTimes(int targetTimeMs)
+    {
+        var values = _playbackSeekSnapTimesCache;
+        var lo = 0;
+        var hi = values.Length;
+        while (lo < hi)
+        {
+            var mid = lo + ((hi - lo) / 2);
+            if (values[mid] < targetTimeMs)
+            {
+                lo = mid + 1;
+            }
+            else
+            {
+                hi = mid;
+            }
+        }
+
+        return lo;
+    }
+
+    private int UpperBoundPlaybackSeekSnapTimes(int targetTimeMs)
+    {
+        var values = _playbackSeekSnapTimesCache;
+        var lo = 0;
+        var hi = values.Length;
+        while (lo < hi)
+        {
+            var mid = lo + ((hi - lo) / 2);
+            if (values[mid] <= targetTimeMs)
+            {
+                lo = mid + 1;
+            }
+            else
+            {
+                hi = mid;
+            }
+        }
+
+        return lo;
+    }
+
+    private void ResetPlaybackWheelSeekState()
+    {
+        _playbackSeekWheelAccumulator = 0;
+        _playbackSeekWheelAnchorTimeMs = -1;
+        _lastPlaybackSeekWheelTickMs = 0;
     }
 
     private static Color SnapTickColor(int denominator)

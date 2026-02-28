@@ -333,7 +333,7 @@ public class HitSoundService : IHitSoundService
             return [];
         }
 
-        var ticksByTime = new Dictionary<int, HitSoundVisualizerSnapTick>();
+        var ticksByTimeAndDenominator = new Dictionary<(int TimeMs, int Denominator), HitSoundVisualizerSnapTick>();
 
         for (var redlineIndex = 0; redlineIndex < redlines.Count; redlineIndex++)
         {
@@ -378,23 +378,17 @@ public class HitSoundService : IHitSoundService
                     var newTick = new HitSoundVisualizerSnapTick
                     {
                         TimeMs = rounded,
+                        ExactTimeMs = tickTime,
                         Label = divisor.ToString(),
                         Strength = TickStrength(divisor),
                         Denominator = divisor.Denominator,
                         IsMeasureLine = divisor.Denominator == 1 && stepIndex % beatsPerMeasure == 0
                     };
 
-                    if (!ticksByTime.TryGetValue(rounded, out var current))
+                    var key = (rounded, divisor.Denominator);
+                    if (!ticksByTimeAndDenominator.TryGetValue(key, out var current))
                     {
-                        ticksByTime[rounded] = newTick;
-                        continue;
-                    }
-
-                    if (newTick.Strength > current.Strength ||
-                        (newTick.Strength == current.Strength && newTick.Denominator < current.Denominator))
-                    {
-                        ticksByTime[rounded] = newTick;
-                        ticksByTime[rounded].IsMeasureLine |= current.IsMeasureLine;
+                        ticksByTimeAndDenominator[key] = newTick;
                         continue;
                     }
 
@@ -403,8 +397,9 @@ public class HitSoundService : IHitSoundService
             }
         }
 
-        return ticksByTime.Values
+        return ticksByTimeAndDenominator.Values
             .OrderBy(x => x.TimeMs)
+            .ThenBy(x => x.Denominator)
             .ToList();
     }
 
