@@ -129,7 +129,7 @@ public partial class MetadataManagerViewModel(
                 Tags = string.Join(" ", originMetadata.MetadataSection.Tags),
                 BeatmapSetId = originMetadata.MetadataSection.BeatmapSetID,
                 AudioFilename = originMetadata.GeneralSection.AudioFilename,
-                BackgroundFilename = originMetadata.Events.GetBackgroundImage() ?? string.Empty,
+                BackgroundFilename = originMetadata.GetBgFilename() ?? string.Empty,
                 VideoFilename =
                     originMetadata.Events.EventList.Where(x => x.Type == EventType.Video).Select(x => x as Video)
                         .FirstOrDefault()?.FilePath ?? string.Empty,
