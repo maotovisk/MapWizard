@@ -294,6 +294,8 @@ public class HitSoundService : IHitSoundService
                     TimeMs = timeMs,
                     HitSound = hitSound,
                     SampleSet = resolvedSample,
+                    SampleIndexOverride = soundEvent.SampleIndexOverride,
+                    SampleVolumeOverridePercent = soundEvent.SampleVolumeOverride,
                     IsAutoSampleSet = usesAutoSampleSet,
                     IsDraggable = isDraggable
                 });

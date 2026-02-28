@@ -709,6 +709,7 @@
                         <TextBlock Text="{Binding PlaybackStatus, StringFormat=Playback: {0}}" Foreground="{DynamicResource SukiLowText}" />
                         <TextBlock Text="{Binding TimingDebugStatus}" Foreground="{DynamicResource SukiLowText}" TextWrapping="Wrap" />
                         <TextBlock Text="{Binding AudioDebugStatus}" Foreground="{DynamicResource SukiLowText}" TextWrapping="Wrap" />
+                        <TextBlock Text="{Binding HitsoundDebugStatus}" Foreground="{DynamicResource SukiLowText}" TextWrapping="Wrap" />
                         <TextBlock Text="{Binding AudioSourceStatus}" Foreground="{DynamicResource SukiLowText}" />
                         <TextBlock Text="{Binding LegacySkinStatus}" Foreground="{DynamicResource SukiLowText}" />
                         <TextBlock Text="{Binding SelectedPointSummary}" Foreground="{DynamicResource SukiLowText}" />

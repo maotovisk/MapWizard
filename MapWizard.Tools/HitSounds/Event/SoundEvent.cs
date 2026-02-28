@@ -33,6 +33,16 @@ public class SoundEvent()
     public string FileName { get; set; } = string.Empty;
 
     /// <summary>
+    /// Gets or sets the optional per-object sample index override.
+    /// </summary>
+    public int? SampleIndexOverride { get; set; }
+
+    /// <summary>
+    /// Gets or sets the optional per-object sample volume override.
+    /// </summary>
+    public int? SampleVolumeOverride { get; set; }
+
+    /// <summary>
     /// Initializes a new instance of the SoundEvent class.
     /// </summary>
     /// <param name="time">The time of the sound event.</param>
@@ -40,12 +50,16 @@ public class SoundEvent()
     /// <param name="normalSample">The normal sample set for the sound event.</param>
     /// <param name="additionSample">The addition sample set for the sound event.</param>
     /// <param name="fileName">The custom sample file name for the sound event.</param>
+    /// <param name="sampleIndexOverride">Optional per-object sample index override.</param>
+    /// <param name="sampleVolumeOverride">Optional per-object sample volume override.</param>
     public SoundEvent(
         TimeSpan time,
         List<BeatmapParser.Enums.HitSound> hitSounds,
         SampleSet normalSample,
         SampleSet additionSample,
-        string? fileName = null)
+        string? fileName = null,
+        int? sampleIndexOverride = null,
+        int? sampleVolumeOverride = null)
         : this()
     {
         Time = time;
@@ -53,6 +67,8 @@ public class SoundEvent()
         NormalSample = normalSample;
         AdditionSample = additionSample;
         FileName = fileName ?? string.Empty;
+        SampleIndexOverride = sampleIndexOverride;
+        SampleVolumeOverride = sampleVolumeOverride;
     }
 
 }

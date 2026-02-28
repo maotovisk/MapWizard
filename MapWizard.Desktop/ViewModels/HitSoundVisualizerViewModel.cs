@@ -42,7 +42,8 @@ public partial class HitSoundVisualizerViewModel(
     private const string PointClipboardFormatId = "MapWizard.HitSoundVisualizer.Points/v1";
     private const int PlaybackDebugInfoUpdateIntervalMs = 250;
     private const int CursorColumnToleranceMs = 2;
-    private const int OsuMinimumSampleVolumePercent = 5;
+    private const int OsuMinimumSampleVolumePercent = 8;
+    private const int HitsoundDebugActiveWindowMs = 200;
     private readonly string[] _sampleExtensions = [".wav", ".ogg", ".mp3"];
     private readonly ConcurrentDictionary<string, string> _resolvedPlaybackSamplePathCache =
         new(StringComparer.OrdinalIgnoreCase);
@@ -60,6 +61,17 @@ public partial class HitSoundVisualizerViewModel(
     private bool _isRestoringHistory;
     private int _lastNonZeroSongVolumePercent = Math.Max(1, LoadPersistedSongVolumePercent(settingsService));
     private int _lastNonZeroHitSoundVolumePercent = Math.Max(1, LoadPersistedHitSoundVolumePercent(settingsService));
+    private readonly object _hitsoundDebugSync = new();
+    private readonly Queue<long> _hitsoundDebugRecentSuccessTickMs = new();
+    private long _hitsoundDebugAttemptCount;
+    private long _hitsoundDebugSuccessCount;
+    private long _hitsoundDebugFailureCount;
+    private int _hitsoundDebugLastPointTimeMs;
+    private int _hitsoundDebugLastResolvedIndex = 1;
+    private int _hitsoundDebugLastResolvedVolume = 100;
+    private bool _hitsoundDebugLastUsedPointIndexOverride;
+    private bool _hitsoundDebugLastUsedPointVolumeOverride;
+    private string _hitsoundDebugLastSampleName = "-";
 
     [ObservableProperty] private SelectedMap _originBeatmap = new();
     [ObservableProperty] private string _preferredDirectory = string.Empty;
@@ -93,6 +105,7 @@ public partial class HitSoundVisualizerViewModel(
     [ObservableProperty] private string _playbackStatus = "Idle";
     [ObservableProperty] private string _timingDebugStatus = "Timing: playback idle";
     [ObservableProperty] private string _audioDebugStatus = "AudioDbg: no song";
+    [ObservableProperty] private string _hitsoundDebugStatus = "HSDbg: idle";
     [ObservableProperty] private string _selectedPointSummary = "No point selected.";
     [ObservableProperty] private bool _isPlaybackRunning;
     [ObservableProperty] private bool _isPlaybackPaused;
@@ -1051,6 +1064,8 @@ public partial class HitSoundVisualizerViewModel(
             Id = selected.Id,
             TimeMs = Math.Clamp(CursorTimeMs, 0, (int)Math.Ceiling(TimelineEndMs)),
             SampleSet = ParseSampleSet(SelectedSampleSetName),
+            SampleIndexOverride = selected.SampleIndexOverride,
+            SampleVolumeOverridePercent = selected.SampleVolumeOverridePercent,
             HitSound = ParseHitSound(SelectedHitSoundName),
             IsDraggable = false
         };
@@ -1097,6 +1112,8 @@ public partial class HitSoundVisualizerViewModel(
                 Id = point.Id,
                 TimeMs = point.TimeMs,
                 SampleSet = targetSampleSet,
+                SampleIndexOverride = point.SampleIndexOverride,
+                SampleVolumeOverridePercent = point.SampleVolumeOverridePercent,
                 HitSound = targetHitSound,
                 IsAutoSampleSet = false,
                 IsDraggable = false
@@ -1480,6 +1497,7 @@ public partial class HitSoundVisualizerViewModel(
         startTimeMs = Math.Clamp(startTimeMs, 0, (int)Math.Ceiling(TimelineEndMs));
 
         StopPlaybackCore(resetPausedState: false);
+        ResetHitsoundPlaybackDebugTelemetry();
 
         audioPlaybackService.SetSongVolume(SongVolumePercent / 100f);
         audioPlaybackService.SetHitsoundVolume(HitSoundVolumePercent / 100f);
@@ -1586,6 +1604,7 @@ public partial class HitSoundVisualizerViewModel(
         var audioTiming = audioPlaybackService.GetTimingTelemetryStatus();
         TimingDebugStatus = $"Timing | {runnerTiming} | {audioTiming}";
         AudioDebugStatus = audioPlaybackService.GetSongDebugStatus();
+        HitsoundDebugStatus = BuildHitsoundDebugStatus();
     }
 
     private string ResolveLegacySkinDirectory()
@@ -1905,6 +1924,8 @@ public partial class HitSoundVisualizerViewModel(
             Id = point.Id,
             TimeMs = point.TimeMs,
             SampleSet = point.SampleSet,
+            SampleIndexOverride = point.SampleIndexOverride,
+            SampleVolumeOverridePercent = point.SampleVolumeOverridePercent,
             IsAutoSampleSet = point.IsAutoSampleSet,
             HitSound = point.HitSound,
             IsDraggable = point.IsDraggable
@@ -1938,6 +1959,8 @@ public partial class HitSoundVisualizerViewModel(
             if (l.Id != r.Id ||
                 l.TimeMs != r.TimeMs ||
                 l.SampleSet != r.SampleSet ||
+                l.SampleIndexOverride != r.SampleIndexOverride ||
+                l.SampleVolumeOverridePercent != r.SampleVolumeOverridePercent ||
                 l.HitSound != r.HitSound ||
                 l.IsAutoSampleSet != r.IsAutoSampleSet ||
                 l.IsDraggable != r.IsDraggable)
@@ -2170,6 +2193,8 @@ public partial class HitSoundVisualizerViewModel(
                         Id = point.Id,
                         TimeMs = point.TimeMs,
                         SampleSet = sampleSet,
+                        SampleIndexOverride = point.SampleIndexOverride,
+                        SampleVolumeOverridePercent = point.SampleVolumeOverridePercent,
                         IsAutoSampleSet = false,
                         HitSound = point.HitSound,
                         IsDraggable = point.IsDraggable
@@ -2308,6 +2333,8 @@ public partial class HitSoundVisualizerViewModel(
                     Id = point.Id,
                     TimeMs = point.TimeMs,
                     SampleSet = sampleSet,
+                    SampleIndexOverride = point.SampleIndexOverride,
+                    SampleVolumeOverridePercent = point.SampleVolumeOverridePercent,
                     IsAutoSampleSet = false,
                     HitSound = point.HitSound,
                     IsDraggable = point.IsDraggable
@@ -2394,12 +2421,18 @@ public partial class HitSoundVisualizerViewModel(
                 ?? additionPoints.FirstOrDefault()?.SampleSet
                 ?? SampleSet.Normal;
             var additionSample = additionPoints.FirstOrDefault()?.SampleSet ?? normalSample;
+            var sampleIndexOverride = normalPoints.FirstOrDefault()?.SampleIndexOverride
+                                      ?? additionPoints.FirstOrDefault()?.SampleIndexOverride;
+            var sampleVolumeOverride = normalPoints.FirstOrDefault()?.SampleVolumeOverridePercent
+                                       ?? additionPoints.FirstOrDefault()?.SampleVolumeOverridePercent;
 
             events.Add(new SoundEvent(
                 TimeSpan.FromMilliseconds(timeGroup.Key),
                 distinctSounds,
                 normalSample,
-                additionSample));
+                additionSample,
+                sampleIndexOverride: sampleIndexOverride,
+                sampleVolumeOverride: sampleVolumeOverride));
         }
 
         timeline = new SoundTimeline(events);
@@ -2599,10 +2632,12 @@ public partial class HitSoundVisualizerViewModel(
 
     private bool TryPlayPointSample(HitSoundVisualizerPoint point, IReadOnlyList<HitSoundVisualizerSampleChange> sampleChanges)
     {
-        var sampleState = ResolvePlaybackSampleState(point.TimeMs, sampleChanges);
+        var sampleState = ResolvePlaybackSampleState(point, sampleChanges);
         var sampleFilePath = ResolveSampleFilePath(point, sampleState.Index);
-        return !string.IsNullOrWhiteSpace(sampleFilePath) &&
-               audioPlaybackService.PlayHitsound(sampleFilePath, sampleState.Volume / 100f);
+        var played = !string.IsNullOrWhiteSpace(sampleFilePath) &&
+                     audioPlaybackService.PlayHitsound(sampleFilePath, sampleState.Volume / 100f);
+        RecordHitsoundPlaybackDebug(point, sampleState, sampleFilePath, played);
+        return played;
     }
 
     private string ResolveSampleFilePath(HitSoundVisualizerPoint point, int index)
@@ -2616,15 +2651,21 @@ public partial class HitSoundVisualizerViewModel(
         return ResolveSampleFilePathFromDirectoryCached(_legacySkinDirectoryPath, point.SampleSet, point.HitSound, index);
     }
 
-    private static PlaybackSampleState ResolvePlaybackSampleState(int pointTimeMs, IReadOnlyList<HitSoundVisualizerSampleChange> sampleChanges)
+    private static PlaybackSampleState ResolvePlaybackSampleState(HitSoundVisualizerPoint point, IReadOnlyList<HitSoundVisualizerSampleChange> sampleChanges)
     {
         if (sampleChanges.Count == 0)
         {
-            return new PlaybackSampleState(1, 100);
+            var fallbackIndex = Math.Max(1, point.SampleIndexOverride ?? 1);
+            var fallbackVolume = ResolveEffectivePlaybackVolume(point.SampleVolumeOverridePercent, 100);
+            return new PlaybackSampleState(
+                fallbackIndex,
+                fallbackVolume,
+                point.SampleIndexOverride.HasValue,
+                point.SampleVolumeOverridePercent.HasValue);
         }
 
         const int timelineMatchLeniencyMs = 2;
-        var targetTimeMs = pointTimeMs + timelineMatchLeniencyMs;
+        var targetTimeMs = point.TimeMs + timelineMatchLeniencyMs;
         var lo = 0;
         var hi = sampleChanges.Count - 1;
         var matched = -1;
@@ -2645,18 +2686,114 @@ public partial class HitSoundVisualizerViewModel(
 
         if (matched < 0)
         {
-            return new PlaybackSampleState(1, 100);
+            var fallbackIndex = Math.Max(1, point.SampleIndexOverride ?? 1);
+            var fallbackVolume = ResolveEffectivePlaybackVolume(point.SampleVolumeOverridePercent, 100);
+            return new PlaybackSampleState(
+                fallbackIndex,
+                fallbackVolume,
+                point.SampleIndexOverride.HasValue,
+                point.SampleVolumeOverridePercent.HasValue);
         }
 
         var sampleChange = sampleChanges[matched];
-        var rawVolume = Math.Clamp(sampleChange.Volume, 0, 100);
-        var effectiveVolume = rawVolume == 0 ? 0 : Math.Max(OsuMinimumSampleVolumePercent, rawVolume);
+        var effectiveIndex = Math.Max(1, point.SampleIndexOverride ?? sampleChange.Index);
+        var effectiveVolume = ResolveEffectivePlaybackVolume(
+            point.SampleVolumeOverridePercent,
+            Math.Clamp(sampleChange.Volume, 0, 100));
+
         return new PlaybackSampleState(
-            Math.Max(1, sampleChange.Index),
-            effectiveVolume);
+            effectiveIndex,
+            effectiveVolume,
+            point.SampleIndexOverride.HasValue,
+            point.SampleVolumeOverridePercent.HasValue);
     }
 
-    private readonly record struct PlaybackSampleState(int Index, int Volume);
+    private readonly record struct PlaybackSampleState(
+        int Index,
+        int Volume,
+        bool UsedPointIndexOverride,
+        bool UsedPointVolumeOverride);
+
+    private static int ResolveEffectivePlaybackVolume(int? pointVolumeOverridePercent, int timelineVolumePercent)
+    {
+        var rawVolume = Math.Clamp(pointVolumeOverridePercent ?? timelineVolumePercent, 0, 100);
+        return rawVolume == 0 ? 0 : Math.Max(OsuMinimumSampleVolumePercent, rawVolume);
+    }
+
+    private void ResetHitsoundPlaybackDebugTelemetry()
+    {
+        lock (_hitsoundDebugSync)
+        {
+            _hitsoundDebugAttemptCount = 0;
+            _hitsoundDebugSuccessCount = 0;
+            _hitsoundDebugFailureCount = 0;
+            _hitsoundDebugLastPointTimeMs = 0;
+            _hitsoundDebugLastResolvedIndex = 1;
+            _hitsoundDebugLastResolvedVolume = 100;
+            _hitsoundDebugLastUsedPointIndexOverride = false;
+            _hitsoundDebugLastUsedPointVolumeOverride = false;
+            _hitsoundDebugLastSampleName = "-";
+            _hitsoundDebugRecentSuccessTickMs.Clear();
+        }
+    }
+
+    private void RecordHitsoundPlaybackDebug(
+        HitSoundVisualizerPoint point,
+        PlaybackSampleState sampleState,
+        string sampleFilePath,
+        bool played)
+    {
+        var nowTickMs = Environment.TickCount64;
+        lock (_hitsoundDebugSync)
+        {
+            _hitsoundDebugAttemptCount++;
+            if (played)
+            {
+                _hitsoundDebugSuccessCount++;
+                _hitsoundDebugRecentSuccessTickMs.Enqueue(nowTickMs);
+            }
+            else
+            {
+                _hitsoundDebugFailureCount++;
+            }
+
+            _hitsoundDebugLastPointTimeMs = point.TimeMs;
+            _hitsoundDebugLastResolvedIndex = sampleState.Index;
+            _hitsoundDebugLastResolvedVolume = sampleState.Volume;
+            _hitsoundDebugLastUsedPointIndexOverride = sampleState.UsedPointIndexOverride;
+            _hitsoundDebugLastUsedPointVolumeOverride = sampleState.UsedPointVolumeOverride;
+            _hitsoundDebugLastSampleName = string.IsNullOrWhiteSpace(sampleFilePath)
+                ? "-"
+                : Path.GetFileName(sampleFilePath);
+
+            PruneHitsoundDebugWindow(nowTickMs);
+        }
+    }
+
+    private string BuildHitsoundDebugStatus()
+    {
+        lock (_hitsoundDebugSync)
+        {
+            PruneHitsoundDebugWindow(Environment.TickCount64);
+            var activeVoicesApprox = _hitsoundDebugRecentSuccessTickMs.Count;
+            var indexSourceTag = _hitsoundDebugLastUsedPointIndexOverride ? "obj" : "timing";
+            var volumeSourceTag = _hitsoundDebugLastUsedPointVolumeOverride ? "obj" : "timing";
+
+            return $"HSDbg | ok {_hitsoundDebugSuccessCount}/{_hitsoundDebugAttemptCount} fail {_hitsoundDebugFailureCount} " +
+                   $"active~{activeVoicesApprox} " +
+                   $"last t {_hitsoundDebugLastPointTimeMs}ms idx {_hitsoundDebugLastResolvedIndex}({indexSourceTag}) " +
+                   $"vol {_hitsoundDebugLastResolvedVolume}%({volumeSourceTag}) file {_hitsoundDebugLastSampleName}";
+        }
+    }
+
+    private void PruneHitsoundDebugWindow(long nowTickMs)
+    {
+        while (_hitsoundDebugRecentSuccessTickMs.Count > 0 &&
+               nowTickMs - _hitsoundDebugRecentSuccessTickMs.Peek() > HitsoundDebugActiveWindowMs)
+        {
+            _hitsoundDebugRecentSuccessTickMs.Dequeue();
+        }
+    }
 
     private string ResolveSampleFilePathFromDirectoryCached(string directoryPath, SampleSet sampleSet, HitSound hitSound, int index)
     {

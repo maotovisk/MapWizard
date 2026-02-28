@@ -12,7 +12,7 @@ public sealed class ManagedBassPlaybackService : IAudioPlaybackService, IDisposa
     private const int OutputSampleRateHz = 44100;
     private const int PlaybackBufferLengthMs = 25;
     private const int UpdatePeriodMs = 5;
-    private const int HitsoundSampleMaxVoices = 64; 
+    private const int HitsoundSampleMaxVoices = 16;
     private const int SongClockCompensationMs = -40;
 
     private readonly object _sync = new();
@@ -450,7 +450,12 @@ public sealed class ManagedBassPlaybackService : IAudioPlaybackService, IDisposa
             return existing;
         }
 
-        var sampleHandle = Bass.SampleLoad(fullPath, 0, 0, HitsoundSampleMaxVoices, BassFlags.Default);
+        var sampleHandle = Bass.SampleLoad(
+            fullPath,
+            0,
+            0,
+            HitsoundSampleMaxVoices,
+            BassFlags.SampleOverrideLongestPlaying | BassFlags.Float);
         if (sampleHandle == 0)
         {
             _lastBassError = Bass.LastError;

@@ -18,6 +18,7 @@ public sealed class MiniAudioPlaybackService : IAudioPlaybackService, IDisposabl
     private const int AudioUpdateRateHz = 1000;
     private const string AudioUpdateThreadName = "MapWizard.AudioUpdate";
     private static readonly TimeSpan AudioUpdateShutdownWait = TimeSpan.FromMilliseconds(500);
+    private const int HitsoundSourceMaxVoices = 16;
 
     private readonly object _sync = new();
     private readonly Dictionary<string, AudioClip> _clipCache = new(StringComparer.OrdinalIgnoreCase);
@@ -423,7 +424,7 @@ public sealed class MiniAudioPlaybackService : IAudioPlaybackService, IDisposabl
         AudioContext.Initialize(SampleRate, Channels, PeriodSizeInFrames, deviceInfo: null!);
         _songSource = new AudioSource(maxSources: 1);
         _hitsoundSourcesByVolumePercent.Clear();
-        _hitsoundSourcesByVolumePercent[100] = new AudioSource(maxSources: 64)
+        _hitsoundSourcesByVolumePercent[100] = new AudioSource(maxSources: HitsoundSourceMaxVoices)
         {
             Volume = _hitsoundVolume
         };
@@ -611,7 +612,7 @@ public sealed class MiniAudioPlaybackService : IAudioPlaybackService, IDisposabl
 
         try
         {
-            source = new AudioSource(maxSources: 64)
+            source = new AudioSource(maxSources: HitsoundSourceMaxVoices)
             {
                 Volume = _hitsoundVolume * (clampedPercent / 100f)
             };
