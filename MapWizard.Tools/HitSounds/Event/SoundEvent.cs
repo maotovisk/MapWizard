@@ -28,19 +28,31 @@ public class SoundEvent()
     public SampleSet AdditionSample { get; set; }
 
     /// <summary>
+    /// Gets or sets the custom sample file name for the sound event.
+    /// </summary>
+    public string FileName { get; set; } = string.Empty;
+
+    /// <summary>
     /// Initializes a new instance of the SoundEvent class.
     /// </summary>
     /// <param name="time">The time of the sound event.</param>
     /// <param name="hitSounds">The list of hit sounds for the sound event.</param>
     /// <param name="normalSample">The normal sample set for the sound event.</param>
     /// <param name="additionSample">The addition sample set for the sound event.</param>
-    public SoundEvent(TimeSpan time, List<BeatmapParser.Enums.HitSound> hitSounds, SampleSet normalSample, SampleSet additionSample)
+    /// <param name="fileName">The custom sample file name for the sound event.</param>
+    public SoundEvent(
+        TimeSpan time,
+        List<BeatmapParser.Enums.HitSound> hitSounds,
+        SampleSet normalSample,
+        SampleSet additionSample,
+        string? fileName = null)
         : this()
     {
         Time = time;
         HitSounds = hitSounds;
         NormalSample = normalSample;
         AdditionSample = additionSample;
+        FileName = fileName ?? string.Empty;
     }
 
 }

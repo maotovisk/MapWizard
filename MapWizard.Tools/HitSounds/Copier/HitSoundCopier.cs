@@ -50,12 +50,11 @@ public static class HitSoundCopier
         {
             var targetFile = Beatmap.Decode(File.ReadAllText(path));
             var output = CopyFromBeatmap(sourceFile, targetFile, options);
+            HitSoundSampleSynchronizer.SynchronizeIfNeeded(sourceFile, sourcePath, output, path, options);
 
             if (!File.Exists(path)) continue;
 
-            var backupDirectory = Directory.CreateDirectory(MapWizardPathResolver.ResolveBackupDirectoryPath());
-            var currentTimestamp = DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss");
-            File.Move(path, backupDirectory.FullName + "/" + currentTimestamp + Path.GetFileName(path));
+            BeatmapBackupHelper.CreateBackupCopy(path);
                 
             File.WriteAllText(path, output.Encode().Replace("\r\n", "\n").Replace("\n", "\r\n"));
         }
