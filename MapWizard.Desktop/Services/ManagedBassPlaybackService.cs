@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading;
 using ManagedBass;
 using MapWizard.Desktop.Models.Settings;
 
@@ -15,12 +16,11 @@ public sealed class ManagedBassPlaybackService : IAudioPlaybackService, IDisposa
     private const int HitsoundSampleMaxVoices = 256;
     private const int SongClockCompensationMs = -40;
 
-    private readonly object _sync = new();
+    private readonly Lock _sync = new();
     private readonly Dictionary<string, int> _hitsoundSampleCache = new(StringComparer.OrdinalIgnoreCase);
-    private readonly ISettingsService _settingsService;
 
     // Prevent the delegate from being garbage-collected while BASS holds a reference to it.
-    private static readonly SyncProcedure _hitsoundStreamEndSync = OnHitsoundStreamEnd;
+    private static readonly SyncProcedure HitsoundStreamEndSync = OnHitsoundStreamEnd;
 
     private static void OnHitsoundStreamEnd(int handle, int channel, int data, IntPtr user)
     {
@@ -39,12 +39,10 @@ public sealed class ManagedBassPlaybackService : IAudioPlaybackService, IDisposa
     private int _lastSeekObservedMs = -1;
     private int _lastSeekErrorMs;
     private Errors _lastBassError = Errors.OK;
-    private string _selectedAudioOutputDeviceId = DefaultAudioOutputDeviceId;
+    private string _selectedAudioOutputDeviceId;
 
     public ManagedBassPlaybackService(ISettingsService settingsService)
     {
-        _settingsService = settingsService;
-
         try
         {
             var configuredDeviceId = settingsService.GetMainSettings().AudioOutputDeviceId;
@@ -136,8 +134,8 @@ public sealed class ManagedBassPlaybackService : IAudioPlaybackService, IDisposa
                 targetPositionBytes = Math.Clamp(targetPositionBytes, 0L, Math.Max(0L, _songLengthBytes - 1));
             }
 
-            _ = Bass.ChannelSetPosition(_songStreamHandle, targetPositionBytes, PositionFlags.Bytes);
-            if (!Bass.ChannelPlay(_songStreamHandle, false))
+            _ = Bass.ChannelSetPosition(_songStreamHandle, targetPositionBytes);
+            if (!Bass.ChannelPlay(_songStreamHandle))
             {
                 _lastBassError = Bass.LastError;
                 UpdateLastSeekDebug(targetMs);
@@ -170,7 +168,7 @@ public sealed class ManagedBassPlaybackService : IAudioPlaybackService, IDisposa
             }
 
             _ = Bass.ChannelStop(_songStreamHandle);
-            _ = Bass.ChannelSetPosition(_songStreamHandle, 0, PositionFlags.Bytes);
+            _ = Bass.ChannelSetPosition(_songStreamHandle, 0);
         }
     }
 
@@ -296,7 +294,7 @@ public sealed class ManagedBassPlaybackService : IAudioPlaybackService, IDisposa
             // Register a sync to automatically free the stream channel when playback ends,
             // preventing handle leaks since stream channels are not auto-freed.
             Bass.ChannelSetSync(channelHandle, SyncFlags.End | SyncFlags.Onetime, 0,
-                _hitsoundStreamEndSync);
+                HitsoundStreamEndSync);
 
             if (!Bass.ChannelPlay(channelHandle, true))
             {
@@ -365,12 +363,7 @@ public sealed class ManagedBassPlaybackService : IAudioPlaybackService, IDisposa
             }
 
             _selectedAudioOutputDeviceId = previousDeviceId;
-            if (EnsureInitialized())
-            {
-                return false;
-            }
-
-            return false;
+            return EnsureInitialized() && false;
         }
     }
 
@@ -590,7 +583,7 @@ public sealed class ManagedBassPlaybackService : IAudioPlaybackService, IDisposa
     {
         try
         {
-            var length = Bass.ChannelGetLength(streamHandle, PositionFlags.Bytes);
+            var length = Bass.ChannelGetLength(streamHandle);
             return length < 0 ? 0 : length;
         }
         catch
@@ -603,7 +596,7 @@ public sealed class ManagedBassPlaybackService : IAudioPlaybackService, IDisposa
     {
         try
         {
-            var position = Bass.ChannelGetPosition(streamHandle, PositionFlags.Bytes);
+            var position = Bass.ChannelGetPosition(streamHandle);
             return position < 0 ? 0 : position;
         }
         catch
@@ -667,7 +660,7 @@ public sealed class ManagedBassPlaybackService : IAudioPlaybackService, IDisposa
         return Bass.DefaultDevice;
     }
 
-    private static IReadOnlyList<AudioOutputDeviceOption> EnumerateAudioOutputDevices()
+    private static List<AudioOutputDeviceOption> EnumerateAudioOutputDevices()
     {
         var devices = new List<AudioOutputDeviceOption>
         {
