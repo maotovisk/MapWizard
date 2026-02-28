@@ -321,22 +321,21 @@ public class HitSoundTimelinePlot : Control
             return;
         }
 
-        var rowHeight = DefaultRowHeight;
         var timelineWidth = bounds.Width;
-        var timelineHeight = Math.Max(bounds.Height, TotalRows * rowHeight);
+        var timelineHeight = Math.Max(bounds.Height, TotalRows * DefaultRowHeight);
         var timelineRect = new Rect(0, 0, timelineWidth, timelineHeight);
         var windowMs = Math.Max(1d, ViewEndMs - ViewStartMs);
 
         context.FillRectangle(CurrentBackgroundBrush(), timelineRect);
 
-        DrawRowBackgrounds(context, timelineWidth, rowHeight, TotalRows);
+        DrawRowBackgrounds(context, timelineWidth, DefaultRowHeight, TotalRows);
         DrawTicks(context, timelineWidth, timelineHeight, windowMs);
         DrawCursor(context, timelineWidth, timelineHeight, windowMs);
-        DrawSampleChanges(context, timelineWidth, rowHeight, windowMs);
-        DrawPoints(context, timelineWidth, rowHeight, windowMs);
-        DrawPlacementGhost(context, timelineWidth, rowHeight, windowMs);
-        DrawSelectionBox(context, timelineWidth, rowHeight, windowMs);
-        DrawGridLines(context, timelineWidth, rowHeight, TotalRows);
+        DrawSampleChanges(context, timelineWidth, DefaultRowHeight, windowMs);
+        DrawPoints(context, timelineWidth, DefaultRowHeight, windowMs);
+        DrawPlacementGhost(context, timelineWidth, DefaultRowHeight, windowMs);
+        DrawSelectionBox(context, timelineWidth, DefaultRowHeight, windowMs);
+        DrawGridLines(context, timelineWidth, DefaultRowHeight, TotalRows);
     }
 
     protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
