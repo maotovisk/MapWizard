@@ -11,3 +11,4 @@ output.osu
 .idea
 .vscode
 .dotnet-home/
+/MapWizard.sln.DotSettings.user
