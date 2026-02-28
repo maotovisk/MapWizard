@@ -25,10 +25,13 @@
                                     <TextBlock Text="Choose System to follow your operating system theme, or force Light/Dark."
                                                TextWrapping="Wrap" />
                                 </StackPanel>
-                                <ComboBox Grid.Column="1"
-                                          MinWidth="140"
-                                          ItemsSource="{Binding ThemeModes}"
-                                          SelectedItem="{Binding SelectedThemeMode, Mode=TwoWay}" />
+                                <controls:AppDropdown Grid.Column="1"
+                                                      MinWidth="140"
+                                                      FlyoutMinWidth="180"
+                                                      FlyoutMaxHeight="280"
+                                                      PlaceholderText="Select theme mode"
+                                                      ItemsSource="{Binding ThemeModes}"
+                                                      SelectedItem="{Binding SelectedThemeMode, Mode=TwoWay}" />
                             </Grid>
 
                             <Grid ColumnDefinitions="*,Auto" VerticalAlignment="Center">
@@ -39,6 +42,7 @@
                                 </StackPanel>
                                 <controls:AppDropdown Grid.Column="1"
                                                       FlyoutMinWidth="180"
+                                                      FlyoutMaxHeight="280"
                                                       MinWidth="140"
                                                       PlaceholderText="Select update stream"
                                                       ItemsSource="{Binding UpdateStreams}"
@@ -102,6 +106,7 @@
                                                       MinWidth="260"
                                                       MaxWidth="380"
                                                       FlyoutMinWidth="320"
+                                                      FlyoutMaxHeight="320"
                                                       PlaceholderText="Select output device"
                                                       ItemsSource="{Binding AudioOutputDevices}"
                                                       SelectedItem="{Binding SelectedAudioOutputDevice, Mode=TwoWay}" />

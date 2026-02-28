@@ -26,6 +26,9 @@ public partial class AppDropdown : UserControl
     public static readonly StyledProperty<double> FlyoutMinWidthProperty =
         AvaloniaProperty.Register<AppDropdown, double>(nameof(FlyoutMinWidth), 180d);
 
+    public static readonly StyledProperty<double> FlyoutMaxHeightProperty =
+        AvaloniaProperty.Register<AppDropdown, double>(nameof(FlyoutMaxHeight), 280d);
+
     public static readonly StyledProperty<string> SelectedTextProperty =
         AvaloniaProperty.Register<AppDropdown, string>(nameof(SelectedText), "Select...");
 
@@ -57,6 +60,12 @@ public partial class AppDropdown : UserControl
     {
         get => GetValue(FlyoutMinWidthProperty);
         set => SetValue(FlyoutMinWidthProperty, value);
+    }
+
+    public double FlyoutMaxHeight
+    {
+        get => GetValue(FlyoutMaxHeightProperty);
+        set => SetValue(FlyoutMaxHeightProperty, value);
     }
 
     public string SelectedText

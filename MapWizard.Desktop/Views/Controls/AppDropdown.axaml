@@ -9,7 +9,7 @@
         <Style Selector="Button.app-dropdown-trigger">
             <Setter Property="BorderThickness" Value="1" />
             <Setter Property="CornerRadius" Value="10" />
-            <Setter Property="BorderBrush" Value="{DynamicResource ThemeAccentBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource SukiBorderBrush}" />
             <Setter Property="Background" Value="{DynamicResource SystemControlBackgroundChromeMediumLowBrush}" />
             <Setter Property="Padding" Value="10,6" />
             <Setter Property="HorizontalContentAlignment" Value="Stretch" />
@@ -18,14 +18,25 @@
 
         <Style Selector="Button.app-dropdown-trigger:pointerover">
             <Setter Property="Background" Value="{DynamicResource SystemControlBackgroundAltMediumBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource ThemeAccentBrush}" />
+        </Style>
+
+        <Style Selector="Button.app-dropdown-trigger:pressed">
+            <Setter Property="Background" Value="{DynamicResource SystemControlBackgroundAltHighBrush}" />
         </Style>
 
         <Style Selector="Border.app-dropdown-surface">
             <Setter Property="Padding" Value="6" />
             <Setter Property="CornerRadius" Value="12" />
             <Setter Property="BorderThickness" Value="1" />
-            <Setter Property="BorderBrush" Value="{DynamicResource ThemeAccentBrush}" />
-            <Setter Property="Background" Value="{DynamicResource SystemControlBackgroundAltHighBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource SukiBorderBrush}" />
+            <Setter Property="Background" Value="{DynamicResource SystemControlBackgroundChromeMediumLowBrush}" />
+        </Style>
+
+        <Style Selector="FlyoutPresenter.app-dropdown-presenter">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Padding" Value="0" />
         </Style>
 
         <Style Selector="ListBox.app-dropdown-list">
@@ -43,6 +54,7 @@
             <Setter Property="Margin" Value="0,1,0,1" />
             <Setter Property="CornerRadius" Value="8" />
             <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+            <Setter Property="Foreground" Value="{DynamicResource SukiText}" />
         </Style>
 
         <Style Selector="ListBox.app-dropdown-list ListBoxItem:pointerover">
@@ -71,14 +83,19 @@
 
         <Button.Flyout>
             <Flyout Placement="BottomEdgeAlignedLeft"
+                    FlyoutPresenterClasses="app-dropdown-presenter"
                     ShowMode="Transient">
                 <Border Classes="app-dropdown-surface"
                         MinWidth="{Binding FlyoutMinWidth, ElementName=Root}">
-                    <ListBox x:Name="OptionsListBox"
-                             Classes="app-dropdown-list"
-                             ItemsSource="{Binding ItemsSource, ElementName=Root}"
-                             SelectedItem="{Binding SelectedItem, ElementName=Root, Mode=TwoWay}"
-                             SelectionChanged="OptionsListBox_OnSelectionChanged" />
+                    <ScrollViewer MaxHeight="{Binding FlyoutMaxHeight, ElementName=Root}"
+                                  VerticalScrollBarVisibility="Auto"
+                                  HorizontalScrollBarVisibility="Disabled">
+                        <ListBox x:Name="OptionsListBox"
+                                 Classes="app-dropdown-list"
+                                 ItemsSource="{Binding ItemsSource, ElementName=Root}"
+                                 SelectedItem="{Binding SelectedItem, ElementName=Root, Mode=TwoWay}"
+                                 SelectionChanged="OptionsListBox_OnSelectionChanged" />
+                    </ScrollViewer>
                 </Border>
             </Flyout>
         </Button.Flyout>
