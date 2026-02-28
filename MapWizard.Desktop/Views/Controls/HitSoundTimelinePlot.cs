@@ -1835,13 +1835,23 @@ public class HitSoundTimelinePlot : Control
         _lastPlaybackSeekWheelTickMs = nowTickMs;
         _playbackSeekWheelAccumulator += wheelDelta;
 
-        var stepCount = (int)Math.Truncate(_playbackSeekWheelAccumulator / PlaybackSeekWheelStepThreshold);
+        var stepCount = 0;
+        while (_playbackSeekWheelAccumulator >= PlaybackSeekWheelStepThreshold)
+        {
+            stepCount++;
+            _playbackSeekWheelAccumulator -= PlaybackSeekWheelStepThreshold;
+        }
+
+        while (_playbackSeekWheelAccumulator <= -PlaybackSeekWheelStepThreshold)
+        {
+            stepCount--;
+            _playbackSeekWheelAccumulator += PlaybackSeekWheelStepThreshold;
+        }
+
         if (stepCount == 0)
         {
             return false;
         }
-
-        _playbackSeekWheelAccumulator -= stepCount * PlaybackSeekWheelStepThreshold;
 
         var signedSnapSteps = -stepCount;
         var currentAnchor = _playbackSeekWheelAnchorTimeMs >= 0 ? _playbackSeekWheelAnchorTimeMs : CursorTimeMs;

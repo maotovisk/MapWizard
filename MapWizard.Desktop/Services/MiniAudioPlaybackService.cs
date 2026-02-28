@@ -276,7 +276,7 @@ public sealed class MiniAudioPlaybackService : IAudioPlaybackService, IDisposabl
         }
     }
 
-    public bool PlayHitsound(string filePath, float volumeMultiplier = 1f)
+    public bool PlayHitsound(string filePath, float volumeMultiplier = 1f, string playbackBusKey = "")
     {
         if (string.IsNullOrWhiteSpace(filePath) || !File.Exists(filePath))
         {

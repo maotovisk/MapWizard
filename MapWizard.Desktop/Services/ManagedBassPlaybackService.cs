@@ -10,14 +10,23 @@ public sealed class ManagedBassPlaybackService : IAudioPlaybackService, IDisposa
 {
     private const string DefaultAudioOutputDeviceId = "default";
     private const int OutputSampleRateHz = 44100;
-    private const int PlaybackBufferLengthMs = 25;
-    private const int UpdatePeriodMs = 5;
+    private const int PlaybackBufferLengthMs = 150;
+    private const int UpdatePeriodMs = 15;
     private const int HitsoundSampleMaxVoices = 256;
     private const int SongClockCompensationMs = -40;
 
     private readonly object _sync = new();
     private readonly Dictionary<string, int> _hitsoundSampleCache = new(StringComparer.OrdinalIgnoreCase);
     private readonly ISettingsService _settingsService;
+
+    // Prevent the delegate from being garbage-collected while BASS holds a reference to it.
+    private static readonly SyncProcedure _hitsoundStreamEndSync = OnHitsoundStreamEnd;
+
+    private static void OnHitsoundStreamEnd(int handle, int channel, int data, IntPtr user)
+    {
+        // Free the stream channel created via SampleChannelStream once playback finishes.
+        _ = Bass.StreamFree(channel);
+    }
 
     private bool _initialized;
     private int _songStreamHandle;
@@ -53,7 +62,13 @@ public sealed class ManagedBassPlaybackService : IAudioPlaybackService, IDisposa
         {
             lock (_sync)
             {
-                return _songStreamHandle != 0 && Bass.ChannelIsActive(_songStreamHandle) == PlaybackState.Playing;
+                if (_songStreamHandle == 0)
+                {
+                    return false;
+                }
+
+                var state = Bass.ChannelIsActive(_songStreamHandle);
+                return state == PlaybackState.Playing || state == PlaybackState.Stalled;
             }
         }
     }
@@ -245,7 +260,7 @@ public sealed class ManagedBassPlaybackService : IAudioPlaybackService, IDisposa
         }
     }
 
-    public bool PlayHitsound(string filePath, float volumeMultiplier = 1f)
+    public bool PlayHitsound(string filePath, float volumeMultiplier = 1f, string playbackBusKey = "")
     {
         if (string.IsNullOrWhiteSpace(filePath) || !File.Exists(filePath))
         {
@@ -259,18 +274,16 @@ public sealed class ManagedBassPlaybackService : IAudioPlaybackService, IDisposa
                 return false;
             }
 
-            var sampleHandle = GetOrLoadHitsoundSample(filePath);
+            var sampleHandle = GetOrLoadHitsoundSample(filePath, playbackBusKey);
             if (sampleHandle == 0)
             {
                 return false;
             }
 
-            var channelHandle = Bass.SampleGetChannel(sampleHandle, true);
-            if (channelHandle == 0)
-            {
-                // Fall back to reusing/stealing an existing channel when the sample voice pool is saturated.
-                channelHandle = Bass.SampleGetChannel(sampleHandle, false);
-            }
+            // Use SampleChannelStream to create an independent stream channel for each playback.
+            // Unlike normal sample channels, stream channels are fully independent and mix additively
+            // without sharing a voice pool, so simultaneous hitsounds play at their intended volume.
+            var channelHandle = Bass.SampleGetChannel(sampleHandle, BassFlags.SampleChannelStream);
             if (channelHandle == 0)
             {
                 _lastBassError = Bass.LastError;
@@ -279,9 +292,16 @@ public sealed class ManagedBassPlaybackService : IAudioPlaybackService, IDisposa
 
             var effectiveVolume = Clamp01(_hitsoundVolume * Clamp01(volumeMultiplier));
             _ = Bass.ChannelSetAttribute(channelHandle, ChannelAttribute.Volume, effectiveVolume);
+
+            // Register a sync to automatically free the stream channel when playback ends,
+            // preventing handle leaks since stream channels are not auto-freed.
+            Bass.ChannelSetSync(channelHandle, SyncFlags.End | SyncFlags.Onetime, 0,
+                _hitsoundStreamEndSync);
+
             if (!Bass.ChannelPlay(channelHandle, true))
             {
                 _lastBassError = Bass.LastError;
+                _ = Bass.StreamFree(channelHandle);
                 return false;
             }
 
@@ -447,10 +467,11 @@ public sealed class ManagedBassPlaybackService : IAudioPlaybackService, IDisposa
         _hitsoundSampleCache.Clear();
     }
 
-    private int GetOrLoadHitsoundSample(string filePath)
+    private int GetOrLoadHitsoundSample(string filePath, string playbackBusKey)
     {
         var fullPath = Path.GetFullPath(filePath);
-        if (_hitsoundSampleCache.TryGetValue(fullPath, out var existing))
+        var cacheKey = BuildHitsoundSampleCacheKey(fullPath, playbackBusKey);
+        if (_hitsoundSampleCache.TryGetValue(cacheKey, out var existing))
         {
             return existing;
         }
@@ -467,8 +488,16 @@ public sealed class ManagedBassPlaybackService : IAudioPlaybackService, IDisposa
             return 0;
         }
 
-        _hitsoundSampleCache[fullPath] = sampleHandle;
+        _hitsoundSampleCache[cacheKey] = sampleHandle;
         return sampleHandle;
+    }
+
+    private static string BuildHitsoundSampleCacheKey(string fullPath, string playbackBusKey)
+    {
+        var normalizedBus = string.IsNullOrWhiteSpace(playbackBusKey)
+            ? "default"
+            : playbackBusKey.Trim();
+        return normalizedBus + "|" + fullPath;
     }
 
     private void CacheSongLength()

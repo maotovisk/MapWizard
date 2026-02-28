@@ -680,20 +680,6 @@ public partial class HitSoundVisualizerViewModel(
     private void SeekTime(int timeMs)
     {
         var clamped = Math.Clamp(timeMs, 0, (int)Math.Ceiling(TimelineEndMs));
-
-        if (IsPlaybackRunning)
-        {
-            var currentPlaybackTimeMs = GetCurrentPlaybackTimeMs();
-            if (clamped < currentPlaybackTimeMs)
-            {
-                // Backward seeks should restart playback immediately from the target position
-                // instead of waiting for the current runner clock to drift back via UI state.
-                ContextSamplePointTimeMs = clamped;
-                RestartPlaybackAt(clamped);
-                return;
-            }
-        }
-
         CursorTimeMs = clamped;
         ContextSamplePointTimeMs = clamped;
 
@@ -2638,8 +2624,9 @@ public partial class HitSoundVisualizerViewModel(
     {
         var sampleState = ResolvePlaybackSampleState(point, sampleChanges);
         var sampleFilePath = ResolveSampleFilePath(point, sampleState.Index);
+        var playbackBusKey = ResolvePlaybackBusKey(point);
         var played = !string.IsNullOrWhiteSpace(sampleFilePath) &&
-                     audioPlaybackService.PlayHitsound(sampleFilePath, sampleState.Volume / 100f);
+                     audioPlaybackService.PlayHitsound(sampleFilePath, sampleState.Volume / 100f, playbackBusKey);
         RecordHitsoundPlaybackDebug(point, sampleState, sampleFilePath, played);
         return played;
     }
@@ -2653,6 +2640,17 @@ public partial class HitSoundVisualizerViewModel(
         }
 
         return ResolveSampleFilePathFromDirectoryCached(_legacySkinDirectoryPath, point.SampleSet, point.HitSound, index);
+    }
+
+    private static string ResolvePlaybackBusKey(HitSoundVisualizerPoint point)
+    {
+        return point.HitSound switch
+        {
+            HitSound.Whistle => "hs-whistle",
+            HitSound.Finish => "hs-finish",
+            HitSound.Clap => "hs-clap",
+            _ => "hs-normal"
+        };
     }
 
     private static PlaybackSampleState ResolvePlaybackSampleState(HitSoundVisualizerPoint point, IReadOnlyList<HitSoundVisualizerSampleChange> sampleChanges)
