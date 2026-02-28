@@ -79,6 +79,12 @@
                                 IsChecked="{Binding CopySliderBodySounds}" />
                         </Grid>
                         <Grid ColumnDefinitions="*,Auto">
+                            <TextBlock Text="Copy used samples (if mapset differs)"></TextBlock>
+                            <ToggleSwitch
+                                Grid.Column="1"
+                                IsChecked="{Binding CopyUsedSamplesIfDifferentMapset}" />
+                        </Grid>
+                        <Grid ColumnDefinitions="*,Auto">
                             <TextBlock VerticalAlignment="Center">Leniency</TextBlock>
                             <NumericUpDown Grid.Column="1" theme:NumericUpDownExtensions.Unit="ms"
                                            Value="{Binding Leniency}" />
