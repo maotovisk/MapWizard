@@ -655,11 +655,7 @@ public static class ComboColourStudio
             return;
         }
 
-        var backupDirectory = Directory.CreateDirectory(MapWizardPathResolver.ResolveBackupDirectoryPath());
-        var currentTimestamp = DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss");
-        var backupPath = Path.Combine(backupDirectory.FullName, currentTimestamp + Path.GetFileName(path));
-
-        File.Copy(path, backupPath, overwrite: false);
+        BeatmapBackupHelper.CreateBackupCopy(path);
     }
 
     private static List<ComboColour> GetActingComboColours(Beatmap beatmap)

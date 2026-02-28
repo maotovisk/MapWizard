@@ -54,9 +54,7 @@ public static class HitSoundCopier
 
             if (!File.Exists(path)) continue;
 
-            var backupDirectory = Directory.CreateDirectory(MapWizardPathResolver.ResolveBackupDirectoryPath());
-            var currentTimestamp = DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss");
-            File.Move(path, backupDirectory.FullName + "/" + currentTimestamp + Path.GetFileName(path));
+            BeatmapBackupHelper.CreateBackupCopy(path);
                 
             File.WriteAllText(path, output.Encode().Replace("\r\n", "\n").Replace("\n", "\r\n"));
         }

@@ -232,7 +232,7 @@ public static class MapCleaner
                 var beatmap = Beatmap.Decode(beatmapText);
                 var result = CleanBeatmap(beatmap, options);
 
-                BackupOriginalBeatmap(targetPath);
+                BeatmapBackupHelper.CreateBackupCopy(targetPath);
 
                 File.WriteAllText(targetPath, beatmap.Encode().Replace("\r\n", "\n").Replace("\n", "\r\n"));
 
@@ -282,41 +282,6 @@ public static class MapCleaner
         }
 
         return resnapped;
-    }
-
-    private static void BackupOriginalBeatmap(string targetPath)
-    {
-        var currentTimestamp = DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss");
-        var backupFileName = $"{currentTimestamp}-{Path.GetFileName(targetPath)}";
-        var exceptions = new List<Exception>();
-
-        try
-        {
-            var backupDirectory = Directory.CreateDirectory(MapWizardPathResolver.ResolveBackupDirectoryPath());
-            var backupPath = Path.Combine(backupDirectory.FullName, backupFileName);
-            File.Move(targetPath, backupPath, overwrite: true);
-            return;
-        }
-        catch (Exception ex)
-        {
-            exceptions.Add(ex);
-        }
-
-        try
-        {
-            var fallbackDirectory = Directory.CreateDirectory(Path.Combine(
-                Path.GetDirectoryName(targetPath) ?? ".",
-                ".mapwizard-backup"));
-            var fallbackPath = Path.Combine(fallbackDirectory.FullName, backupFileName);
-            File.Move(targetPath, fallbackPath, overwrite: true);
-            return;
-        }
-        catch (Exception ex)
-        {
-            exceptions.Add(ex);
-        }
-
-        throw new AggregateException("Failed to create backup for beatmap file.", exceptions);
     }
 
     private static void ApplySliderEndResnap(

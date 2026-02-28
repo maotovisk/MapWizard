@@ -94,10 +94,8 @@ public static class MetadataManager
 
                 // backup the original file
                 if (!File.Exists(targetPath)) continue;
-            
-                var backupDirectory = Directory.CreateDirectory(MapWizardPathResolver.ResolveBackupDirectoryPath());
-                var currentTimestamp = DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss");
-                File.Move(targetPath, backupDirectory.FullName + "/" + currentTimestamp + Path.GetFileName(targetPath));
+
+                BeatmapBackupHelper.CreateBackupCopy(targetPath);
                 
                 File.WriteAllText(targetPath, beatmap.Encode().Replace("\r\n", "\n").Replace("\n", "\r\n"));
             }
