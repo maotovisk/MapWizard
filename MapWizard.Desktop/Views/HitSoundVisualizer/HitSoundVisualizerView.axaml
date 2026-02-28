@@ -60,6 +60,7 @@
             <Setter Property="Padding" Value="8,6" />
             <Setter Property="CornerRadius" Value="8" />
             <Setter Property="Foreground" Value="{DynamicResource SukiText}" />
+            
         </Style>
         <Style Selector="Button.timeline-transport-btn:pointerover">
             <Setter Property="Background" Value="{DynamicResource SystemControlBackgroundAltMediumBrush}" />
@@ -725,7 +726,7 @@
                 IsVisible="{Binding ShowPlaybackTimelineSection}">
             <suki:BusyArea IsBusy="{Binding IsPreparingPlayback}" BusyText="Preparing timeline...">
                 <Grid ColumnDefinitions="Auto,*,180" ColumnSpacing="10">
-                    <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="2">
+                    <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="3">
                         <Button Classes="timeline-transport-btn"
                                 Command="{Binding TogglePlaybackCommand}"
                                 ToolTip.Tip="{Binding PlaybackButtonText}">

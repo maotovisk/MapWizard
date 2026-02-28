@@ -145,6 +145,11 @@ public class HitSoundTimeline
 
     private static int? ToIntOrNull(uint? value)
     {
-        return value.HasValue ? (int)value.Value : null;
+        if (!value.HasValue || value.Value == 0)
+        {
+            return null;
+        }
+
+        return (int)value.Value;
     }
 }

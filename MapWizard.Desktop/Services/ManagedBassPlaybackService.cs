@@ -12,7 +12,7 @@ public sealed class ManagedBassPlaybackService : IAudioPlaybackService, IDisposa
     private const int OutputSampleRateHz = 44100;
     private const int PlaybackBufferLengthMs = 25;
     private const int UpdatePeriodMs = 5;
-    private const int HitsoundSampleMaxVoices = 16;
+    private const int HitsoundSampleMaxVoices = 256;
     private const int SongClockCompensationMs = -40;
 
     private readonly object _sync = new();
@@ -265,7 +265,12 @@ public sealed class ManagedBassPlaybackService : IAudioPlaybackService, IDisposa
                 return false;
             }
 
-            var channelHandle = Bass.SampleGetChannel(sampleHandle, false);
+            var channelHandle = Bass.SampleGetChannel(sampleHandle, true);
+            if (channelHandle == 0)
+            {
+                // Fall back to reusing/stealing an existing channel when the sample voice pool is saturated.
+                channelHandle = Bass.SampleGetChannel(sampleHandle, false);
+            }
             if (channelHandle == 0)
             {
                 _lastBassError = Bass.LastError;
@@ -274,7 +279,7 @@ public sealed class ManagedBassPlaybackService : IAudioPlaybackService, IDisposa
 
             var effectiveVolume = Clamp01(_hitsoundVolume * Clamp01(volumeMultiplier));
             _ = Bass.ChannelSetAttribute(channelHandle, ChannelAttribute.Volume, effectiveVolume);
-            if (!Bass.ChannelPlay(channelHandle, false))
+            if (!Bass.ChannelPlay(channelHandle, true))
             {
                 _lastBassError = Bass.LastError;
                 return false;

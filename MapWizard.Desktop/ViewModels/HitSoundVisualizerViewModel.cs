@@ -42,7 +42,6 @@ public partial class HitSoundVisualizerViewModel(
     private const string PointClipboardFormatId = "MapWizard.HitSoundVisualizer.Points/v1";
     private const int PlaybackDebugInfoUpdateIntervalMs = 250;
     private const int CursorColumnToleranceMs = 2;
-    private const int OsuMinimumSampleVolumePercent = 8;
     private const int HitsoundDebugActiveWindowMs = 200;
     private readonly string[] _sampleExtensions = [".wav", ".ogg", ".mp3"];
     private readonly ConcurrentDictionary<string, string> _resolvedPlaybackSamplePathCache =
@@ -2653,19 +2652,21 @@ public partial class HitSoundVisualizerViewModel(
 
     private static PlaybackSampleState ResolvePlaybackSampleState(HitSoundVisualizerPoint point, IReadOnlyList<HitSoundVisualizerSampleChange> sampleChanges)
     {
+        var normalizedPointIndexOverride = NormalizePointSampleIndexOverride(point.SampleIndexOverride);
+        var normalizedPointVolumeOverride = NormalizePointSampleVolumeOverride(point.SampleVolumeOverridePercent);
+
         if (sampleChanges.Count == 0)
         {
-            var fallbackIndex = Math.Max(1, point.SampleIndexOverride ?? 1);
-            var fallbackVolume = ResolveEffectivePlaybackVolume(point.SampleVolumeOverridePercent, 100);
+            var fallbackIndex = Math.Max(1, normalizedPointIndexOverride ?? 1);
+            var fallbackVolume = ResolveEffectivePlaybackVolume(normalizedPointVolumeOverride, 100);
             return new PlaybackSampleState(
                 fallbackIndex,
                 fallbackVolume,
-                point.SampleIndexOverride.HasValue,
-                point.SampleVolumeOverridePercent.HasValue);
+                normalizedPointIndexOverride.HasValue,
+                normalizedPointVolumeOverride.HasValue);
         }
 
-        const int timelineMatchLeniencyMs = 2;
-        var targetTimeMs = point.TimeMs + timelineMatchLeniencyMs;
+        var targetTimeMs = point.TimeMs;
         var lo = 0;
         var hi = sampleChanges.Count - 1;
         var matched = -1;
@@ -2686,26 +2687,26 @@ public partial class HitSoundVisualizerViewModel(
 
         if (matched < 0)
         {
-            var fallbackIndex = Math.Max(1, point.SampleIndexOverride ?? 1);
-            var fallbackVolume = ResolveEffectivePlaybackVolume(point.SampleVolumeOverridePercent, 100);
+            var fallbackIndex = Math.Max(1, normalizedPointIndexOverride ?? 1);
+            var fallbackVolume = ResolveEffectivePlaybackVolume(normalizedPointVolumeOverride, 100);
             return new PlaybackSampleState(
                 fallbackIndex,
                 fallbackVolume,
-                point.SampleIndexOverride.HasValue,
-                point.SampleVolumeOverridePercent.HasValue);
+                normalizedPointIndexOverride.HasValue,
+                normalizedPointVolumeOverride.HasValue);
         }
 
         var sampleChange = sampleChanges[matched];
-        var effectiveIndex = Math.Max(1, point.SampleIndexOverride ?? sampleChange.Index);
+        var effectiveIndex = Math.Max(1, normalizedPointIndexOverride ?? sampleChange.Index);
         var effectiveVolume = ResolveEffectivePlaybackVolume(
-            point.SampleVolumeOverridePercent,
+            normalizedPointVolumeOverride,
             Math.Clamp(sampleChange.Volume, 0, 100));
 
         return new PlaybackSampleState(
             effectiveIndex,
             effectiveVolume,
-            point.SampleIndexOverride.HasValue,
-            point.SampleVolumeOverridePercent.HasValue);
+            normalizedPointIndexOverride.HasValue,
+            normalizedPointVolumeOverride.HasValue);
     }
 
     private readonly record struct PlaybackSampleState(
@@ -2716,8 +2717,24 @@ public partial class HitSoundVisualizerViewModel(
 
     private static int ResolveEffectivePlaybackVolume(int? pointVolumeOverridePercent, int timelineVolumePercent)
     {
-        var rawVolume = Math.Clamp(pointVolumeOverridePercent ?? timelineVolumePercent, 0, 100);
-        return rawVolume == 0 ? 0 : Math.Max(OsuMinimumSampleVolumePercent, rawVolume);
+        if (pointVolumeOverridePercent is > 0)
+        {
+            return Math.Clamp(pointVolumeOverridePercent.Value, 1, 100);
+        }
+
+        // Timing-point volume 0 is treated as unspecified/default in playback context.
+        var normalizedTimelineVolume = timelineVolumePercent <= 0 ? 100 : timelineVolumePercent;
+        return Math.Clamp(normalizedTimelineVolume, 1, 100);
+    }
+
+    private static int? NormalizePointSampleIndexOverride(int? value)
+    {
+        return value is > 0 ? value.Value : null;
+    }
+
+    private static int? NormalizePointSampleVolumeOverride(int? value)
+    {
+        return value is > 0 ? Math.Clamp(value.Value, 1, 100) : null;
     }
 
     private void ResetHitsoundPlaybackDebugTelemetry()

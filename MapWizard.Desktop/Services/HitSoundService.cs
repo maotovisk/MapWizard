@@ -205,8 +205,8 @@ public class HitSoundService : IHitSoundService
             {
                 TimeMs = StableSnapEngine.StableRound(x.Time),
                 SampleSet = NormalizeSampleSet(x.Sample, SampleSet.Normal),
-                Index = x.Index,
-                Volume = (int)Math.Round(x.Volume)
+                Index = NormalizeSampleIndex(x.Index),
+                Volume = NormalizeSampleVolume(x.Volume)
             })
             .ToList();
 
@@ -454,5 +454,16 @@ public class HitSoundService : IHitSoundService
     private static bool IsExplicitSampleSet(SampleSet sampleSet)
     {
         return sampleSet is SampleSet.Normal or SampleSet.Soft or SampleSet.Drum;
+    }
+
+    private static int NormalizeSampleIndex(int rawIndex)
+    {
+        return rawIndex > 0 ? rawIndex : 1;
+    }
+
+    private static int NormalizeSampleVolume(double rawVolume)
+    {
+        var rounded = (int)Math.Round(rawVolume);
+        return rounded <= 0 ? 100 : Math.Clamp(rounded, 1, 100);
     }
 }

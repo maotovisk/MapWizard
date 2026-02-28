@@ -18,7 +18,7 @@ public sealed class MiniAudioPlaybackService : IAudioPlaybackService, IDisposabl
     private const int AudioUpdateRateHz = 1000;
     private const string AudioUpdateThreadName = "MapWizard.AudioUpdate";
     private static readonly TimeSpan AudioUpdateShutdownWait = TimeSpan.FromMilliseconds(500);
-    private const int HitsoundSourceMaxVoices = 16;
+    private const int HitsoundSourceMaxVoices = 256;
 
     private readonly object _sync = new();
     private readonly Dictionary<string, AudioClip> _clipCache = new(StringComparer.OrdinalIgnoreCase);
