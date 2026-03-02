@@ -83,12 +83,8 @@ public partial class MapCleanerViewModel(
 
     public ObservableCollection<SelectedMap> AdditionalBeatmaps
     {
-        get => new ObservableCollection<SelectedMap>(DestinationBeatmaps.Skip(1));
-        set
-        {
-            var first = DestinationBeatmaps.FirstOrDefault() ?? new SelectedMap();
-            DestinationBeatmaps = new ObservableCollection<SelectedMap>(new[] { first }.Concat(value));
-        }
+        get => BeatmapPanelViewModelUtils.GetAdditionalBeatmaps(DestinationBeatmaps);
+        set => DestinationBeatmaps = BeatmapPanelViewModelUtils.MergeWithAdditionalBeatmaps(DestinationBeatmaps, value);
     }
 
     [RelayCommand]

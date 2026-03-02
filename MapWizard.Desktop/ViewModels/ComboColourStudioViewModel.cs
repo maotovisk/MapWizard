@@ -112,12 +112,8 @@ public partial class ComboColourStudioViewModel(
 
     public ObservableCollection<SelectedMap> AdditionalBeatmaps
     {
-        get => new(DestinationBeatmaps.Skip(1));
-        set
-        {
-            var first = DestinationBeatmaps.FirstOrDefault() ?? new SelectedMap();
-            DestinationBeatmaps = new ObservableCollection<SelectedMap>(new[] { first }.Concat(value));
-        }
+        get => BeatmapPanelViewModelUtils.GetAdditionalBeatmaps(DestinationBeatmaps);
+        set => DestinationBeatmaps = BeatmapPanelViewModelUtils.MergeWithAdditionalBeatmaps(DestinationBeatmaps, value);
     }
 
     partial void OnPaletteSizeChanged(int value)
@@ -148,32 +144,20 @@ public partial class ComboColourStudioViewModel(
     [RelayCommand]
     private void RemoveMap(string path)
     {
-        var remaining = DestinationBeatmaps.Where(x => x.Path != path).ToList();
-        DestinationBeatmaps = new ObservableCollection<SelectedMap>(remaining);
-        HasMultiple = DestinationBeatmaps.Count > 1;
+        DestinationBeatmaps = BeatmapPanelViewModelUtils.RemoveDestinationBeatmap(DestinationBeatmaps, path);
+        HasMultiple = BeatmapPanelViewModelUtils.HasMultipleDestinationBeatmaps(DestinationBeatmaps);
     }
 
     [RelayCommand]
     private void ToggleDestinationMap(string path)
     {
-        if (string.IsNullOrWhiteSpace(path))
-        {
-            return;
-        }
-
-        if (DestinationBeatmaps.Any(x => string.Equals(x.Path, path, StringComparison.OrdinalIgnoreCase)))
-        {
-            RemoveMap(path);
-            return;
-        }
-
-        if (!BeatmapSelectionUtils.TryAppendDestinationBeatmap(DestinationBeatmaps, path, out var destinationBeatmaps))
+        if (!BeatmapPanelViewModelUtils.TryToggleDestinationBeatmap(DestinationBeatmaps, path, out var destinationBeatmaps))
         {
             return;
         }
 
         DestinationBeatmaps = destinationBeatmaps;
-        HasMultiple = DestinationBeatmaps.Count > 1;
+        HasMultiple = BeatmapPanelViewModelUtils.HasMultipleDestinationBeatmaps(DestinationBeatmaps);
     }
 
     [RelayCommand]
@@ -527,7 +511,7 @@ public partial class ComboColourStudioViewModel(
         }
 
         DestinationBeatmaps = destinationBeatmaps;
-        HasMultiple = DestinationBeatmaps.Count > 1;
+        HasMultiple = BeatmapPanelViewModelUtils.HasMultipleDestinationBeatmaps(DestinationBeatmaps);
     }
 
     [RelayCommand]
@@ -549,7 +533,7 @@ public partial class ComboColourStudioViewModel(
     [RelayCommand]
     private void AddMapsetDiffsToDestination()
     {
-        var referencePath = ResolveMapsetReferenceBeatmapPath();
+        var referencePath = BeatmapPanelViewModelUtils.ResolveMapsetReferenceBeatmapPath(DestinationBeatmaps, OriginBeatmap.Path);
         if (referencePath is null)
         {
             ShowToast(
@@ -576,7 +560,7 @@ public partial class ComboColourStudioViewModel(
         }
 
         DestinationBeatmaps = updatedDestinationBeatmaps;
-        HasMultiple = DestinationBeatmaps.Count > 1;
+        HasMultiple = BeatmapPanelViewModelUtils.HasMultipleDestinationBeatmaps(DestinationBeatmaps);
         ShowToast(
             NotificationType.Success,
             "Combo Colour Studio",
@@ -592,38 +576,14 @@ public partial class ComboColourStudioViewModel(
 
     private void SetDestinationBeatmaps(IReadOnlyCollection<string> beatmapPaths)
     {
-        var normalizedBeatmaps = BeatmapSelectionUtils.NormalizeDestinationBeatmaps(beatmapPaths);
-        if (normalizedBeatmaps.Count == 0)
+        if (!BeatmapPanelViewModelUtils.TrySetDestinationBeatmaps(beatmapPaths, out var normalizedBeatmaps))
         {
             return;
         }
 
         DestinationBeatmaps = normalizedBeatmaps;
-        HasMultiple = DestinationBeatmaps.Count > 1;
-        PreferredDirectory = BeatmapSelectionUtils.GetPreferredDirectoryOrFallback(DestinationBeatmaps, PreferredDirectory);
-    }
-
-    private string? ResolveMapsetReferenceBeatmapPath()
-    {
-        var destinationPaths = DestinationBeatmaps
-            .Select(map => map.Path)
-            .Where(path => !string.IsNullOrWhiteSpace(path))
-            .ToArray();
-        if (destinationPaths.Length > 0)
-        {
-            var distinctFolders = destinationPaths
-                .Select(BeatmapPathUtils.TryGetMapsetDirectoryPath)
-                .Where(path => !string.IsNullOrWhiteSpace(path))
-                .Distinct(StringComparer.OrdinalIgnoreCase)
-                .ToArray();
-
-            if (distinctFolders.Length == 1)
-            {
-                return destinationPaths[0];
-            }
-        }
-
-        return !string.IsNullOrWhiteSpace(OriginBeatmap.Path) ? OriginBeatmap.Path : null;
+        HasMultiple = BeatmapPanelViewModelUtils.HasMultipleDestinationBeatmaps(DestinationBeatmaps);
+        PreferredDirectory = BeatmapPanelViewModelUtils.GetPreferredDirectoryOrFallback(DestinationBeatmaps, PreferredDirectory);
     }
 
     [RelayCommand]

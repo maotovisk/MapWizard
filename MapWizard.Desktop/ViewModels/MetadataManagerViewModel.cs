@@ -63,13 +63,8 @@ public partial class MetadataManagerViewModel(
 
     public ObservableCollection<SelectedMap> AdditionalBeatmaps
     {
-        get => new ObservableCollection<SelectedMap>(DestinationBeatmaps.Skip(1));
-        set
-        {
-            var first = DestinationBeatmaps.FirstOrDefault() ?? new SelectedMap();
-            DestinationBeatmaps =
-                new ObservableCollection<SelectedMap>(new[] { first }.Concat(value));
-        }
+        get => BeatmapPanelViewModelUtils.GetAdditionalBeatmaps(DestinationBeatmaps);
+        set => DestinationBeatmaps = BeatmapPanelViewModelUtils.MergeWithAdditionalBeatmaps(DestinationBeatmaps, value);
     }
 
     public bool HasHeaderBackgroundImage => HeaderBackgroundImage is not null;
@@ -90,31 +85,20 @@ public partial class MetadataManagerViewModel(
     [RelayCommand]
     private void RemoveMap(string path)
     {
-        DestinationBeatmaps = new ObservableCollection<SelectedMap>(DestinationBeatmaps.Where(x => x.Path != path));
-        HasMultiple = DestinationBeatmaps.Count > 1;
+        DestinationBeatmaps = BeatmapPanelViewModelUtils.RemoveDestinationBeatmap(DestinationBeatmaps, path);
+        HasMultiple = BeatmapPanelViewModelUtils.HasMultipleDestinationBeatmaps(DestinationBeatmaps);
     }
 
     [RelayCommand]
     private void ToggleDestinationMap(string path)
     {
-        if (string.IsNullOrWhiteSpace(path))
-        {
-            return;
-        }
-
-        if (DestinationBeatmaps.Any(x => string.Equals(x.Path, path, StringComparison.OrdinalIgnoreCase)))
-        {
-            RemoveMap(path);
-            return;
-        }
-
-        if (!BeatmapSelectionUtils.TryAppendDestinationBeatmap(DestinationBeatmaps, path, out var destinationBeatmap))
+        if (!BeatmapPanelViewModelUtils.TryToggleDestinationBeatmap(DestinationBeatmaps, path, out var destinationBeatmap))
         {
             return;
         }
 
         DestinationBeatmaps = destinationBeatmap;
-        HasMultiple = DestinationBeatmaps.Count > 1;
+        HasMultiple = BeatmapPanelViewModelUtils.HasMultipleDestinationBeatmaps(DestinationBeatmaps);
     }
 
     private async Task ImportMetadataFromOriginAsync(CancellationToken token)
@@ -323,7 +307,7 @@ public partial class MetadataManagerViewModel(
     [RelayCommand]
     private void AddMapsetDiffsToDestination()
     {
-        var referencePath = ResolveMapsetReferenceBeatmapPath();
+        var referencePath = BeatmapPanelViewModelUtils.ResolveMapsetReferenceBeatmapPath(DestinationBeatmaps, OriginBeatmap.Path);
         if (referencePath is null)
         {
             toastManager.ShowToast(
@@ -350,7 +334,7 @@ public partial class MetadataManagerViewModel(
         }
 
         DestinationBeatmaps = updatedDestinationBeatmaps;
-        HasMultiple = DestinationBeatmaps.Count > 1;
+        HasMultiple = BeatmapPanelViewModelUtils.HasMultipleDestinationBeatmaps(DestinationBeatmaps);
         toastManager.ShowToast(
             NotificationType.Success,
             "Metadata Manager",
@@ -370,38 +354,14 @@ public partial class MetadataManagerViewModel(
 
     private void SetDestinationBeatmaps(IReadOnlyCollection<string> beatmapPaths)
     {
-        var normalizedBeatmaps = BeatmapSelectionUtils.NormalizeDestinationBeatmaps(beatmapPaths);
-        if (normalizedBeatmaps.Count == 0)
+        if (!BeatmapPanelViewModelUtils.TrySetDestinationBeatmaps(beatmapPaths, out var normalizedBeatmaps))
         {
             return;
         }
 
         DestinationBeatmaps = normalizedBeatmaps;
-        HasMultiple = DestinationBeatmaps.Count > 1;
-        PreferredDirectory = BeatmapSelectionUtils.GetPreferredDirectoryOrFallback(DestinationBeatmaps, PreferredDirectory);
-    }
-
-    private string? ResolveMapsetReferenceBeatmapPath()
-    {
-        var destinationPaths = DestinationBeatmaps
-            .Select(map => map.Path)
-            .Where(path => !string.IsNullOrWhiteSpace(path))
-            .ToArray();
-        if (destinationPaths.Length > 0)
-        {
-            var distinctFolders = destinationPaths
-                .Select(BeatmapPathUtils.TryGetMapsetDirectoryPath)
-                .Where(path => !string.IsNullOrWhiteSpace(path))
-                .Distinct(StringComparer.OrdinalIgnoreCase)
-                .ToArray();
-
-            if (distinctFolders.Length == 1)
-            {
-                return destinationPaths[0];
-            }
-        }
-
-        return !string.IsNullOrWhiteSpace(OriginBeatmap.Path) ? OriginBeatmap.Path : null;
+        HasMultiple = BeatmapPanelViewModelUtils.HasMultipleDestinationBeatmaps(DestinationBeatmaps);
+        PreferredDirectory = BeatmapPanelViewModelUtils.GetPreferredDirectoryOrFallback(DestinationBeatmaps, PreferredDirectory);
     }
 
     private Task<IReadOnlyList<string>?> ShowSongSelectDialogAsync(
