@@ -48,7 +48,7 @@ public partial class ComboColourStudioViewModel(
 
     [NotifyPropertyChangedFor(nameof(AdditionalBeatmaps))]
     [ObservableProperty]
-    private ObservableCollection<SelectedMap> _destinationBeatmaps = [new SelectedMap()];
+    private ObservableCollection<SelectedMap> _destinationBeatmaps = [];
 
     [ObservableProperty] private bool _hasMultiple;
     [ObservableProperty] private string _preferredDirectory = string.Empty;
@@ -149,13 +149,30 @@ public partial class ComboColourStudioViewModel(
     private void RemoveMap(string path)
     {
         var remaining = DestinationBeatmaps.Where(x => x.Path != path).ToList();
+        DestinationBeatmaps = new ObservableCollection<SelectedMap>(remaining);
+        HasMultiple = DestinationBeatmaps.Count > 1;
+    }
 
-        if (remaining.Count == 0)
+    [RelayCommand]
+    private void ToggleDestinationMap(string path)
+    {
+        if (string.IsNullOrWhiteSpace(path))
         {
-            remaining.Add(new SelectedMap());
+            return;
         }
 
-        DestinationBeatmaps = new ObservableCollection<SelectedMap>(remaining);
+        if (DestinationBeatmaps.Any(x => string.Equals(x.Path, path, StringComparison.OrdinalIgnoreCase)))
+        {
+            RemoveMap(path);
+            return;
+        }
+
+        if (!BeatmapSelectionUtils.TryAppendDestinationBeatmap(DestinationBeatmaps, path, out var destinationBeatmaps))
+        {
+            return;
+        }
+
+        DestinationBeatmaps = destinationBeatmaps;
         HasMultiple = DestinationBeatmaps.Count > 1;
     }
 
@@ -442,7 +459,10 @@ public partial class ComboColourStudioViewModel(
     {
         try
         {
-            var selectedPaths = await ShowSongSelectDialogAsync(allowMultiple: false, token: token);
+            var selectedPaths = await ShowSongSelectDialogAsync(
+                allowMultiple: false,
+                token: token,
+                preferredMapsetDirectoryPath: BeatmapPathUtils.TryGetMapsetDirectoryPath(OriginBeatmap.Path));
             if (token.IsCancellationRequested || selectedPaths is null || selectedPaths.Count == 0)
             {
                 return;
@@ -510,6 +530,59 @@ public partial class ComboColourStudioViewModel(
         HasMultiple = DestinationBeatmaps.Count > 1;
     }
 
+    [RelayCommand]
+    private void OpenOriginFolder()
+    {
+        if (BeatmapSelectionUtils.TryOpenBeatmapFolder(OriginBeatmap.Path, out var errorMessage))
+        {
+            return;
+        }
+
+        ShowToast(
+            NotificationType.Warning,
+            "Combo Colour Studio",
+            string.IsNullOrWhiteSpace(errorMessage)
+                ? "Unable to open the origin beatmap folder."
+                : errorMessage);
+    }
+
+    [RelayCommand]
+    private void AddMapsetDiffsToDestination()
+    {
+        var referencePath = ResolveMapsetReferenceBeatmapPath();
+        if (referencePath is null)
+        {
+            ShowToast(
+                NotificationType.Warning,
+                "Combo Colour Studio",
+                "Select an origin beatmap (or target beatmaps from one mapset) first.");
+            return;
+        }
+
+        var siblingDiffs = BeatmapSelectionUtils.GetSiblingDifficultyPaths(referencePath)
+            .Where(path => !string.Equals(path, OriginBeatmap.Path, StringComparison.OrdinalIgnoreCase));
+
+        if (!BeatmapSelectionUtils.TryAppendDestinationBeatmaps(
+                DestinationBeatmaps,
+                siblingDiffs,
+                out var updatedDestinationBeatmaps,
+                out var addedCount))
+        {
+            ShowToast(
+                NotificationType.Warning,
+                "Combo Colour Studio",
+                "No additional mapset difficulties were available to add.");
+            return;
+        }
+
+        DestinationBeatmaps = updatedDestinationBeatmaps;
+        HasMultiple = DestinationBeatmaps.Count > 1;
+        ShowToast(
+            NotificationType.Success,
+            "Combo Colour Studio",
+            $"Added {addedCount} mapset diff(s) to destination.");
+    }
+
     private async Task SetOriginBeatmapPath(string beatmapPath)
     {
         OriginBeatmap = new SelectedMap { Path = beatmapPath };
@@ -528,6 +601,29 @@ public partial class ComboColourStudioViewModel(
         DestinationBeatmaps = normalizedBeatmaps;
         HasMultiple = DestinationBeatmaps.Count > 1;
         PreferredDirectory = BeatmapSelectionUtils.GetPreferredDirectoryOrFallback(DestinationBeatmaps, PreferredDirectory);
+    }
+
+    private string? ResolveMapsetReferenceBeatmapPath()
+    {
+        var destinationPaths = DestinationBeatmaps
+            .Select(map => map.Path)
+            .Where(path => !string.IsNullOrWhiteSpace(path))
+            .ToArray();
+        if (destinationPaths.Length > 0)
+        {
+            var distinctFolders = destinationPaths
+                .Select(BeatmapPathUtils.TryGetMapsetDirectoryPath)
+                .Where(path => !string.IsNullOrWhiteSpace(path))
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToArray();
+
+            if (distinctFolders.Length == 1)
+            {
+                return destinationPaths[0];
+            }
+        }
+
+        return !string.IsNullOrWhiteSpace(OriginBeatmap.Path) ? OriginBeatmap.Path : null;
     }
 
     [RelayCommand]

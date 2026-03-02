@@ -16,9 +16,15 @@
     Padding="16">
     <UserControl.Styles>
         <Style Selector="Border.SnapChip">
-            <Setter Property="Background" Value="#1F2536" />
-            <Setter Property="BorderBrush" Value="#36415D" />
+            <Setter Property="Background" Value="{DynamicResource SystemControlBackgroundChromeMediumLowBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource SukiBorderBrush}" />
             <Setter Property="BorderThickness" Value="1" />
+        </Style>
+        <Style Selector="Border.SnapChip TextBlock">
+            <Setter Property="Foreground" Value="{DynamicResource SystemControlForegroundBaseHighBrush}" />
+        </Style>
+        <Style Selector="Border.SnapChip materialIcons|MaterialIcon">
+            <Setter Property="Foreground" Value="{DynamicResource SystemControlForegroundBaseHighBrush}" />
         </Style>
         <Style Selector="Button.SnapChipClose">
             <Setter Property="Background" Value="Transparent" />
@@ -29,19 +35,19 @@
             <Setter Property="CornerRadius" Value="8" />
         </Style>
         <Style Selector="Button.SnapChipClose:pointerover">
-            <Setter Property="Background" Value="#2B3550" />
+            <Setter Property="Background" Value="{DynamicResource SystemControlBackgroundAltMediumBrush}" />
         </Style>
         <Style Selector="Button.SnapPresetBadge">
-            <Setter Property="Background" Value="#232C42" />
-            <Setter Property="BorderBrush" Value="#3B4A6C" />
+            <Setter Property="Background" Value="{DynamicResource SystemControlBackgroundChromeMediumLowBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource SukiBorderBrush}" />
             <Setter Property="BorderThickness" Value="1" />
             <Setter Property="CornerRadius" Value="999" />
             <Setter Property="Padding" Value="10,5" />
             <Setter Property="MinWidth" Value="48" />
         </Style>
         <Style Selector="Button.SnapPresetBadge:pointerover">
-            <Setter Property="Background" Value="#2C3956" />
-            <Setter Property="BorderBrush" Value="#4D6391" />
+            <Setter Property="Background" Value="{DynamicResource SystemControlBackgroundAltMediumBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource ThemeAccentBrush}" />
         </Style>
     </UserControl.Styles>
 
@@ -76,11 +82,10 @@
             <StackPanel Spacing="16">
                 <controls:BeatmapSelectionPanel
                     SectionTitle="Beatmap Selection"
+                    OriginMap="{Binding OriginBeatmap}"
+                    DestinationMaps="{Binding DestinationBeatmaps}"
                     FromWatermark="Select beatmap..."
                     ShowDestinationSelection="False"
-                    ShowHeaderBackground="{Binding HasHeaderBackgroundImage}"
-                    HeaderBackgroundImage="{Binding HeaderBackgroundImage}"
-                    HeaderTopLine="{Binding OriginContextTopLine}"
                     OriginPathChangedCommand="{Binding ReanalyzeOriginAfterPathChangeCommand}" />
 
                 <suki:GlassCard Margin="8" Padding="12" CornerRadius="15">

@@ -4,200 +4,598 @@
   xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
   xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
   xmlns:controls="clr-namespace:MapWizard.Desktop.Views.Controls"
-  xmlns:converters="clr-namespace:MapWizard.Desktop.Converters"
   xmlns:materialIcons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
   xmlns:suki="clr-namespace:SukiUI.Controls;assembly=SukiUI"
-  xmlns:theme="https://github.com/kikipoulet/SukiUI"
   mc:Ignorable="d"
   d:DesignWidth="760"
-  d:DesignHeight="300"
+  d:DesignHeight="460"
   x:Class="MapWizard.Desktop.Views.Controls.BeatmapSelectionPanel"
   x:Name="Root">
 
-  <UserControl.Resources>
-    <converters:MapPathSummaryConverter x:Key="MapPathSummaryConverter" />
-  </UserControl.Resources>
+  <UserControl.Styles>
+    <Style Selector="Border.BeatmapCard">
+      <Setter Property="CornerRadius" Value="14" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="BorderBrush" Value="#46FFFFFF" />
+      <Setter Property="Padding" Value="1" />
+      <Setter Property="Height" Value="74" />
+      <Setter Property="MinHeight" Value="74" />
+      <Setter Property="MaxHeight" Value="74" />
+      <Setter Property="HorizontalAlignment" Value="Stretch" />
+      <Setter Property="ClipToBounds" Value="True" />
+    </Style>
+
+    <Style Selector="Border.BeatmapCard.Selected">
+      <Setter Property="BorderBrush" Value="#7CD397" />
+      <Setter Property="BorderThickness" Value="2" />
+      <Setter Property="Padding" Value="2" />
+    </Style>
+
+    <Style Selector="Border.BeatmapCardSurface">
+      <Setter Property="CornerRadius" Value="12" />
+      <Setter Property="Background" Value="#152033" />
+    </Style>
+
+    <Style Selector="Border.BeatmapCardClip">
+      <Setter Property="CornerRadius" Value="12" />
+      <Setter Property="ClipToBounds" Value="True" />
+    </Style>
+
+    <Style Selector="Border.BeatmapCard TextBlock">
+      <Setter Property="Foreground" Value="{DynamicResource SystemControlForegroundBaseHighBrush}" />
+    </Style>
+
+    <Style Selector="Border.BeatmapCard materialIcons|MaterialIcon">
+      <Setter Property="Foreground" Value="{DynamicResource SystemControlForegroundBaseHighBrush}" />
+    </Style>
+
+    <Style Selector="Border.CardBadge">
+      <Setter Property="CornerRadius" Value="8" />
+      <Setter Property="Padding" Value="8,2" />
+      <Setter Property="Background" Value="#77263A53" />
+      <Setter Property="BorderBrush" Value="#5BA9D8FF" />
+      <Setter Property="BorderThickness" Value="1" />
+    </Style>
+
+    <Style Selector="Button.MapsetCardButton">
+      <Setter Property="Padding" Value="0" />
+      <Setter Property="BorderThickness" Value="0" />
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="BorderBrush" Value="Transparent" />
+      <Setter Property="HorizontalAlignment" Value="Stretch" />
+      <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+      <Setter Property="VerticalContentAlignment" Value="Stretch" />
+      <Setter Property="FocusAdorner" Value="{x:Null}" />
+      <Setter Property="Transitions">
+        <Transitions />
+      </Setter>
+      <Setter Property="RenderTransform">
+        <TransformGroup>
+          <TranslateTransform X="0" Y="0" />
+          <ScaleTransform ScaleX="1" ScaleY="1" />
+        </TransformGroup>
+      </Setter>
+      <Setter Property="Template">
+        <ControlTemplate>
+          <Border Background="{TemplateBinding Background}"
+                  BorderBrush="{TemplateBinding BorderBrush}"
+                  BorderThickness="{TemplateBinding BorderThickness}"
+                  Padding="{TemplateBinding Padding}"
+                  HorizontalAlignment="Stretch">
+            <ContentPresenter Content="{TemplateBinding Content}"
+                              ContentTemplate="{TemplateBinding ContentTemplate}"
+                              HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                              VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}" />
+          </Border>
+        </ControlTemplate>
+      </Setter>
+    </Style>
+
+    <Style Selector="Button.MapsetCardButton:pointerover">
+      <Setter Property="Opacity" Value="0.94" />
+    </Style>
+
+    <Style Selector="Button.MapsetCardButton:pressed">
+      <Setter Property="Opacity" Value="1" />
+      <Setter Property="RenderTransform">
+        <TransformGroup>
+          <TranslateTransform X="0" Y="0" />
+          <ScaleTransform ScaleX="1" ScaleY="1" />
+        </TransformGroup>
+      </Setter>
+    </Style>
+
+    <Style Selector="Button.MapsetCardButton /template/ ContentPresenter">
+      <Setter Property="RenderTransform">
+        <TransformGroup>
+          <TranslateTransform X="0" Y="0" />
+          <ScaleTransform ScaleX="1" ScaleY="1" />
+        </TransformGroup>
+      </Setter>
+      <Setter Property="Transitions">
+        <Transitions />
+      </Setter>
+    </Style>
+
+    <Style Selector="Button.MapsetCardButton:pressed /template/ ContentPresenter">
+      <Setter Property="RenderTransform">
+        <TransformGroup>
+          <TranslateTransform X="0" Y="0" />
+          <ScaleTransform ScaleX="1" ScaleY="1" />
+        </TransformGroup>
+      </Setter>
+    </Style>
+
+    <Style Selector="Border.BeatmapCard.MapsetCandidate">
+      <Setter Property="Height" Value="64" />
+      <Setter Property="MinHeight" Value="64" />
+      <Setter Property="MaxHeight" Value="64" />
+    </Style>
+
+    <Style Selector="Border.EmptySelectionCard">
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="BorderBrush" Value="Transparent" />
+      <Setter Property="BorderThickness" Value="0" />
+      <Setter Property="Padding" Value="0" />
+    </Style>
+
+    <Style Selector="Button.MapsetCollapseHeader">
+      <Setter Property="Padding" Value="0" />
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="BorderBrush" Value="Transparent" />
+      <Setter Property="BorderThickness" Value="0" />
+      <Setter Property="HorizontalAlignment" Value="Left" />
+      <Setter Property="HorizontalContentAlignment" Value="Left" />
+      <Setter Property="FocusAdorner" Value="{x:Null}" />
+    </Style>
+
+    <Style Selector="Button.MapsetCollapseHeader:pointerover">
+      <Setter Property="Opacity" Value="0.92" />
+    </Style>
+
+    <Style Selector="materialIcons|MaterialIcon.MapsetChevron">
+      <Setter Property="Kind" Value="ChevronRight" />
+      <Setter Property="Width" Value="16" />
+      <Setter Property="Height" Value="16" />
+    </Style>
+
+    <Style Selector="materialIcons|MaterialIcon.MapsetChevron.expanded">
+      <Setter Property="Kind" Value="ChevronDown" />
+    </Style>
+
+    <Style Selector="Border.MapsetCollapseBody">
+      <Setter Property="ClipToBounds" Value="True" />
+      <Setter Property="Opacity" Value="0" />
+      <Setter Property="MaxHeight" Value="0" />
+      <Setter Property="IsHitTestVisible" Value="False" />
+      <Setter Property="Transitions">
+        <Transitions>
+          <DoubleTransition Property="Opacity" Duration="0:0:0.18" />
+          <DoubleTransition Property="MaxHeight" Duration="0:0:0.2" />
+        </Transitions>
+      </Setter>
+    </Style>
+
+    <Style Selector="Border.MapsetCollapseBody.expanded">
+      <Setter Property="Opacity" Value="1" />
+      <Setter Property="MaxHeight" Value="1400" />
+      <Setter Property="IsHitTestVisible" Value="True" />
+    </Style>
+
+    <Style Selector="Border.MapsetGroupCard">
+      <Setter Property="CornerRadius" Value="14" />
+      <Setter Property="BorderBrush" Value="#4AFFFFFF" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="Background" Value="#150E1727" />
+      <Setter Property="ClipToBounds" Value="True" />
+      <Setter Property="HorizontalAlignment" Value="Stretch" />
+    </Style>
+
+    <Style Selector="Border.MapsetGroupHeaderClip">
+      <Setter Property="CornerRadius" Value="14,14,0,0" />
+      <Setter Property="ClipToBounds" Value="True" />
+    </Style>
+
+    <Style Selector="Border.MapsetGroupDetails">
+      <Setter Property="Background" Value="#3A101A2B" />
+      <Setter Property="Padding" Value="10,10,10,4" />
+    </Style>
+
+    <Style Selector="Border.MapsetSummaryPill">
+      <Setter Property="CornerRadius" Value="9" />
+      <Setter Property="Padding" Value="8,3" />
+      <Setter Property="Background" Value="#5B204C3D" />
+      <Setter Property="HorizontalAlignment" Value="Right" />
+    </Style>
+
+    <Style Selector="ToggleButton.MapsetDiffChip">
+      <Setter Property="Margin" Value="0,0,8,8" />
+      <Setter Property="Padding" Value="11,6" />
+      <Setter Property="MinHeight" Value="30" />
+      <Setter Property="Background" Value="#2919253A" />
+      <Setter Property="BorderBrush" Value="#56FFFFFF" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="CornerRadius" Value="11" />
+      <Setter Property="HorizontalContentAlignment" Value="Center" />
+      <Setter Property="VerticalContentAlignment" Value="Center" />
+    </Style>
+
+    <Style Selector="ToggleButton.MapsetDiffChip:pointerover">
+      <Setter Property="Background" Value="#3D263650" />
+      <Setter Property="BorderBrush" Value="#86FFFFFF" />
+    </Style>
+
+    <Style Selector="ToggleButton.MapsetDiffChip:checked">
+      <Setter Property="Background" Value="#3B3C7A5D" />
+      <Setter Property="BorderBrush" Value="#AEEFCF" />
+    </Style>
+  </UserControl.Styles>
 
   <suki:GlassCard Margin="8" Padding="0" CornerRadius="16">
-    <Grid RowDefinitions="Auto,*">
-      <Grid Grid.Row="0"
-            MaxHeight="{Binding HeaderMaxHeight, ElementName=Root}"
-            ClipToBounds="True"
-            IsVisible="{Binding ShowHeaderBackground, ElementName=Root}">
-        <Image Source="{Binding HeaderBackgroundImage, ElementName=Root}"
-               Stretch="UniformToFill" />
+    <StackPanel Margin="12" Spacing="12">
+      <Grid ColumnDefinitions="*,Auto" VerticalAlignment="Center">
+        <TextBlock Text="{Binding SectionTitle, ElementName=Root}"
+                   FontWeight="SemiBold"
+                   FontSize="14" />
 
-        <Border VerticalAlignment="Bottom"
-                Height="{Binding HeaderOverlayHeight, ElementName=Root}">
-          <Border.Background>
-            <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-              <GradientStop Offset="0" Color="#00000000" />
-              <GradientStop Offset="1" Color="#CC101010" />
-            </LinearGradientBrush>
-          </Border.Background>
-        </Border>
-
-        <StackPanel Margin="16"
-                    VerticalAlignment="Bottom"
-                    Spacing="4"
-                    IsVisible="{Binding ShowHeaderContext, ElementName=Root}">
-          <TextBlock FontWeight="Bold"
-                     FontSize="14"
-                     Text="{Binding HeaderTopLine, ElementName=Root}"
-                     TextTrimming="CharacterEllipsis"
-                     MaxLines="1" />
-          <TextBlock Text="{Binding HeaderBottomLine, ElementName=Root}"
-                     IsVisible="{Binding ShowHeaderBottomLine, ElementName=Root}"
-                     TextWrapping="Wrap"
-                     TextTrimming="CharacterEllipsis"
-                     MaxLines="2"
-                     FontSize="12" />
-        </StackPanel>
+        <Button Grid.Column="1"
+                Classes="Basic"
+                Command="{Binding OpenOriginFolderCommand}"
+                IsEnabled="{Binding HasOriginSelection, ElementName=Root}"
+                ToolTip.Tip="Open the folder of the selected origin beatmap">
+          <StackPanel Orientation="Horizontal" Spacing="5">
+            <materialIcons:MaterialIcon Kind="FolderOpen" Width="18" Height="18" />
+            <TextBlock Text="Open Origin Folder" VerticalAlignment="Center" />
+          </StackPanel>
+        </Button>
       </Grid>
 
-      <StackPanel Grid.Row="1" Spacing="8" Margin="12">
-        <TextBlock Text="{Binding SectionTitle, ElementName=Root}" />
-        <Separator />
+      <StackPanel Spacing="10">
 
-        <Grid ColumnDefinitions="*,Auto" VerticalAlignment="Center">
-          <Grid Margin="0,0,8,0">
-            <TextBox x:Name="OriginPathEditTextBox"
-                     theme:TextBoxExtensions.Prefix="{Binding FromPrefix, ElementName=Root}"
-                     Watermark="{Binding FromWatermark, ElementName=Root}"
-                     Text="{Binding OriginBeatmap.Path, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                     HorizontalAlignment="Stretch"
-                     VerticalAlignment="Center"
-                     IsVisible="{Binding IsEditingOriginPath, ElementName=Root}"
-                     LostFocus="OriginPathEditTextBox_OnLostFocus"
-                     KeyDown="OriginPathEditTextBox_OnKeyDown" />
+          <Border Classes="BeatmapCard"
+                  IsVisible="{Binding HasOriginSelection, ElementName=Root}">
+            <Border Classes="BeatmapCardClip">
+              <Grid>
+                <Border Classes="BeatmapCardSurface" />
 
-            <TextBox theme:TextBoxExtensions.Prefix="{Binding FromPrefix, ElementName=Root}"
-                     x:Name="OriginPathSummaryTextBox"
-                     Text="{Binding OriginBeatmap.Path, Mode=OneWay, Converter={StaticResource MapPathSummaryConverter}}"
-                     HorizontalAlignment="Stretch"
-                     VerticalAlignment="Center"
-                     IsReadOnly="True"
-                     IsVisible="{Binding ShowOriginSummary, ElementName=Root}"
-                     ToolTip.Tip="Click to edit full path"
-                     GotFocus="OriginPathSummaryTextBox_OnGotFocus"
-                     PointerPressed="OriginPathSummaryTextBox_OnPointerPressed" />
-          </Grid>
+                <Image Source="{Binding OriginMap.BackgroundImage, ElementName=Root}"
+                       Stretch="UniformToFill"
+                       IsVisible="{Binding OriginMap.HasBackgroundImage, ElementName=Root}" />
 
-          <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
-            <Button Classes="Basic"
-                    Command="{Binding SetOriginFromMemoryCommand}"
-                    ToolTip.Tip="Open Map Picker dialog">
-              <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
-                <materialIcons:MaterialIcon Kind="Import" Width="24" Height="24" />
-                <TextBlock VerticalAlignment="Center" Text="From osu!" />
-              </StackPanel>
-            </Button>
-            <Button Classes="Flat Rounded"
-                    Command="{Binding PickOriginFileCommand}"
-                    MinWidth="122"
-                    ToolTip.Tip="{Binding OriginMemoryToolTip, ElementName=Root}">
-              <StackPanel Orientation="Horizontal" Spacing="4">
-                <materialIcons:MaterialIcon Kind="FileSearchOutline" Width="24" Height="24" />
-                <TextBlock VerticalAlignment="Center" Text="Map Picker" />
-              </StackPanel>
-            </Button>
-          </StackPanel>
-        </Grid>
+                <Border Background="#7A0A111B" />
 
-        <StackPanel IsVisible="{Binding ShowDestinationSelection, ElementName=Root}" Spacing="8">
-          <Grid ColumnDefinitions="*,Auto" VerticalAlignment="Center">
-            <Grid Margin="0,0,8,0">
-              <TextBox x:Name="DestinationPathEditTextBox"
-                       theme:TextBoxExtensions.Prefix="{Binding ToPrefix, ElementName=Root}"
-                       Watermark="{Binding ToWatermark, ElementName=Root}"
-                       Text="{Binding DestinationBeatmaps[0].Path, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                       HorizontalAlignment="Stretch"
+                <Border>
+                  <Border.Background>
+                    <LinearGradientBrush StartPoint="0,0.5" EndPoint="1,0.5">
+                      <GradientStop Offset="0" Color="#EF0A111D" />
+                      <GradientStop Offset="0.45" Color="#C20E1728" />
+                      <GradientStop Offset="1" Color="#72111F36" />
+                    </LinearGradientBrush>
+                  </Border.Background>
+                </Border>
+
+                <Grid Margin="8"
+                      ColumnDefinitions="*,Auto"
+                      ColumnSpacing="10">
+                  <StackPanel Grid.Column="0"
+                              VerticalAlignment="Center"
+                              Spacing="1">
+                    <StackPanel Orientation="Horizontal"
+                                Spacing="6">
+                      <TextBlock Text="{Binding OriginMap.DisplayTitle, ElementName=Root}"
+                                 FontWeight="Bold"
+                                 FontSize="13"
+                                 TextTrimming="CharacterEllipsis"
+                                 MaxLines="1" />
+                      <TextBlock
+                                 Text="{Binding OriginMap.DisplaySubtitle, ElementName=Root}"
+                                 FontWeight="SemiBold"
+                                 Opacity="0.9"
+                                 FontSize="13"
+                                 TextTrimming="CharacterEllipsis"
+                                 MaxLines="1" />
+                    </StackPanel>
+                    <TextBlock Text="{Binding OriginMap.DisplayDetails, ElementName=Root}"
+                               FontWeight="SemiBold"
+                               Opacity="0.9"
+                               FontSize="11"
+                               TextTrimming="CharacterEllipsis"
+                               MaxLines="1" />
+                  </StackPanel>
+
+                  <StackPanel Grid.Column="1"
+                              VerticalAlignment="Center"
+                              Spacing="6">
+                    <Border Classes="CardBadge">
+                      <TextBlock Text="ORIGIN"
+                                 FontSize="10"
+                                 FontWeight="Bold" />
+                    </Border>
+                    <StackPanel Orientation="Horizontal"
+                                Spacing="4">
+                      <Button Classes="Basic Compact"
+                              Command="{Binding SetOriginFromMemoryCommand}"
+                              ToolTip.Tip="{Binding OriginMemoryToolTip, ElementName=Root}">
+                        <materialIcons:MaterialIcon Kind="Import" Width="14" Height="14" />
+                      </Button>
+                      <Button Classes="Flat Compact"
+                              Command="{Binding PickOriginFileCommand}"
+                              ToolTip.Tip="Open Map Picker dialog">
+                        <materialIcons:MaterialIcon Kind="FileSearchOutline" Width="14" Height="14" />
+                      </Button>
+                    </StackPanel>
+                  </StackPanel>
+                </Grid>
+              </Grid>
+            </Border>
+          </Border>
+
+          <Border Classes="EmptySelectionCard"
+                  IsVisible="{Binding ShowOriginEmptyState, ElementName=Root}">
+            <WrapPanel Margin="0,2,0,0"
+                       HorizontalAlignment="Center"
                        VerticalAlignment="Center"
-                       IsVisible="{Binding IsEditingDestinationPath, ElementName=Root}"
-                       LostFocus="DestinationPathEditTextBox_OnLostFocus"
-                       KeyDown="DestinationPathEditTextBox_OnKeyDown" />
-
-              <TextBox theme:TextBoxExtensions.Prefix="{Binding ToPrefix, ElementName=Root}"
-                       x:Name="DestinationPathSummaryTextBox"
-                       Text="{Binding DestinationBeatmaps[0].Path, Mode=OneWay, Converter={StaticResource MapPathSummaryConverter}}"
-                       HorizontalAlignment="Stretch"
-                       VerticalAlignment="Center"
-                       IsReadOnly="True"
-                       IsVisible="{Binding ShowDestinationSummary, ElementName=Root}"
-                       ToolTip.Tip="Click to edit full path"
-                       GotFocus="DestinationPathSummaryTextBox_OnGotFocus"
-                       PointerPressed="DestinationPathSummaryTextBox_OnPointerPressed" />
-            </Grid>
-            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
-              <Button IsVisible="{Binding HasMultiple}"
-                      Command="{Binding RemoveMapCommand}"
-                      CommandParameter="{Binding DestinationBeatmaps[0].Path}"
-                      Classes="Basic"
-                      ToolTip.Tip="Remove this beatmap from the list">
-                <materialIcons:MaterialIcon Kind="Close" Width="24" Height="24" />
-              </Button>
-              <Button Classes="Basic"
-                      Command="{Binding AddDestinationFromMemoryCommand}"
-                      ToolTip.Tip="Open Map Picker dialog">
-                <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
-                  <materialIcons:MaterialIcon Kind="Import" Width="24" Height="24" />
+                       Orientation="Horizontal">
+              <TextBlock Text="{Binding OriginEmptyPrompt, ElementName=Root}"
+                         FontWeight="SemiBold"
+                         VerticalAlignment="Center"
+                         Margin="0,0,8,0" />
+              <Button Classes="Basic Compact"
+                      Command="{Binding SetOriginFromMemoryCommand}"
+                      Margin="0,0,6,0"
+                      ToolTip.Tip="{Binding OriginMemoryToolTip, ElementName=Root}">
+                <StackPanel Orientation="Horizontal" Spacing="4">
+                  <materialIcons:MaterialIcon Kind="Import" Width="16" Height="16" />
                   <TextBlock VerticalAlignment="Center" Text="From osu!" />
                 </StackPanel>
               </Button>
-              <Button Classes="Flat Rounded"
-                      Command="{Binding PickDestinationFileCommand}"
-                      MinWidth="122"
-                      ToolTip.Tip="{Binding DestinationMemoryToolTip, ElementName=Root}">
+              <Button Classes="Flat Compact"
+                      Command="{Binding PickOriginFileCommand}"
+                      ToolTip.Tip="Open Map Picker dialog">
                 <StackPanel Orientation="Horizontal" Spacing="4">
-                  <materialIcons:MaterialIcon Kind="FileSearchOutline" Width="24" Height="24" />
+                  <materialIcons:MaterialIcon Kind="FileSearchOutline" Width="16" Height="16" />
                   <TextBlock VerticalAlignment="Center" Text="Map Picker" />
                 </StackPanel>
               </Button>
-            </StackPanel>
+            </WrapPanel>
+          </Border>
+      </StackPanel>
+
+      <StackPanel Spacing="10"
+                  IsVisible="{Binding ShowDestinationSection, ElementName=Root}">
+          <Grid ColumnDefinitions="*,Auto" VerticalAlignment="Center">
+            <TextBlock Text="Destination"
+                       FontSize="12"
+                       FontWeight="SemiBold"
+                       Opacity="0.9" />
+
+            <TextBlock Grid.Column="1"
+                       Text="{Binding SelectedDestinationCount, ElementName=Root, StringFormat={}{0} selected}"
+                       IsVisible="{Binding HasDestinationSelection, ElementName=Root}"
+                       FontSize="11"
+                       Opacity="0.8" />
           </Grid>
 
-          <ItemsControl Margin="0,8,0,0"
-                        IsVisible="{Binding HasMultiple}"
-                        ItemsSource="{Binding AdditionalBeatmaps}">
+          <StackPanel IsVisible="{Binding HasMapsetDifficultyOptions, ElementName=Root}"
+                      Spacing="0">
+            <Button Classes="MapsetCollapseHeader"
+                    Click="MapsetCollapseHeaderButton_OnClick">
+              <StackPanel Orientation="Horizontal" Spacing="6">
+                <materialIcons:MaterialIcon Classes="MapsetChevron"
+                                            Classes.expanded="{Binding IsMapsetDiffExpanded, ElementName=Root}" />
+                <TextBlock Text="Difficulties from origin"
+                           FontWeight="SemiBold"
+                           FontSize="12" />
+                <TextBlock Text="{Binding SelectedMapsetDifficultyCount, ElementName=Root, StringFormat=({0} selected)}"
+                           FontWeight="SemiBold"
+                           FontSize="12"
+                           Opacity="0.82"
+                           IsVisible="{Binding HasSelectedMapsetDifficulties, ElementName=Root}" />
+              </StackPanel>
+            </Button>
+
+            <Border Classes="MapsetCollapseBody"
+                    Classes.expanded="{Binding IsMapsetDiffExpanded, ElementName=Root}">
+              <Border Margin="0,8,0,0"
+                      Classes="MapsetGroupCard">
+                <Grid RowDefinitions="74,Auto">
+                  <Border Grid.Row="0"
+                          Classes="MapsetGroupHeaderClip">
+                    <Grid>
+                      <Border Background="#152033" />
+
+                      <Image Source="{Binding OriginMap.BackgroundImage, ElementName=Root}"
+                             Stretch="UniformToFill"
+                             IsVisible="{Binding OriginMap.HasBackgroundImage, ElementName=Root}" />
+
+                      <Border Background="#760A111B" />
+
+                      <Border>
+                        <Border.Background>
+                          <LinearGradientBrush StartPoint="0,0.5" EndPoint="1,0.5">
+                            <GradientStop Offset="0" Color="#EA0A111D" />
+                            <GradientStop Offset="0.5" Color="#BA0E1728" />
+                            <GradientStop Offset="1" Color="#63112037" />
+                          </LinearGradientBrush>
+                        </Border.Background>
+                      </Border>
+                    </Grid>
+                  </Border>
+
+                  <Grid Grid.Row="0"
+                        Margin="10,7"
+                        ColumnDefinitions="*,Auto"
+                        ColumnSpacing="10">
+                    <StackPanel Grid.Column="0"
+                                VerticalAlignment="Center"
+                                Spacing="2">
+                      <TextBlock Text="{Binding OriginMap.DisplayTitle, ElementName=Root}"
+                                 FontWeight="Bold"
+                                 FontSize="13"
+                                 TextTrimming="CharacterEllipsis"
+                                 MaxLines="1" />
+                      <TextBlock Text="{Binding OriginMap.DisplayDetails, ElementName=Root}"
+                                 FontWeight="SemiBold"
+                                 Opacity="0.9"
+                                 FontSize="11"
+                                 TextTrimming="CharacterEllipsis"
+                                 MaxLines="1" />
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="1"
+                                VerticalAlignment="Top"
+                                HorizontalAlignment="Right"
+                                Spacing="6">
+                      <Button Classes="Flat Compact"
+                              HorizontalAlignment="Right"
+                              Click="MapsetSelectAllButton_OnClick"
+                              IsEnabled="{Binding CanSelectAllMapsetDifficulties, ElementName=Root}"
+                              ToolTip.Tip="Select all mapset difficulties as destination maps">
+                        <TextBlock Text="Select all" />
+                      </Button>
+                      <Border Classes="MapsetSummaryPill">
+                        <StackPanel Orientation="Horizontal" Spacing="6">
+                          <materialIcons:MaterialIcon Kind="CheckCircle"
+                                                      Width="12"
+                                                      Height="12"
+                                                      IsVisible="{Binding HasSelectedMapsetDifficulties, ElementName=Root}" />
+                          <TextBlock Text="{Binding SelectedMapsetDifficultyCount, ElementName=Root, StringFormat={}{0} selected}"
+                                     FontSize="11"
+                                     FontWeight="SemiBold" />
+                        </StackPanel>
+                      </Border>
+                    </StackPanel>
+                  </Grid>
+
+                  <Border Grid.Row="1"
+                          Classes="MapsetGroupDetails">
+                    <ItemsControl ItemsSource="{Binding MapsetDifficultyCards, ElementName=Root}">
+                      <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                          <WrapPanel />
+                        </ItemsPanelTemplate>
+                      </ItemsControl.ItemsPanel>
+                      <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                          <ToggleButton Classes="MapsetDiffChip"
+                                        IsChecked="{Binding IsSelected, Mode=OneWay}"
+                                        Command="{Binding DataContext.ToggleDestinationMapCommand, RelativeSource={RelativeSource AncestorType=controls:BeatmapSelectionPanel}}"
+                                        CommandParameter="{Binding Path}">
+                            <StackPanel Orientation="Horizontal" Spacing="6">
+                              <materialIcons:MaterialIcon Kind="CheckCircle"
+                                                          Width="13"
+                                                          Height="13"
+                                                          IsVisible="{Binding IsSelected}" />
+                              <TextBlock Text="{Binding Beatmap.DisplaySubtitle}"
+                                         FontSize="12"
+                                         FontWeight="SemiBold"
+                                         MaxWidth="260"
+                                         TextTrimming="CharacterEllipsis" />
+                            </StackPanel>
+                          </ToggleButton>
+                        </DataTemplate>
+                      </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                  </Border>
+                </Grid>
+              </Border>
+            </Border>
+          </StackPanel>
+
+          <ItemsControl IsVisible="{Binding HasVisibleDestinationCards, ElementName=Root}"
+                        ItemsSource="{Binding VisibleDestinationMaps, ElementName=Root}">
             <ItemsControl.ItemTemplate>
               <DataTemplate>
-                <Grid ColumnDefinitions="*,Auto">
-                  <Grid Margin="0,0, 8,8">
-                    <TextBox
-                      theme:TextBoxExtensions.Prefix="{Binding AdditionalPrefix, RelativeSource={RelativeSource AncestorType=controls:BeatmapSelectionPanel}}"
-                      Text="{Binding Path, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                      HorizontalAlignment="Stretch"
-                      IsVisible="False"
-                      LostFocus="AdditionalPathEditTextBox_OnLostFocus"
-                      KeyDown="AdditionalPathEditTextBox_OnKeyDown" />
+                <Border Classes="BeatmapCard"
+                        IsVisible="{Binding HasPath}"
+                        Margin="0,0,0,8">
+                  <Border Classes="BeatmapCardClip">
+                    <Grid>
+                      <Border Classes="BeatmapCardSurface" />
 
-                    <TextBox
-                      x:Name="AdditionalPathSummaryTextBox"
-                      theme:TextBoxExtensions.Prefix="{Binding AdditionalPrefix, RelativeSource={RelativeSource AncestorType=controls:BeatmapSelectionPanel}}"
-                      Text="{Binding Path, Mode=OneWay, Converter={StaticResource MapPathSummaryConverter}}"
-                      HorizontalAlignment="Stretch"
-                      IsReadOnly="True"
-                      ToolTip.Tip="Click to edit full path"
-                      GotFocus="AdditionalPathSummaryTextBox_OnGotFocus"
-                      PointerPressed="AdditionalPathSummaryTextBox_OnPointerPressed" />
-                  </Grid>
-                  <Button Grid.Column="1"
-                          Command="{Binding DataContext.RemoveMapCommand, RelativeSource={RelativeSource AncestorType=controls:BeatmapSelectionPanel}}"
-                          CommandParameter="{Binding Path}"
-                          Classes="Basic"
-                          ToolTip.Tip="Remove this beatmap from the list">
-                    <materialIcons:MaterialIcon Kind="Close" Width="24" Height="24" />
-                  </Button>
-                </Grid>
+                      <Image Source="{Binding BackgroundImage}"
+                             Stretch="UniformToFill"
+                             IsVisible="{Binding HasBackgroundImage}" />
+
+                      <Border Background="#760A111B" />
+
+                      <Border>
+                        <Border.Background>
+                          <LinearGradientBrush StartPoint="0,0.5" EndPoint="1,0.5">
+                            <GradientStop Offset="0" Color="#EE0A111D" />
+                            <GradientStop Offset="0.48" Color="#BD0E1728" />
+                            <GradientStop Offset="1" Color="#68112037" />
+                          </LinearGradientBrush>
+                        </Border.Background>
+                      </Border>
+
+                      <Grid Margin="8"
+                            ColumnDefinitions="*,Auto"
+                            ColumnSpacing="10">
+                        <StackPanel Grid.Column="0"
+                                    VerticalAlignment="Center"
+                                    Spacing="2">
+                          <StackPanel Orientation="Horizontal"
+                                      Spacing="6">
+                            <TextBlock Text="{Binding DisplayTitle}"
+                                       FontWeight="Bold"
+                                       FontSize="13"
+                                       TextTrimming="CharacterEllipsis"
+                                       MaxLines="1" />
+                            <TextBlock
+                                       Text="{Binding DisplaySubtitle}"
+                                       FontWeight="SemiBold"
+                                       Opacity="0.9"
+                                       FontSize="13"
+                                       TextTrimming="CharacterEllipsis"
+                                       MaxLines="1" />
+                          </StackPanel>
+                          <TextBlock Text="{Binding DisplayDetails}"
+                                     FontWeight="SemiBold"
+                                     Opacity="0.9"
+                                     FontSize="11"
+                                     TextTrimming="CharacterEllipsis"
+                                     MaxLines="1" />
+                        </StackPanel>
+
+                        <Button Grid.Column="1"
+                                Classes="Basic"
+                                Command="{Binding DataContext.RemoveMapCommand, RelativeSource={RelativeSource AncestorType=controls:BeatmapSelectionPanel}}"
+                                CommandParameter="{Binding Path}"
+                                ToolTip.Tip="Remove this beatmap from destination">
+                          <materialIcons:MaterialIcon Kind="Close" Width="20" Height="20" />
+                        </Button>
+                      </Grid>
+                    </Grid>
+                  </Border>
+                </Border>
               </DataTemplate>
             </ItemsControl.ItemTemplate>
           </ItemsControl>
 
-          <TextBlock IsVisible="{Binding HasMultiple}"
-                     Text="{Binding DestinationBeatmaps.Count, StringFormat=({0} selected beatmaps)}"
-                     Margin="0,8,0,0" />
-        </StackPanel>
+          <WrapPanel HorizontalAlignment="Right"
+                     ItemHeight="34"
+                     Orientation="Horizontal">
+            <Button Classes="Basic"
+                    Command="{Binding AddDestinationFromMemoryCommand}"
+                    Margin="0,0,8,0"
+                    ToolTip.Tip="{Binding DestinationMemoryToolTip, ElementName=Root}">
+              <StackPanel Orientation="Horizontal" Spacing="4">
+                <materialIcons:MaterialIcon Kind="Import" Width="18" Height="18" />
+                <TextBlock VerticalAlignment="Center" Text="From osu!" />
+              </StackPanel>
+            </Button>
+            <Button Classes="Flat Rounded"
+                    Command="{Binding PickDestinationFileCommand}"
+                    MinWidth="122"
+                    ToolTip.Tip="Open Map Picker dialog">
+              <StackPanel Orientation="Horizontal" Spacing="4">
+                <materialIcons:MaterialIcon Kind="FileSearchOutline" Width="18" Height="18" />
+                <TextBlock VerticalAlignment="Center" Text="Map Picker" />
+              </StackPanel>
+            </Button>
+          </WrapPanel>
       </StackPanel>
-    </Grid>
+    </StackPanel>
   </suki:GlassCard>
 </UserControl>

@@ -149,13 +149,8 @@
         <ScrollViewer Grid.Row="2">
             <StackPanel Spacing="16">
                 <controls:BeatmapSelectionPanel
-                    ShowHeaderBackground="{Binding HasHeaderBackgroundImage}"
-                    HeaderBackgroundImage="{Binding HeaderBackgroundImage}"
-                    ShowHeaderContext="{Binding HasOriginBeatmap}"
-                    HeaderTopLine="{Binding OriginContextTopLine}"
-                    ShowHeaderBottomLine="True"
-                    HeaderBottomLine="{Binding OriginContextBottomLine}"
-                    HeaderOverlayHeight="78"
+                    OriginMap="{Binding OriginBeatmap}"
+                    DestinationMaps="{Binding DestinationBeatmaps}"
                     FromWatermark="Load combo colours from..."
                     ToWatermark="Export colour hax to..."
                     AdditionalPrefix="{x:Null}"
@@ -189,7 +184,7 @@
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
 
-                        <Grid ColumnDefinitions="Auto,Auto,Auto,Auto,*" ColumnSpacing="8">
+                        <Grid ColumnDefinitions="Auto,Auto,Auto,*,Auto,Auto" ColumnSpacing="8">
                             <Button Classes="Basic" Command="{Binding AddColourCommand}" ToolTip.Tip="Add new combo colour">
                                 <materialIcons:MaterialIcon Kind="Add" Width="24" Height="24" />
                             </Button>
@@ -202,7 +197,7 @@
                                            FormatString="N0"
                                            Value="{Binding PaletteSize, Mode=TwoWay}" />
 
-                            <Button Grid.Column="3"
+                            <Button Grid.Column="4"
                                     Classes="Basic"
                                     Command="{Binding GenerateColoursFromBackgroundCommand}"
                                     ToolTip.Tip="Generate combo colours from beatmap background">
@@ -212,7 +207,7 @@
                                 </StackPanel>
                             </Button>
 
-                            <Button Grid.Column="4"
+                            <Button Grid.Column="5"
                                     HorizontalAlignment="Left"
                                     Classes="Basic"
                                     Command="{Binding PickImageAndGenerateColoursCommand}"

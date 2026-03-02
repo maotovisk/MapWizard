@@ -1,17 +1,24 @@
-using Avalonia;
-using Avalonia.Controls;
-using Avalonia.Input;
-using Avalonia.Interactivity;
-using Avalonia.Media;
-using Avalonia.Threading;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Collections.Specialized;
+using System.ComponentModel;
 using System.Linq;
 using System.Windows.Input;
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Interactivity;
+using Avalonia.Media;
+using MapWizard.Desktop.Models;
+using MapWizard.Desktop.Utils;
 
 namespace MapWizard.Desktop.Views.Controls;
 
 public partial class BeatmapSelectionPanel : UserControl
 {
-    private string _originPathBeforeEdit = string.Empty;
+    private SelectedMap? _observedOriginMap;
+    private INotifyCollectionChanged? _observedDestinationCollection;
+    private readonly HashSet<SelectedMap> _observedDestinationMaps = [];
+    private readonly HashSet<string> _mapsetCandidatePaths = new(System.StringComparer.OrdinalIgnoreCase);
 
     public static readonly StyledProperty<string> SectionTitleProperty =
         AvaloniaProperty.Register<BeatmapSelectionPanel, string>(nameof(SectionTitle), "Beatmap Selection");
@@ -43,6 +50,12 @@ public partial class BeatmapSelectionPanel : UserControl
 
     public static readonly StyledProperty<bool> ShowDestinationSelectionProperty =
         AvaloniaProperty.Register<BeatmapSelectionPanel, bool>(nameof(ShowDestinationSelection), true);
+
+    public static readonly StyledProperty<bool> ShowDestinationSectionProperty =
+        AvaloniaProperty.Register<BeatmapSelectionPanel, bool>(nameof(ShowDestinationSection), true);
+
+    public static readonly StyledProperty<string> OriginEmptyPromptProperty =
+        AvaloniaProperty.Register<BeatmapSelectionPanel, string>(nameof(OriginEmptyPrompt), "Select an origin beatmap");
 
     public static readonly StyledProperty<bool> ShowHeaderBackgroundProperty =
         AvaloniaProperty.Register<BeatmapSelectionPanel, bool>(nameof(ShowHeaderBackground));
@@ -83,10 +96,65 @@ public partial class BeatmapSelectionPanel : UserControl
     public static readonly StyledProperty<ICommand?> OriginPathChangedCommandProperty =
         AvaloniaProperty.Register<BeatmapSelectionPanel, ICommand?>(nameof(OriginPathChangedCommand));
 
+    public static readonly StyledProperty<SelectedMap?> OriginMapProperty =
+        AvaloniaProperty.Register<BeatmapSelectionPanel, SelectedMap?>(nameof(OriginMap));
+
+    public static readonly StyledProperty<ObservableCollection<SelectedMap>?> DestinationMapsProperty =
+        AvaloniaProperty.Register<BeatmapSelectionPanel, ObservableCollection<SelectedMap>?>(nameof(DestinationMaps));
+
+    public static readonly StyledProperty<bool> HasOriginSelectionProperty =
+        AvaloniaProperty.Register<BeatmapSelectionPanel, bool>(nameof(HasOriginSelection));
+
+    public static readonly StyledProperty<bool> ShowOriginEmptyStateProperty =
+        AvaloniaProperty.Register<BeatmapSelectionPanel, bool>(nameof(ShowOriginEmptyState), true);
+
+    public static readonly StyledProperty<bool> HasDestinationSelectionProperty =
+        AvaloniaProperty.Register<BeatmapSelectionPanel, bool>(nameof(HasDestinationSelection));
+
+    public static readonly StyledProperty<bool> ShowDestinationEmptyStateProperty =
+        AvaloniaProperty.Register<BeatmapSelectionPanel, bool>(nameof(ShowDestinationEmptyState), true);
+
+    public static readonly StyledProperty<int> SelectedDestinationCountProperty =
+        AvaloniaProperty.Register<BeatmapSelectionPanel, int>(nameof(SelectedDestinationCount));
+
+    public static readonly StyledProperty<bool> HasMapsetDifficultyOptionsProperty =
+        AvaloniaProperty.Register<BeatmapSelectionPanel, bool>(nameof(HasMapsetDifficultyOptions));
+
+    public static readonly StyledProperty<int> SelectedMapsetDifficultyCountProperty =
+        AvaloniaProperty.Register<BeatmapSelectionPanel, int>(nameof(SelectedMapsetDifficultyCount));
+
+    public static readonly StyledProperty<bool> HasSelectedMapsetDifficultiesProperty =
+        AvaloniaProperty.Register<BeatmapSelectionPanel, bool>(nameof(HasSelectedMapsetDifficulties));
+
+    public static readonly StyledProperty<bool> CanSelectAllMapsetDifficultiesProperty =
+        AvaloniaProperty.Register<BeatmapSelectionPanel, bool>(nameof(CanSelectAllMapsetDifficulties));
+
+    public static readonly StyledProperty<bool> IsMapsetDiffExpandedProperty =
+        AvaloniaProperty.Register<BeatmapSelectionPanel, bool>(nameof(IsMapsetDiffExpanded), true);
+
+    public static readonly StyledProperty<bool> ShowMapsetOrSeparatorProperty =
+        AvaloniaProperty.Register<BeatmapSelectionPanel, bool>(nameof(ShowMapsetOrSeparator));
+
+    public static readonly StyledProperty<bool> HasVisibleDestinationCardsProperty =
+        AvaloniaProperty.Register<BeatmapSelectionPanel, bool>(nameof(HasVisibleDestinationCards));
+
     public BeatmapSelectionPanel()
     {
         InitializeComponent();
+
+        OriginMap ??= new SelectedMap();
+        DestinationMaps ??= [];
+
+        AttachOriginMapObserver(OriginMap);
+        AttachDestinationMapCollectionObserver(DestinationMaps);
+        UpdateOriginSelectionState();
+        UpdateDestinationSelectionState();
+        RebuildMapsetDifficultyCards();
+        UpdateOriginEmptyPrompt();
     }
+
+    public ObservableCollection<MapsetDifficultyCard> MapsetDifficultyCards { get; } = [];
+    public ObservableCollection<SelectedMap> VisibleDestinationMaps { get; } = [];
 
     public string SectionTitle
     {
@@ -140,6 +208,18 @@ public partial class BeatmapSelectionPanel : UserControl
     {
         get => GetValue(ShowDestinationSelectionProperty);
         set => SetValue(ShowDestinationSelectionProperty, value);
+    }
+
+    public bool ShowDestinationSection
+    {
+        get => GetValue(ShowDestinationSectionProperty);
+        private set => SetValue(ShowDestinationSectionProperty, value);
+    }
+
+    public string OriginEmptyPrompt
+    {
+        get => GetValue(OriginEmptyPromptProperty);
+        private set => SetValue(OriginEmptyPromptProperty, value);
     }
 
     public bool ShowHeaderBackground
@@ -220,201 +300,412 @@ public partial class BeatmapSelectionPanel : UserControl
         set => SetValue(OriginPathChangedCommandProperty, value);
     }
 
-    private void OriginPathSummaryTextBox_OnPointerPressed(object? sender, PointerPressedEventArgs e)
+    public SelectedMap? OriginMap
     {
-        BeginOriginPathEdit();
+        get => GetValue(OriginMapProperty);
+        set => SetValue(OriginMapProperty, value);
+    }
+
+    public ObservableCollection<SelectedMap>? DestinationMaps
+    {
+        get => GetValue(DestinationMapsProperty);
+        set => SetValue(DestinationMapsProperty, value);
+    }
+
+    public bool HasOriginSelection
+    {
+        get => GetValue(HasOriginSelectionProperty);
+        private set => SetValue(HasOriginSelectionProperty, value);
+    }
+
+    public bool ShowOriginEmptyState
+    {
+        get => GetValue(ShowOriginEmptyStateProperty);
+        private set => SetValue(ShowOriginEmptyStateProperty, value);
+    }
+
+    public bool HasDestinationSelection
+    {
+        get => GetValue(HasDestinationSelectionProperty);
+        private set => SetValue(HasDestinationSelectionProperty, value);
+    }
+
+    public bool ShowDestinationEmptyState
+    {
+        get => GetValue(ShowDestinationEmptyStateProperty);
+        private set => SetValue(ShowDestinationEmptyStateProperty, value);
+    }
+
+    public int SelectedDestinationCount
+    {
+        get => GetValue(SelectedDestinationCountProperty);
+        private set => SetValue(SelectedDestinationCountProperty, value);
+    }
+
+    public bool HasMapsetDifficultyOptions
+    {
+        get => GetValue(HasMapsetDifficultyOptionsProperty);
+        private set => SetValue(HasMapsetDifficultyOptionsProperty, value);
+    }
+
+    public int SelectedMapsetDifficultyCount
+    {
+        get => GetValue(SelectedMapsetDifficultyCountProperty);
+        private set => SetValue(SelectedMapsetDifficultyCountProperty, value);
+    }
+
+    public bool HasSelectedMapsetDifficulties
+    {
+        get => GetValue(HasSelectedMapsetDifficultiesProperty);
+        private set => SetValue(HasSelectedMapsetDifficultiesProperty, value);
+    }
+
+    public bool CanSelectAllMapsetDifficulties
+    {
+        get => GetValue(CanSelectAllMapsetDifficultiesProperty);
+        private set => SetValue(CanSelectAllMapsetDifficultiesProperty, value);
+    }
+
+    public bool IsMapsetDiffExpanded
+    {
+        get => GetValue(IsMapsetDiffExpandedProperty);
+        set => SetValue(IsMapsetDiffExpandedProperty, value);
+    }
+
+    public bool ShowMapsetOrSeparator
+    {
+        get => GetValue(ShowMapsetOrSeparatorProperty);
+        private set => SetValue(ShowMapsetOrSeparatorProperty, value);
+    }
+
+    public bool HasVisibleDestinationCards
+    {
+        get => GetValue(HasVisibleDestinationCardsProperty);
+        private set => SetValue(HasVisibleDestinationCardsProperty, value);
+    }
+
+    protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
+    {
+        base.OnPropertyChanged(change);
+
+        if (change.Property == OriginMapProperty)
+        {
+            DetachOriginMapObserver(_observedOriginMap);
+            AttachOriginMapObserver(change.GetNewValue<SelectedMap?>());
+            UpdateOriginSelectionState();
+            RebuildMapsetDifficultyCards();
+            return;
+        }
+
+        if (change.Property == DestinationMapsProperty)
+        {
+            DetachDestinationMapCollectionObserver(_observedDestinationCollection);
+            AttachDestinationMapCollectionObserver(change.GetNewValue<ObservableCollection<SelectedMap>?>());
+            UpdateDestinationSelectionState();
+            RefreshMapsetDifficultySelectionState();
+            return;
+        }
+
+        if (change.Property == ShowDestinationSelectionProperty && !ShowDestinationSelection)
+        {
+            IsMapsetDiffExpanded = false;
+        }
+
+        if (change.Property == ShowDestinationSelectionProperty ||
+            change.Property == HasOriginSelectionProperty)
+        {
+            UpdateShowDestinationSection();
+        }
+
+        if (change.Property == ShowDestinationSelectionProperty)
+        {
+            UpdateOriginEmptyPrompt();
+        }
+    }
+
+    private void AttachOriginMapObserver(SelectedMap? originMap)
+    {
+        if (originMap is null)
+        {
+            _observedOriginMap = null;
+            return;
+        }
+
+        _observedOriginMap = originMap;
+        _observedOriginMap.PropertyChanged += OriginMapOnPropertyChanged;
+    }
+
+    private void DetachOriginMapObserver(SelectedMap? originMap)
+    {
+        if (originMap is null)
+        {
+            return;
+        }
+
+        originMap.PropertyChanged -= OriginMapOnPropertyChanged;
+    }
+
+    private void OriginMapOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (!string.IsNullOrEmpty(e.PropertyName) &&
+            e.PropertyName != nameof(SelectedMap.Path) &&
+            e.PropertyName != nameof(SelectedMap.HasPath))
+        {
+            return;
+        }
+
+        UpdateOriginSelectionState();
+        RebuildMapsetDifficultyCards();
+    }
+
+    private void AttachDestinationMapCollectionObserver(ObservableCollection<SelectedMap>? destinationMaps)
+    {
+        if (destinationMaps is null)
+        {
+            _observedDestinationCollection = null;
+            return;
+        }
+
+        _observedDestinationCollection = destinationMaps;
+        _observedDestinationCollection.CollectionChanged += DestinationMapsOnCollectionChanged;
+        SyncDestinationMapItemObservers(destinationMaps);
+    }
+
+    private void DetachDestinationMapCollectionObserver(INotifyCollectionChanged? destinationMaps)
+    {
+        if (destinationMaps is not null)
+        {
+            destinationMaps.CollectionChanged -= DestinationMapsOnCollectionChanged;
+        }
+
+        foreach (var map in _observedDestinationMaps)
+        {
+            map.PropertyChanged -= DestinationMapOnPropertyChanged;
+        }
+
+        _observedDestinationMaps.Clear();
+    }
+
+    private void DestinationMapsOnCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+    {
+        if (DestinationMaps is null)
+        {
+            return;
+        }
+
+        SyncDestinationMapItemObservers(DestinationMaps);
+        UpdateDestinationSelectionState();
+        RefreshMapsetDifficultySelectionState();
+    }
+
+    private void SyncDestinationMapItemObservers(IEnumerable<SelectedMap> maps)
+    {
+        var current = maps.ToList();
+
+        foreach (var map in current.Where(map => _observedDestinationMaps.Add(map)))
+        {
+            map.PropertyChanged += DestinationMapOnPropertyChanged;
+        }
+
+        var removed = _observedDestinationMaps
+            .Where(map => !current.Contains(map))
+            .ToList();
+
+        foreach (var map in removed)
+        {
+            map.PropertyChanged -= DestinationMapOnPropertyChanged;
+            _observedDestinationMaps.Remove(map);
+        }
+    }
+
+    private void DestinationMapOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (!string.IsNullOrEmpty(e.PropertyName) &&
+            e.PropertyName != nameof(SelectedMap.Path) &&
+            e.PropertyName != nameof(SelectedMap.HasPath))
+        {
+            return;
+        }
+
+        UpdateDestinationSelectionState();
+        RefreshMapsetDifficultySelectionState();
+    }
+
+    private void UpdateOriginSelectionState()
+    {
+        var hasOrigin = OriginMap?.HasPath == true;
+        HasOriginSelection = hasOrigin;
+        ShowOriginEmptyState = !hasOrigin;
+        UpdateShowDestinationSection();
+    }
+
+    private void UpdateShowDestinationSection()
+    {
+        ShowDestinationSection = ShowDestinationSelection && HasOriginSelection;
+    }
+
+    private void UpdateOriginEmptyPrompt()
+    {
+        OriginEmptyPrompt = ShowDestinationSelection
+            ? "Select an origin beatmap"
+            : "Select a beatmap";
+    }
+
+    private void UpdateDestinationSelectionState()
+    {
+        var selectedCount = DestinationMaps is null
+            ? 0
+            : DestinationMaps.Count(map => map.HasPath);
+
+        SelectedDestinationCount = selectedCount;
+        HasDestinationSelection = selectedCount > 0;
+        ShowDestinationEmptyState = !HasDestinationSelection;
+        RebuildVisibleDestinationMaps();
+    }
+
+    private void RebuildMapsetDifficultyCards()
+    {
+        MapsetDifficultyCards.Clear();
+        _mapsetCandidatePaths.Clear();
+
+        if (OriginMap is null || !OriginMap.HasPath)
+        {
+            HasMapsetDifficultyOptions = false;
+            SelectedMapsetDifficultyCount = 0;
+            HasSelectedMapsetDifficulties = false;
+            CanSelectAllMapsetDifficulties = false;
+            ShowMapsetOrSeparator = false;
+            IsMapsetDiffExpanded = false;
+            RebuildVisibleDestinationMaps();
+            return;
+        }
+
+        var selectedDestinationPaths = new HashSet<string>(
+            DestinationMaps?.Where(map => map.HasPath).Select(map => map.Path) ?? [],
+            System.StringComparer.OrdinalIgnoreCase);
+
+        var siblingDiffPaths = BeatmapSelectionUtils.GetSiblingDifficultyPaths(OriginMap.Path)
+            .ToArray();
+
+        foreach (var path in siblingDiffPaths)
+        {
+            _mapsetCandidatePaths.Add(path);
+            var card = new MapsetDifficultyCard(path)
+            {
+                IsSelected = selectedDestinationPaths.Contains(path)
+            };
+            MapsetDifficultyCards.Add(card);
+        }
+
+        HasMapsetDifficultyOptions = MapsetDifficultyCards.Count > 0;
+        var totalMapsetCount = MapsetDifficultyCards.Count;
+        var selectedMapsetCount = MapsetDifficultyCards.Count(card => card.IsSelected);
+        SelectedMapsetDifficultyCount = selectedMapsetCount;
+        HasSelectedMapsetDifficulties = selectedMapsetCount > 0;
+        CanSelectAllMapsetDifficulties = totalMapsetCount > 0 && selectedMapsetCount < totalMapsetCount;
+        var hasMapsetSelection = selectedMapsetCount > 0;
+        ShowMapsetOrSeparator = HasMapsetDifficultyOptions && !hasMapsetSelection;
+        if (hasMapsetSelection)
+        {
+            IsMapsetDiffExpanded = true;
+        }
+        if (!HasMapsetDifficultyOptions)
+        {
+            IsMapsetDiffExpanded = false;
+        }
+
+        RebuildVisibleDestinationMaps();
+    }
+
+    private void RefreshMapsetDifficultySelectionState()
+    {
+        var selectedDestinationPaths = new HashSet<string>(
+            DestinationMaps?.Where(map => map.HasPath).Select(map => map.Path) ?? [],
+            System.StringComparer.OrdinalIgnoreCase);
+
+        foreach (var card in MapsetDifficultyCards)
+        {
+            card.IsSelected = selectedDestinationPaths.Contains(card.Path);
+        }
+
+        HasMapsetDifficultyOptions = MapsetDifficultyCards.Count > 0;
+        var totalMapsetCount = MapsetDifficultyCards.Count;
+        var selectedMapsetCount = MapsetDifficultyCards.Count(card => card.IsSelected);
+        SelectedMapsetDifficultyCount = selectedMapsetCount;
+        HasSelectedMapsetDifficulties = selectedMapsetCount > 0;
+        CanSelectAllMapsetDifficulties = totalMapsetCount > 0 && selectedMapsetCount < totalMapsetCount;
+        var hasMapsetSelection = selectedMapsetCount > 0;
+        ShowMapsetOrSeparator = HasMapsetDifficultyOptions && !hasMapsetSelection;
+        if (hasMapsetSelection)
+        {
+            IsMapsetDiffExpanded = true;
+        }
+        RebuildVisibleDestinationMaps();
+    }
+
+    private void RebuildVisibleDestinationMaps()
+    {
+        VisibleDestinationMaps.Clear();
+
+        if (DestinationMaps is null)
+        {
+            HasVisibleDestinationCards = false;
+            return;
+        }
+
+        var hasMapsetSelection = MapsetDifficultyCards.Any(card => card.IsSelected);
+
+        foreach (var map in DestinationMaps.Where(map => map.HasPath))
+        {
+            if (hasMapsetSelection &&
+                _mapsetCandidatePaths.Contains(map.Path))
+            {
+                continue;
+            }
+
+            VisibleDestinationMaps.Add(map);
+        }
+
+        HasVisibleDestinationCards = VisibleDestinationMaps.Count > 0;
+    }
+
+    private void MapsetCollapseHeaderButton_OnClick(object? sender, RoutedEventArgs e)
+    {
+        if (!HasMapsetDifficultyOptions)
+        {
+            return;
+        }
+
+        IsMapsetDiffExpanded = !IsMapsetDiffExpanded;
         e.Handled = true;
     }
 
-    private void DestinationPathSummaryTextBox_OnPointerPressed(object? sender, PointerPressedEventArgs e)
+    private void MapsetSelectAllButton_OnClick(object? sender, RoutedEventArgs e)
     {
-        BeginDestinationPathEdit();
+        if (DestinationMaps is null || MapsetDifficultyCards.Count == 0)
+        {
+            return;
+        }
+
+        var selectedPaths = new HashSet<string>(
+            DestinationMaps.Where(map => map.HasPath).Select(map => map.Path),
+            System.StringComparer.OrdinalIgnoreCase);
+
+        foreach (var card in MapsetDifficultyCards)
+        {
+            if (selectedPaths.Contains(card.Path))
+            {
+                continue;
+            }
+
+            DestinationMaps.Add(new SelectedMap
+            {
+                Path = card.Path
+            });
+        }
+
+        IsMapsetDiffExpanded = true;
         e.Handled = true;
     }
 
-    private void OriginPathSummaryTextBox_OnGotFocus(object? sender, GotFocusEventArgs e)
-    {
-        BeginOriginPathEdit();
-    }
-
-    private void DestinationPathSummaryTextBox_OnGotFocus(object? sender, GotFocusEventArgs e)
-    {
-        BeginDestinationPathEdit();
-    }
-
-    private void OriginPathEditTextBox_OnLostFocus(object? sender, RoutedEventArgs e)
-    {
-        EndOriginPathEdit();
-    }
-
-    private void DestinationPathEditTextBox_OnLostFocus(object? sender, RoutedEventArgs e)
-    {
-        IsEditingDestinationPath = false;
-        ShowDestinationSummary = true;
-    }
-
-    private void OriginPathEditTextBox_OnKeyDown(object? sender, KeyEventArgs e)
-    {
-        if (e.Key is not (Key.Enter or Key.Escape))
-        {
-            return;
-        }
-
-        EndOriginPathEdit();
-        Focus();
-        e.Handled = true;
-    }
-
-    private void DestinationPathEditTextBox_OnKeyDown(object? sender, KeyEventArgs e)
-    {
-        if (e.Key is not (Key.Enter or Key.Escape))
-        {
-            return;
-        }
-
-        IsEditingDestinationPath = false;
-        ShowDestinationSummary = true;
-        Focus();
-        e.Handled = true;
-    }
-
-    private void AdditionalPathSummaryTextBox_OnPointerPressed(object? sender, PointerPressedEventArgs e)
-    {
-        if (sender is TextBox summaryTextBox)
-        {
-            BeginAdditionalPathEdit(summaryTextBox);
-        }
-
-        e.Handled = true;
-    }
-
-    private void AdditionalPathSummaryTextBox_OnGotFocus(object? sender, GotFocusEventArgs e)
-    {
-        if (sender is TextBox summaryTextBox)
-        {
-            BeginAdditionalPathEdit(summaryTextBox);
-        }
-    }
-
-    private void AdditionalPathEditTextBox_OnLostFocus(object? sender, RoutedEventArgs e)
-    {
-        if (sender is TextBox editTextBox)
-        {
-            EndAdditionalPathEdit(editTextBox);
-        }
-    }
-
-    private void AdditionalPathEditTextBox_OnKeyDown(object? sender, KeyEventArgs e)
-    {
-        if (sender is not TextBox editTextBox || e.Key is not (Key.Enter or Key.Escape))
-        {
-            return;
-        }
-
-        EndAdditionalPathEdit(editTextBox);
-        Focus();
-        e.Handled = true;
-    }
-
-    private void BeginOriginPathEdit()
-    {
-        if (IsEditingOriginPath)
-        {
-            return;
-        }
-
-        _originPathBeforeEdit = OriginPathEditTextBox.Text ?? string.Empty;
-        ShowOriginSummary = false;
-        IsEditingOriginPath = true;
-
-        Dispatcher.UIThread.Post(() =>
-        {
-            OriginPathEditTextBox.Focus();
-            OriginPathEditTextBox.CaretIndex = OriginPathEditTextBox.Text?.Length ?? 0;
-        }, DispatcherPriority.Input);
-    }
-
-    private void BeginDestinationPathEdit()
-    {
-        if (IsEditingDestinationPath)
-        {
-            return;
-        }
-
-        ShowDestinationSummary = false;
-        IsEditingDestinationPath = true;
-
-        Dispatcher.UIThread.Post(() =>
-        {
-            DestinationPathEditTextBox.Focus();
-            DestinationPathEditTextBox.CaretIndex = DestinationPathEditTextBox.Text?.Length ?? 0;
-        }, DispatcherPriority.Input);
-    }
-
-    private static void BeginAdditionalPathEdit(TextBox summaryTextBox)
-    {
-        if (summaryTextBox.Parent is not Panel panel)
-        {
-            return;
-        }
-
-        var editTextBox = panel.Children
-            .OfType<TextBox>()
-            .FirstOrDefault(textBox => !ReferenceEquals(textBox, summaryTextBox));
-
-        if (editTextBox is null || editTextBox.IsVisible)
-        {
-            return;
-        }
-
-        summaryTextBox.IsVisible = false;
-        editTextBox.IsVisible = true;
-
-        Dispatcher.UIThread.Post(() =>
-        {
-            editTextBox.Focus();
-            editTextBox.CaretIndex = editTextBox.Text?.Length ?? 0;
-        }, DispatcherPriority.Input);
-    }
-
-    private static void EndAdditionalPathEdit(TextBox editTextBox)
-    {
-        if (editTextBox.Parent is not Panel panel)
-        {
-            return;
-        }
-
-        var summaryTextBox = panel.Children
-            .OfType<TextBox>()
-            .FirstOrDefault(textBox => !ReferenceEquals(textBox, editTextBox));
-
-        editTextBox.IsVisible = false;
-        if (summaryTextBox is not null)
-        {
-            summaryTextBox.IsVisible = true;
-        }
-    }
-
-    private void EndOriginPathEdit()
-    {
-        if (!IsEditingOriginPath)
-        {
-            return;
-        }
-
-        IsEditingOriginPath = false;
-        ShowOriginSummary = true;
-
-        var currentPath = OriginPathEditTextBox.Text ?? string.Empty;
-        if (string.Equals(_originPathBeforeEdit, currentPath, System.StringComparison.OrdinalIgnoreCase))
-        {
-            return;
-        }
-
-        var command = OriginPathChangedCommand;
-        if (command?.CanExecute(null) == true)
-        {
-            command.Execute(null);
-        }
-    }
 }
