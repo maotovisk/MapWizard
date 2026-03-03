@@ -12,6 +12,7 @@ namespace MapWizard.Desktop.Views.HitSoundVisualizer;
 public partial class HitSoundVisualizerView : UserControl
 {
     private const int SpacePlaybackToggleDebounceMs = 130;
+    private const int VolumeWheelStepPercent = 1;
     private long _lastSpacePlaybackToggleTickMs = -SpacePlaybackToggleDebounceMs;
     private HitSoundVisualizerViewModel? _boundViewModel;
 
@@ -193,6 +194,45 @@ public partial class HitSoundVisualizerView : UserControl
 
         await topLevel.Clipboard.SetTextAsync(payload);
         e.Handled = true;
+    }
+
+    private void SongVolumeButton_OnPointerWheelChanged(object? sender, PointerWheelEventArgs e)
+    {
+        if (DataContext is not HitSoundVisualizerViewModel vm)
+        {
+            return;
+        }
+
+        if (!TryGetWheelDirection(e, out var direction))
+        {
+            return;
+        }
+
+        vm.SongVolumePercent = Math.Clamp(vm.SongVolumePercent + (direction * VolumeWheelStepPercent), 0, 100);
+        e.Handled = true;
+    }
+
+    private void EffectsVolumeButton_OnPointerWheelChanged(object? sender, PointerWheelEventArgs e)
+    {
+        if (DataContext is not HitSoundVisualizerViewModel vm)
+        {
+            return;
+        }
+
+        if (!TryGetWheelDirection(e, out var direction))
+        {
+            return;
+        }
+
+        vm.HitSoundVolumePercent = Math.Clamp(vm.HitSoundVolumePercent + (direction * VolumeWheelStepPercent), 0, 100);
+        e.Handled = true;
+    }
+
+    private static bool TryGetWheelDirection(PointerWheelEventArgs e, out int direction)
+    {
+        var wheelDelta = Math.Abs(e.Delta.Y) >= Math.Abs(e.Delta.X) ? e.Delta.Y : e.Delta.X;
+        direction = Math.Sign(wheelDelta);
+        return direction != 0;
     }
 
     private bool TryHandleBankShortcuts(KeyEventArgs e, HitSoundVisualizerViewModel vm)

@@ -740,14 +740,16 @@
 
                         <Button Classes="timeline-mute-btn"
                                 Command="{Binding ToggleSongMuteCommand}"
-                                ToolTip.Tip="Left click: mute/unmute song. Right click: open song volume slider.">
+                                PointerWheelChanged="SongVolumeButton_OnPointerWheelChanged"
+                                ToolTip.Tip="{Binding SongVolumeText, StringFormat=Song volume: {0} | Scroll: +/-1% | Click: mute/unmute}">
                             <materialIcons:MaterialIcon Kind="{Binding SongVolumeIconKind}" Width="16" Height="16" />
                             <Button.ContextFlyout>
                                 <Flyout Placement="TopEdgeAlignedLeft">
                                     <Border Classes="timeline-flyout-surface">
                                         <StackPanel Width="220" Spacing="8">
                                             <Button Classes="timeline-volume-label"
-                                                    Command="{Binding ToggleSongMuteCommand}">
+                                                    Command="{Binding ToggleSongMuteCommand}"
+                                                    PointerWheelChanged="SongVolumeButton_OnPointerWheelChanged">
                                                 <StackPanel Orientation="Horizontal" Spacing="6">
                                                     <materialIcons:MaterialIcon Kind="{Binding SongVolumeIconKind}" Width="14" Height="14" />
                                                     <TextBlock VerticalAlignment="Center" Text="Song" />
@@ -771,14 +773,16 @@
 
                         <Button Classes="timeline-mute-btn"
                                 Command="{Binding ToggleHitSoundMuteCommand}"
-                                ToolTip.Tip="Left click: mute/unmute effects. Right click: open effects volume slider.">
+                                PointerWheelChanged="EffectsVolumeButton_OnPointerWheelChanged"
+                                ToolTip.Tip="{Binding HitSoundVolumeText, StringFormat=Effects volume: {0} | Scroll: +/-1% | Click: mute/unmute}">
                             <materialIcons:MaterialIcon Kind="{Binding EffectsVolumeIconKind}" Width="16" Height="16" />
                             <Button.ContextFlyout>
                                 <Flyout Placement="TopEdgeAlignedLeft">
                                     <Border Classes="timeline-flyout-surface">
                                         <StackPanel Width="220" Spacing="8">
                                             <Button Classes="timeline-volume-label"
-                                                    Command="{Binding ToggleHitSoundMuteCommand}">
+                                                    Command="{Binding ToggleHitSoundMuteCommand}"
+                                                    PointerWheelChanged="EffectsVolumeButton_OnPointerWheelChanged">
                                                 <StackPanel Orientation="Horizontal" Spacing="6">
                                                     <materialIcons:MaterialIcon Kind="{Binding EffectsVolumeIconKind}" Width="14" Height="14" />
                                                     <TextBlock VerticalAlignment="Center" Text="Effects" />
