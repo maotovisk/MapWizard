@@ -53,7 +53,6 @@ public static class MapPickerDialogUtils
         try
         {
             var dialogBuilder = dialogManager.CreateDialog()
-                .WithTitle("Map Picker")
                 .WithContent(dialogContent)
                 .WithActionButton("Close", _ => { }, true, "Flat")
                 .Dismiss().ByClickingBackground()

@@ -43,6 +43,8 @@
         <ScrollViewer Grid.Row="2">
             <StackPanel Spacing="16">
                 <controls:BeatmapSelectionPanel
+                    OriginMap="{Binding OriginBeatmap}"
+                    DestinationMaps="{Binding DestinationBeatmaps}"
                     FromWatermark="Copy hitsounds from..."
                     ToWatermark="Copy hitsounds to..."
                     AdditionalPrefix="{x:Null}"

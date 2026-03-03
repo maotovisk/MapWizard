@@ -46,6 +46,8 @@ public partial class SongSelectDialogViewModel(
     private int? _lastFirstVisibleIndex;
     private int? _lastLastVisibleIndex;
     private bool _isScrollLoadScheduled;
+    private SongMapsetCardViewModel? _lastToggledMapset;
+    private DateTime _lastMapsetToggleUtc = DateTime.MinValue;
 
     [ObservableProperty] private bool _isLoading;
 
@@ -196,6 +198,16 @@ public partial class SongSelectDialogViewModel(
     [RelayCommand]
     private void ToggleMapsetExpansion(SongMapsetCardViewModel mapset)
     {
+        var now = DateTime.UtcNow;
+        if (ReferenceEquals(_lastToggledMapset, mapset) &&
+            (now - _lastMapsetToggleUtc).TotalMilliseconds < 200d)
+        {
+            return;
+        }
+
+        _lastToggledMapset = mapset;
+        _lastMapsetToggleUtc = now;
+
         foreach (var item in VisibleMapsets)
         {
             if (!ReferenceEquals(item, mapset))
@@ -486,8 +498,14 @@ public partial class SongSelectDialogViewModel(
                         continue;
                     }
 
-                    mapsetViewModel = new SongMapsetCardViewModel(mapset);
+                    mapsetViewModel = new SongMapsetCardViewModel(
+                        mapset,
+                        IsPreferredMapsetDirectory(directoryEntry.DirectoryPath));
                     _mapsetViewModelCache[directoryEntry.DirectoryPath] = mapsetViewModel;
+                }
+                else
+                {
+                    mapsetViewModel.IsPreferredMapset = IsPreferredMapsetDirectory(directoryEntry.DirectoryPath);
                 }
 
                 if (!_visibleDirectoryPaths.Add(directoryEntry.DirectoryPath))
@@ -636,6 +654,19 @@ public partial class SongSelectDialogViewModel(
         }
     }
 
+    private bool IsPreferredMapsetDirectory(string directoryPath)
+    {
+        if (string.IsNullOrWhiteSpace(_preferredMapsetDirectoryPath))
+        {
+            return false;
+        }
+
+        return string.Equals(
+            NormalizeDirectoryPath(directoryPath),
+            _preferredMapsetDirectoryPath,
+            StringComparison.OrdinalIgnoreCase);
+    }
+
     private void UpdateBackgroundCacheForCurrentViewport()
     {
         var totalVisible = VisibleMapsets.Count;
@@ -720,13 +751,14 @@ public partial class SongMapsetCardViewModel : ObservableObject, IDisposable
     private bool _isBackgroundActive;
     private bool _isDisposed;
 
-    public SongMapsetCardViewModel(SongMapsetInfo mapset)
+    public SongMapsetCardViewModel(SongMapsetInfo mapset, bool isPreferredMapset)
     {
         Artist = mapset.Artist;
         Title = mapset.Title;
         Creator = mapset.Creator;
         LastEditedUtc = mapset.LastEditUtc;
         _backgroundImagePath = mapset.BackgroundImagePath;
+        IsPreferredMapset = isPreferredMapset;
         Difficulties = new ObservableCollection<SongDifficultyItemViewModel>(mapset.Difficulties
             .OrderByDescending(difficulty => difficulty.LastEditUtc)
             .Select(difficulty => new SongDifficultyItemViewModel(difficulty)));
@@ -738,6 +770,7 @@ public partial class SongMapsetCardViewModel : ObservableObject, IDisposable
     }
 
     [ObservableProperty] private bool _isExpanded;
+    [ObservableProperty] private bool _isPreferredMapset;
     public string Artist { get; }
     public string Title { get; }
     public string Creator { get; }

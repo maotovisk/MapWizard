@@ -39,16 +39,12 @@ public partial class HitSoundCopierViewModel(
 
     [NotifyPropertyChangedFor(nameof(AdditionalBeatmaps))]
     [ObservableProperty]
-    private ObservableCollection<SelectedMap> _destinationBeatmaps = [new SelectedMap()];
+    private ObservableCollection<SelectedMap> _destinationBeatmaps = [];
 
     public ObservableCollection<SelectedMap> AdditionalBeatmaps
     {
-        get => new ObservableCollection<SelectedMap>(DestinationBeatmaps.Skip(1));
-        set
-        {
-            DestinationBeatmaps =
-                new ObservableCollection<SelectedMap>(new[] { DestinationBeatmaps.First() }.Concat(value));
-        }
+        get => BeatmapPanelViewModelUtils.GetAdditionalBeatmaps(DestinationBeatmaps);
+        set => DestinationBeatmaps = BeatmapPanelViewModelUtils.MergeWithAdditionalBeatmaps(DestinationBeatmaps, value);
     }
 
     [ObservableProperty] private string _preferredDirectory = string.Empty;
@@ -56,11 +52,20 @@ public partial class HitSoundCopierViewModel(
     [RelayCommand]
     private void RemoveMap(string path)
     {
-        DestinationBeatmaps = new ObservableCollection<SelectedMap>(DestinationBeatmaps.Where(x => x.Path != path));
-        if (DestinationBeatmaps.Count < 2)
+        DestinationBeatmaps = BeatmapPanelViewModelUtils.RemoveDestinationBeatmap(DestinationBeatmaps, path);
+        HasMultiple = BeatmapPanelViewModelUtils.HasMultipleDestinationBeatmaps(DestinationBeatmaps);
+    }
+
+    [RelayCommand]
+    private void ToggleDestinationMap(string path)
+    {
+        if (!BeatmapPanelViewModelUtils.TryToggleDestinationBeatmap(DestinationBeatmaps, path, out var destinationBeatmaps))
         {
-            HasMultiple = false;
+            return;
         }
+
+        DestinationBeatmaps = destinationBeatmaps;
+        HasMultiple = BeatmapPanelViewModelUtils.HasMultipleDestinationBeatmaps(DestinationBeatmaps);
     }
 
     [RelayCommand]
@@ -68,7 +73,10 @@ public partial class HitSoundCopierViewModel(
     {
         try
         {
-            var selectedPaths = await ShowSongSelectDialogAsync(allowMultiple: false, token: token);
+            var selectedPaths = await ShowSongSelectDialogAsync(
+                allowMultiple: false,
+                token: token,
+                preferredMapsetDirectoryPath: BeatmapPathUtils.TryGetMapsetDirectoryPath(OriginBeatmap.Path));
             if (token.IsCancellationRequested || selectedPaths is null || selectedPaths.Count == 0)
             {
                 return;
@@ -135,6 +143,59 @@ public partial class HitSoundCopierViewModel(
         HasMultiple = DestinationBeatmaps.Count > 1;
     }
 
+    [RelayCommand]
+    private void OpenOriginFolder()
+    {
+        if (BeatmapSelectionUtils.TryOpenBeatmapFolder(OriginBeatmap.Path, out var errorMessage))
+        {
+            return;
+        }
+
+        toastManager.ShowToast(
+            NotificationType.Warning,
+            "HitSound Copier",
+            string.IsNullOrWhiteSpace(errorMessage)
+                ? "Unable to open the origin beatmap folder."
+                : errorMessage);
+    }
+
+    [RelayCommand]
+    private void AddMapsetDiffsToDestination()
+    {
+        var referencePath = BeatmapPanelViewModelUtils.ResolveMapsetReferenceBeatmapPath(DestinationBeatmaps, OriginBeatmap.Path);
+        if (referencePath is null)
+        {
+            toastManager.ShowToast(
+                NotificationType.Warning,
+                "HitSound Copier",
+                "Select an origin beatmap (or target beatmaps from one mapset) first.");
+            return;
+        }
+
+        var siblingDiffs = BeatmapSelectionUtils.GetSiblingDifficultyPaths(referencePath)
+            .Where(path => !string.Equals(path, OriginBeatmap.Path, StringComparison.OrdinalIgnoreCase));
+
+        if (!BeatmapSelectionUtils.TryAppendDestinationBeatmaps(
+                DestinationBeatmaps,
+                siblingDiffs,
+                out var updatedDestinationBeatmaps,
+                out var addedCount))
+        {
+            toastManager.ShowToast(
+                NotificationType.Warning,
+                "HitSound Copier",
+                "No additional mapset difficulties were available to add.");
+            return;
+        }
+
+        DestinationBeatmaps = updatedDestinationBeatmaps;
+        HasMultiple = BeatmapPanelViewModelUtils.HasMultipleDestinationBeatmaps(DestinationBeatmaps);
+        toastManager.ShowToast(
+            NotificationType.Success,
+            "HitSound Copier",
+            $"Added {addedCount} mapset diff(s) to destination.");
+    }
+
     private void SetOriginBeatmapPath(string beatmapPath)
     {
         OriginBeatmap = new SelectedMap { Path = beatmapPath };
@@ -143,15 +204,14 @@ public partial class HitSoundCopierViewModel(
 
     private void SetDestinationBeatmaps(IReadOnlyCollection<string> beatmapPaths)
     {
-        var normalizedBeatmaps = BeatmapSelectionUtils.NormalizeDestinationBeatmaps(beatmapPaths);
-        if (normalizedBeatmaps.Count == 0)
+        if (!BeatmapPanelViewModelUtils.TrySetDestinationBeatmaps(beatmapPaths, out var normalizedBeatmaps))
         {
             return;
         }
 
         DestinationBeatmaps = normalizedBeatmaps;
-        HasMultiple = DestinationBeatmaps.Count > 1;
-        PreferredDirectory = BeatmapSelectionUtils.GetPreferredDirectoryOrFallback(DestinationBeatmaps, PreferredDirectory);
+        HasMultiple = BeatmapPanelViewModelUtils.HasMultipleDestinationBeatmaps(DestinationBeatmaps);
+        PreferredDirectory = BeatmapPanelViewModelUtils.GetPreferredDirectoryOrFallback(DestinationBeatmaps, PreferredDirectory);
     }
 
     private string? GetBeatmapFromMemory()
