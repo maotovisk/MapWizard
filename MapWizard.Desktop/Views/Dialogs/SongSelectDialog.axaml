@@ -23,48 +23,38 @@
 
         <Style Selector="Border.StatusPill">
             <Setter Property="Background" Value="#33131E33" />
-            <Setter Property="BorderBrush" Value="#3BFFFFFF" />
-            <Setter Property="BorderThickness" Value="2" />
             <Setter Property="CornerRadius" Value="8" />
             <Setter Property="Padding" Value="8,4" />
         </Style>
 
-        <Style Selector="Border.PopupHeader">
-            <Setter Property="Background" Value="#2A0F1625" />
-            <Setter Property="CornerRadius" Value="12" />
-            <Setter Property="Padding" Value="5" />
-        </Style>
-
     </UserControl.Styles>
 
-    <Grid RowDefinitions="Auto,*" RowSpacing="12">
-        <Border Classes="PopupHeader" Margin="0,6,0,0">
-            <Grid RowDefinitions="Auto,Auto" RowSpacing="8">
-                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
-                    <TextBox Height="38"
-                             Watermark="Search beatmaps..."
-                             Text="{Binding SearchText, Mode=TwoWay}" />
+    <Grid RowDefinitions="Auto,*" RowSpacing="10">
+        <Grid RowDefinitions="Auto,Auto" RowSpacing="6">
+            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                <TextBox Height="38"
+                         Watermark="Search beatmaps..."
+                         Text="{Binding SearchText, Mode=TwoWay}" />
 
-                    <Button Grid.Column="1"
-                            Classes="Basic"
-                            Command="{Binding PickFilesManuallyCommand}"
-                            MinHeight="38"
-                            Padding="14,0,14,0"
-                            ToolTip.Tip="Open native file picker fallback">
-                        <StackPanel Orientation="Horizontal" Spacing="7">
-                            <materialIcons:MaterialIcon Kind="FolderOpen" Width="18" Height="18" />
-                            <TextBlock Text="Manual Open" VerticalAlignment="Center" />
-                        </StackPanel>
-                    </Button>
-                </Grid>
-
-                <Border Grid.Row="1" Classes="StatusPill">
-                    <TextBlock Text="{Binding StatusMessage}"
-                               FontSize="12"
-                               TextTrimming="CharacterEllipsis" />
-                </Border>
+                <Button Grid.Column="1"
+                        Classes="Basic"
+                        Command="{Binding PickFilesManuallyCommand}"
+                        MinHeight="38"
+                        Padding="14,0,14,0"
+                        ToolTip.Tip="Open native file picker fallback">
+                    <StackPanel Orientation="Horizontal" Spacing="7">
+                        <materialIcons:MaterialIcon Kind="FolderOpen" Width="18" Height="18" />
+                        <TextBlock Text="Manual Open" VerticalAlignment="Center" />
+                    </StackPanel>
+                </Button>
             </Grid>
-        </Border>
+
+            <Border Grid.Row="1" Classes="StatusPill">
+                <TextBlock Text="{Binding StatusMessage}"
+                           FontSize="12"
+                           TextTrimming="CharacterEllipsis" />
+            </Border>
+        </Grid>
 
         <suki:BusyArea Grid.Row="1" BusyText="Searching songs..." IsBusy="{Binding ShowBusyBox}">
             <Border Classes="SongSurface" Padding="10" MinHeight="0">

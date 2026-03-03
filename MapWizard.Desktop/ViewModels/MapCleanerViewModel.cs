@@ -81,12 +81,12 @@ public partial class MapCleanerViewModel(
 
     [NotifyPropertyChangedFor(nameof(AdditionalBeatmaps))]
     [ObservableProperty]
-    private ObservableCollection<SelectedMap> _destinationBeatmaps = [new SelectedMap()];
+    private ObservableCollection<SelectedMap> _destinationBeatmaps = [];
 
     public ObservableCollection<SelectedMap> AdditionalBeatmaps
     {
-        get => new ObservableCollection<SelectedMap>(DestinationBeatmaps.Skip(1));
-        set => DestinationBeatmaps = new ObservableCollection<SelectedMap>(new[] { DestinationBeatmaps.First() }.Concat(value));
+        get => BeatmapPanelViewModelUtils.GetAdditionalBeatmaps(DestinationBeatmaps);
+        set => DestinationBeatmaps = BeatmapPanelViewModelUtils.MergeWithAdditionalBeatmaps(DestinationBeatmaps, value);
     }
 
     [RelayCommand]
@@ -99,7 +99,10 @@ public partial class MapCleanerViewModel(
     {
         try
         {
-            var selectedPaths = await ShowSongSelectDialogAsync(allowMultiple: false, token: token);
+            var selectedPaths = await ShowSongSelectDialogAsync(
+                allowMultiple: false,
+                token: token,
+                preferredMapsetDirectoryPath: BeatmapPathUtils.TryGetMapsetDirectoryPath(OriginBeatmap.Path));
             if (token.IsCancellationRequested || selectedPaths is null || selectedPaths.Count == 0)
             {
                 return;
@@ -136,6 +139,22 @@ public partial class MapCleanerViewModel(
     [RelayCommand]
     private void AddDestinationFromMemory()
     {
+    }
+
+    [RelayCommand]
+    private void OpenOriginFolder()
+    {
+        if (BeatmapSelectionUtils.TryOpenBeatmapFolder(OriginBeatmap.Path, out var errorMessage))
+        {
+            return;
+        }
+
+        toastManager.ShowToast(
+            NotificationType.Warning,
+            "Map Cleaner",
+            string.IsNullOrWhiteSpace(errorMessage)
+                ? "Unable to open the origin beatmap folder."
+                : errorMessage);
     }
 
     [RelayCommand]
