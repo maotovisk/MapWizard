@@ -585,7 +585,7 @@
                                                           Width="13"
                                                           Height="13"
                                                           IsVisible="{Binding IsSelected}" />
-                              <TextBlock Text="{Binding Beatmap.DisplaySubtitle}"
+                              <TextBlock Text="{Binding DifficultyLabel}"
                                          FontSize="12"
                                          FontWeight="SemiBold"
                                          MaxWidth="260"
@@ -708,7 +708,7 @@
                                                               Width="13"
                                                               Height="13"
                                                               IsVisible="{Binding IsSelected}" />
-                                  <TextBlock Text="{Binding Beatmap.DisplaySubtitle}"
+                                  <TextBlock Text="{Binding DifficultyLabel}"
                                              FontSize="12"
                                              FontWeight="SemiBold"
                                              MaxWidth="260"

@@ -19,6 +19,7 @@ public partial class BeatmapSelectionPanel : UserControl
     private INotifyCollectionChanged? _observedDestinationCollection;
     private readonly HashSet<SelectedMap> _observedDestinationMaps = [];
     private readonly Dictionary<string, bool> _destinationMapsetExpansionStates = new(System.StringComparer.OrdinalIgnoreCase);
+    private bool _isBulkUpdatingDestinationMaps;
 
     public static readonly StyledProperty<string> SectionTitleProperty =
         AvaloniaProperty.Register<BeatmapSelectionPanel, string>(nameof(SectionTitle), "Beatmap Selection");
@@ -432,11 +433,24 @@ public partial class BeatmapSelectionPanel : UserControl
         }
     }
 
+    protected override void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e)
+    {
+        base.OnAttachedToVisualTree(e);
+        AttachOriginMapObserver(OriginMap);
+        AttachDestinationMapCollectionObserver(DestinationMaps);
+    }
+
+    protected override void OnDetachedFromVisualTree(VisualTreeAttachmentEventArgs e)
+    {
+        base.OnDetachedFromVisualTree(e);
+        DetachOriginMapObserver(_observedOriginMap);
+        DetachDestinationMapCollectionObserver(_observedDestinationCollection);
+    }
+
     private void AttachOriginMapObserver(SelectedMap? originMap)
     {
-        if (originMap is null)
+        if (originMap is null || ReferenceEquals(originMap, _observedOriginMap))
         {
-            _observedOriginMap = null;
             return;
         }
 
@@ -452,6 +466,10 @@ public partial class BeatmapSelectionPanel : UserControl
         }
 
         originMap.PropertyChanged -= OriginMapOnPropertyChanged;
+        if (ReferenceEquals(_observedOriginMap, originMap))
+        {
+            _observedOriginMap = null;
+        }
     }
 
     private void OriginMapOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
@@ -469,9 +487,8 @@ public partial class BeatmapSelectionPanel : UserControl
 
     private void AttachDestinationMapCollectionObserver(ObservableCollection<SelectedMap>? destinationMaps)
     {
-        if (destinationMaps is null)
+        if (destinationMaps is null || ReferenceEquals(destinationMaps, _observedDestinationCollection))
         {
-            _observedDestinationCollection = null;
             return;
         }
 
@@ -487,6 +504,11 @@ public partial class BeatmapSelectionPanel : UserControl
             destinationMaps.CollectionChanged -= DestinationMapsOnCollectionChanged;
         }
 
+        if (ReferenceEquals(_observedDestinationCollection, destinationMaps))
+        {
+            _observedDestinationCollection = null;
+        }
+
         foreach (var map in _observedDestinationMaps)
         {
             map.PropertyChanged -= DestinationMapOnPropertyChanged;
@@ -498,6 +520,11 @@ public partial class BeatmapSelectionPanel : UserControl
     private void DestinationMapsOnCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
     {
         if (DestinationMaps is null)
+        {
+            return;
+        }
+
+        if (_isBulkUpdatingDestinationMaps)
         {
             return;
         }
@@ -786,46 +813,57 @@ public partial class BeatmapSelectionPanel : UserControl
             return;
         }
 
-        var selectedPaths = new HashSet<string>(
-            DestinationMaps.Where(map => map.HasPath).Select(map => map.Path),
-            System.StringComparer.OrdinalIgnoreCase);
-
-        var allMapsetSelected = MapsetDifficultyCards.All(card => selectedPaths.Contains(card.Path));
-        if (allMapsetSelected)
+        _isBulkUpdatingDestinationMaps = true;
+        try
         {
-            var mapsetPaths = new HashSet<string>(
-                MapsetDifficultyCards.Select(card => card.Path),
+            var selectedPaths = new HashSet<string>(
+                DestinationMaps.Where(map => map.HasPath).Select(map => map.Path),
                 System.StringComparer.OrdinalIgnoreCase);
 
-            for (var i = DestinationMaps.Count - 1; i >= 0; i--)
+            var allMapsetSelected = MapsetDifficultyCards.All(card => selectedPaths.Contains(card.Path));
+            if (allMapsetSelected)
             {
-                var map = DestinationMaps[i];
-                if (!map.HasPath || !mapsetPaths.Contains(map.Path))
+                var mapsetPaths = new HashSet<string>(
+                    MapsetDifficultyCards.Select(card => card.Path),
+                    System.StringComparer.OrdinalIgnoreCase);
+
+                for (var i = DestinationMaps.Count - 1; i >= 0; i--)
                 {
-                    continue;
+                    var map = DestinationMaps[i];
+                    if (!map.HasPath || !mapsetPaths.Contains(map.Path))
+                    {
+                        continue;
+                    }
+
+                    DestinationMaps.RemoveAt(i);
+                }
+            }
+            else
+            {
+                foreach (var card in MapsetDifficultyCards)
+                {
+                    if (selectedPaths.Contains(card.Path))
+                    {
+                        continue;
+                    }
+
+                    DestinationMaps.Add(new SelectedMap
+                    {
+                        Path = card.Path
+                    });
                 }
 
-                DestinationMaps.RemoveAt(i);
+                IsMapsetDiffExpanded = true;
             }
-
-            e.Handled = true;
-            return;
         }
-
-        foreach (var card in MapsetDifficultyCards)
+        finally
         {
-            if (selectedPaths.Contains(card.Path))
-            {
-                continue;
-            }
-
-            DestinationMaps.Add(new SelectedMap
-            {
-                Path = card.Path
-            });
+            _isBulkUpdatingDestinationMaps = false;
         }
 
-        IsMapsetDiffExpanded = true;
+        SyncDestinationMapItemObservers(DestinationMaps);
+        UpdateDestinationSelectionState();
+        RefreshMapsetDifficultySelectionState();
         e.Handled = true;
     }
 
