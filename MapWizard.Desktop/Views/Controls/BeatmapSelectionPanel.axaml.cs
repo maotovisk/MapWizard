@@ -18,7 +18,7 @@ public partial class BeatmapSelectionPanel : UserControl
     private SelectedMap? _observedOriginMap;
     private INotifyCollectionChanged? _observedDestinationCollection;
     private readonly HashSet<SelectedMap> _observedDestinationMaps = [];
-    private readonly HashSet<string> _mapsetCandidatePaths = new(System.StringComparer.OrdinalIgnoreCase);
+    private readonly Dictionary<string, bool> _destinationMapsetExpansionStates = new(System.StringComparer.OrdinalIgnoreCase);
 
     public static readonly StyledProperty<string> SectionTitleProperty =
         AvaloniaProperty.Register<BeatmapSelectionPanel, string>(nameof(SectionTitle), "Beatmap Selection");
@@ -129,6 +129,9 @@ public partial class BeatmapSelectionPanel : UserControl
     public static readonly StyledProperty<bool> CanSelectAllMapsetDifficultiesProperty =
         AvaloniaProperty.Register<BeatmapSelectionPanel, bool>(nameof(CanSelectAllMapsetDifficulties));
 
+    public static readonly StyledProperty<bool> AreAllMapsetDifficultiesSelectedProperty =
+        AvaloniaProperty.Register<BeatmapSelectionPanel, bool>(nameof(AreAllMapsetDifficultiesSelected));
+
     public static readonly StyledProperty<bool> IsMapsetDiffExpandedProperty =
         AvaloniaProperty.Register<BeatmapSelectionPanel, bool>(nameof(IsMapsetDiffExpanded), true);
 
@@ -154,7 +157,7 @@ public partial class BeatmapSelectionPanel : UserControl
     }
 
     public ObservableCollection<MapsetDifficultyCard> MapsetDifficultyCards { get; } = [];
-    public ObservableCollection<SelectedMap> VisibleDestinationMaps { get; } = [];
+    public ObservableCollection<DestinationMapsetCard> VisibleDestinationMapsets { get; } = [];
 
     public string SectionTitle
     {
@@ -366,6 +369,12 @@ public partial class BeatmapSelectionPanel : UserControl
         private set => SetValue(CanSelectAllMapsetDifficultiesProperty, value);
     }
 
+    public bool AreAllMapsetDifficultiesSelected
+    {
+        get => GetValue(AreAllMapsetDifficultiesSelectedProperty);
+        private set => SetValue(AreAllMapsetDifficultiesSelectedProperty, value);
+    }
+
     public bool IsMapsetDiffExpanded
     {
         get => GetValue(IsMapsetDiffExpandedProperty);
@@ -566,7 +575,6 @@ public partial class BeatmapSelectionPanel : UserControl
     private void RebuildMapsetDifficultyCards()
     {
         MapsetDifficultyCards.Clear();
-        _mapsetCandidatePaths.Clear();
 
         if (OriginMap is null || !OriginMap.HasPath)
         {
@@ -574,6 +582,7 @@ public partial class BeatmapSelectionPanel : UserControl
             SelectedMapsetDifficultyCount = 0;
             HasSelectedMapsetDifficulties = false;
             CanSelectAllMapsetDifficulties = false;
+            AreAllMapsetDifficultiesSelected = false;
             ShowMapsetOrSeparator = false;
             IsMapsetDiffExpanded = false;
             RebuildVisibleDestinationMaps();
@@ -589,7 +598,6 @@ public partial class BeatmapSelectionPanel : UserControl
 
         foreach (var path in siblingDiffPaths)
         {
-            _mapsetCandidatePaths.Add(path);
             var card = new MapsetDifficultyCard(path)
             {
                 IsSelected = selectedDestinationPaths.Contains(path)
@@ -603,6 +611,7 @@ public partial class BeatmapSelectionPanel : UserControl
         SelectedMapsetDifficultyCount = selectedMapsetCount;
         HasSelectedMapsetDifficulties = selectedMapsetCount > 0;
         CanSelectAllMapsetDifficulties = totalMapsetCount > 0;
+        AreAllMapsetDifficultiesSelected = totalMapsetCount > 0 && selectedMapsetCount == totalMapsetCount;
         var hasMapsetSelection = selectedMapsetCount > 0;
         ShowMapsetOrSeparator = HasMapsetDifficultyOptions && !hasMapsetSelection;
         if (hasMapsetSelection)
@@ -634,6 +643,7 @@ public partial class BeatmapSelectionPanel : UserControl
         SelectedMapsetDifficultyCount = selectedMapsetCount;
         HasSelectedMapsetDifficulties = selectedMapsetCount > 0;
         CanSelectAllMapsetDifficulties = totalMapsetCount > 0;
+        AreAllMapsetDifficultiesSelected = totalMapsetCount > 0 && selectedMapsetCount == totalMapsetCount;
         var hasMapsetSelection = selectedMapsetCount > 0;
         ShowMapsetOrSeparator = HasMapsetDifficultyOptions && !hasMapsetSelection;
         if (hasMapsetSelection)
@@ -645,7 +655,7 @@ public partial class BeatmapSelectionPanel : UserControl
 
     private void RebuildVisibleDestinationMaps()
     {
-        VisibleDestinationMaps.Clear();
+        VisibleDestinationMapsets.Clear();
 
         if (DestinationMaps is null)
         {
@@ -653,20 +663,109 @@ public partial class BeatmapSelectionPanel : UserControl
             return;
         }
 
-        var hasMapsetSelection = MapsetDifficultyCards.Any(card => card.IsSelected);
+        var selectedDestinationMaps = DestinationMaps
+            .Where(map => map.HasPath)
+            .ToList();
 
-        foreach (var map in DestinationMaps.Where(map => map.HasPath))
+        var selectedPaths = new HashSet<string>(
+            selectedDestinationMaps.Select(map => map.Path),
+            System.StringComparer.OrdinalIgnoreCase);
+
+        var groupedByMapset = selectedDestinationMaps
+            .GroupBy(map => GetDestinationMapsetKey(map.Path), System.StringComparer.OrdinalIgnoreCase)
+            .OrderBy(group => group.First().DisplayTitle, System.StringComparer.OrdinalIgnoreCase);
+
+        var originMapsetKey = OriginMap is not null && OriginMap.HasPath
+            ? GetDestinationMapsetKey(OriginMap.Path)
+            : null;
+
+        var visibleMapsetKeys = new HashSet<string>(System.StringComparer.OrdinalIgnoreCase);
+
+        foreach (var group in groupedByMapset)
         {
-            if (hasMapsetSelection &&
-                _mapsetCandidatePaths.Contains(map.Path))
+            var mapsetKey = group.Key;
+
+            // Origin mapset selections are already represented by the "Difficulties from origin" section.
+            if (HasMapsetDifficultyOptions &&
+                !string.IsNullOrWhiteSpace(originMapsetKey) &&
+                string.Equals(mapsetKey, originMapsetKey, System.StringComparison.OrdinalIgnoreCase))
             {
                 continue;
             }
 
-            VisibleDestinationMaps.Add(map);
+            visibleMapsetKeys.Add(mapsetKey);
+
+            var referenceMap = group.First();
+            var mapsetDifficultyPaths = GetMapsetDifficultyPaths(referenceMap.Path, group.Select(map => map.Path));
+            var difficulties = mapsetDifficultyPaths
+                .Select(path => new MapsetDifficultyCard(path)
+                {
+                    IsSelected = selectedPaths.Contains(path)
+                })
+                .ToList();
+
+            var card = new DestinationMapsetCard(
+                mapsetKey,
+                referenceMap,
+                difficulties)
+            {
+                IsExpanded = !_destinationMapsetExpansionStates.TryGetValue(mapsetKey, out var isExpanded) || isExpanded
+            };
+
+            VisibleDestinationMapsets.Add(card);
         }
 
-        HasVisibleDestinationCards = VisibleDestinationMaps.Count > 0;
+        var staleExpansionKeys = _destinationMapsetExpansionStates.Keys
+            .Where(key => !visibleMapsetKeys.Contains(key))
+            .ToArray();
+        foreach (var staleKey in staleExpansionKeys)
+        {
+            _destinationMapsetExpansionStates.Remove(staleKey);
+        }
+
+        HasVisibleDestinationCards = VisibleDestinationMapsets.Count > 0;
+    }
+
+    private static string GetDestinationMapsetKey(string beatmapPath)
+    {
+        var mapsetDirectoryPath = BeatmapPathUtils.TryGetMapsetDirectoryPath(beatmapPath);
+        if (!string.IsNullOrWhiteSpace(mapsetDirectoryPath))
+        {
+            return mapsetDirectoryPath;
+        }
+
+        try
+        {
+            return System.IO.Path.GetFullPath(beatmapPath);
+        }
+        catch
+        {
+            return beatmapPath;
+        }
+    }
+
+    private static IReadOnlyList<string> GetMapsetDifficultyPaths(string referencePath, IEnumerable<string> selectedPathsInMapset)
+    {
+        var siblingPaths = BeatmapSelectionUtils.GetSiblingDifficultyPaths(referencePath)
+            .ToList();
+
+        if (siblingPaths.Count == 0)
+        {
+            return selectedPathsInMapset
+                .Distinct(System.StringComparer.OrdinalIgnoreCase)
+                .ToList();
+        }
+
+        var seen = new HashSet<string>(siblingPaths, System.StringComparer.OrdinalIgnoreCase);
+        foreach (var selectedPath in selectedPathsInMapset)
+        {
+            if (seen.Add(selectedPath))
+            {
+                siblingPaths.Add(selectedPath);
+            }
+        }
+
+        return siblingPaths;
     }
 
     private void MapsetCollapseHeaderButton_OnClick(object? sender, RoutedEventArgs e)
@@ -727,6 +826,45 @@ public partial class BeatmapSelectionPanel : UserControl
         }
 
         IsMapsetDiffExpanded = true;
+        e.Handled = true;
+    }
+
+    private void DestinationMapsetExpandButton_OnClick(object? sender, RoutedEventArgs e)
+    {
+        if (sender is not Control { DataContext: DestinationMapsetCard mapsetCard })
+        {
+            return;
+        }
+
+        mapsetCard.IsExpanded = !mapsetCard.IsExpanded;
+        _destinationMapsetExpansionStates[mapsetCard.MapsetDirectoryPath] = mapsetCard.IsExpanded;
+        e.Handled = true;
+    }
+
+    private void DestinationMapsetRemoveButton_OnClick(object? sender, RoutedEventArgs e)
+    {
+        if (DestinationMaps is null ||
+            sender is not Control { DataContext: DestinationMapsetCard mapsetCard })
+        {
+            return;
+        }
+
+        for (var i = DestinationMaps.Count - 1; i >= 0; i--)
+        {
+            var map = DestinationMaps[i];
+            if (!map.HasPath)
+            {
+                continue;
+            }
+
+            var mapsetDirectoryPath = BeatmapPathUtils.TryGetMapsetDirectoryPath(map.Path);
+            if (string.Equals(mapsetDirectoryPath, mapsetCard.MapsetDirectoryPath, System.StringComparison.OrdinalIgnoreCase))
+            {
+                DestinationMaps.RemoveAt(i);
+            }
+        }
+
+        _destinationMapsetExpansionStates.Remove(mapsetCard.MapsetDirectoryPath);
         e.Handled = true;
     }
 
