@@ -144,6 +144,7 @@ public partial class HitSoundVisualizerViewModel(
         "hitclap"
     ];
 
+    public IReadOnlyList<string> PointSampleSetNames { get; } = ["Auto", "Normal", "Soft", "Drum"];
     public IReadOnlyList<string> SampleSetNames { get; } = ["Normal", "Soft", "Drum"];
     public IReadOnlyList<string> HeaderBankNames { get; } = ["Auto", "Normal", "Soft", "Drum"];
     public IReadOnlyList<string> SelectorBankFilterNames { get; } = ["Any", "Auto", "Normal", "Soft", "Drum"];
@@ -610,6 +611,43 @@ public partial class HitSoundVisualizerViewModel(
     }
 
     [RelayCommand]
+    private void SelectAllPoints()
+    {
+        if (!HasLoadedMap || Points.Count == 0)
+        {
+            return;
+        }
+
+        IsSampleRowContextActive = false;
+        var ids = Points
+            .OrderBy(point => point.TimeMs)
+            .ThenBy(point => HitSoundSortOrder(point.HitSound))
+            .ThenBy(point => SampleSetSortOrder(point.SampleSet))
+            .Select(point => point.Id)
+            .Distinct()
+            .ToArray();
+
+        if (ids.Length == 0)
+        {
+            return;
+        }
+
+        var primaryPoint = Points.FirstOrDefault(point => point.Id == SelectedPointId)
+            ?? Points.FirstOrDefault(point => point.Id == ids[0]);
+        var primaryId = primaryPoint?.Id ?? ids[0];
+
+        ApplySelection(ids, primaryId);
+        if (primaryPoint is not null)
+        {
+            CursorTimeMs = primaryPoint.TimeMs;
+            SyncEditorFromPoint(primaryPoint);
+        }
+
+        UpdateSelectedPointSummary();
+        RefreshHeaderBankQuickState();
+    }
+
+    [RelayCommand]
     private void AddTimelinePointsToSelection(IReadOnlyList<int>? pointIds)
     {
         IsSampleRowContextActive = false;
@@ -802,12 +840,20 @@ public partial class HitSoundVisualizerViewModel(
             return;
         }
 
+        var timeMs = Math.Clamp(CursorTimeMs, 0, (int)Math.Ceiling(TimelineEndMs));
+        var hitSound = ParseHitSound(SelectedHitSoundName);
+        var usesAutoSampleSet = IsAutoSampleSetDisplay(SelectedSampleSetName);
+        var sampleSet = usesAutoSampleSet
+            ? ResolveAutoSampleSetForPointAtTime(hitSound, timeMs)
+            : ParseSampleSet(SelectedSampleSetName);
+
         var point = new HitSoundVisualizerPoint
         {
             Id = _nextPointId++,
-            TimeMs = Math.Clamp(CursorTimeMs, 0, (int)Math.Ceiling(TimelineEndMs)),
-            SampleSet = ParseSampleSet(SelectedSampleSetName),
-            HitSound = ParseHitSound(SelectedHitSoundName),
+            TimeMs = timeMs,
+            SampleSet = sampleSet,
+            HitSound = hitSound,
+            IsAutoSampleSet = usesAutoSampleSet,
             IsDraggable = false
         };
 
@@ -1089,14 +1135,22 @@ public partial class HitSoundVisualizerViewModel(
             return;
         }
 
+        var editedTimeMs = Math.Clamp(CursorTimeMs, 0, (int)Math.Ceiling(TimelineEndMs));
+        var editedHitSound = ParseHitSound(SelectedHitSoundName);
+        var usesAutoSampleSet = IsAutoSampleSetDisplay(SelectedSampleSetName);
+        var editedSampleSet = usesAutoSampleSet
+            ? ResolveAutoSampleSetForPointAtTime(editedHitSound, editedTimeMs)
+            : ParseSampleSet(SelectedSampleSetName);
+
         var edited = new HitSoundVisualizerPoint
         {
             Id = selected.Id,
-            TimeMs = Math.Clamp(CursorTimeMs, 0, (int)Math.Ceiling(TimelineEndMs)),
-            SampleSet = ParseSampleSet(SelectedSampleSetName),
+            TimeMs = editedTimeMs,
+            SampleSet = editedSampleSet,
             SampleIndexOverride = selected.SampleIndexOverride,
             SampleVolumeOverridePercent = selected.SampleVolumeOverridePercent,
-            HitSound = ParseHitSound(SelectedHitSoundName),
+            HitSound = editedHitSound,
+            IsAutoSampleSet = usesAutoSampleSet,
             IsDraggable = false
         };
 
@@ -1126,7 +1180,8 @@ public partial class HitSoundVisualizerViewModel(
             return;
         }
 
-        var targetSampleSet = ParseSampleSet(SelectedSampleSetName);
+        var targetUsesAutoSampleSet = IsAutoSampleSetDisplay(SelectedSampleSetName);
+        var targetSampleSet = targetUsesAutoSampleSet ? SampleSet.Normal : ParseSampleSet(SelectedSampleSetName);
         var targetHitSound = ParseHitSound(SelectedHitSoundName);
         var selectedPoints = Points
             .Where(point => ids.Contains(point.Id))
@@ -1141,19 +1196,52 @@ public partial class HitSoundVisualizerViewModel(
             {
                 Id = point.Id,
                 TimeMs = point.TimeMs,
-                SampleSet = targetSampleSet,
+                SampleSet = targetUsesAutoSampleSet
+                    ? ResolveAutoSampleSetForPointAtTime(targetHitSound, point.TimeMs)
+                    : targetSampleSet,
                 SampleIndexOverride = point.SampleIndexOverride,
                 SampleVolumeOverridePercent = point.SampleVolumeOverridePercent,
                 HitSound = targetHitSound,
-                IsAutoSampleSet = false,
+                IsAutoSampleSet = targetUsesAutoSampleSet,
                 IsDraggable = false
             })
             .GroupBy(point => (point.TimeMs, point.HitSound))
             .Select(group => group.First())
             .ToList();
+        var destinationTimes = selectedPoints
+            .Select(point => point.TimeMs)
+            .Distinct()
+            .ToHashSet();
 
-        var updated = Points
+        var normalizeAllAdditionsPerTargetColumn = targetHitSound != HitSound.Normal;
+        var preservedPoints = Points
             .Where(point => !ids.Contains(point.Id) && !destinationLanes.Contains((point.TimeMs, point.HitSound)))
+            .Select(point =>
+            {
+                if (!normalizeAllAdditionsPerTargetColumn ||
+                    point.HitSound == HitSound.Normal ||
+                    !destinationTimes.Contains(point.TimeMs))
+                {
+                    return point;
+                }
+
+                return new HitSoundVisualizerPoint
+                {
+                    Id = point.Id,
+                    TimeMs = point.TimeMs,
+                    SampleSet = targetUsesAutoSampleSet
+                        ? ResolveAutoSampleSetForPointAtTime(point.HitSound, point.TimeMs)
+                        : targetSampleSet,
+                    SampleIndexOverride = point.SampleIndexOverride,
+                    SampleVolumeOverridePercent = point.SampleVolumeOverridePercent,
+                    HitSound = point.HitSound,
+                    IsAutoSampleSet = targetUsesAutoSampleSet,
+                    IsDraggable = point.IsDraggable
+                };
+            })
+            .ToList();
+
+        var updated = preservedPoints
             .Concat(transformedPoints)
             .ToList();
 
@@ -2051,7 +2139,7 @@ public partial class HitSoundVisualizerViewModel(
 
     private void SyncEditorFromPoint(HitSoundVisualizerPoint point)
     {
-        SelectedSampleSetName = SampleSetToDisplay(point.SampleSet);
+        SelectedSampleSetName = point.IsAutoSampleSet ? "Auto" : SampleSetToDisplay(point.SampleSet);
         SelectedHitSoundName = HitSoundToDisplay(point.HitSound);
         NewPointIsSliderBody = false;
     }
@@ -2192,16 +2280,17 @@ public partial class HitSoundVisualizerViewModel(
         {
             return;
         }
-
-        if (string.Equals(value, "Auto", StringComparison.OrdinalIgnoreCase))
-        {
-            return;
-        }
-
-        var sampleSet = ParseSampleSet(value);
+        
+        var applyAuto = string.Equals(value, "Auto", StringComparison.OrdinalIgnoreCase);
+        var sampleSet = applyAuto ? SampleSet.Normal : ParseSampleSet(value);
 
         if (IsSampleRowContextActive)
         {
+            if (applyAuto)
+            {
+                return;
+            }
+
             ContextSampleSetName = SampleSetToDisplay(sampleSet);
 
             _suppressHeaderBankQuickApply = true;
@@ -2220,7 +2309,7 @@ public partial class HitSoundVisualizerViewModel(
             var cursorTimeMs = ResolveCursorColumnTimeOrFallback();
             bool IsTargetPointAtCursor(HitSoundVisualizerPoint point) =>
                 Math.Abs(point.TimeMs - cursorTimeMs) <= CursorColumnToleranceMs &&
-                (isNormalBank ? point.HitSound == HitSound.Normal : point.HitSound != HitSound.Normal);
+                MatchesQuickBankTarget(point, isNormalBank);
 
             if (!Points.Any(IsTargetPointAtCursor))
             {
@@ -2229,17 +2318,10 @@ public partial class HitSoundVisualizerViewModel(
 
             var updatedAtCursor = Points
                 .Select(point => IsTargetPointAtCursor(point)
-                    ? new HitSoundVisualizerPoint
-                    {
-                        Id = point.Id,
-                        TimeMs = point.TimeMs,
-                        SampleSet = sampleSet,
-                        SampleIndexOverride = point.SampleIndexOverride,
-                        SampleVolumeOverridePercent = point.SampleVolumeOverridePercent,
-                        IsAutoSampleSet = false,
-                        HitSound = point.HitSound,
-                        IsDraggable = point.IsDraggable
-                    }
+                    ? ApplyQuickBankEditToPoint(
+                        point,
+                        applyAuto,
+                        sampleSet)
                     : point)
                 .ToList();
 
@@ -2254,7 +2336,7 @@ public partial class HitSoundVisualizerViewModel(
             return;
         }
 
-        ApplySampleSetToSelectionSubset(isNormalBank, sampleSet);
+        ApplySampleSetToSelectionSubset(isNormalBank, sampleSet, applyAuto);
         RefreshHeaderBankQuickState();
     }
 
@@ -2332,7 +2414,7 @@ public partial class HitSoundVisualizerViewModel(
         return rowIndex is >= 1 and <= 4;
     }
 
-    private void ApplySampleSetToSelectionSubset(bool affectNormalPoints, SampleSet sampleSet)
+    private void ApplySampleSetToSelectionSubset(bool affectNormalPoints, SampleSet sampleSet, bool applyAuto)
     {
         var selectedIds = SelectedPointIds.Where(id => id > 0).Distinct().ToHashSet();
         if (selectedIds.Count == 0 && SelectedPointId > 0)
@@ -2346,7 +2428,7 @@ public partial class HitSoundVisualizerViewModel(
         }
 
         // Header bank quick-edit is column-based (timestamp-based), not point-based.
-        // Selecting one addition point should still target the hitnormal bank (or all additions) at that timestamp.
+        // It only edits points from the selected bank (normal or additions), never the opposite bank.
         var selectedTimes = Points
             .Where(point => selectedIds.Contains(point.Id))
             .Select(point => point.TimeMs)
@@ -2360,7 +2442,7 @@ public partial class HitSoundVisualizerViewModel(
 
         bool IsTargetPoint(HitSoundVisualizerPoint point) =>
             selectedTimes.Contains(point.TimeMs) &&
-            (affectNormalPoints ? point.HitSound == HitSound.Normal : point.HitSound != HitSound.Normal);
+            MatchesQuickBankTarget(point, affectNormalPoints);
 
         if (!Points.Any(IsTargetPoint))
         {
@@ -2369,17 +2451,10 @@ public partial class HitSoundVisualizerViewModel(
 
         var updated = Points
             .Select(point => IsTargetPoint(point)
-                ? new HitSoundVisualizerPoint
-                {
-                    Id = point.Id,
-                    TimeMs = point.TimeMs,
-                    SampleSet = sampleSet,
-                    SampleIndexOverride = point.SampleIndexOverride,
-                    SampleVolumeOverridePercent = point.SampleVolumeOverridePercent,
-                    IsAutoSampleSet = false,
-                    HitSound = point.HitSound,
-                    IsDraggable = point.IsDraggable
-                }
+                ? ApplyQuickBankEditToPoint(
+                    point,
+                    applyAuto,
+                    sampleSet)
                 : point)
             .ToList();
 
@@ -2388,6 +2463,38 @@ public partial class HitSoundVisualizerViewModel(
         ApplyUpdatedPoints(updated, selectPointId: primaryId);
         ApplySelection(selectedIdArray, primaryId);
         UpdateSelectedPointSummary();
+    }
+
+    private HitSoundVisualizerPoint ApplyQuickBankEditToPoint(
+        HitSoundVisualizerPoint point,
+        bool applyAuto,
+        SampleSet manualSampleSet)
+    {
+        var resolvedNormalSampleSet = ResolveHeaderBankAtTime(isNormalBank: true, point.TimeMs);
+        var resolvedSampleSet = applyAuto
+            ? (point.HitSound == HitSound.Normal
+                ? resolvedNormalSampleSet
+                : ResolveHeaderBankAtTime(isNormalBank: false, point.TimeMs, resolvedNormalSampleSet))
+            : manualSampleSet;
+
+        return new HitSoundVisualizerPoint
+        {
+            Id = point.Id,
+            TimeMs = point.TimeMs,
+            SampleSet = resolvedSampleSet,
+            SampleIndexOverride = point.SampleIndexOverride,
+            SampleVolumeOverridePercent = point.SampleVolumeOverridePercent,
+            IsAutoSampleSet = applyAuto,
+            HitSound = point.HitSound,
+            IsDraggable = point.IsDraggable
+        };
+    }
+
+    private static bool MatchesQuickBankTarget(HitSoundVisualizerPoint point, bool normalBank)
+    {
+        return normalBank
+            ? point.HitSound == HitSound.Normal
+            : point.HitSound != HitSound.Normal;
     }
 
     private bool TryRebuildWorkingTimeline(
@@ -2695,11 +2802,15 @@ public partial class HitSoundVisualizerViewModel(
 
     private static string ResolvePlaybackBusKey(HitSoundVisualizerPoint point)
     {
+        var hitSoundFlags = (int)point.HitSound;
         return point.HitSound switch
         {
             HitSound.Whistle => "hs-whistle",
             HitSound.Finish => "hs-finish",
             HitSound.Clap => "hs-clap",
+            _ when (hitSoundFlags & (int)HitSound.Clap) == (int)HitSound.Clap => "hs-clap",
+            _ when (hitSoundFlags & (int)HitSound.Finish) == (int)HitSound.Finish => "hs-finish",
+            _ when (hitSoundFlags & (int)HitSound.Whistle) == (int)HitSound.Whistle => "hs-whistle",
             _ => "hs-normal"
         };
     }
@@ -2923,11 +3034,15 @@ public partial class HitSoundVisualizerViewModel(
             _ => "normal"
         };
 
+        var hitSoundFlags = (int)hitSound;
         var suffix = hitSound switch
         {
             HitSound.Whistle => "hitwhistle",
             HitSound.Finish => "hitfinish",
             HitSound.Clap => "hitclap",
+            _ when (hitSoundFlags & (int)HitSound.Clap) == (int)HitSound.Clap => "hitclap",
+            _ when (hitSoundFlags & (int)HitSound.Finish) == (int)HitSound.Finish => "hitfinish",
+            _ when (hitSoundFlags & (int)HitSound.Whistle) == (int)HitSound.Whistle => "hitwhistle",
             _ => "hitnormal"
         };
 
@@ -3063,6 +3178,29 @@ public partial class HitSoundVisualizerViewModel(
         public int OffsetMs { get; set; }
         public string? SampleSet { get; set; }
         public string? HitSound { get; set; }
+    }
+
+    private static bool IsAutoSampleSetDisplay(string value)
+    {
+        return string.Equals(value, "Auto", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private SampleSet ResolveAutoSampleSetForPointAtTime(HitSound hitSound, int timeMs)
+    {
+        var sameTimePoints = Points
+            .Where(point => point.TimeMs == timeMs)
+            .ToList();
+
+        var normalFromColumn = sameTimePoints.FirstOrDefault(point => point.HitSound == HitSound.Normal)?.SampleSet;
+        var resolvedNormal = normalFromColumn ?? ResolveHeaderBankAtTime(isNormalBank: true, timeMs);
+
+        if (hitSound == HitSound.Normal)
+        {
+            return resolvedNormal;
+        }
+
+        var additionFromColumn = sameTimePoints.FirstOrDefault(point => point.HitSound != HitSound.Normal)?.SampleSet;
+        return additionFromColumn ?? ResolveHeaderBankAtTime(isNormalBank: false, timeMs, resolvedNormal);
     }
 
     private static SampleSet ParseSampleSet(string display) => display switch

@@ -71,6 +71,13 @@ public partial class HitSoundVisualizerView : UserControl
             return;
         }
 
+        if (e.KeyModifiers.HasFlag(KeyModifiers.Control) && e.Key == Key.A)
+        {
+            vm.SelectAllPointsCommand.Execute(null);
+            e.Handled = true;
+            return;
+        }
+
         if (e.Key == Key.Delete)
         {
             if (vm.IsSampleRowContextActive)

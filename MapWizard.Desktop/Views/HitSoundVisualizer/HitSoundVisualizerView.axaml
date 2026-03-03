@@ -216,7 +216,7 @@
                                                                 <Border Classes="timeline-flyout-surface">
                                                                     <ListBox Classes="timeline-snap-list"
                                                                              Width="140"
-                                                                             ItemsSource="{Binding SampleSetNames}"
+                                                                             ItemsSource="{Binding PointSampleSetNames}"
                                                                              SelectedItem="{Binding SelectedSampleSetName}" />
                                                                 </Border>
                                                             </Flyout>
@@ -559,7 +559,7 @@
                                                                         <Border Classes="timeline-flyout-surface">
                                                                             <ListBox Classes="timeline-snap-list"
                                                                                      Width="140"
-                                                                                     ItemsSource="{Binding SampleSetNames}"
+                                                                                     ItemsSource="{Binding PointSampleSetNames}"
                                                                                      SelectedItem="{Binding SelectedSampleSetName}" />
                                                                         </Border>
                                                                     </Flyout>

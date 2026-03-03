@@ -268,13 +268,9 @@ public class HitSoundService : IHitSoundService
             var resolvedNormalSample = NormalizeSampleSet(soundEvent.NormalSample, timelineSample);
             var normalUsesAutoSampleSet = !IsExplicitSampleSet(soundEvent.NormalSample);
 
-            // In osu!, hitnormal is implicit for hittable sounds even when the flag list only contains additions.
-            // The visualizer models hitnormal as an explicit point, so always include it.
-            var hitSounds = soundEvent.HitSounds
-                .Append(HitSound.Normal)
-                .Distinct()
-                .OrderBy(HitSoundSortOrder)
-                .ToList();
+            // Normalize parser flags into atomic sounds.
+            // This avoids treating combined flags as unknown "normal" lanes, which can duplicate hitnormal playback.
+            var hitSounds = ExpandAtomicHitSounds(soundEvent.HitSounds);
 
             foreach (var hitSound in hitSounds)
             {
@@ -414,6 +410,49 @@ public class HitSoundService : IHitSoundService
             <= 8 => 2,
             _ => 1
         };
+    }
+
+    private static IReadOnlyList<HitSound> ExpandAtomicHitSounds(IEnumerable<HitSound>? sourceHitSounds)
+    {
+        var combinedFlags = 0;
+        if (sourceHitSounds is not null)
+        {
+            foreach (var hitSound in sourceHitSounds)
+            {
+                combinedFlags |= (int)hitSound;
+            }
+        }
+
+        // Hitnormal is implicit in osu! hittables; represent it explicitly in the visualizer.
+        var resolved = new List<HitSound> { HitSound.Normal };
+
+        if (ContainsHitSoundFlag(combinedFlags, HitSound.Whistle))
+        {
+            resolved.Add(HitSound.Whistle);
+        }
+
+        if (ContainsHitSoundFlag(combinedFlags, HitSound.Finish))
+        {
+            resolved.Add(HitSound.Finish);
+        }
+
+        if (ContainsHitSoundFlag(combinedFlags, HitSound.Clap))
+        {
+            resolved.Add(HitSound.Clap);
+        }
+
+        return resolved;
+    }
+
+    private static bool ContainsHitSoundFlag(int combinedFlags, HitSound flag)
+    {
+        var numericFlag = (int)flag;
+        if (numericFlag == 0)
+        {
+            return combinedFlags == 0;
+        }
+
+        return (combinedFlags & numericFlag) == numericFlag;
     }
 
     private static int HitSoundSortOrder(HitSound hitSound)

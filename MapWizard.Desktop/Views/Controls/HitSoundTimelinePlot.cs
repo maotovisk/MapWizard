@@ -87,6 +87,10 @@ public class HitSoundTimelinePlot : Control
     private bool _isAdditiveSelection;
     private Point _selectionStartPosition;
     private Point _selectionCurrentPosition;
+    private int _selectionStartTimeMs;
+    private int _selectionCurrentTimeMs;
+    private int _selectionStartRowIndex = -1;
+    private int _selectionCurrentRowIndex = -1;
     private Point _lastPanPosition;
     private bool _showPlacementGhost;
     private int _placementGhostRowIndex = -1;
@@ -515,6 +519,10 @@ public class HitSoundTimelinePlot : Control
         _isAdditiveSelection = e.KeyModifiers.HasFlag(KeyModifiers.Control);
         _selectionStartPosition = clickPosition;
         _selectionCurrentPosition = clickPosition;
+        _selectionStartTimeMs = clickedTimeMs;
+        _selectionCurrentTimeMs = clickedTimeMs;
+        _selectionStartRowIndex = clickedRow;
+        _selectionCurrentRowIndex = clickedRow;
         e.Pointer.Capture(this);
         e.Handled = true;
     }
@@ -552,6 +560,8 @@ public class HitSoundTimelinePlot : Control
         {
             ClearPlacementGhost();
             _selectionCurrentPosition = ClampPointToBounds(point.Position, bounds);
+            _selectionCurrentTimeMs = XToTime(_selectionCurrentPosition.X, bounds.Width, windowMs);
+            _selectionCurrentRowIndex = YToRowIndex(_selectionCurrentPosition.Y, DefaultRowHeight);
             _isSelectionDragActive = Math.Abs(_selectionCurrentPosition.X - _selectionStartPosition.X) > 4d ||
                                      Math.Abs(_selectionCurrentPosition.Y - _selectionStartPosition.Y) > 4d;
             InvalidateVisual();
@@ -572,15 +582,21 @@ public class HitSoundTimelinePlot : Control
             var windowMs = Math.Max(1d, ViewEndMs - ViewStartMs);
             var releasedPos = ClampPointToBounds(e.GetPosition(this), bounds);
             _selectionCurrentPosition = releasedPos;
+            _selectionCurrentTimeMs = XToTime(_selectionCurrentPosition.X, bounds.Width, windowMs);
+            _selectionCurrentRowIndex = YToRowIndex(_selectionCurrentPosition.Y, DefaultRowHeight);
 
             if (_isSelectionDragActive)
             {
-                var startTime = XToTime(_selectionStartPosition.X, bounds.Width, windowMs);
-                var endTime = XToTime(_selectionCurrentPosition.X, bounds.Width, windowMs);
+                var startTime = _selectionStartTimeMs;
+                var endTime = _selectionCurrentTimeMs;
                 var minTime = Math.Min(startTime, endTime);
                 var maxTime = Math.Max(startTime, endTime);
-                var startRow = YToRowIndex(_selectionStartPosition.Y, DefaultRowHeight);
-                var endRow = YToRowIndex(_selectionCurrentPosition.Y, DefaultRowHeight);
+                var startRow = _selectionStartRowIndex >= 0
+                    ? _selectionStartRowIndex
+                    : YToRowIndex(_selectionStartPosition.Y, DefaultRowHeight);
+                var endRow = _selectionCurrentRowIndex >= 0
+                    ? _selectionCurrentRowIndex
+                    : YToRowIndex(_selectionCurrentPosition.Y, DefaultRowHeight);
                 var minRow = Math.Min(startRow, endRow);
                 var maxRow = Math.Max(startRow, endRow);
 
@@ -618,9 +634,7 @@ public class HitSoundTimelinePlot : Control
                 }
             }
 
-            _isRangeSelecting = false;
-            _isSelectionDragActive = false;
-            _isAdditiveSelection = false;
+            ResetRangeSelectionState();
             InvalidateVisual();
         }
 
@@ -635,9 +649,7 @@ public class HitSoundTimelinePlot : Control
     protected override void OnPointerCaptureLost(PointerCaptureLostEventArgs e)
     {
         base.OnPointerCaptureLost(e);
-        _isRangeSelecting = false;
-        _isSelectionDragActive = false;
-        _isAdditiveSelection = false;
+        ResetRangeSelectionState();
         _isMiddlePanning = false;
         ClearPlacementGhost();
         InvalidateVisual();
@@ -674,6 +686,7 @@ public class HitSoundTimelinePlot : Control
             if (ZoomTimelineCommand?.CanExecute(request) == true)
             {
                 ZoomTimelineCommand.Execute(request);
+                RefreshRangeSelectionAnchorFromCurrentViewport(bounds);
                 e.Handled = true;
             }
 
@@ -690,6 +703,7 @@ public class HitSoundTimelinePlot : Control
             if (SeekTimeCommand?.CanExecute(seekTimeMs) == true)
             {
                 SeekTimeCommand.Execute(seekTimeMs);
+                RefreshRangeSelectionAnchorFromCurrentViewport(bounds);
             }
 
             return;
@@ -699,6 +713,7 @@ public class HitSoundTimelinePlot : Control
         if (PanTimelineCommand?.CanExecute(panDeltaMs) == true)
         {
             PanTimelineCommand.Execute(panDeltaMs);
+            RefreshRangeSelectionAnchorFromCurrentViewport(bounds);
             e.Handled = true;
         }
     }
@@ -1201,10 +1216,16 @@ public class HitSoundTimelinePlot : Control
             return;
         }
 
-        var minX = Math.Clamp(Math.Min(_selectionStartPosition.X, _selectionCurrentPosition.X), 0, width);
-        var maxX = Math.Clamp(Math.Max(_selectionStartPosition.X, _selectionCurrentPosition.X), 0, width);
-        var startRow = YToRowIndex(_selectionStartPosition.Y, rowHeight);
-        var endRow = YToRowIndex(_selectionCurrentPosition.Y, rowHeight);
+        var startX = TimeToX(_selectionStartTimeMs, width, windowMs);
+        var currentX = TimeToX(_selectionCurrentTimeMs, width, windowMs);
+        var minX = Math.Clamp(Math.Min(startX, currentX), 0, width);
+        var maxX = Math.Clamp(Math.Max(startX, currentX), 0, width);
+        var startRow = _selectionStartRowIndex >= 0
+            ? _selectionStartRowIndex
+            : YToRowIndex(_selectionStartPosition.Y, rowHeight);
+        var endRow = _selectionCurrentRowIndex >= 0
+            ? _selectionCurrentRowIndex
+            : YToRowIndex(_selectionCurrentPosition.Y, rowHeight);
         var minRow = Math.Min(startRow, endRow);
         var maxRow = Math.Max(startRow, endRow);
         var y = minRow * rowHeight;
@@ -1254,11 +1275,15 @@ public class HitSoundTimelinePlot : Control
 
     private static int GetRowIndex(HitSoundVisualizerPoint point)
     {
+        var hitSoundFlags = (int)point.HitSound;
         var soundOffset = point.HitSound switch
         {
             HitSound.Whistle => 1,
             HitSound.Finish => 2,
             HitSound.Clap => 3,
+            _ when (hitSoundFlags & (int)HitSound.Clap) == (int)HitSound.Clap => 3,
+            _ when (hitSoundFlags & (int)HitSound.Finish) == (int)HitSound.Finish => 2,
+            _ when (hitSoundFlags & (int)HitSound.Whistle) == (int)HitSound.Whistle => 1,
             _ => 0
         };
 
@@ -1813,6 +1838,29 @@ public class HitSoundTimelinePlot : Control
 
         seekTimeMs = target;
         return true;
+    }
+
+    private void RefreshRangeSelectionAnchorFromCurrentViewport(Rect bounds)
+    {
+        if (!_isRangeSelecting || !_isSelectionDragActive)
+        {
+            return;
+        }
+
+        var windowMs = Math.Max(1d, ViewEndMs - ViewStartMs);
+        _selectionCurrentPosition = ClampPointToBounds(_selectionCurrentPosition, bounds);
+        _selectionCurrentTimeMs = XToTime(_selectionCurrentPosition.X, bounds.Width, windowMs);
+        _selectionCurrentRowIndex = YToRowIndex(_selectionCurrentPosition.Y, DefaultRowHeight);
+        InvalidateVisual();
+    }
+
+    private void ResetRangeSelectionState()
+    {
+        _isRangeSelecting = false;
+        _isSelectionDragActive = false;
+        _isAdditiveSelection = false;
+        _selectionStartRowIndex = -1;
+        _selectionCurrentRowIndex = -1;
     }
 
     private static Color SnapTickColor(int denominator)
