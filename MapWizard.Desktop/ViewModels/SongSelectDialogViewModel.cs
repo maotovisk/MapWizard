@@ -49,14 +49,18 @@ public partial class SongSelectDialogViewModel(
     private SongMapsetCardViewModel? _lastToggledMapset;
     private DateTime _lastMapsetToggleUtc = DateTime.MinValue;
 
-    [ObservableProperty] private bool _isLoading;
+    [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(ReloadLibraryCommand))]
+    private bool _isLoading;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(ShowBusyBox))]
+    [NotifyCanExecuteChangedFor(nameof(ReloadLibraryCommand))]
     private bool _isBusyAreaActive;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(ShowBusyBox))]
+    [NotifyCanExecuteChangedFor(nameof(ReloadLibraryCommand))]
     private bool _isSearchPending;
 
     [ObservableProperty] private string? _searchText = string.Empty;
@@ -74,6 +78,7 @@ public partial class SongSelectDialogViewModel(
                                      VisibleMapsets.Count == 0 &&
                                      GetSearchQuery().Length > 0;
     public bool CanConfirmSelection => AllowMultipleSelection && SelectedDifficultyCount > 0;
+    public bool CanReloadLibrary => HasSongsPath && !IsBusyAreaActive && !IsLoading && !IsSearchPending;
 
     public event Action<IReadOnlyList<string>>? SelectionSubmitted;
 
@@ -264,6 +269,15 @@ public partial class SongSelectDialogViewModel(
         {
             SelectionSubmitted?.Invoke(selectedPaths);
         }
+    }
+
+    [RelayCommand(CanExecute = nameof(CanReloadLibrary))]
+    private async Task ReloadLibrary(CancellationToken cancellationToken)
+    {
+        CancelPendingSearchOperations();
+        songLibraryService.InvalidateCache(songsPath);
+        ClearMapsetViewModelCache();
+        await InitializeAsync(cancellationToken);
     }
 
     [RelayCommand]
@@ -739,6 +753,45 @@ public partial class SongSelectDialogViewModel(
         {
             mapset.SetBackgroundActive(false);
         }
+    }
+
+    private void CancelPendingSearchOperations()
+    {
+        _searchDebounceCts?.Cancel();
+        _searchDebounceCts?.Dispose();
+        _searchDebounceCts = null;
+
+        _searchExecutionCts?.Cancel();
+        _searchExecutionCts?.Dispose();
+        _searchExecutionCts = null;
+
+        _isScrollLoadScheduled = false;
+        IsSearchPending = false;
+    }
+
+    private void ClearMapsetViewModelCache()
+    {
+        DeactivateAllCachedBackgrounds();
+
+        foreach (var mapset in _mapsetViewModelCache.Values)
+        {
+            mapset.Dispose();
+        }
+
+        _mapsetViewModelCache.Clear();
+        _visibleDirectoryPaths.Clear();
+        _filteredDirectoryEntries.Clear();
+        _mapsetDirectoryEntries.Clear();
+        _mapsetDirectories.Clear();
+        VisibleMapsets.Clear();
+        _filteredCursor = 0;
+        SelectedDifficultyCount = 0;
+        _lastFirstVisibleIndex = null;
+        _lastLastVisibleIndex = null;
+        _lastToggledMapset = null;
+        _lastMapsetToggleUtc = DateTime.MinValue;
+        NotifyListStateChanged();
+        OnPropertyChanged(nameof(CanConfirmSelection));
     }
 
     private readonly record struct MapsetDirectoryEntry(string DirectoryPath, string FolderName);

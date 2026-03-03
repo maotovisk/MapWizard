@@ -9,6 +9,7 @@ public interface ISongLibraryService
 {
     bool IsValidSongsPath(string? songsPath);
     string? TryDetectSongsPath();
+    void InvalidateCache(string? songsPath = null);
     Task<IReadOnlyList<string>> GetMapsetDirectoriesAsync(string songsPath, CancellationToken cancellationToken = default);
     Task<SongMapsetInfo?> LoadMapsetAsync(string mapsetDirectoryPath, CancellationToken cancellationToken = default);
 }

@@ -39,6 +39,39 @@ public sealed class SongLibraryService : ISongLibraryService
         return IsValidSongsPath(detected) ? Path.GetFullPath(detected!) : null;
     }
 
+    public void InvalidateCache(string? songsPath = null)
+    {
+        if (string.IsNullOrWhiteSpace(songsPath))
+        {
+            _cachedSongsPath = null;
+            _cachedMapsetDirectories = [];
+            _cachedAtUtc = DateTime.MinValue;
+            _mapsetCache.Clear();
+            return;
+        }
+
+        string? normalizedSongsPath;
+        try
+        {
+            normalizedSongsPath = Path.GetFullPath(songsPath);
+        }
+        catch
+        {
+            normalizedSongsPath = null;
+        }
+
+        if (normalizedSongsPath is null ||
+            !string.Equals(_cachedSongsPath, normalizedSongsPath, StringComparison.OrdinalIgnoreCase))
+        {
+            return;
+        }
+
+        _cachedSongsPath = null;
+        _cachedMapsetDirectories = [];
+        _cachedAtUtc = DateTime.MinValue;
+        _mapsetCache.Clear();
+    }
+
     public async Task<IReadOnlyList<string>> GetMapsetDirectoriesAsync(
         string songsPath,
         CancellationToken cancellationToken = default)
