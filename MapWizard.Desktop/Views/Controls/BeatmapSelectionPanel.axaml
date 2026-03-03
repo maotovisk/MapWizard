@@ -15,20 +15,20 @@
   <UserControl.Styles>
     <Style Selector="Border.BeatmapCard">
       <Setter Property="CornerRadius" Value="14" />
-      <Setter Property="BorderThickness" Value="1" />
-      <Setter Property="BorderBrush" Value="#46FFFFFF" />
+      <Setter Property="BorderThickness" Value="0" />
+      <Setter Property="BorderBrush" Value="Transparent" />
       <Setter Property="Padding" Value="1" />
-      <Setter Property="Height" Value="74" />
-      <Setter Property="MinHeight" Value="74" />
-      <Setter Property="MaxHeight" Value="74" />
+      <Setter Property="Height" Value="50" />
+      <Setter Property="MinHeight" Value="50" />
+      <Setter Property="MaxHeight" Value="50" />
       <Setter Property="HorizontalAlignment" Value="Stretch" />
       <Setter Property="ClipToBounds" Value="True" />
     </Style>
 
     <Style Selector="Border.BeatmapCard.Selected">
-      <Setter Property="BorderBrush" Value="#7CD397" />
-      <Setter Property="BorderThickness" Value="2" />
-      <Setter Property="Padding" Value="2" />
+      <Setter Property="BorderBrush" Value="Transparent" />
+      <Setter Property="BorderThickness" Value="0" />
+      <Setter Property="Padding" Value="1" />
     </Style>
 
     <Style Selector="Border.BeatmapCardSurface">
@@ -37,16 +37,16 @@
     </Style>
 
     <Style Selector="Border.BeatmapCardClip">
-      <Setter Property="CornerRadius" Value="12" />
+      <Setter Property="CornerRadius" Value="13" />
       <Setter Property="ClipToBounds" Value="True" />
     </Style>
 
     <Style Selector="Border.BeatmapCard TextBlock">
-      <Setter Property="Foreground" Value="{DynamicResource SystemControlForegroundBaseHighBrush}" />
+      <Setter Property="Foreground" Value="#F2F6FF" />
     </Style>
 
     <Style Selector="Border.BeatmapCard materialIcons|MaterialIcon">
-      <Setter Property="Foreground" Value="{DynamicResource SystemControlForegroundBaseHighBrush}" />
+      <Setter Property="Foreground" Value="#EAF2FF" />
     </Style>
 
     <Style Selector="Border.CardBadge">
@@ -127,9 +127,9 @@
     </Style>
 
     <Style Selector="Border.BeatmapCard.MapsetCandidate">
-      <Setter Property="Height" Value="64" />
-      <Setter Property="MinHeight" Value="64" />
-      <Setter Property="MaxHeight" Value="64" />
+      <Setter Property="Height" Value="50" />
+      <Setter Property="MinHeight" Value="50" />
+      <Setter Property="MaxHeight" Value="50" />
     </Style>
 
     <Style Selector="Border.EmptySelectionCard">
@@ -184,8 +184,8 @@
 
     <Style Selector="Border.MapsetGroupCard">
       <Setter Property="CornerRadius" Value="14" />
-      <Setter Property="BorderBrush" Value="#4AFFFFFF" />
-      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="BorderBrush" Value="Transparent" />
+      <Setter Property="BorderThickness" Value="0" />
       <Setter Property="Background" Value="#150E1727" />
       <Setter Property="ClipToBounds" Value="True" />
       <Setter Property="HorizontalAlignment" Value="Stretch" />
@@ -194,6 +194,8 @@
     <Style Selector="Border.MapsetGroupHeaderClip">
       <Setter Property="CornerRadius" Value="14,14,0,0" />
       <Setter Property="ClipToBounds" Value="True" />
+      <Setter Property="MaxHeight" Value="56" />
+      <Setter Property="VerticalAlignment" Value="Top" />
     </Style>
 
     <Style Selector="Border.MapsetGroupDetails">
@@ -203,31 +205,49 @@
 
     <Style Selector="Border.MapsetSummaryPill">
       <Setter Property="CornerRadius" Value="9" />
-      <Setter Property="Padding" Value="8,3" />
-      <Setter Property="Background" Value="#5B204C3D" />
+      <Setter Property="Padding" Value="7,2" />
+      <Setter Property="Background" Value="#8A162235" />
+      <Setter Property="BorderBrush" Value="Transparent" />
+      <Setter Property="BorderThickness" Value="0" />
       <Setter Property="HorizontalAlignment" Value="Right" />
     </Style>
 
     <Style Selector="ToggleButton.MapsetDiffChip">
-      <Setter Property="Margin" Value="0,0,8,8" />
-      <Setter Property="Padding" Value="11,6" />
-      <Setter Property="MinHeight" Value="30" />
-      <Setter Property="Background" Value="#2919253A" />
-      <Setter Property="BorderBrush" Value="#56FFFFFF" />
-      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="Margin" Value="0,0,4,4" />
+      <Setter Property="Padding" Value="8,3" />
+      <Setter Property="MinHeight" Value="22" />
+      <Setter Property="Background" Value="#4A1B2A44" />
+      <Setter Property="BorderBrush" Value="Transparent" />
+      <Setter Property="BorderThickness" Value="0" />
       <Setter Property="CornerRadius" Value="11" />
       <Setter Property="HorizontalContentAlignment" Value="Center" />
       <Setter Property="VerticalContentAlignment" Value="Center" />
     </Style>
 
     <Style Selector="ToggleButton.MapsetDiffChip:pointerover">
-      <Setter Property="Background" Value="#3D263650" />
-      <Setter Property="BorderBrush" Value="#86FFFFFF" />
+      <Setter Property="Background" Value="#5A263650" />
+      <Setter Property="BorderBrush" Value="Transparent" />
     </Style>
 
     <Style Selector="ToggleButton.MapsetDiffChip:checked">
-      <Setter Property="Background" Value="#3B3C7A5D" />
-      <Setter Property="BorderBrush" Value="#AEEFCF" />
+      <Setter Property="Background" Value="#5A3C7A5D" />
+      <Setter Property="BorderBrush" Value="Transparent" />
+    </Style>
+
+    <Style Selector="ToggleButton.MapsetDiffChip TextBlock">
+      <Setter Property="Foreground" Value="#F1F6FF" />
+    </Style>
+
+    <Style Selector="ToggleButton.MapsetDiffChip materialIcons|MaterialIcon">
+      <Setter Property="Foreground" Value="#D8F7E7" />
+    </Style>
+
+    <Style Selector="ToolTip">
+      <Setter Property="Background" Value="#EC0F1826" />
+      <Setter Property="Foreground" Value="#F4F8FF" />
+      <Setter Property="BorderBrush" Value="#4C89B6E9" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="Padding" Value="10,6" />
     </Style>
   </UserControl.Styles>
 
@@ -306,22 +326,24 @@
                   <StackPanel Grid.Column="1"
                               VerticalAlignment="Center"
                               Spacing="6">
-                    <Border Classes="CardBadge">
-                      <TextBlock Text="ORIGIN"
-                                 FontSize="10"
-                                 FontWeight="Bold" />
-                    </Border>
                     <StackPanel Orientation="Horizontal"
                                 Spacing="4">
                       <Button Classes="Basic Compact"
                               Command="{Binding SetOriginFromMemoryCommand}"
+                              Margin="0,0,4,0"
                               ToolTip.Tip="{Binding OriginMemoryToolTip, ElementName=Root}">
-                        <materialIcons:MaterialIcon Kind="Import" Width="14" Height="14" />
+                        <StackPanel Orientation="Horizontal" Spacing="4">
+                          <materialIcons:MaterialIcon Kind="Import" Width="13" Height="13" />
+                          <TextBlock VerticalAlignment="Center" Text="From osu!" FontSize="11" />
+                        </StackPanel>
                       </Button>
                       <Button Classes="Flat Compact"
                               Command="{Binding PickOriginFileCommand}"
                               ToolTip.Tip="Open Map Picker dialog">
-                        <materialIcons:MaterialIcon Kind="FileSearchOutline" Width="14" Height="14" />
+                        <StackPanel Orientation="Horizontal" Spacing="4">
+                          <materialIcons:MaterialIcon Kind="FileSearchOutline" Width="13" Height="13" />
+                          <TextBlock VerticalAlignment="Center" Text="Map Picker" FontSize="11" />
+                        </StackPanel>
                       </Button>
                     </StackPanel>
                   </StackPanel>
@@ -342,14 +364,18 @@
                          Margin="0,0,8,0" />
               <Button Classes="Basic Compact"
                       Command="{Binding SetOriginFromMemoryCommand}"
-                      Margin="0,0,6,0"
                       ToolTip.Tip="{Binding OriginMemoryToolTip, ElementName=Root}">
                 <StackPanel Orientation="Horizontal" Spacing="4">
                   <materialIcons:MaterialIcon Kind="Import" Width="16" Height="16" />
                   <TextBlock VerticalAlignment="Center" Text="From osu!" />
                 </StackPanel>
               </Button>
+              <TextBlock Text="or use the"
+                         VerticalAlignment="Center"
+                         Margin="6,0,6,0"
+                         Opacity="0.8" />
               <Button Classes="Flat Compact"
+                      Margin="6,0,0,0"
                       Command="{Binding PickOriginFileCommand}"
                       ToolTip.Tip="Open Map Picker dialog">
                 <StackPanel Orientation="Horizontal" Spacing="4">
@@ -398,9 +424,8 @@
                     Classes.expanded="{Binding IsMapsetDiffExpanded, ElementName=Root}">
               <Border Margin="0,8,0,0"
                       Classes="MapsetGroupCard">
-                <Grid RowDefinitions="74,Auto">
-                  <Border Grid.Row="0"
-                          Classes="MapsetGroupHeaderClip">
+                <Grid>
+                  <Border Classes="MapsetGroupHeaderClip">
                     <Grid>
                       <Border Background="#152033" />
 
@@ -422,54 +447,11 @@
                     </Grid>
                   </Border>
 
-                  <Grid Grid.Row="0"
-                        Margin="10,7"
+                  <Grid Margin="8,6,8,3"
                         ColumnDefinitions="*,Auto"
-                        ColumnSpacing="10">
-                    <StackPanel Grid.Column="0"
-                                VerticalAlignment="Center"
-                                Spacing="2">
-                      <TextBlock Text="{Binding OriginMap.DisplayTitle, ElementName=Root}"
-                                 FontWeight="Bold"
-                                 FontSize="13"
-                                 TextTrimming="CharacterEllipsis"
-                                 MaxLines="1" />
-                      <TextBlock Text="{Binding OriginMap.DisplayDetails, ElementName=Root}"
-                                 FontWeight="SemiBold"
-                                 Opacity="0.9"
-                                 FontSize="11"
-                                 TextTrimming="CharacterEllipsis"
-                                 MaxLines="1" />
-                    </StackPanel>
-
-                    <StackPanel Grid.Column="1"
-                                VerticalAlignment="Top"
-                                HorizontalAlignment="Right"
-                                Spacing="6">
-                      <Button Classes="Flat Compact"
-                              HorizontalAlignment="Right"
-                              Click="MapsetSelectAllButton_OnClick"
-                              IsEnabled="{Binding CanSelectAllMapsetDifficulties, ElementName=Root}"
-                              ToolTip.Tip="Select all mapset difficulties as destination maps">
-                        <TextBlock Text="Select all" />
-                      </Button>
-                      <Border Classes="MapsetSummaryPill">
-                        <StackPanel Orientation="Horizontal" Spacing="6">
-                          <materialIcons:MaterialIcon Kind="CheckCircle"
-                                                      Width="12"
-                                                      Height="12"
-                                                      IsVisible="{Binding HasSelectedMapsetDifficulties, ElementName=Root}" />
-                          <TextBlock Text="{Binding SelectedMapsetDifficultyCount, ElementName=Root, StringFormat={}{0} selected}"
-                                     FontSize="11"
-                                     FontWeight="SemiBold" />
-                        </StackPanel>
-                      </Border>
-                    </StackPanel>
-                  </Grid>
-
-                  <Border Grid.Row="1"
-                          Classes="MapsetGroupDetails">
-                    <ItemsControl ItemsSource="{Binding MapsetDifficultyCards, ElementName=Root}">
+                        ColumnSpacing="8">
+                    <ItemsControl Grid.Column="0"
+                                  ItemsSource="{Binding MapsetDifficultyCards, ElementName=Root}">
                       <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
                           <WrapPanel />
@@ -496,7 +478,28 @@
                         </DataTemplate>
                       </ItemsControl.ItemTemplate>
                     </ItemsControl>
-                  </Border>
+
+                    <StackPanel Grid.Column="1"
+                                Orientation="Horizontal"
+                                VerticalAlignment="Center"
+                                HorizontalAlignment="Right"
+                                Spacing="6">
+                      <Border Classes="MapsetSummaryPill">
+                        <TextBlock Text="{Binding SelectedMapsetDifficultyCount, ElementName=Root, StringFormat={}{0} selected}"
+                                   FontSize="10"
+                                   FontWeight="SemiBold"
+                                   Foreground="#F2F7FF"
+                                   VerticalAlignment="Center" />
+                      </Border>
+                      <Button Classes="Flat Compact"
+                              HorizontalAlignment="Right"
+                              Click="MapsetSelectAllButton_OnClick"
+                              IsEnabled="{Binding CanSelectAllMapsetDifficulties, ElementName=Root}"
+                              ToolTip.Tip="Select all mapset difficulties as destination maps">
+                        <TextBlock Text="Select all" />
+                      </Button>
+                    </StackPanel>
+                  </Grid>
                 </Grid>
               </Border>
             </Border>
