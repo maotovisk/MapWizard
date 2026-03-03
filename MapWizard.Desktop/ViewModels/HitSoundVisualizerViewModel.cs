@@ -75,6 +75,19 @@ public partial class HitSoundVisualizerViewModel(
     private string _hitsoundDebugLastSampleName = "-";
 
     [ObservableProperty] private SelectedMap _originBeatmap = new();
+    // Kept for BeatmapSelectionPanel binding compatibility (destination section is hidden in this view).
+    [ObservableProperty] private bool _hasMultiple;
+
+    [NotifyPropertyChangedFor(nameof(AdditionalBeatmaps))]
+    [ObservableProperty]
+    private ObservableCollection<SelectedMap> _destinationBeatmaps = [];
+
+    public ObservableCollection<SelectedMap> AdditionalBeatmaps
+    {
+        get => BeatmapPanelViewModelUtils.GetAdditionalBeatmaps(DestinationBeatmaps);
+        set => DestinationBeatmaps = BeatmapPanelViewModelUtils.MergeWithAdditionalBeatmaps(DestinationBeatmaps, value);
+    }
+
     [ObservableProperty] private string _preferredDirectory = string.Empty;
     [ObservableProperty] private string _loadedMapTitle = string.Empty;
     [ObservableProperty] private bool _hasLoadedMap;
@@ -416,16 +429,41 @@ public partial class HitSoundVisualizerViewModel(
     }
 
     [RelayCommand]
+    private void RemoveMap(string _)
+    {
+    }
+
+    [RelayCommand]
+    private Task PickDestinationFile(CancellationToken _)
+    {
+        return Task.CompletedTask;
+    }
+
+    [RelayCommand]
+    private void AddDestinationFromMemory()
+    {
+    }
+
+    [RelayCommand]
+    private void OpenOriginFolder()
+    {
+        if (BeatmapSelectionUtils.TryOpenBeatmapFolder(OriginBeatmap.Path, out var errorMessage))
+        {
+            return;
+        }
+
+        toastManager.ShowToast(
+            NotificationType.Warning,
+            "Hitsound Visualizer",
+            string.IsNullOrWhiteSpace(errorMessage)
+                ? "Unable to open the origin beatmap folder."
+                : errorMessage);
+    }
+
+    [RelayCommand]
     private void SetOriginFromMemory()
     {
-        var currentBeatmap = BeatmapSelectionUtils.TryGetBeatmapFromMemory(
-            osuMemoryReaderService,
-            (type, title, message) => toastManager.ShowToast(type, title, message),
-            "Memory Error",
-            "Something went wrong while getting the beatmap path from memory.",
-            "No Beatmap",
-            "No beatmap found in memory.");
-
+        var currentBeatmap = GetBeatmapFromMemory();
         if (currentBeatmap is null)
         {
             return;
@@ -1728,6 +1766,17 @@ public partial class HitSoundVisualizerViewModel(
         {
             _ = LoadTimeline();
         }
+    }
+
+    private string? GetBeatmapFromMemory()
+    {
+        return BeatmapSelectionUtils.TryGetBeatmapFromMemory(
+            osuMemoryReaderService,
+            (type, title, message) => toastManager.ShowToast(type, title, message),
+            "Memory Error",
+            "Something went wrong while getting the beatmap path from memory.",
+            "No Beatmap",
+            "No beatmap found in memory.");
     }
 
     private Task<IReadOnlyList<string>?> ShowSongSelectDialogAsync(

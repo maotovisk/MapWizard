@@ -180,8 +180,11 @@
         <ScrollViewer Grid.Row="2">
             <StackPanel Spacing="16">
                 <controls:BeatmapSelectionPanel
+                    OriginMap="{Binding OriginBeatmap}"
+                    DestinationMaps="{Binding DestinationBeatmaps}"
                     ShowDestinationSelection="False"
                     FromWatermark="Visualize hitsounds from..."
+                    AdditionalPrefix="{x:Null}"
                     OriginMemoryToolTip="Get the current beatmap selected in the osu! client." />
 
                 <suki:BusyArea IsBusy="{Binding IsPreparingPlayback}"
