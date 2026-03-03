@@ -38,7 +38,10 @@ public class HitSoundTimelineOverviewBar : Control
     private static readonly Pen LightTrackBorderPen = new(new SolidColorBrush(Color.Parse("#B8C7D8")), 1);
     private const double SampleChangeOverviewMinSpacingPx = 1.5d;
     private const double OverviewCornerRadius = 7d;
+    private const long PlaybackSeekInteractionGraceMs = 500;
     private bool _isScrubbing;
+    private bool _seekIssuedForCurrentPointerSequence;
+    private long _lastPlaybackRunningTickMs = long.MinValue;
     private OverviewInteractionMode _interactionMode;
     private HitSoundVisualizerSampleChange[] _sampleChangesCache = [];
 
@@ -68,6 +71,12 @@ public class HitSoundTimelineOverviewBar : Control
 
     public static readonly StyledProperty<ICommand?> EndPeekCommandProperty =
         AvaloniaProperty.Register<HitSoundTimelineOverviewBar, ICommand?>(nameof(EndPeekCommand));
+
+    public static readonly StyledProperty<bool> IsPlaybackRunningProperty =
+        AvaloniaProperty.Register<HitSoundTimelineOverviewBar, bool>(nameof(IsPlaybackRunning));
+
+    public static readonly StyledProperty<bool> IsPlaybackPausedProperty =
+        AvaloniaProperty.Register<HitSoundTimelineOverviewBar, bool>(nameof(IsPlaybackPaused));
 
     static HitSoundTimelineOverviewBar()
     {
@@ -133,6 +142,18 @@ public class HitSoundTimelineOverviewBar : Control
         set => SetValue(EndPeekCommandProperty, value);
     }
 
+    public bool IsPlaybackRunning
+    {
+        get => GetValue(IsPlaybackRunningProperty);
+        set => SetValue(IsPlaybackRunningProperty, value);
+    }
+
+    public bool IsPlaybackPaused
+    {
+        get => GetValue(IsPlaybackPausedProperty);
+        set => SetValue(IsPlaybackPausedProperty, value);
+    }
+
     public override void Render(DrawingContext context)
     {
         base.Render(context);
@@ -185,6 +206,12 @@ public class HitSoundTimelineOverviewBar : Control
         if (change.Property == SampleChangesProperty)
         {
             RebuildSampleChangeCache();
+            return;
+        }
+
+        if (change.Property == IsPlaybackRunningProperty && change.GetNewValue<bool>())
+        {
+            _lastPlaybackRunningTickMs = Environment.TickCount64;
         }
     }
 
@@ -197,20 +224,30 @@ public class HitSoundTimelineOverviewBar : Control
     protected override void OnPointerPressed(PointerPressedEventArgs e)
     {
         base.OnPointerPressed(e);
-        if (!e.GetCurrentPoint(this).Properties.IsLeftButtonPressed)
+        var currentPoint = e.GetCurrentPoint(this);
+        var isLeftPress = currentPoint.Properties.IsLeftButtonPressed ||
+                          currentPoint.Properties.PointerUpdateKind == PointerUpdateKind.LeftButtonPressed;
+        if (!isLeftPress)
         {
             return;
         }
 
+        var position = e.GetPosition(this);
+        _seekIssuedForCurrentPointerSequence = false;
+        if (IsPlaybackPaused && e.ClickCount >= 2)
+        {
+            SeekFromPoint(position);
+        }
+
         _isScrubbing = true;
-        _interactionMode = ResolveInteractionMode(e.GetPosition(this));
+        _interactionMode = ResolveInteractionMode(position);
         if (BeginPeekCommand?.CanExecute(null) == true)
         {
             BeginPeekCommand.Execute(null);
         }
 
         e.Pointer.Capture(this);
-        HandlePointerAction(e.GetPosition(this));
+        HandlePointerAction(position);
         e.Handled = true;
     }
 
@@ -229,7 +266,15 @@ public class HitSoundTimelineOverviewBar : Control
     protected override void OnPointerReleased(PointerReleasedEventArgs e)
     {
         base.OnPointerReleased(e);
+        if (IsPlaybackSeekInteractionActive &&
+            !_seekIssuedForCurrentPointerSequence &&
+            e.InitialPressMouseButton == MouseButton.Left)
+        {
+            SeekFromPoint(e.GetPosition(this));
+        }
+
         _isScrubbing = false;
+        _seekIssuedForCurrentPointerSequence = false;
         _interactionMode = OverviewInteractionMode.None;
         if (EndPeekCommand?.CanExecute(null) == true)
         {
@@ -246,6 +291,7 @@ public class HitSoundTimelineOverviewBar : Control
     {
         base.OnPointerCaptureLost(e);
         _isScrubbing = false;
+        _seekIssuedForCurrentPointerSequence = false;
         _interactionMode = OverviewInteractionMode.None;
         if (EndPeekCommand?.CanExecute(null) == true)
         {
@@ -278,6 +324,7 @@ public class HitSoundTimelineOverviewBar : Control
         var timeMs = (int)Math.Round(ratio * Math.Max(1d, TimelineEndMs));
         if (SeekTimeCommand?.CanExecute(timeMs) == true)
         {
+            _seekIssuedForCurrentPointerSequence = true;
             SeekTimeCommand.Execute(timeMs);
         }
     }
@@ -310,17 +357,8 @@ public class HitSoundTimelineOverviewBar : Control
 
     private OverviewInteractionMode ResolveInteractionMode(Point point)
     {
-        var bounds = Bounds;
-        if (bounds.Width <= 0)
-        {
-            return OverviewInteractionMode.SeekCursor;
-        }
-
-        var ratio = Math.Clamp(point.X / bounds.Width, 0, 1);
-        var timeMs = ratio * Math.Max(1d, TimelineEndMs);
-        return timeMs >= ViewStartMs && timeMs <= ViewEndMs
-            ? OverviewInteractionMode.SeekCursor
-            : OverviewInteractionMode.PanView;
+        _ = point;
+        return OverviewInteractionMode.SeekCursor;
     }
 
     private void DrawSampleChangeTint(DrawingContext context, Rect bounds, double totalMs)
@@ -384,5 +422,19 @@ public class HitSoundTimelineOverviewBar : Control
             SampleSet.Drum => DrumSampleChangeTintPen,
             _ => NormalSampleChangeTintPen
         };
+    }
+
+    private bool IsPlaybackSeekInteractionActive
+    {
+        get
+        {
+            if (IsPlaybackRunning)
+            {
+                return true;
+            }
+
+            var elapsedMs = Environment.TickCount64 - _lastPlaybackRunningTickMs;
+            return elapsedMs >= 0 && elapsedMs <= PlaybackSeekInteractionGraceMs;
+        }
     }
 }

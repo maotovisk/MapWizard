@@ -805,13 +805,16 @@
                         </Button>
                     </StackPanel>
 
-                    <controls:HitSoundTimelineOverviewBar Grid.Column="1"
+                    <controls:HitSoundTimelineOverviewBar x:Name="PlaybackOverviewBar"
+                                                          Grid.Column="1"
                                                           Height="18"
                                                           TimelineEndMs="{Binding TimelineEndMs}"
                                                           ViewStartMs="{Binding ViewStartMs}"
                                                           ViewEndMs="{Binding ViewEndMs}"
                                                           CursorTimeMs="{Binding CursorTimeMs}"
                                                           SampleChanges="{Binding SampleChanges}"
+                                                          IsPlaybackRunning="{Binding IsPlaybackRunning}"
+                                                          IsPlaybackPaused="{Binding IsPlaybackPaused}"
                                                           PanTimelineCommand="{Binding PanTimelineCommand}"
                                                           SeekTimeCommand="{Binding SeekTimeCommand}"
                                                           BeginPeekCommand="{Binding BeginTimelinePeekCommand}"

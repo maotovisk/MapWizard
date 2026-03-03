@@ -481,7 +481,7 @@ public class HitSoundTimelinePlot : Control
                 SelectPointCommand.Execute(nearest.Id);
             }
 
-            if (!isCtrl && SeekTimeCommand?.CanExecute(nearest.TimeMs) == true)
+            if ((IsPlaybackRunning || !isCtrl) && SeekTimeCommand?.CanExecute(nearest.TimeMs) == true)
             {
                 SeekTimeCommand.Execute(nearest.TimeMs);
             }
@@ -508,6 +508,17 @@ public class HitSoundTimelinePlot : Control
             if (SeekTimeCommand?.CanExecute(snappedTimeMs) == true)
             {
                 SeekTimeCommand.Execute(snappedTimeMs);
+            }
+
+            e.Handled = true;
+            return;
+        }
+
+        if (IsPlaybackRunning)
+        {
+            if (SeekTimeCommand?.CanExecute(clickedTimeMs) == true)
+            {
+                SeekTimeCommand.Execute(clickedTimeMs);
             }
 
             e.Handled = true;

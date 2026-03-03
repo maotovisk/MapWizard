@@ -28,6 +28,11 @@ public partial class HitSoundVisualizerView : UserControl
         };
         DetachedFromVisualTree += (_, _) => BindViewModel(null);
         AddHandler(KeyDownEvent, Root_OnKeyDown, Avalonia.Interactivity.RoutingStrategies.Tunnel);
+        AddHandler(
+            InputElement.PointerPressedEvent,
+            Root_OnPointerPressedTunnel,
+            Avalonia.Interactivity.RoutingStrategies.Tunnel,
+            handledEventsToo: true);
         BindViewModel(DataContext as HitSoundVisualizerViewModel);
     }
 
@@ -164,6 +169,41 @@ public partial class HitSoundVisualizerView : UserControl
         e.Handled = true;
     }
 
+    private void Root_OnPointerPressedTunnel(object? sender, PointerPressedEventArgs e)
+    {
+        if (DataContext is not HitSoundVisualizerViewModel vm || !vm.ShowPlaybackTimelineSection)
+        {
+            return;
+        }
+
+        var currentPoint = e.GetCurrentPoint(this);
+        var isLeftPress = currentPoint.Properties.IsLeftButtonPressed ||
+                          currentPoint.Properties.PointerUpdateKind == PointerUpdateKind.LeftButtonPressed;
+        if (!isLeftPress || IsPointerEventFromOverviewBar(e))
+        {
+            return;
+        }
+
+        var bounds = PlaybackOverviewBar.Bounds;
+        if (!PlaybackOverviewBar.IsVisible || bounds.Width <= 1d || bounds.Height <= 1d)
+        {
+            return;
+        }
+
+        var localPosition = e.GetPosition(PlaybackOverviewBar);
+        if (localPosition.X < 0d || localPosition.X > bounds.Width || localPosition.Y < 0d || localPosition.Y > bounds.Height)
+        {
+            return;
+        }
+
+        var ratio = Math.Clamp(localPosition.X / bounds.Width, 0d, 1d);
+        var timeMs = (int)Math.Round(ratio * Math.Max(1d, vm.TimelineEndMs));
+        if (vm.SeekTimeCommand.CanExecute(timeMs))
+        {
+            vm.SeekTimeCommand.Execute(timeMs);
+        }
+    }
+
     private bool HasTextEntryLikeFocus()
     {
         var focused = TopLevel.GetTopLevel(this)?.FocusManager?.GetFocusedElement();
@@ -240,6 +280,17 @@ public partial class HitSoundVisualizerView : UserControl
         var wheelDelta = Math.Abs(e.Delta.Y) >= Math.Abs(e.Delta.X) ? e.Delta.Y : e.Delta.X;
         direction = Math.Sign(wheelDelta);
         return direction != 0;
+    }
+
+    private bool IsPointerEventFromOverviewBar(PointerPressedEventArgs e)
+    {
+        if (e.Source is not Avalonia.Visual sourceVisual)
+        {
+            return false;
+        }
+
+        return ReferenceEquals(sourceVisual, PlaybackOverviewBar) ||
+               sourceVisual.GetVisualAncestors().Any(ancestor => ReferenceEquals(ancestor, PlaybackOverviewBar));
     }
 
     private bool TryHandleBankShortcuts(KeyEventArgs e, HitSoundVisualizerViewModel vm)
