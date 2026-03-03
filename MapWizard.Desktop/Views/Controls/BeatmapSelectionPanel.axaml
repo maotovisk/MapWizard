@@ -194,7 +194,6 @@
     <Style Selector="Border.MapsetGroupHeaderClip">
       <Setter Property="CornerRadius" Value="14,14,0,0" />
       <Setter Property="ClipToBounds" Value="True" />
-      <Setter Property="MaxHeight" Value="56" />
       <Setter Property="VerticalAlignment" Value="Top" />
     </Style>
 
@@ -271,6 +270,11 @@
       </Grid>
 
       <StackPanel Spacing="10">
+          <TextBlock Text="Origin"
+                     FontSize="12"
+                     FontWeight="SemiBold"
+                     Opacity="0.9"
+                     IsVisible="{Binding HasOriginSelection, ElementName=Root}" />
 
           <Border Classes="BeatmapCard"
                   IsVisible="{Binding HasOriginSelection, ElementName=Root}">
@@ -425,32 +429,11 @@
               <Border Margin="0,8,0,0"
                       Classes="MapsetGroupCard">
                 <Grid>
-                  <Border Classes="MapsetGroupHeaderClip">
-                    <Grid>
-                      <Border Background="#152033" />
-
-                      <Image Source="{Binding OriginMap.BackgroundImage, ElementName=Root}"
-                             Stretch="UniformToFill"
-                             IsVisible="{Binding OriginMap.HasBackgroundImage, ElementName=Root}" />
-
-                      <Border Background="#760A111B" />
-
-                      <Border>
-                        <Border.Background>
-                          <LinearGradientBrush StartPoint="0,0.5" EndPoint="1,0.5">
-                            <GradientStop Offset="0" Color="#EA0A111D" />
-                            <GradientStop Offset="0.5" Color="#BA0E1728" />
-                            <GradientStop Offset="1" Color="#63112037" />
-                          </LinearGradientBrush>
-                        </Border.Background>
-                      </Border>
-                    </Grid>
-                  </Border>
-
                   <Grid Margin="8,6,8,3"
                         ColumnDefinitions="*,Auto"
                         ColumnSpacing="8">
                     <ItemsControl Grid.Column="0"
+                                  VerticalAlignment="Center"
                                   ItemsSource="{Binding MapsetDifficultyCards, ElementName=Root}">
                       <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
@@ -484,14 +467,7 @@
                                 VerticalAlignment="Center"
                                 HorizontalAlignment="Right"
                                 Spacing="6">
-                      <Border Classes="MapsetSummaryPill">
-                        <TextBlock Text="{Binding SelectedMapsetDifficultyCount, ElementName=Root, StringFormat={}{0} selected}"
-                                   FontSize="10"
-                                   FontWeight="SemiBold"
-                                   Foreground="#F2F7FF"
-                                   VerticalAlignment="Center" />
-                      </Border>
-                      <Button Classes="Flat Compact"
+                      <Button Classes="Flat Rounded"
                               HorizontalAlignment="Right"
                               Click="MapsetSelectAllButton_OnClick"
                               IsEnabled="{Binding CanSelectAllMapsetDifficulties, ElementName=Root}"

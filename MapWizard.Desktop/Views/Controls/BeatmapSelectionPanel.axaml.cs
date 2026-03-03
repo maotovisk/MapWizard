@@ -602,7 +602,7 @@ public partial class BeatmapSelectionPanel : UserControl
         var selectedMapsetCount = MapsetDifficultyCards.Count(card => card.IsSelected);
         SelectedMapsetDifficultyCount = selectedMapsetCount;
         HasSelectedMapsetDifficulties = selectedMapsetCount > 0;
-        CanSelectAllMapsetDifficulties = totalMapsetCount > 0 && selectedMapsetCount < totalMapsetCount;
+        CanSelectAllMapsetDifficulties = totalMapsetCount > 0;
         var hasMapsetSelection = selectedMapsetCount > 0;
         ShowMapsetOrSeparator = HasMapsetDifficultyOptions && !hasMapsetSelection;
         if (hasMapsetSelection)
@@ -633,7 +633,7 @@ public partial class BeatmapSelectionPanel : UserControl
         var selectedMapsetCount = MapsetDifficultyCards.Count(card => card.IsSelected);
         SelectedMapsetDifficultyCount = selectedMapsetCount;
         HasSelectedMapsetDifficulties = selectedMapsetCount > 0;
-        CanSelectAllMapsetDifficulties = totalMapsetCount > 0 && selectedMapsetCount < totalMapsetCount;
+        CanSelectAllMapsetDifficulties = totalMapsetCount > 0;
         var hasMapsetSelection = selectedMapsetCount > 0;
         ShowMapsetOrSeparator = HasMapsetDifficultyOptions && !hasMapsetSelection;
         if (hasMapsetSelection)
@@ -690,6 +690,28 @@ public partial class BeatmapSelectionPanel : UserControl
         var selectedPaths = new HashSet<string>(
             DestinationMaps.Where(map => map.HasPath).Select(map => map.Path),
             System.StringComparer.OrdinalIgnoreCase);
+
+        var allMapsetSelected = MapsetDifficultyCards.All(card => selectedPaths.Contains(card.Path));
+        if (allMapsetSelected)
+        {
+            var mapsetPaths = new HashSet<string>(
+                MapsetDifficultyCards.Select(card => card.Path),
+                System.StringComparer.OrdinalIgnoreCase);
+
+            for (var i = DestinationMaps.Count - 1; i >= 0; i--)
+            {
+                var map = DestinationMaps[i];
+                if (!map.HasPath || !mapsetPaths.Contains(map.Path))
+                {
+                    continue;
+                }
+
+                DestinationMaps.RemoveAt(i);
+            }
+
+            e.Handled = true;
+            return;
+        }
 
         foreach (var card in MapsetDifficultyCards)
         {
