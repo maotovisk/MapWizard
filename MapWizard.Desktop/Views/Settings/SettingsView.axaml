@@ -90,6 +90,20 @@
                     </suki:SettingsLayoutItem.Content>
                 </suki:SettingsLayoutItem>
 
+                <suki:SettingsLayoutItem Header="Experimental">
+                    <suki:SettingsLayoutItem.Content>
+                        <Grid ColumnDefinitions="*,Auto" VerticalAlignment="Center">
+                            <StackPanel Spacing="4">
+                                <TextBlock Text="Enable Hitsound Visualizer" FontWeight="Bold" />
+                                <TextBlock Text="Shows the Hitsound Visualizer tool in the sidebar when enabled."
+                                           TextWrapping="Wrap" />
+                            </StackPanel>
+                            <ToggleSwitch Grid.Column="1"
+                                          IsChecked="{Binding IsHitSoundVisualizerEnabled, Mode=TwoWay}" />
+                        </Grid>
+                    </suki:SettingsLayoutItem.Content>
+                </suki:SettingsLayoutItem>
+
                 <suki:SettingsLayoutItem Header="Audio">
                     <suki:SettingsLayoutItem.Content>
                         <StackPanel Spacing="20">

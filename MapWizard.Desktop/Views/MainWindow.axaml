@@ -211,6 +211,7 @@
                             Width="82"
                             Foreground="{DynamicResource SukiText}"
                             HorizontalContentAlignment="Center"
+                            IsVisible="{Binding IsHitSoundVisualizerEnabled}"
                             Command="{Binding OpenHitSoundVisualizerCommand}">
                         <StackPanel Spacing="4" HorizontalAlignment="Center" IsHitTestVisible="False">
                             <Grid Width="44" Height="30">

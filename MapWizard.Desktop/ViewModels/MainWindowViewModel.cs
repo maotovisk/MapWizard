@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel;
 using Avalonia.Controls.Notifications;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -24,7 +25,7 @@ namespace MapWizard.Desktop.ViewModels
         private ViewModelBase ComboColourStudioViewModel { get; }
         private ViewModelBase MapCleanerViewModel { get; }
         private ViewModelBase WelcomePageViewModel { get; }
-        private ViewModelBase SettingsViewModel { get; }
+        private ViewModelBase SettingsPageViewModel { get; }
 
         [ObservableProperty]
         private bool _isDarkTheme;
@@ -46,6 +47,9 @@ namespace MapWizard.Desktop.ViewModels
 
         [ObservableProperty]
         private bool _isHitSoundVisualizerSelected;
+
+        [ObservableProperty]
+        private bool _isHitSoundVisualizerEnabled;
 
         [ObservableProperty]
         private bool _isMetadataManagerSelected;
@@ -92,7 +96,7 @@ namespace MapWizard.Desktop.ViewModels
             ComboColourStudioViewModel = comboColourStudioViewModel;
             MapCleanerViewModel = mapCleanerViewModel;
             WelcomePageViewModel = welcomePageViewModel;
-            SettingsViewModel = settingsViewModel;
+            SettingsPageViewModel = settingsViewModel;
             CurrentPageViewModel = WelcomePageViewModel;
 
             Version = updateService.VersionLabel;
@@ -102,6 +106,8 @@ namespace MapWizard.Desktop.ViewModels
 
             SetPage(NavigationPage.Welcome);
             settingsViewModel.Initialize();
+            UpdateHitSoundVisualizerAvailability(settingsViewModel.IsHitSoundVisualizerEnabled);
+            settingsViewModel.PropertyChanged += OnSettingsViewModelPropertyChanged;
             _ = welcomePageViewModel.CheckForUpdatesOnStartupAsync();
         }
 
@@ -109,7 +115,9 @@ namespace MapWizard.Desktop.ViewModels
 
         public void NavigateToHitSoundCopier() => SetPage(NavigationPage.HitSoundCopier);
 
-        public void NavigateToHitSoundVisualizer() => SetPage(NavigationPage.HitSoundVisualizer);
+        public void NavigateToHitSoundVisualizer() => SetPage(IsHitSoundVisualizerEnabled
+            ? NavigationPage.HitSoundVisualizer
+            : NavigationPage.Welcome);
 
         public void NavigateToMetadataManager() => SetPage(NavigationPage.MetadataManager);
 
@@ -121,6 +129,11 @@ namespace MapWizard.Desktop.ViewModels
 
         private void SetPage(NavigationPage page)
         {
+            if (page == NavigationPage.HitSoundVisualizer && !IsHitSoundVisualizerEnabled)
+            {
+                page = NavigationPage.Welcome;
+            }
+
             CurrentPageViewModel = page switch
             {
                 NavigationPage.Welcome => WelcomePageViewModel,
@@ -129,7 +142,7 @@ namespace MapWizard.Desktop.ViewModels
                 NavigationPage.MetadataManager => MetadataManagerViewModel,
                 NavigationPage.ComboColourStudio => ComboColourStudioViewModel,
                 NavigationPage.MapCleaner => MapCleanerViewModel,
-                NavigationPage.Settings => SettingsViewModel,
+                NavigationPage.Settings => SettingsPageViewModel,
                 _ => WelcomePageViewModel
             };
 
@@ -170,7 +183,9 @@ namespace MapWizard.Desktop.ViewModels
         [RelayCommand]
         private void OpenHitSoundVisualizer()
         {
-            SetPage(NavigationPage.HitSoundVisualizer);
+            SetPage(IsHitSoundVisualizerEnabled
+                ? NavigationPage.HitSoundVisualizer
+                : NavigationPage.Welcome);
         }
 
         [RelayCommand]
@@ -220,6 +235,29 @@ namespace MapWizard.Desktop.ViewModels
                     .Dismiss().ByClicking()
                     .Dismiss().After(TimeSpan.FromSeconds(8))
                     .Queue();
+            }
+        }
+
+        private void OnSettingsViewModelPropertyChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName != nameof(MapWizard.Desktop.ViewModels.SettingsViewModel.IsHitSoundVisualizerEnabled))
+            {
+                return;
+            }
+
+            if (sender is SettingsViewModel settingsViewModel)
+            {
+                UpdateHitSoundVisualizerAvailability(settingsViewModel.IsHitSoundVisualizerEnabled);
+            }
+        }
+
+        private void UpdateHitSoundVisualizerAvailability(bool isEnabled)
+        {
+            IsHitSoundVisualizerEnabled = isEnabled;
+
+            if (!isEnabled && CurrentPageViewModel == HitSoundVisualizerViewModel)
+            {
+                SetPage(NavigationPage.Welcome);
             }
         }
     }

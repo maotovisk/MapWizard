@@ -11,6 +11,9 @@ public class MainSettings
     [Setting("General", "UpdateStream")]
     public UpdateStream UpdateStream { get; set; } = UpdateStream.Release;
 
+    [Setting("General", "EnableHitSoundVisualizer")]
+    public bool EnableHitSoundVisualizer { get; set; } = false;
+
     [Setting("Audio", "PreviewSongVolumePercent")]
     public int AudioPreviewSongVolumePercent { get; set; } = 80;
 
