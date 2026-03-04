@@ -18,6 +18,10 @@ public class HitSoundService : IHitSoundService
 {
     private const double RedlineTimeToleranceMs = 0.5d;
     private const double BeatLengthToleranceMs = 0.001d;
+    // Guards against invalid/near-zero intervals when generating snap ticks.
+    private const double SnapTickStepToleranceMs = 0.00001d;
+    // Inclusive segment-end tolerance to absorb floating-point drift at boundaries.
+    private const double SnapTickSegmentEndToleranceMs = 0.0001d;
     private static readonly IReadOnlyList<SnapDivisor> VisualizerDivisors =
         Enumerable.Range(1, 16).Select(x => new SnapDivisor(1, x)).ToList();
 
@@ -347,7 +351,7 @@ public class HitSoundService : IHitSoundService
             var beatLength = Math.Abs(redline.BeatLength);
             var beatsPerMeasure = redline.TimeSignature <= 0 ? 4 : redline.TimeSignature;
 
-            if (beatLength <= 0.00001 || segmentEndMs < startMs)
+            if (beatLength <= SnapTickStepToleranceMs || segmentEndMs < startMs)
             {
                 continue;
             }
@@ -355,17 +359,18 @@ public class HitSoundService : IHitSoundService
             foreach (var divisor in VisualizerDivisors)
             {
                 var step = beatLength * divisor.Numerator / divisor.Denominator;
-                if (step <= 0.00001)
+                if (step <= SnapTickStepToleranceMs)
                 {
                     continue;
                 }
 
-                var totalSteps = (int)Math.Ceiling((segmentEndMs - startMs) / step) + 1;
-                for (var stepIndex = 0; stepIndex <= totalSteps; stepIndex++)
+                var maxStepIndex = (int)Math.Floor((segmentEndMs - startMs + SnapTickSegmentEndToleranceMs) / step);
+                for (var stepIndex = 0; stepIndex <= maxStepIndex; stepIndex++)
                 {
                     var tickTime = startMs + (stepIndex * step);
-                    if (tickTime > segmentEndMs + 0.0001)
+                    if (tickTime > segmentEndMs + SnapTickSegmentEndToleranceMs)
                     {
+                        // Safety guard against floating-point accumulation on boundary indices.
                         break;
                     }
 
