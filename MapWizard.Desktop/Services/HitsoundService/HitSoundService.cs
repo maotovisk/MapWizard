@@ -6,6 +6,7 @@ using BeatmapParser;
 using BeatmapParser.Enums;
 using BeatmapParser.TimingPoints;
 using MapWizard.Desktop.Models.HitSoundVisualizer;
+using MapWizard.Tools.HelperExtensions;
 using MapWizard.Tools.HitSounds.Copier;
 using MapWizard.Tools.HitSounds.Extensions;
 using MapWizard.Tools.HitSounds.Timeline;
@@ -45,7 +46,7 @@ public class HitSoundService : IHitSoundService
         }
         catch (Exception ex)
         {
-            MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
+            MapWizardLogger.LogException(ex);
             Console.WriteLine(ex.Message);
             return false;
         }
@@ -70,7 +71,7 @@ public class HitSoundService : IHitSoundService
             ? beatmap.MetadataSection.Title
             : beatmap.MetadataSection.TitleUnicode;
         var mapsetDirectory = Path.GetDirectoryName(beatmapPath) ?? string.Empty;
-        var audioFileName = beatmap.GeneralSection.AudioFilename ?? string.Empty;
+        var audioFileName = beatmap.GeneralSection.AudioFilename;
         var audioFilePath = string.IsNullOrWhiteSpace(audioFileName) || string.IsNullOrWhiteSpace(mapsetDirectory)
             ? string.Empty
             : Path.Combine(mapsetDirectory, audioFileName);
