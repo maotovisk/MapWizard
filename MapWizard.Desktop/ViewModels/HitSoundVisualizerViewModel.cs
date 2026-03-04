@@ -487,13 +487,22 @@ public partial class HitSoundVisualizerViewModel(
     }
 
     [RelayCommand]
-    private async Task LoadTimeline()
+    private Task LoadTimeline()
+    {
+        return LoadTimelineCore(preservePlaybackPosition: false);
+    }
+
+    private async Task LoadTimelineCore(bool preservePlaybackPosition)
     {
         if (string.IsNullOrWhiteSpace(OriginBeatmap.Path))
         {
             toastManager.ShowToast(NotificationType.Error, "Hitsound Visualizer", "Please select a beatmap first.");
             return;
         }
+
+        var preservedPlaybackTimeMs = preservePlaybackPosition
+            ? CapturePlaybackPositionMsForReload()
+            : 0;
 
         IsPreparingPlayback = true;
         PlaybackStatus = "Loading...";
@@ -529,11 +538,17 @@ public partial class HitSoundVisualizerViewModel(
             TimelineEndMs = Math.Max(1000, Math.Max(document.EndTimeMs, loadedSongDurationMs));
             SnapTicks = new ObservableCollection<HitSoundVisualizerSnapTick>(
                 hitSoundService.BuildHitsoundVisualizerSnapTicks(OriginBeatmap.Path, TimelineEndMs));
-            ViewStartMs = 0;
             ViewWindowMs = Math.Min(12000, TimelineEndMs);
-            CursorTimeMs = 0;
-            ContextSamplePointTimeMs = 0;
-            PlaybackSeekMs = 0;
+            var restoredPlaybackTimeMs = preservePlaybackPosition
+                ? Math.Clamp(preservedPlaybackTimeMs, 0, (int)Math.Ceiling(TimelineEndMs))
+                : 0;
+            var playbackWindowMs = Math.Max(100, ViewWindowMs);
+            ViewStartMs = preservePlaybackPosition
+                ? Math.Clamp(restoredPlaybackTimeMs - (playbackWindowMs * 0.35d), 0, Math.Max(0, TimelineEndMs - playbackWindowMs))
+                : 0;
+            CursorTimeMs = restoredPlaybackTimeMs;
+            ContextSamplePointTimeMs = restoredPlaybackTimeMs;
+            PlaybackSeekMs = restoredPlaybackTimeMs;
             SelectedPointId = -1;
             SelectedPointIds = [];
             ContextSampleSetName = "Normal";
@@ -1471,7 +1486,12 @@ public partial class HitSoundVisualizerViewModel(
             return;
         }
 
+        var shouldForceApply = string.Equals(HeaderAdditionBankName, bankName, StringComparison.OrdinalIgnoreCase);
         HeaderAdditionBankName = bankName;
+        if (shouldForceApply)
+        {
+            ApplyHeaderBankQuickChange(isNormalBank: false, bankName);
+        }
     }
 
     [RelayCommand]
@@ -1482,7 +1502,12 @@ public partial class HitSoundVisualizerViewModel(
             return;
         }
 
+        var shouldForceApply = string.Equals(HeaderNormalBankName, bankName, StringComparison.OrdinalIgnoreCase);
         HeaderNormalBankName = bankName;
+        if (shouldForceApply)
+        {
+            ApplyHeaderBankQuickChange(isNormalBank: true, bankName);
+        }
     }
 
     [RelayCommand]
@@ -1864,12 +1889,50 @@ public partial class HitSoundVisualizerViewModel(
 
     private void SetOriginBeatmapPath(string beatmapPath)
     {
+        var preservePlaybackPosition = ShouldPreservePlaybackPosition(beatmapPath);
         OriginBeatmap = new SelectedMap { Path = beatmapPath };
         PreferredDirectory = Path.GetDirectoryName(beatmapPath) ?? string.Empty;
 
         if (!string.IsNullOrWhiteSpace(beatmapPath) && File.Exists(beatmapPath))
         {
-            _ = LoadTimeline();
+            _ = LoadTimelineCore(preservePlaybackPosition);
+        }
+    }
+
+    private int CapturePlaybackPositionMsForReload()
+    {
+        if (IsPlaybackRunning)
+        {
+            return Math.Max(0, GetCurrentPlaybackTimeMs());
+        }
+
+        return Math.Max(0, Math.Max(CursorTimeMs, PlaybackSeekMs));
+    }
+
+    private bool ShouldPreservePlaybackPosition(string nextBeatmapPath)
+    {
+        if (!HasLoadedMap || string.IsNullOrWhiteSpace(_loadedMapsetDirectoryPath))
+        {
+            return false;
+        }
+
+        var nextMapsetDirectoryPath = Path.GetDirectoryName(nextBeatmapPath);
+        if (string.IsNullOrWhiteSpace(nextMapsetDirectoryPath))
+        {
+            return false;
+        }
+
+        try
+        {
+            var currentMapsetDirectoryPath = Path.GetFullPath(_loadedMapsetDirectoryPath)
+                .TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+            var targetMapsetDirectoryPath = Path.GetFullPath(nextMapsetDirectoryPath)
+                .TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+            return string.Equals(currentMapsetDirectoryPath, targetMapsetDirectoryPath, StringComparison.OrdinalIgnoreCase);
+        }
+        catch
+        {
+            return false;
         }
     }
 
@@ -2258,32 +2321,58 @@ public partial class HitSoundVisualizerViewModel(
                     .OrderBy(x => HitSoundSortOrder(x.HitSound))
                     .ToList();
 
-                var cursorNormalBank = pointsNearCursor.FirstOrDefault(x => x.HitSound == HitSound.Normal)?.SampleSet
+                var cursorNormalPoint = pointsNearCursor.FirstOrDefault(x => x.HitSound == HitSound.Normal);
+                var cursorAdditionPoint = pointsNearCursor.FirstOrDefault(x => x.HitSound != HitSound.Normal);
+                var cursorNormalBank = cursorNormalPoint?.SampleSet
                                        ?? ResolveHeaderBankAtTime(true, cursorTimeMs);
-                var cursorAdditionBank = pointsNearCursor.FirstOrDefault(x => x.HitSound != HitSound.Normal)?.SampleSet
+                var cursorAdditionBank = cursorAdditionPoint?.SampleSet
                                          ?? cursorNormalBank;
 
-                HeaderNormalBankName = SampleSetToDisplay(cursorNormalBank);
-                HeaderAdditionBankName = cursorAdditionBank == cursorNormalBank
+                HeaderNormalBankName = cursorNormalPoint?.IsAutoSampleSet == true
                     ? "Auto"
-                    : SampleSetToDisplay(cursorAdditionBank);
+                    : SampleSetToDisplay(cursorNormalBank);
+                HeaderAdditionBankName = cursorAdditionPoint?.IsAutoSampleSet == true
+                    ? "Auto"
+                    : (cursorAdditionPoint is null && cursorAdditionBank == cursorNormalBank
+                        ? "Auto"
+                        : SampleSetToDisplay(cursorAdditionBank));
                 return;
             }
+
+            var selectedPointIds = SelectedPointIds.Where(id => id > 0).Distinct().ToHashSet();
+            if (selectedPointIds.Count == 0 && SelectedPointId > 0)
+            {
+                selectedPointIds.Add(SelectedPointId);
+            }
+
+            var selectedPoints = selectedPointIds.Count == 0
+                ? []
+                : Points
+                    .Where(point => selectedPointIds.Contains(point.Id))
+                    .OrderBy(point => point.TimeMs)
+                    .ThenBy(point => HitSoundSortOrder(point.HitSound))
+                    .ToList();
 
             var sameTimePoints = Points
                 .Where(x => x.TimeMs == primaryPoint.TimeMs)
                 .OrderBy(x => HitSoundSortOrder(x.HitSound))
                 .ToList();
 
-            var normalBank = sameTimePoints.FirstOrDefault(x => x.HitSound == HitSound.Normal)?.SampleSet
-                             ?? primaryPoint.SampleSet;
-            var additionBank = sameTimePoints.FirstOrDefault(x => x.HitSound != HitSound.Normal)?.SampleSet
-                               ?? normalBank;
+            var normalPoint = sameTimePoints.FirstOrDefault(x => x.HitSound == HitSound.Normal) ??
+                              selectedPoints.FirstOrDefault(x => x.HitSound == HitSound.Normal);
+            var additionPoint = sameTimePoints.FirstOrDefault(x => x.HitSound != HitSound.Normal) ??
+                                selectedPoints.FirstOrDefault(x => x.HitSound != HitSound.Normal);
+            var normalBank = normalPoint?.SampleSet ?? primaryPoint.SampleSet;
+            var additionBank = additionPoint?.SampleSet ?? normalBank;
 
-            HeaderNormalBankName = SampleSetToDisplay(normalBank);
-            HeaderAdditionBankName = additionBank == normalBank
+            HeaderNormalBankName = normalPoint?.IsAutoSampleSet == true
                 ? "Auto"
-                : SampleSetToDisplay(additionBank);
+                : SampleSetToDisplay(normalBank);
+            HeaderAdditionBankName = additionPoint?.IsAutoSampleSet == true
+                ? "Auto"
+                : (additionPoint is null && additionBank == normalBank
+                    ? "Auto"
+                    : SampleSetToDisplay(additionBank));
         }
         finally
         {
