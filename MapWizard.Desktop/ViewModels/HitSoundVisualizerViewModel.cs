@@ -436,6 +436,18 @@ public partial class HitSoundVisualizerViewModel(
     }
 
     [RelayCommand]
+    private void SelectOriginMap(string path)
+    {
+        if (string.IsNullOrWhiteSpace(path) ||
+            string.Equals(OriginBeatmap.Path, path, StringComparison.OrdinalIgnoreCase))
+        {
+            return;
+        }
+
+        SetOriginBeatmapPath(path);
+    }
+
+    [RelayCommand]
     private Task PickDestinationFile(CancellationToken _)
     {
         return Task.CompletedTask;

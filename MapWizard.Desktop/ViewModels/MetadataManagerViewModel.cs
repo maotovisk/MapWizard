@@ -103,6 +103,26 @@ public partial class MetadataManagerViewModel(
         HasMultiple = BeatmapPanelViewModelUtils.HasMultipleDestinationBeatmaps(DestinationBeatmaps);
     }
 
+    [RelayCommand]
+    private async Task SelectOriginMap(string path)
+    {
+        if (string.IsNullOrWhiteSpace(path) ||
+            string.Equals(OriginBeatmap.Path, path, StringComparison.OrdinalIgnoreCase))
+        {
+            return;
+        }
+
+        try
+        {
+            await SetOriginBeatmapPath(path, CancellationToken.None);
+        }
+        catch (Exception ex)
+        {
+            MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
+            toastManager.ShowToast(NotificationType.Error, "Metadata Manager", ex.Message);
+        }
+    }
+
     private async Task ImportMetadataFromOriginAsync(CancellationToken token)
     {
         var origin = OriginBeatmap.Path;

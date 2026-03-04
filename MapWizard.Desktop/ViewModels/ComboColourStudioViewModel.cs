@@ -163,6 +163,26 @@ public partial class ComboColourStudioViewModel(
     }
 
     [RelayCommand]
+    private async Task SelectOriginMap(string path)
+    {
+        if (string.IsNullOrWhiteSpace(path) ||
+            string.Equals(OriginBeatmap.Path, path, StringComparison.OrdinalIgnoreCase))
+        {
+            return;
+        }
+
+        try
+        {
+            await SetOriginBeatmapPath(path);
+        }
+        catch (Exception ex)
+        {
+            MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
+            ShowToast(NotificationType.Error, "Combo Colour Studio", ex.Message);
+        }
+    }
+
+    [RelayCommand]
     private void AddColour()
     {
         if (ComboColours.Count >= 8)

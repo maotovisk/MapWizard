@@ -95,6 +95,19 @@ public partial class MapCleanerViewModel(
     }
 
     [RelayCommand]
+    private void SelectOriginMap(string path)
+    {
+        if (string.IsNullOrWhiteSpace(path) ||
+            string.Equals(OriginBeatmap.Path, path, StringComparison.OrdinalIgnoreCase))
+        {
+            return;
+        }
+
+        SetOriginBeatmapPath(path);
+        LoadOriginBeatmapHeader();
+    }
+
+    [RelayCommand]
     private async Task PickOriginFile(CancellationToken token)
     {
         try

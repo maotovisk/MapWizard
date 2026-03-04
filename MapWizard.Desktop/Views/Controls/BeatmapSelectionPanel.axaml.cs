@@ -119,6 +119,15 @@ public partial class BeatmapSelectionPanel : UserControl
     public static readonly StyledProperty<int> SelectedDestinationCountProperty =
         AvaloniaProperty.Register<BeatmapSelectionPanel, int>(nameof(SelectedDestinationCount));
 
+    public static readonly StyledProperty<bool> HasOriginDifficultyOptionsProperty =
+        AvaloniaProperty.Register<BeatmapSelectionPanel, bool>(nameof(HasOriginDifficultyOptions));
+
+    public static readonly StyledProperty<string> SelectedOriginDifficultyLabelProperty =
+        AvaloniaProperty.Register<BeatmapSelectionPanel, string>(nameof(SelectedOriginDifficultyLabel), string.Empty);
+
+    public static readonly StyledProperty<bool> IsOriginDiffExpandedProperty =
+        AvaloniaProperty.Register<BeatmapSelectionPanel, bool>(nameof(IsOriginDiffExpanded), true);
+
     public static readonly StyledProperty<bool> HasMapsetDifficultyOptionsProperty =
         AvaloniaProperty.Register<BeatmapSelectionPanel, bool>(nameof(HasMapsetDifficultyOptions));
 
@@ -158,6 +167,7 @@ public partial class BeatmapSelectionPanel : UserControl
         UpdateOriginEmptyPrompt();
     }
 
+    public ObservableCollection<MapsetDifficultyCard> OriginDifficultyCards { get; } = [];
     public ObservableCollection<MapsetDifficultyCard> MapsetDifficultyCards { get; } = [];
     public ObservableCollection<DestinationMapsetCard> VisibleDestinationMapsets { get; } = [];
 
@@ -345,6 +355,24 @@ public partial class BeatmapSelectionPanel : UserControl
     {
         get => GetValue(SelectedDestinationCountProperty);
         private set => SetValue(SelectedDestinationCountProperty, value);
+    }
+
+    public bool HasOriginDifficultyOptions
+    {
+        get => GetValue(HasOriginDifficultyOptionsProperty);
+        private set => SetValue(HasOriginDifficultyOptionsProperty, value);
+    }
+
+    public string SelectedOriginDifficultyLabel
+    {
+        get => GetValue(SelectedOriginDifficultyLabelProperty);
+        private set => SetValue(SelectedOriginDifficultyLabelProperty, value);
+    }
+
+    public bool IsOriginDiffExpanded
+    {
+        get => GetValue(IsOriginDiffExpandedProperty);
+        set => SetValue(IsOriginDiffExpandedProperty, value);
     }
 
     public bool HasMapsetDifficultyOptions
@@ -602,10 +630,14 @@ public partial class BeatmapSelectionPanel : UserControl
 
     private void RebuildMapsetDifficultyCards()
     {
+        OriginDifficultyCards.Clear();
         MapsetDifficultyCards.Clear();
 
         if (OriginMap is null || !OriginMap.HasPath)
         {
+            HasOriginDifficultyOptions = false;
+            SelectedOriginDifficultyLabel = string.Empty;
+            IsOriginDiffExpanded = false;
             HasMapsetDifficultyOptions = false;
             SelectedMapsetDifficultyCount = 0;
             HasSelectedMapsetDifficulties = false;
@@ -617,12 +649,32 @@ public partial class BeatmapSelectionPanel : UserControl
             return;
         }
 
+        var siblingDiffPaths = BeatmapSelectionUtils.GetSiblingDifficultyPaths(OriginMap.Path)
+            .ToArray();
+
+        foreach (var path in siblingDiffPaths)
+        {
+            OriginDifficultyCards.Add(new MapsetDifficultyCard(path)
+            {
+                IsSelected = string.Equals(path, OriginMap.Path, StringComparison.OrdinalIgnoreCase)
+            });
+        }
+
+        var selectedOriginCard = OriginDifficultyCards.FirstOrDefault(card => card.IsSelected);
+        SelectedOriginDifficultyLabel = selectedOriginCard?.DifficultyLabel ?? string.Empty;
+        HasOriginDifficultyOptions = OriginDifficultyCards.Count > 0;
+        if (!HasOriginDifficultyOptions)
+        {
+            IsOriginDiffExpanded = false;
+        }
+        else if (string.IsNullOrWhiteSpace(SelectedOriginDifficultyLabel))
+        {
+            IsOriginDiffExpanded = true;
+        }
+
         var selectedDestinationPaths = new HashSet<string>(
             DestinationMaps?.Where(map => map.HasPath).Select(map => map.Path) ?? [],
             System.StringComparer.OrdinalIgnoreCase);
-
-        var siblingDiffPaths = BeatmapSelectionUtils.GetSiblingDifficultyPaths(OriginMap.Path)
-            .ToArray();
 
         foreach (var path in siblingDiffPaths)
         {
@@ -866,6 +918,17 @@ public partial class BeatmapSelectionPanel : UserControl
         SyncDestinationMapItemObservers(DestinationMaps);
         UpdateDestinationSelectionState();
         RefreshMapsetDifficultySelectionState();
+        e.Handled = true;
+    }
+
+    private void OriginDiffCollapseHeaderButton_OnClick(object? sender, RoutedEventArgs e)
+    {
+        if (!HasOriginDifficultyOptions)
+        {
+            return;
+        }
+
+        IsOriginDiffExpanded = !IsOriginDiffExpanded;
         e.Handled = true;
     }
 
