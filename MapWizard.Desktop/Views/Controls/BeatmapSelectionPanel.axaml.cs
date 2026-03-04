@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
@@ -765,8 +766,9 @@ public partial class BeatmapSelectionPanel : UserControl
         {
             return System.IO.Path.GetFullPath(beatmapPath);
         }
-        catch
+        catch (Exception ex)
         {
+            MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
             return beatmapPath;
         }
     }

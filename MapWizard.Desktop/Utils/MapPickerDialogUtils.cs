@@ -62,8 +62,9 @@ public static class MapPickerDialogUtils
                     {
                         dialogLifetimeCts.Cancel();
                     }
-                    catch (ObjectDisposedException)
+                    catch (ObjectDisposedException ex)
                     {
+                        MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
                         // The dialog completion path can dispose this CTS before the dismissed callback runs.
                     }
 

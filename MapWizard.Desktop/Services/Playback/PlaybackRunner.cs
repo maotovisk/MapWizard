@@ -180,8 +180,9 @@ internal sealed class PlaybackRunner(IAudioPlaybackService audioPlaybackService)
             {
                 await cts.CancelAsync();
             }
-            catch
+            catch (Exception ex)
             {
+                MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
                 // Ignore cancellation races during restart/stop.
             }
 
@@ -189,8 +190,9 @@ internal sealed class PlaybackRunner(IAudioPlaybackService audioPlaybackService)
             {
                 await clockLoopTask;
             }
-            catch (OperationCanceledException)
+            catch (OperationCanceledException ex)
             {
+                MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
                 // Expected when stopping/restarting.
             }
         }
@@ -275,8 +277,9 @@ internal sealed class PlaybackRunner(IAudioPlaybackService audioPlaybackService)
                 await Task.Delay(ClockSampleIntervalMs, token);
             }
         }
-        catch (OperationCanceledException)
+        catch (OperationCanceledException ex)
         {
+            MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
             // Expected on stop/restart.
         }
     }
@@ -331,8 +334,9 @@ internal sealed class PlaybackRunner(IAudioPlaybackService audioPlaybackService)
                 await clockTickSignal.WaitAsync(token);
             }
         }
-        catch (OperationCanceledException)
+        catch (OperationCanceledException ex)
         {
+            MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
             return false;
         }
 
@@ -361,8 +365,9 @@ internal sealed class PlaybackRunner(IAudioPlaybackService audioPlaybackService)
             {
                 cts.Cancel();
             }
-            catch
+            catch (Exception ex)
             {
+                MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
                 // Ignore cancellation failures during stop/restart.
             }
             finally

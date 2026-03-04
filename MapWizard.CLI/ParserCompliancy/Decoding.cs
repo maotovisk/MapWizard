@@ -29,9 +29,10 @@ public class Decoding
                 ConsoleUtils.ProgressBar.DrawProgressBar(osuFiles.Length, parsedBeatmaps.Count);
                 parsedBeatmaps.Add(Beatmap.Decode(new FileInfo(osuFile)));
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                parsingErrors.Add((osuFile, e));
+                MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
+                parsingErrors.Add((osuFile, ex));
             }
         }
 

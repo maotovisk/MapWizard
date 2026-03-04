@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Reflection;
 using Avalonia;
@@ -129,8 +130,9 @@ public partial class AppDropdown : UserControl
             var value = property?.GetValue(item);
             return value?.ToString() ?? item.ToString();
         }
-        catch
+        catch (Exception ex)
         {
+            MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
             return item.ToString();
         }
     }

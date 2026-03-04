@@ -158,8 +158,9 @@ public partial class SettingsViewModel(
         {
             applied = audioPlaybackService.SetSelectedAudioOutputDevice(value.Id);
         }
-        catch
+        catch (Exception ex)
         {
+            MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
             applied = false;
         }
 
@@ -208,12 +209,14 @@ public partial class SettingsViewModel(
             _availableUpdate = null;
             await RefreshUpdateStreamBadgeAsync();
         }
-        catch (OperationCanceledException)
+        catch (OperationCanceledException ex)
         {
+            MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
             await RefreshUpdateStreamBadgeAsync();
         }
-        catch
+        catch (Exception ex)
         {
+            MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
             UpdateStreamBadgeText = "Could not download update right now.";
             CanRestartToApplyUpdate = true;
         }
@@ -298,8 +301,9 @@ public partial class SettingsViewModel(
             _availableUpdate = update;
             CanRestartToApplyUpdate = update is not null;
         }
-        catch
+        catch (Exception ex)
         {
+            MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
             if (requestId != _updateStatusRequestId)
             {
                 return;
@@ -452,8 +456,9 @@ public partial class SettingsViewModel(
         {
             return Path.GetFullPath(trimmed);
         }
-        catch
+        catch (Exception ex)
         {
+            MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
             return trimmed;
         }
     }

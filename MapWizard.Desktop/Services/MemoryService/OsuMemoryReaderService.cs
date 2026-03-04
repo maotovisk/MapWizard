@@ -104,13 +104,14 @@ public class OsuMemoryReaderService(ISettingsService settingsService, ISongLibra
                 ErrorMessage = null
             };
         }
-        catch (Exception exception)
+        catch (Exception ex)
         {
+            MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
             return new Result<string>()
             {
                 Value = null,
                 Status = ResultStatus.Error,
-                ErrorMessage = exception.Message
+                ErrorMessage = ex.Message
             };
         }
     }

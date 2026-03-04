@@ -241,6 +241,7 @@ public static class MapCleaner
             }
             catch (Exception ex)
             {
+                MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
                 batchResult.FailedBeatmaps++;
                 batchResult.FailedPaths.Add(targetPath);
                 batchResult.FailureDetails.Add($"'{targetPath}': {ex.Message}");

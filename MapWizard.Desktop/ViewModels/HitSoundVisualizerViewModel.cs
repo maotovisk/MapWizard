@@ -425,6 +425,7 @@ public partial class HitSoundVisualizerViewModel(
         }
         catch (Exception ex)
         {
+            MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
             toastManager.ShowToast(NotificationType.Error, "Hitsound Visualizer", ex.Message);
         }
     }
@@ -548,6 +549,7 @@ public partial class HitSoundVisualizerViewModel(
         }
         catch (Exception ex)
         {
+            MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
             toastManager.ShowToast(NotificationType.Error, "Hitsound Visualizer", ex.Message);
             PlaybackStatus = "Idle";
         }
@@ -1011,8 +1013,9 @@ public partial class HitSoundVisualizerViewModel(
         {
             payload = JsonSerializer.Deserialize<PointClipboardPayload>(clipboardText);
         }
-        catch
+        catch (Exception ex)
         {
+            MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
             toastManager.ShowToast(NotificationType.Error, "Hitsound Visualizer", "Clipboard does not contain valid hitsound point data.");
             return;
         }
@@ -1760,8 +1763,9 @@ public partial class HitSoundVisualizerViewModel(
                     candidatePaths.Add(fullPath);
                 }
             }
-            catch
+            catch (Exception ex)
             {
+                MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
                 // Ignore invalid paths while probing.
             }
         }
@@ -1833,8 +1837,9 @@ public partial class HitSoundVisualizerViewModel(
                 ? new DirectoryInfo(startPath)
                 : new FileInfo(startPath).Directory;
         }
-        catch
+        catch (Exception ex)
         {
+            MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
             yield break;
         }
 
@@ -2767,8 +2772,9 @@ public partial class HitSoundVisualizerViewModel(
 
             _ = PlayToneFallbackAsync(point, cancellationToken);
         }
-        catch
+        catch (Exception ex)
         {
+            MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
             // Ignore point playback failures during playback preview.
         }
     }
@@ -3084,8 +3090,9 @@ public partial class HitSoundVisualizerViewModel(
                 Console.Beep(frequency, duration);
             }, cancellationToken);
         }
-        catch
+        catch (Exception ex)
         {
+            MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
             // Silent fallback when local platform cannot emit beeps.
         }
     }
@@ -3117,8 +3124,9 @@ public partial class HitSoundVisualizerViewModel(
             settings.AudioPreviewHitSoundVolumePercent = hitsoundVolume;
             settingsService.SaveMainSettings(settings);
         }
-        catch
+        catch (Exception ex)
         {
+            MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
             // Ignore settings persistence failures to avoid breaking volume interaction.
         }
     }
@@ -3130,8 +3138,9 @@ public partial class HitSoundVisualizerViewModel(
             var settings = settingsService.GetMainSettings();
             return Math.Clamp(settings.AudioPreviewSongVolumePercent, 0, 100);
         }
-        catch
+        catch (Exception ex)
         {
+            MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
             return 80;
         }
     }
@@ -3143,8 +3152,9 @@ public partial class HitSoundVisualizerViewModel(
             var settings = settingsService.GetMainSettings();
             return Math.Clamp(settings.AudioPreviewHitSoundVolumePercent, 0, 100);
         }
-        catch
+        catch (Exception ex)
         {
+            MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
             return 100;
         }
     }

@@ -30,8 +30,9 @@ public class ColorToHexConverter : IValueConverter
                 {
                     return ColorTranslator.FromHtml(hex); // Convert HTML color string to Color
                 }
-                catch
+                catch (Exception ex)
                 {
+                    MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
                     return Color.Black; // Default if parsing fails
                 }
             }

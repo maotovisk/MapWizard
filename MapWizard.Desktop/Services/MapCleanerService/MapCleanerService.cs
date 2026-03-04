@@ -24,6 +24,7 @@ public class MapCleanerService : IMapCleanerService
         }
         catch (Exception ex)
         {
+            MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
             Console.WriteLine(ex.Message);
             return false;
         }
@@ -40,6 +41,7 @@ public class MapCleanerService : IMapCleanerService
         }
         catch (Exception ex)
         {
+            MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
             Console.WriteLine(ex.Message);
             return false;
         }

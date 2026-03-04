@@ -146,8 +146,9 @@ public static class BeatmapSelectionUtils
                 .OrderBy(Path.GetFileName, StringComparer.OrdinalIgnoreCase)
                 .ToArray();
         }
-        catch
+        catch (Exception ex)
         {
+            MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
             return [];
         }
     }
@@ -167,8 +168,9 @@ public static class BeatmapSelectionUtils
         {
             fullBeatmapPath = Path.GetFullPath(beatmapPath);
         }
-        catch
+        catch (Exception ex)
         {
+            MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
             errorMessage = "The origin beatmap path is invalid.";
             return false;
         }
@@ -189,9 +191,10 @@ public static class BeatmapSelectionUtils
             });
             return true;
         }
-        catch (Exception exception)
+        catch (Exception ex)
         {
-            errorMessage = exception.Message;
+            MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
+            errorMessage = ex.Message;
             return false;
         }
     }

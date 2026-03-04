@@ -35,8 +35,9 @@ public sealed class MapPathSummaryConverter : IValueConverter
         {
             fileName = Path.GetFileNameWithoutExtension(rawPath);
         }
-        catch
+        catch (Exception ex)
         {
+            MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
             fileName = rawPath;
         }
 
@@ -82,8 +83,9 @@ public sealed class MapPathSummaryConverter : IValueConverter
 
             return File.Exists(Path.GetFullPath(path));
         }
-        catch
+        catch (Exception ex)
         {
+            MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
             return false;
         }
     }

@@ -88,6 +88,7 @@ public partial class HitSoundCopierViewModel(
         }
         catch (Exception ex)
         {
+            MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
             toastManager.ShowToast(NotificationType.Error, "HitSound Copier", ex.Message);
         }
     }
@@ -110,6 +111,7 @@ public partial class HitSoundCopierViewModel(
         }
         catch (Exception ex)
         {
+            MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
             toastManager.ShowToast(NotificationType.Error, "HitSound Copier", ex.Message);
         }
     }
@@ -309,7 +311,7 @@ public partial class HitSoundCopierViewModel(
                     Leniency = suggestedLeniency;
                 }
 
-                if (hitSoundService.CopyHitsoundsAsync(OriginBeatmap.Path, destinationPaths, options))
+                if (hitSoundService.CopyHitsounds(OriginBeatmap.Path, destinationPaths, options))
                 {
                     type = NotificationType.Success;
                     message = $"HitSounds applied successfully to {destinationPaths.Length} beatmap(s)!";
@@ -322,6 +324,7 @@ public partial class HitSoundCopierViewModel(
         }
         catch (Exception ex)
         {
+            MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
             message = ex.Message;
         }
 

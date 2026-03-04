@@ -46,10 +46,11 @@ internal static class FallbackClientIpc
 
             return true;
         }
-        catch (Exception exception)
+        catch (Exception ex)
         {
+            MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
             InvalidateConnection();
-            error = exception.Message;
+            error = ex.Message;
             return false;
         }
     }
@@ -67,10 +68,11 @@ internal static class FallbackClientIpc
             timestamp = reader.ReadInt32();
             return true;
         }
-        catch (Exception exception)
+        catch (Exception ex)
         {
+            MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
             InvalidateConnection();
-            error = exception.Message;
+            error = ex.Message;
             return false;
         }
     }

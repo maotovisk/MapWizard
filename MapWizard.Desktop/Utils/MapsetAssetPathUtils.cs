@@ -71,8 +71,9 @@ public static class MapsetAssetPathUtils
 
             return File.Exists(current) ? current : null;
         }
-        catch
+        catch (Exception ex)
         {
+            MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
             return null;
         }
     }
@@ -97,8 +98,9 @@ public static class MapsetAssetPathUtils
             return Directory.EnumerateFiles(mapsetDirectory, "*", SearchOption.AllDirectories)
                 .FirstOrDefault(file => string.Equals(Path.GetFileName(file), fileName, StringComparison.OrdinalIgnoreCase));
         }
-        catch
+        catch (Exception ex)
         {
+            MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
             return null;
         }
     }

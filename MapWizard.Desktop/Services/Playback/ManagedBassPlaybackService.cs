@@ -48,8 +48,9 @@ public sealed class ManagedBassPlaybackService : IAudioPlaybackService, IDisposa
             var configuredDeviceId = settingsService.GetMainSettings().AudioOutputDeviceId;
             _selectedAudioOutputDeviceId = NormalizeAudioOutputDeviceId(configuredDeviceId);
         }
-        catch
+        catch (Exception ex)
         {
+            MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
             _selectedAudioOutputDeviceId = DefaultAudioOutputDeviceId;
         }
     }
@@ -347,8 +348,9 @@ public sealed class ManagedBassPlaybackService : IAudioPlaybackService, IDisposa
                 {
                     _ = Bass.Free();
                 }
-                catch
+                catch (Exception ex)
                 {
+                    MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
                     // Ignore backend shutdown failures during device switch.
                 }
                 finally
@@ -387,8 +389,9 @@ public sealed class ManagedBassPlaybackService : IAudioPlaybackService, IDisposa
                 {
                     _ = Bass.Free();
                 }
-                catch
+                catch (Exception ex)
                 {
+                    MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
                     // Ignore backend free failures during shutdown.
                 }
                 finally
@@ -413,8 +416,9 @@ public sealed class ManagedBassPlaybackService : IAudioPlaybackService, IDisposa
             Bass.PlaybackBufferLength = PlaybackBufferLengthMs;
             Bass.OggPreScan = true;
         }
-        catch
+        catch (Exception ex)
         {
+            MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
             // Config is best-effort; continue with defaults if unavailable.
         }
 
@@ -453,8 +457,9 @@ public sealed class ManagedBassPlaybackService : IAudioPlaybackService, IDisposa
                     _ = Bass.SampleFree(sampleHandle);
                 }
             }
-            catch
+            catch (Exception ex)
             {
+                MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
                 // Ignore sample disposal failures during shutdown/device switch.
             }
         }
@@ -526,8 +531,9 @@ public sealed class ManagedBassPlaybackService : IAudioPlaybackService, IDisposa
             {
                 _ = Bass.StreamFree(_songStreamHandle);
             }
-            catch
+            catch (Exception ex)
             {
+                MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
                 // Ignore free failures during reload/shutdown.
             }
         }
@@ -588,8 +594,9 @@ public sealed class ManagedBassPlaybackService : IAudioPlaybackService, IDisposa
             var length = Bass.ChannelGetLength(streamHandle);
             return length < 0 ? 0 : length;
         }
-        catch
+        catch (Exception ex)
         {
+            MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
             return 0;
         }
     }
@@ -601,8 +608,9 @@ public sealed class ManagedBassPlaybackService : IAudioPlaybackService, IDisposa
             var position = Bass.ChannelGetPosition(streamHandle);
             return position < 0 ? 0 : position;
         }
-        catch
+        catch (Exception ex)
         {
+            MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
             return 0;
         }
     }
@@ -679,8 +687,9 @@ public sealed class ManagedBassPlaybackService : IAudioPlaybackService, IDisposa
                 {
                     info = Bass.GetDeviceInfo(i);
                 }
-                catch
+                catch (Exception ex)
                 {
+                    MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
                     continue;
                 }
 
@@ -694,8 +703,9 @@ public sealed class ManagedBassPlaybackService : IAudioPlaybackService, IDisposa
                 devices.Add(new AudioOutputDeviceOption($"device:{i}", $"{name}{suffix}", info.IsDefault, info.IsEnabled));
             }
         }
-        catch
+        catch (Exception ex)
         {
+            MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
             // Return at least the synthetic default option on enumeration failures.
         }
 

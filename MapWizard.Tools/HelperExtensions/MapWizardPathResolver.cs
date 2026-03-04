@@ -5,12 +5,7 @@ public static class MapWizardPathResolver
     private const string AppDirectoryName = "MapWizard";
     private const string BackupDirectoryName = "Backup";
 
-    public static string ResolveBackupDirectoryPath()
-    {
-        return Path.Combine(ResolveDataDirectoryPath(), BackupDirectoryName);
-    }
-
-    private static string ResolveDataDirectoryPath()
+    public static string ResolveDataDirectoryPath()
     {
         if (OperatingSystem.IsWindows())
         {
@@ -30,5 +25,10 @@ public static class MapWizardPathResolver
             : xdgDataHome;
 
         return Path.Combine(basePath, AppDirectoryName);
+    }
+
+    public static string ResolveBackupDirectoryPath()
+    {
+        return Path.Combine(ResolveDataDirectoryPath(), BackupDirectoryName);
     }
 }

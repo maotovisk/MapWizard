@@ -37,7 +37,7 @@ public class HitSoundService : IHitSoundService
         };
     }
 
-    public bool CopyHitsoundsAsync(string sourcePath, string[] targetPaths, HitSoundCopierOptions options)
+    public bool CopyHitsounds(string sourcePath, string[] targetPaths, HitSoundCopierOptions options)
     {
         try
         {
@@ -45,6 +45,7 @@ public class HitSoundService : IHitSoundService
         }
         catch (Exception ex)
         {
+            MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
             Console.WriteLine(ex.Message);
             return false;
         }

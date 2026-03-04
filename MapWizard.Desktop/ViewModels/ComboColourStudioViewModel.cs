@@ -238,8 +238,9 @@ public partial class ComboColourStudioViewModel(
         {
             clipboardText = await clipboard.TryGetTextAsync();
         }
-        catch
+        catch (Exception ex)
         {
+            MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
             return null;
         }
 
@@ -345,6 +346,7 @@ public partial class ComboColourStudioViewModel(
         }
         catch (Exception ex)
         {
+            MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
             ShowToast(NotificationType.Error, "Combo Colour Studio", ex.Message);
         }
     }
@@ -366,6 +368,7 @@ public partial class ComboColourStudioViewModel(
         }
         catch (Exception ex)
         {
+            MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
             ShowToast(NotificationType.Error, "Combo Colour Studio", ex.Message);
         }
     }
@@ -387,6 +390,7 @@ public partial class ComboColourStudioViewModel(
         }
         catch (Exception ex)
         {
+            MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
             ShowToast(NotificationType.Error, "Combo Colour Studio", ex.Message);
         }
     }
@@ -436,6 +440,7 @@ public partial class ComboColourStudioViewModel(
         }
         catch (Exception ex)
         {
+            MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
             ShowToast(NotificationType.Error, "Combo Colour Studio", ex.Message);
         }
     }
@@ -458,6 +463,7 @@ public partial class ComboColourStudioViewModel(
         }
         catch (Exception ex)
         {
+            MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
             ShowToast(NotificationType.Error, "Combo Colour Studio", ex.Message);
         }
     }
@@ -493,6 +499,7 @@ public partial class ComboColourStudioViewModel(
         }
         catch (Exception ex)
         {
+            MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
             ShowToast(NotificationType.Error, "Combo Colour Studio", ex.Message);
         }
     }
@@ -616,6 +623,7 @@ public partial class ComboColourStudioViewModel(
         }
         catch (Exception ex)
         {
+            MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
             ShowToast(NotificationType.Error, "Combo Colour Studio", ex.Message);
         }
     }
@@ -635,6 +643,7 @@ public partial class ComboColourStudioViewModel(
         }
         catch (Exception ex)
         {
+            MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
             ShowToast(NotificationType.Error, "Combo Colour Studio", ex.Message);
         }
     }
@@ -700,6 +709,7 @@ public partial class ComboColourStudioViewModel(
         }
         catch (Exception ex)
         {
+            MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
             ClearOriginBeatmapMetadata();
             HasLocalProjectSnapshot = false;
             HasUnsavedChanges = false;
@@ -747,6 +757,7 @@ public partial class ComboColourStudioViewModel(
         }
         catch (Exception ex)
         {
+            MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
             ShowToast(NotificationType.Warning, "Combo Colour Studio", $"Failed to save local project snapshot: {ex.Message}");
             return false;
         }
@@ -766,6 +777,7 @@ public partial class ComboColourStudioViewModel(
         }
         catch (Exception ex)
         {
+            MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
             ShowToast(NotificationType.Warning, "Combo Colour Studio", $"Failed to check saved projects: {ex.Message}");
             return SavedProjectRestoreState.NotFound;
         }
@@ -841,8 +853,9 @@ public partial class ComboColourStudioViewModel(
                 HeaderBackgroundImage = new Bitmap(backgroundPath);
             }
         }
-        catch
+        catch (Exception ex)
         {
+            MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
             BackgroundImagePath = string.Empty;
             HeaderBackgroundImage?.Dispose();
             HeaderBackgroundImage = null;

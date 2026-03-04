@@ -102,6 +102,7 @@ public static class MetadataManager
         }
         catch (Exception ex)
         {
+            MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
             Console.WriteLine(ex.Message);
         }
 

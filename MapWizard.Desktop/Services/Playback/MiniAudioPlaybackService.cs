@@ -195,8 +195,9 @@ public sealed class MiniAudioPlaybackService : IAudioPlaybackService, IDisposabl
                 _songSourceLengthFrames = 0;
                 return _songDurationMs;
             }
-            catch
+            catch (Exception ex)
             {
+                MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
                 return 0;
             }
         }
@@ -343,8 +344,9 @@ public sealed class MiniAudioPlaybackService : IAudioPlaybackService, IDisposabl
             {
                 updateLoopCts.Cancel();
             }
-            catch
+            catch (Exception ex)
             {
+                MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
                 // Ignore shutdown cancellation failures.
             }
 
@@ -352,8 +354,9 @@ public sealed class MiniAudioPlaybackService : IAudioPlaybackService, IDisposabl
             {
                 updateLoopThread?.Join(AudioUpdateShutdownWait);
             }
-            catch
+            catch (Exception ex)
             {
+                MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
                 // Ignore worker shutdown failures during app shutdown/disposal.
             }
             finally
@@ -373,8 +376,9 @@ public sealed class MiniAudioPlaybackService : IAudioPlaybackService, IDisposabl
                 {
                     source.Dispose();
                 }
-                catch
+                catch (Exception ex)
                 {
+                    MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
                     // Ignore hitsound source disposal failures on shutdown.
                 }
             }
@@ -387,8 +391,9 @@ public sealed class MiniAudioPlaybackService : IAudioPlaybackService, IDisposabl
                 {
                     clip.Dispose();
                 }
-                catch
+                catch (Exception ex)
                 {
+                    MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
                     // Ignore clip disposal failures on shutdown.
                 }
             }
@@ -402,8 +407,9 @@ public sealed class MiniAudioPlaybackService : IAudioPlaybackService, IDisposabl
                 {
                     AudioContext.Deinitialize();
                 }
-                catch
+                catch (Exception ex)
                 {
+                    MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
                     // Ignore deinit failures during app shutdown.
                 }
                 finally
@@ -468,8 +474,9 @@ public sealed class MiniAudioPlaybackService : IAudioPlaybackService, IDisposabl
                     AudioContext.Update();
                 }
             }
-            catch
+            catch (Exception ex)
             {
+                MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
                 // Keep the audio update loop resilient; a transient update failure should not crash the app.
             }
 
@@ -548,8 +555,9 @@ public sealed class MiniAudioPlaybackService : IAudioPlaybackService, IDisposabl
             _clipCache[cacheKey] = clip;
             return clip;
         }
-        catch
+        catch (Exception ex)
         {
+            MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
             return null;
         }
     }
@@ -571,8 +579,9 @@ public sealed class MiniAudioPlaybackService : IAudioPlaybackService, IDisposabl
                 return;
             }
         }
-        catch
+        catch (Exception ex)
         {
+            MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
             // Fall through and try direct cursor set when length isn't available yet.
         }
 
@@ -580,8 +589,9 @@ public sealed class MiniAudioPlaybackService : IAudioPlaybackService, IDisposabl
         {
             source.Cursor = targetFrame;
         }
-        catch
+        catch (Exception ex)
         {
+            MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
             // Ignore seek failures; caller will continue from current playback position.
         }
     }
@@ -619,8 +629,9 @@ public sealed class MiniAudioPlaybackService : IAudioPlaybackService, IDisposabl
             _hitsoundSourcesByVolumePercent[clampedPercent] = source;
             return source;
         }
-        catch
+        catch (Exception ex)
         {
+            MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
             return null;
         }
     }
@@ -677,8 +688,9 @@ public sealed class MiniAudioPlaybackService : IAudioPlaybackService, IDisposabl
         {
             return source.Length;
         }
-        catch
+        catch (Exception ex)
         {
+            MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
             return 0;
         }
     }
@@ -689,8 +701,9 @@ public sealed class MiniAudioPlaybackService : IAudioPlaybackService, IDisposabl
         {
             return source.Cursor;
         }
-        catch
+        catch (Exception ex)
         {
+            MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
             return 0;
         }
     }
@@ -706,8 +719,9 @@ public sealed class MiniAudioPlaybackService : IAudioPlaybackService, IDisposabl
             _lastSeekObservedMs = observedMs;
             _lastSeekErrorMs = observedMs - _lastSeekRequestMs;
         }
-        catch
+        catch (Exception ex)
         {
+            MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
             _lastSeekObservedMs = -1;
             _lastSeekErrorMs = 0;
         }

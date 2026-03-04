@@ -55,8 +55,9 @@ public sealed class SongLibraryService : ISongLibraryService
         {
             normalizedSongsPath = Path.GetFullPath(songsPath);
         }
-        catch
+        catch (Exception ex)
         {
+            MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
             normalizedSongsPath = null;
         }
 
@@ -169,8 +170,9 @@ public sealed class SongLibraryService : ISongLibraryService
         {
             directories = Directory.EnumerateDirectories(songsPath);
         }
-        catch
+        catch (Exception ex)
         {
+            MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
             return [];
         }
 
@@ -181,8 +183,9 @@ public sealed class SongLibraryService : ISongLibraryService
                 var lastWrite = Directory.GetLastWriteTimeUtc(mapsetDirectory);
                 mapsetDirectories.Add((mapsetDirectory, lastWrite));
             }
-            catch
+            catch (Exception ex)
             {
+                MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
                 // ignored
             }
         }
@@ -200,8 +203,9 @@ public sealed class SongLibraryService : ISongLibraryService
         {
             osuFiles = Directory.EnumerateFiles(mapsetDirectory, "*.osu", SearchOption.TopDirectoryOnly).ToArray();
         }
-        catch
+        catch (Exception ex)
         {
+            MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
             return null;
         }
 
@@ -231,8 +235,9 @@ public sealed class SongLibraryService : ISongLibraryService
             {
                 beatmap = Beatmap.Decode(new FileInfo(osuFile));
             }
-            catch
+            catch (Exception ex)
             {
+                MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
                 // ignored
             }
 
@@ -446,8 +451,9 @@ public sealed class SongLibraryService : ISongLibraryService
                             candidates.Add(ExtractExecutableDirectory(appKey.GetValue("DisplayIcon")?.ToString()));
                             candidates.Add(ExtractExecutableDirectory(appKey.GetValue("UninstallString")?.ToString()));
                         }
-                        catch
+                        catch (Exception ex)
                         {
+                            MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
                             // ignored
                         }
                         finally
@@ -456,8 +462,9 @@ public sealed class SongLibraryService : ISongLibraryService
                         }
                     }
                 }
-                catch
+                catch (Exception ex)
                 {
+                    MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
                     // ignored
                 }
                 finally
@@ -480,8 +487,9 @@ public sealed class SongLibraryService : ISongLibraryService
             {
                 classRootValue = Registry.ClassesRoot.OpenSubKey(subKeyPath)?.GetValue(valueName)?.ToString();
             }
-            catch
+            catch (Exception ex)
             {
+                MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
                 // ignored
             }
 
@@ -500,8 +508,9 @@ public sealed class SongLibraryService : ISongLibraryService
             {
                 subKey = RegistryKey.OpenBaseKey(hive, view).OpenSubKey(subKeyPath);
             }
-            catch
+            catch (Exception ex)
             {
+                MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
                 // ignored
             }
 
@@ -760,8 +769,9 @@ public sealed class SongLibraryService : ISongLibraryService
                 var targetPath = Path.GetFullPath(Path.Combine(driveInfo.Parent?.FullName ?? "/", driveInfo.LinkTarget));
                 candidates.Add(targetPath);
             }
-            catch
+            catch (Exception ex)
             {
+                MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
                 // ignored
             }
         }
@@ -818,8 +828,9 @@ public sealed class SongLibraryService : ISongLibraryService
         {
             return Directory.EnumerateFiles(osuInstallPath, "osu!.*.cfg", SearchOption.TopDirectoryOnly);
         }
-        catch
+        catch (Exception ex)
         {
+            MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
             return [];
         }
     }
@@ -852,8 +863,9 @@ public sealed class SongLibraryService : ISongLibraryService
                     : Path.GetFullPath(Path.Combine(installPath, configuredPath));
             }
         }
-        catch
+        catch (Exception ex)
         {
+            MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
             // ignored
         }
 
@@ -915,8 +927,9 @@ public sealed class SongLibraryService : ISongLibraryService
             using var reader = new StreamReader(filePath);
             return reader.ReadLine();
         }
-        catch
+        catch (Exception ex)
         {
+            MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
             return null;
         }
     }

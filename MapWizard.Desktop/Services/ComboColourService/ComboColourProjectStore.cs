@@ -203,8 +203,9 @@ public class ComboColourProjectStore : IComboColourProjectStore
         {
             normalized = Path.GetFullPath(path);
         }
-        catch
+        catch (Exception ex)
         {
+            MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
             // Keep original value if path normalization fails.
         }
 

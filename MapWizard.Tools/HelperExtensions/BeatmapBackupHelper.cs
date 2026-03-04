@@ -31,6 +31,7 @@ public static class BeatmapBackupHelper
             }
             catch (Exception ex)
             {
+                MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
                 exceptions.Add(ex);
             }
         }

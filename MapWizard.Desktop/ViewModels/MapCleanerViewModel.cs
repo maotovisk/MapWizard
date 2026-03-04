@@ -113,6 +113,7 @@ public partial class MapCleanerViewModel(
         }
         catch (Exception ex)
         {
+            MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
             toastManager.ShowToast(NotificationType.Error, "Map Cleaner", ex.Message);
         }
     }
@@ -281,8 +282,9 @@ public partial class MapCleanerViewModel(
                 HeaderBackgroundImage = new Bitmap(resolvedBackgroundPath);
             }
         }
-        catch
+        catch (Exception ex)
         {
+            MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
             ClearOriginBeatmapHeader();
         }
     }

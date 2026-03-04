@@ -159,9 +159,10 @@ public partial class MetadataManagerViewModel(
 
             toastManager.ShowToast(NotificationType.Success, "Import Success", "Successfully imported metadata!");
         }
-        catch (Exception exception)
+        catch (Exception ex)
         {
-            Console.WriteLine(exception.Message);
+            MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
+            Console.WriteLine(ex.Message);
             ClearOriginBeatmapHeader();
             toastManager.ShowToast(NotificationType.Error, "Import Error", "Failed to import metadata!");
         }
@@ -234,9 +235,10 @@ public partial class MetadataManagerViewModel(
                 Metadata.Colours[i].Number = i + 1;
             }
         }
-        catch (Exception exception)
+        catch (Exception ex)
         {
-            Console.WriteLine(exception.Message);
+            MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
+            Console.WriteLine(ex.Message);
         }
     }
 
@@ -262,9 +264,10 @@ public partial class MetadataManagerViewModel(
 
             await SetOriginBeatmapPath(selectedPaths[0], token);
         }
-        catch (Exception exception)
+        catch (Exception ex)
         {
-            Console.WriteLine(exception.Message);
+            MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
+            Console.WriteLine(ex.Message);
         }
     }
 
@@ -284,9 +287,10 @@ public partial class MetadataManagerViewModel(
 
             SetDestinationBeatmaps(selectedPaths);
         }
-        catch (Exception exception)
+        catch (Exception ex)
         {
-            Console.WriteLine(exception.Message);
+            MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
+            Console.WriteLine(ex.Message);
         }
     }
 
@@ -472,10 +476,11 @@ public partial class MetadataManagerViewModel(
                 message = $"Successfully exported metadata to {destinationPaths.Length} beatmap(s)!";
                 type = NotificationType.Success;
             }
-            catch (Exception exception)
+            catch (Exception ex)
             {
-                Console.WriteLine(exception);
-                message = exception.Message;
+                MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
+                Console.WriteLine(ex);
+                message = ex.Message;
                 type = NotificationType.Error;
             }
         }
