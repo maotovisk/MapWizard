@@ -41,36 +41,38 @@ public sealed class SongLibraryService : ISongLibraryService
 
     public void InvalidateCache(string? songsPath = null)
     {
-        if (string.IsNullOrWhiteSpace(songsPath))
+        string? normalizedSongsPath = null;
+        if (!string.IsNullOrWhiteSpace(songsPath))
         {
+            try
+            {
+                normalizedSongsPath = Path.GetFullPath(songsPath);
+            }
+            catch (Exception ex)
+            {
+                MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
+                return;
+            }
+        }
+
+        _scanGate.Wait();
+        try
+        {
+            if (normalizedSongsPath is not null &&
+                !string.Equals(_cachedSongsPath, normalizedSongsPath, StringComparison.OrdinalIgnoreCase))
+            {
+                return;
+            }
+
             _cachedSongsPath = null;
             _cachedMapsetDirectories = [];
             _cachedAtUtc = DateTime.MinValue;
             _mapsetCache.Clear();
-            return;
         }
-
-        string? normalizedSongsPath;
-        try
+        finally
         {
-            normalizedSongsPath = Path.GetFullPath(songsPath);
+            _scanGate.Release();
         }
-        catch (Exception ex)
-        {
-            MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
-            normalizedSongsPath = null;
-        }
-
-        if (normalizedSongsPath is null ||
-            !string.Equals(_cachedSongsPath, normalizedSongsPath, StringComparison.OrdinalIgnoreCase))
-        {
-            return;
-        }
-
-        _cachedSongsPath = null;
-        _cachedMapsetDirectories = [];
-        _cachedAtUtc = DateTime.MinValue;
-        _mapsetCache.Clear();
     }
 
     public async Task<IReadOnlyList<string>> GetMapsetDirectoriesAsync(
