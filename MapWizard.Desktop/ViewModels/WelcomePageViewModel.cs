@@ -63,6 +63,7 @@ public partial class WelcomePageViewModel(
         }
         catch (Exception ex)
         {
+            MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
             toastManager.Dismiss(checkingToast);
             toastManager.CreateToast()
                 .OfType(NotificationType.Error)
@@ -119,6 +120,7 @@ public partial class WelcomePageViewModel(
         }
         catch (Exception ex)
         {
+            MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
             toastManager.Dismiss(downloadingToast);
             toastManager.CreateToast()
                 .OfType(NotificationType.Error)

@@ -31,12 +31,24 @@
 
     <Grid RowDefinitions="Auto,*" RowSpacing="10">
         <Grid RowDefinitions="Auto,Auto" RowSpacing="6">
-            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+            <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="12">
                 <TextBox Height="38"
                          Watermark="Search beatmaps..."
                          Text="{Binding SearchText, Mode=TwoWay}" />
 
                 <Button Grid.Column="1"
+                        Classes="Basic"
+                        Command="{Binding ReloadLibraryCommand}"
+                        MinHeight="38"
+                        Padding="14,0,14,0"
+                        ToolTip.Tip="Reload song folders and refresh results">
+                    <StackPanel Orientation="Horizontal" Spacing="7">
+                        <materialIcons:MaterialIcon Kind="Refresh" Width="18" Height="18" />
+                        <TextBlock Text="Reload" VerticalAlignment="Center" />
+                    </StackPanel>
+                </Button>
+
+                <Button Grid.Column="2"
                         Classes="Basic"
                         Command="{Binding PickFilesManuallyCommand}"
                         MinHeight="38"

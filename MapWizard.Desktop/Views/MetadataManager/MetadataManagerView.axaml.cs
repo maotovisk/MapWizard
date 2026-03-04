@@ -1,6 +1,6 @@
 using Avalonia.Controls;
 
-namespace MapWizard.Desktop.Views;
+namespace MapWizard.Desktop.Views.MetadataManager;
 
 public partial class MetadataManagerView : UserControl
 {

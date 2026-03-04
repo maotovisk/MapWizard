@@ -217,8 +217,9 @@ public class SettingsService : ISettingsService
             value = Convert.ChangeType(rawValue, nonNullableType, CultureInfo.InvariantCulture);
             return true;
         }
-        catch
+        catch (Exception ex)
         {
+            MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
             value = null;
             return false;
         }

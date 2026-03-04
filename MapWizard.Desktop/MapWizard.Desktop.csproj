@@ -20,8 +20,10 @@
     <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="11.3.9" />
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
     <PackageReference Include="DialogHost.Avalonia" Version="0.10.4" />
-    <PackageReference Include="MapWizard.BeatmapParser" Version="1.0.3" />
-    <PackageReference Include="Material.Icons.Avalonia" Version="2.4.1" />
+    <PackageReference Include="JAJ.Packages.MiniAudioEx" Version="3.0.0" />
+    <PackageReference Include="ManagedBass" Version="4.0.2" />
+    <PackageReference Include="MapWizard.BeatmapParser" Version="1.0.5" />
+    <PackageReference Include="Material.Icons.Avalonia" Version="3.0.0" />
     <PackageReference Include="MessageBox.Avalonia" Version="3.3.1.1" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.3" />
     <PackageReference Include="OsuMemoryDataProvider" Version="0.11.1" />
@@ -38,9 +40,20 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Assets\" />
+    <None Include="Assets\Skins\Legacy\**\*" CopyToOutputDirectory="PreserveNewest" />
     <AvaloniaResource Include="Assets\app-icon.ico" />
     <AvaloniaResource Include="Assets\app-icon.png" />
     <AvaloniaResource Include="Assets\app-icon.svg" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Assets\Skins\Legacy\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Native\Bass\linux-x64\libbass.so" Link="libbass.so" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+    <None Include="Native\Bass\win-x64\bass.dll" Link="bass.dll" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+    <None Include="Native\Bass\osx\libbass.dylib" Link="libbass.dylib" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+    <None Include="Native\Bass\BASS-LICENSE.txt" Link="BASS-LICENSE.txt" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>

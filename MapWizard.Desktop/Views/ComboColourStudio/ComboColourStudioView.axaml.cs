@@ -7,7 +7,7 @@ using Avalonia.Interactivity;
 using Avalonia.VisualTree;
 using MapWizard.Desktop.Models;
 
-namespace MapWizard.Desktop.Views;
+namespace MapWizard.Desktop.Views.ComboColourStudio;
 
 public partial class ComboColourStudioView : UserControl
 {

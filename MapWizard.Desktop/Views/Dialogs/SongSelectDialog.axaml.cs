@@ -37,8 +37,9 @@ public partial class SongSelectDialog : UserControl
         {
             (firstVisibleIndex, lastVisibleIndex) = GetVisibleMapsetRange(scrollViewer);
         }
-        catch (Exception)
+        catch (Exception ex)
         {
+            MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
             // Containers can be re-realized while the window is being resized quickly.
             // Fall back to estimated viewport math in the view-model for this tick.
         }
@@ -139,8 +140,9 @@ public partial class SongSelectDialog : UserControl
                         return control;
                     }
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
+                    MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
                     // Ignore container checks while item controls are being re-realized.
                 }
             }

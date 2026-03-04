@@ -14,6 +14,8 @@ using CommunityToolkit.Mvvm.Input;
 using MapWizard.Desktop.Extensions;
 using MapWizard.Desktop.Models;
 using MapWizard.Desktop.Services;
+using MapWizard.Desktop.Services.MapCleanerService;
+using MapWizard.Desktop.Services.MemoryService;
 using MapWizard.Desktop.Utils;
 using MapWizard.Tools.MapCleaner;
 using SukiUI.Dialogs;
@@ -93,6 +95,19 @@ public partial class MapCleanerViewModel(
     }
 
     [RelayCommand]
+    private void SelectOriginMap(string path)
+    {
+        if (string.IsNullOrWhiteSpace(path) ||
+            string.Equals(OriginBeatmap.Path, path, StringComparison.OrdinalIgnoreCase))
+        {
+            return;
+        }
+
+        SetOriginBeatmapPath(path);
+        LoadOriginBeatmapHeader();
+    }
+
+    [RelayCommand]
     private async Task PickOriginFile(CancellationToken token)
     {
         try
@@ -111,6 +126,7 @@ public partial class MapCleanerViewModel(
         }
         catch (Exception ex)
         {
+            MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
             toastManager.ShowToast(NotificationType.Error, "Map Cleaner", ex.Message);
         }
     }
@@ -279,8 +295,9 @@ public partial class MapCleanerViewModel(
                 HeaderBackgroundImage = new Bitmap(resolvedBackgroundPath);
             }
         }
-        catch
+        catch (Exception ex)
         {
+            MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
             ClearOriginBeatmapHeader();
         }
     }

@@ -4,6 +4,7 @@ public enum NavigationPage
 {
     Welcome,
     HitSoundCopier,
+    HitSoundVisualizer,
     MetadataManager,
     ComboColourStudio,
     MapCleaner,

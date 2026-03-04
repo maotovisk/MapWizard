@@ -21,6 +21,8 @@ using CommunityToolkit.Mvvm.Input;
 using MapWizard.Desktop.Extensions;
 using MapWizard.Desktop.Models;
 using MapWizard.Desktop.Services;
+using MapWizard.Desktop.Services.ComboColourService;
+using MapWizard.Desktop.Services.MemoryService;
 using MapWizard.Desktop.Utils;
 using MapWizard.Tools.ComboColourStudio;
 using SukiUI.Dialogs;
@@ -161,6 +163,26 @@ public partial class ComboColourStudioViewModel(
     }
 
     [RelayCommand]
+    private async Task SelectOriginMap(string path)
+    {
+        if (string.IsNullOrWhiteSpace(path) ||
+            string.Equals(OriginBeatmap.Path, path, StringComparison.OrdinalIgnoreCase))
+        {
+            return;
+        }
+
+        try
+        {
+            await SetOriginBeatmapPath(path);
+        }
+        catch (Exception ex)
+        {
+            MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
+            ShowToast(NotificationType.Error, "Combo Colour Studio", ex.Message);
+        }
+    }
+
+    [RelayCommand]
     private void AddColour()
     {
         if (ComboColours.Count >= 8)
@@ -236,8 +258,9 @@ public partial class ComboColourStudioViewModel(
         {
             clipboardText = await clipboard.TryGetTextAsync();
         }
-        catch
+        catch (Exception ex)
         {
+            MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
             return null;
         }
 
@@ -343,6 +366,7 @@ public partial class ComboColourStudioViewModel(
         }
         catch (Exception ex)
         {
+            MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
             ShowToast(NotificationType.Error, "Combo Colour Studio", ex.Message);
         }
     }
@@ -364,6 +388,7 @@ public partial class ComboColourStudioViewModel(
         }
         catch (Exception ex)
         {
+            MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
             ShowToast(NotificationType.Error, "Combo Colour Studio", ex.Message);
         }
     }
@@ -385,6 +410,7 @@ public partial class ComboColourStudioViewModel(
         }
         catch (Exception ex)
         {
+            MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
             ShowToast(NotificationType.Error, "Combo Colour Studio", ex.Message);
         }
     }
@@ -434,6 +460,7 @@ public partial class ComboColourStudioViewModel(
         }
         catch (Exception ex)
         {
+            MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
             ShowToast(NotificationType.Error, "Combo Colour Studio", ex.Message);
         }
     }
@@ -456,6 +483,7 @@ public partial class ComboColourStudioViewModel(
         }
         catch (Exception ex)
         {
+            MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
             ShowToast(NotificationType.Error, "Combo Colour Studio", ex.Message);
         }
     }
@@ -491,6 +519,7 @@ public partial class ComboColourStudioViewModel(
         }
         catch (Exception ex)
         {
+            MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
             ShowToast(NotificationType.Error, "Combo Colour Studio", ex.Message);
         }
     }
@@ -614,6 +643,7 @@ public partial class ComboColourStudioViewModel(
         }
         catch (Exception ex)
         {
+            MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
             ShowToast(NotificationType.Error, "Combo Colour Studio", ex.Message);
         }
     }
@@ -633,6 +663,7 @@ public partial class ComboColourStudioViewModel(
         }
         catch (Exception ex)
         {
+            MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
             ShowToast(NotificationType.Error, "Combo Colour Studio", ex.Message);
         }
     }
@@ -698,6 +729,7 @@ public partial class ComboColourStudioViewModel(
         }
         catch (Exception ex)
         {
+            MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
             ClearOriginBeatmapMetadata();
             HasLocalProjectSnapshot = false;
             HasUnsavedChanges = false;
@@ -745,6 +777,7 @@ public partial class ComboColourStudioViewModel(
         }
         catch (Exception ex)
         {
+            MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
             ShowToast(NotificationType.Warning, "Combo Colour Studio", $"Failed to save local project snapshot: {ex.Message}");
             return false;
         }
@@ -764,6 +797,7 @@ public partial class ComboColourStudioViewModel(
         }
         catch (Exception ex)
         {
+            MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
             ShowToast(NotificationType.Warning, "Combo Colour Studio", $"Failed to check saved projects: {ex.Message}");
             return SavedProjectRestoreState.NotFound;
         }
@@ -839,8 +873,9 @@ public partial class ComboColourStudioViewModel(
                 HeaderBackgroundImage = new Bitmap(backgroundPath);
             }
         }
-        catch
+        catch (Exception ex)
         {
+            MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
             BackgroundImagePath = string.Empty;
             HeaderBackgroundImage?.Dispose();
             HeaderBackgroundImage = null;

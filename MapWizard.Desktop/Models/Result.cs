@@ -1,3 +1,5 @@
+using MapWizard.Desktop.Enums;
+
 namespace MapWizard.Desktop.Models;
 
 public class Result<T>

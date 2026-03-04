@@ -4,9 +4,10 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:vm="clr-namespace:MapWizard.Desktop.ViewModels"
+    xmlns:controls="clr-namespace:MapWizard.Desktop.Views.Controls"
     xmlns:suki="clr-namespace:SukiUI.Controls;assembly=SukiUI"
     xmlns:objectModel="clr-namespace:System.Collections.ObjectModel;assembly=System.ObjectModel"
-    x:Class="MapWizard.Desktop.Views.SettingsView"
+    x:Class="MapWizard.Desktop.Views.Settings.SettingsView"
     x:DataType="vm:SettingsViewModel"
     d:DesignWidth="800"
     d:DesignHeight="450"
@@ -24,10 +25,13 @@
                                     <TextBlock Text="Choose System to follow your operating system theme, or force Light/Dark."
                                                TextWrapping="Wrap" />
                                 </StackPanel>
-                                <ComboBox Grid.Column="1"
-                                          MinWidth="140"
-                                          ItemsSource="{Binding ThemeModes}"
-                                          SelectedItem="{Binding SelectedThemeMode, Mode=TwoWay}" />
+                                <controls:AppDropdown Grid.Column="1"
+                                                      MinWidth="140"
+                                                      FlyoutMinWidth="180"
+                                                      FlyoutMaxHeight="280"
+                                                      PlaceholderText="Select theme mode"
+                                                      ItemsSource="{Binding ThemeModes}"
+                                                      SelectedItem="{Binding SelectedThemeMode, Mode=TwoWay}" />
                             </Grid>
 
                             <Grid ColumnDefinitions="*,Auto" VerticalAlignment="Center">
@@ -36,10 +40,13 @@
                                     <TextBlock Text="Release checks only stable releases. PreRelease checks both pre-releases and stable releases."
                                                TextWrapping="Wrap" />
                                 </StackPanel>
-                                <ComboBox Grid.Column="1"
-                                          MinWidth="140"
-                                          ItemsSource="{Binding UpdateStreams}"
-                                          SelectedItem="{Binding UpdateStream, Mode=TwoWay}" />
+                                <controls:AppDropdown Grid.Column="1"
+                                                      FlyoutMinWidth="180"
+                                                      FlyoutMaxHeight="280"
+                                                      MinWidth="140"
+                                                      PlaceholderText="Select update stream"
+                                                      ItemsSource="{Binding UpdateStreams}"
+                                                      SelectedItem="{Binding UpdateStream, Mode=TwoWay}" />
                             </Grid>
 
                             <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="8" VerticalAlignment="Top">
@@ -79,6 +86,79 @@
                                            FontWeight="SemiBold"
                                            TextDecorations="Underline" />
                             </Button>
+                        </StackPanel>
+                    </suki:SettingsLayoutItem.Content>
+                </suki:SettingsLayoutItem>
+
+                <suki:SettingsLayoutItem Header="Experimental">
+                    <suki:SettingsLayoutItem.Content>
+                        <Grid ColumnDefinitions="*,Auto" VerticalAlignment="Center">
+                            <StackPanel Spacing="4">
+                                <TextBlock Text="Enable Hitsound Visualizer" FontWeight="Bold" />
+                                <TextBlock Text="Shows the Hitsound Visualizer tool in the sidebar when enabled."
+                                           TextWrapping="Wrap" />
+                            </StackPanel>
+                            <ToggleSwitch Grid.Column="1"
+                                          IsChecked="{Binding IsHitSoundVisualizerEnabled, Mode=TwoWay}" />
+                        </Grid>
+                    </suki:SettingsLayoutItem.Content>
+                </suki:SettingsLayoutItem>
+
+                <suki:SettingsLayoutItem Header="Audio">
+                    <suki:SettingsLayoutItem.Content>
+                        <StackPanel Spacing="20">
+                            <Grid ColumnDefinitions="*,Auto" VerticalAlignment="Center">
+                                <StackPanel Spacing="4">
+                                    <TextBlock Text="Audio Output Device" FontWeight="Bold" />
+                                    <TextBlock Text="Select the playback device used by editor audio preview features."
+                                               TextWrapping="Wrap" />
+                                    <TextBlock Text="{Binding AudioOutputDeviceStatusText}"
+                                               FontSize="12"
+                                               Opacity="0.82" />
+                                </StackPanel>
+                                <controls:AppDropdown Grid.Column="1"
+                                                      MinWidth="260"
+                                                      MaxWidth="380"
+                                                      FlyoutMinWidth="320"
+                                                      FlyoutMaxHeight="320"
+                                                      PlaceholderText="Select output device"
+                                                      ItemsSource="{Binding AudioOutputDevices}"
+                                                      SelectedItem="{Binding SelectedAudioOutputDevice, Mode=TwoWay}" />
+                            </Grid>
+
+                            <Grid ColumnDefinitions="*,Auto" VerticalAlignment="Center">
+                                <StackPanel Spacing="4">
+                                    <TextBlock Text="Preview Song Volume" FontWeight="Bold" />
+                                    <TextBlock Text="Default music volume for editor audio previews (including the Hitsound Visualizer)."
+                                               TextWrapping="Wrap" />
+                                </StackPanel>
+                                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                                    <Slider Width="180"
+                                            Minimum="0"
+                                            Maximum="100"
+                                            TickFrequency="1"
+                                            Value="{Binding AudioPreviewSongVolumePercent, Mode=TwoWay}" />
+                                    <TextBlock VerticalAlignment="Center"
+                                               Text="{Binding AudioPreviewSongVolumePercent, StringFormat={}{0}%}" />
+                                </StackPanel>
+                            </Grid>
+
+                            <Grid ColumnDefinitions="*,Auto" VerticalAlignment="Center">
+                                <StackPanel Spacing="4">
+                                    <TextBlock Text="Preview Hitsound Volume" FontWeight="Bold" />
+                                    <TextBlock Text="Default hitsound volume for editor audio previews (including the Hitsound Visualizer)."
+                                               TextWrapping="Wrap" />
+                                </StackPanel>
+                                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                                    <Slider Width="180"
+                                            Minimum="0"
+                                            Maximum="100"
+                                            TickFrequency="1"
+                                            Value="{Binding AudioPreviewHitSoundVolumePercent, Mode=TwoWay}" />
+                                    <TextBlock VerticalAlignment="Center"
+                                               Text="{Binding AudioPreviewHitSoundVolumePercent, StringFormat={}{0}%}" />
+                                </StackPanel>
+                            </Grid>
                         </StackPanel>
                     </suki:SettingsLayoutItem.Content>
                 </suki:SettingsLayoutItem>

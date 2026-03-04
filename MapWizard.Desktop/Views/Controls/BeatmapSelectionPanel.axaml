@@ -438,21 +438,11 @@
                   <StackPanel Grid.Column="0"
                               VerticalAlignment="Center"
                               Spacing="1">
-                    <StackPanel Orientation="Horizontal"
-                                Spacing="6">
-                      <TextBlock Text="{Binding OriginMap.DisplayTitle, ElementName=Root}"
-                                 FontWeight="Bold"
-                                 FontSize="13"
-                                 TextTrimming="CharacterEllipsis"
-                                 MaxLines="1" />
-                      <TextBlock
-                                 Text="{Binding OriginMap.DisplaySubtitle, ElementName=Root}"
-                                 FontWeight="SemiBold"
-                                 Opacity="0.9"
-                                 FontSize="13"
-                                 TextTrimming="CharacterEllipsis"
-                                 MaxLines="1" />
-                    </StackPanel>
+                    <TextBlock Text="{Binding OriginMap.DisplayTitle, ElementName=Root}"
+                               FontWeight="Bold"
+                               FontSize="13"
+                               TextTrimming="CharacterEllipsis"
+                               MaxLines="1" />
                     <TextBlock Text="{Binding OriginMap.DisplayDetails, ElementName=Root}"
                                FontWeight="SemiBold"
                                Opacity="0.9"
@@ -489,6 +479,65 @@
               </Grid>
             </Border>
           </Border>
+
+          <StackPanel IsVisible="{Binding HasOriginDifficultyOptions, ElementName=Root}"
+                      Spacing="0">
+            <Button Classes="MapsetCollapseHeader"
+                    Click="OriginDiffCollapseHeaderButton_OnClick">
+              <StackPanel Orientation="Horizontal" Spacing="6">
+                <materialIcons:MaterialIcon Classes="MapsetChevron"
+                                            Classes.expanded="{Binding IsOriginDiffExpanded, ElementName=Root}" />
+                <TextBlock Text="Selected difficulty"
+                           FontWeight="SemiBold"
+                           FontSize="12" />
+                <TextBlock Text="{Binding SelectedOriginDifficultyLabel, ElementName=Root}"
+                           FontWeight="SemiBold"
+                           FontSize="12"
+                           Opacity="0.82"
+                           IsVisible="{Binding HasOriginDifficultyOptions, ElementName=Root}" />
+              </StackPanel>
+            </Button>
+
+            <Border Classes="MapsetCollapseBody"
+                    Classes.expanded="{Binding IsOriginDiffExpanded, ElementName=Root}">
+              <Border Margin="0,8,0,0"
+                      Classes="MapsetGroupCard">
+                <Grid>
+                  <Grid Margin="8,6,8,3"
+                        ColumnDefinitions="*">
+                    <ItemsControl VerticalAlignment="Center"
+                                  ItemsSource="{Binding OriginDifficultyCards, ElementName=Root}">
+                      <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                          <WrapPanel />
+                        </ItemsPanelTemplate>
+                      </ItemsControl.ItemsPanel>
+                      <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                          <ToggleButton Classes="MapsetDiffChip"
+                                        IsChecked="{Binding IsSelected, Mode=OneWay}"
+                                        Command="{Binding DataContext.SelectOriginMapCommand, RelativeSource={RelativeSource AncestorType=controls:BeatmapSelectionPanel}}"
+                                        CommandParameter="{Binding Path}">
+                            <StackPanel Orientation="Horizontal" Spacing="6">
+                              <materialIcons:MaterialIcon Kind="CheckCircle"
+                                                          Width="13"
+                                                          Height="13"
+                                                          IsVisible="{Binding IsSelected}" />
+                              <TextBlock Text="{Binding DifficultyLabel}"
+                                         FontSize="12"
+                                         FontWeight="SemiBold"
+                                         MaxWidth="260"
+                                         TextTrimming="CharacterEllipsis" />
+                            </StackPanel>
+                          </ToggleButton>
+                        </DataTemplate>
+                      </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                  </Grid>
+                </Grid>
+              </Border>
+            </Border>
+          </StackPanel>
 
           <Border Classes="EmptySelectionCard"
                   IsVisible="{Binding ShowOriginEmptyState, ElementName=Root}">
@@ -585,7 +634,7 @@
                                                           Width="13"
                                                           Height="13"
                                                           IsVisible="{Binding IsSelected}" />
-                              <TextBlock Text="{Binding Beatmap.DisplaySubtitle}"
+                              <TextBlock Text="{Binding DifficultyLabel}"
                                          FontSize="12"
                                          FontWeight="SemiBold"
                                          MaxWidth="260"
@@ -708,7 +757,7 @@
                                                               Width="13"
                                                               Height="13"
                                                               IsVisible="{Binding IsSelected}" />
-                                  <TextBlock Text="{Binding Beatmap.DisplaySubtitle}"
+                                  <TextBlock Text="{Binding DifficultyLabel}"
                                              FontSize="12"
                                              FontWeight="SemiBold"
                                              MaxWidth="260"

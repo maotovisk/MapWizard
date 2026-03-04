@@ -10,7 +10,7 @@
     mc:Ignorable="d"
     d:DesignWidth="800"
     d:DesignHeight="450"
-    x:Class="MapWizard.Desktop.Views.WelcomePageView"
+    x:Class="MapWizard.Desktop.Views.WelcomePage.WelcomePageView"
     x:DataType="vm:WelcomePageViewModel"
     Padding="24">
     <Grid RowDefinitions="Auto,*" VerticalAlignment="Center" RowSpacing="20">

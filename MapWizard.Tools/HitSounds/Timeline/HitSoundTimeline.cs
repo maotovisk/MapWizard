@@ -55,7 +55,9 @@ public class HitSoundTimeline
                         circle.HitSounds.Sounds,
                         circle.HitSounds.SampleData.NormalSet,
                         circle.HitSounds.SampleData.AdditionSet,
-                        circle.HitSounds.SampleData.FileName);
+                        circle.HitSounds.SampleData.FileName,
+                        ToIntOrNull(circle.HitSounds.SampleData.Index),
+                        ToIntOrNull(circle.HitSounds.SampleData.Volume));
                     hitSoundTimeLine.SoundEvents.Add(currentSound);
                     break;
                 }
@@ -66,7 +68,9 @@ public class HitSoundTimeline
                         slider.HitSounds.Sounds,
                         slider.HitSounds.SampleData.NormalSet,
                         slider.HitSounds.SampleData.AdditionSet,
-                        slider.HitSounds.SampleData.FileName);
+                        slider.HitSounds.SampleData.FileName,
+                        ToIntOrNull(slider.HitSounds.SampleData.Index),
+                        ToIntOrNull(slider.HitSounds.SampleData.Volume));
                     sliderBodyTimeline.SoundEvents.Add(currentBodySound);
 
                     var currentHeadSound = new SoundEvent(
@@ -74,7 +78,9 @@ public class HitSoundTimeline
                         slider.HeadSounds.Sounds,
                         slider.HeadSounds.SampleData.NormalSet,
                         slider.HeadSounds.SampleData.AdditionSet,
-                        slider.HeadSounds.SampleData.FileName);
+                        slider.HeadSounds.SampleData.FileName,
+                        ToIntOrNull(slider.HeadSounds.SampleData.Index),
+                        ToIntOrNull(slider.HeadSounds.SampleData.Volume));
                     hitSoundTimeLine.SoundEvents.Add(currentHeadSound);
 
                     // Update the repeats sounds
@@ -94,7 +100,9 @@ public class HitSoundTimeline
                                 repeatSound.Sounds,
                                 repeatSound.SampleData.NormalSet,
                                 repeatSound.SampleData.AdditionSet,
-                                repeatSound.SampleData.FileName);
+                                repeatSound.SampleData.FileName,
+                                ToIntOrNull(repeatSound.SampleData.Index),
+                                ToIntOrNull(repeatSound.SampleData.Volume));
                             hitSoundTimeLine.SoundEvents.Add(currentRepeatSound);
                         }
                     }
@@ -105,7 +113,9 @@ public class HitSoundTimeline
                         slider.TailSounds.Sounds,
                         slider.TailSounds.SampleData.NormalSet,
                         slider.TailSounds.SampleData.AdditionSet,
-                        slider.TailSounds.SampleData.FileName);
+                        slider.TailSounds.SampleData.FileName,
+                        ToIntOrNull(slider.TailSounds.SampleData.Index),
+                        ToIntOrNull(slider.TailSounds.SampleData.Volume));
                     hitSoundTimeLine.SoundEvents.Add(currentEndSound);
                     break;
                 }
@@ -116,7 +126,9 @@ public class HitSoundTimeline
                         spinner.HitSounds.Sounds,
                         spinner.HitSounds.SampleData.NormalSet,
                         spinner.HitSounds.SampleData.AdditionSet,
-                        spinner.HitSounds.SampleData.FileName);
+                        spinner.HitSounds.SampleData.FileName,
+                        ToIntOrNull(spinner.HitSounds.SampleData.Index),
+                        ToIntOrNull(spinner.HitSounds.SampleData.Volume));
                     hitSoundTimeLine.SoundEvents.Add(currentSound);
                     break;
                 }
@@ -129,5 +141,15 @@ public class HitSoundTimeline
             NonDraggableSoundTimeline = hitSoundTimeLine,
             SampleSetTimeline = sampleSetTimeline
         };
-    } 
+    }
+
+    private static int? ToIntOrNull(uint? value)
+    {
+        if (!value.HasValue || value.Value == 0)
+        {
+            return null;
+        }
+
+        return (int)value.Value;
+    }
 }

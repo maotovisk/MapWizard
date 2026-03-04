@@ -5,8 +5,10 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using Avalonia.Controls.Notifications;
+using MapWizard.Desktop.Enums;
 using MapWizard.Desktop.Models;
 using MapWizard.Desktop.Services;
+using MapWizard.Desktop.Services.MemoryService;
 
 namespace MapWizard.Desktop.Utils;
 
@@ -144,8 +146,9 @@ public static class BeatmapSelectionUtils
                 .OrderBy(Path.GetFileName, StringComparer.OrdinalIgnoreCase)
                 .ToArray();
         }
-        catch
+        catch (Exception ex)
         {
+            MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
             return [];
         }
     }
@@ -165,8 +168,9 @@ public static class BeatmapSelectionUtils
         {
             fullBeatmapPath = Path.GetFullPath(beatmapPath);
         }
-        catch
+        catch (Exception ex)
         {
+            MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
             errorMessage = "The origin beatmap path is invalid.";
             return false;
         }
@@ -187,9 +191,10 @@ public static class BeatmapSelectionUtils
             });
             return true;
         }
-        catch (Exception exception)
+        catch (Exception ex)
         {
-            errorMessage = exception.Message;
+            MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
+            errorMessage = ex.Message;
             return false;
         }
     }

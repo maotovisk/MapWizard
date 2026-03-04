@@ -12,6 +12,8 @@ using CommunityToolkit.Mvvm.Input;
 using MapWizard.Desktop.Extensions;
 using MapWizard.Desktop.Models;
 using MapWizard.Desktop.Services;
+using MapWizard.Desktop.Services.HitsoundService;
+using MapWizard.Desktop.Services.MemoryService;
 using MapWizard.Desktop.Utils;
 using MapWizard.Tools.HitSounds.Copier;
 using SukiUI.Dialogs;
@@ -69,6 +71,18 @@ public partial class HitSoundCopierViewModel(
     }
 
     [RelayCommand]
+    private void SelectOriginMap(string path)
+    {
+        if (string.IsNullOrWhiteSpace(path) ||
+            string.Equals(OriginBeatmap.Path, path, StringComparison.OrdinalIgnoreCase))
+        {
+            return;
+        }
+
+        SetOriginBeatmapPath(path);
+    }
+
+    [RelayCommand]
     private async Task PickOriginFile(CancellationToken token)
     {
         try
@@ -86,6 +100,7 @@ public partial class HitSoundCopierViewModel(
         }
         catch (Exception ex)
         {
+            MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
             toastManager.ShowToast(NotificationType.Error, "HitSound Copier", ex.Message);
         }
     }
@@ -108,6 +123,7 @@ public partial class HitSoundCopierViewModel(
         }
         catch (Exception ex)
         {
+            MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
             toastManager.ShowToast(NotificationType.Error, "HitSound Copier", ex.Message);
         }
     }
@@ -244,7 +260,7 @@ public partial class HitSoundCopierViewModel(
     private async Task CopyHitSounds()
     {
         var type = NotificationType.Error;
-        var message = string.Empty;
+        string message;
 
         try
         {
@@ -307,7 +323,7 @@ public partial class HitSoundCopierViewModel(
                     Leniency = suggestedLeniency;
                 }
 
-                if (hitSoundService.CopyHitsoundsAsync(OriginBeatmap.Path, destinationPaths, options))
+                if (hitSoundService.CopyHitsounds(OriginBeatmap.Path, destinationPaths, options))
                 {
                     type = NotificationType.Success;
                     message = $"HitSounds applied successfully to {destinationPaths.Length} beatmap(s)!";
@@ -320,6 +336,7 @@ public partial class HitSoundCopierViewModel(
         }
         catch (Exception ex)
         {
+            MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
             message = ex.Message;
         }
 

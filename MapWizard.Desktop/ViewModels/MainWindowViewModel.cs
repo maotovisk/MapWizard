@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel;
 using Avalonia.Controls.Notifications;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -12,18 +13,19 @@ namespace MapWizard.Desktop.ViewModels
 {
     public partial class MainWindowViewModel : ObservableObject
     {
-        public ISukiToastManager ToastManager { get; }
+        private ISukiToastManager ToastManager { get; }
         public ISukiDialogManager DialogManager { get; }
 
         private readonly IThemeService _themeService;
         private bool _isUpdatingFromThemeService;
 
-        public ViewModelBase HitSoundCopierViewModel { get; }
-        public ViewModelBase MetadataManagerViewModel { get; }
-        public ViewModelBase ComboColourStudioViewModel { get; }
-        public ViewModelBase MapCleanerViewModel { get; }
-        public ViewModelBase WelcomePageViewModel { get; }
-        public ViewModelBase SettingsViewModel { get; }
+        private ViewModelBase HitSoundCopierViewModel { get; }
+        private ViewModelBase HitSoundVisualizerViewModel { get; }
+        private ViewModelBase MetadataManagerViewModel { get; }
+        private ViewModelBase ComboColourStudioViewModel { get; }
+        private ViewModelBase MapCleanerViewModel { get; }
+        private ViewModelBase WelcomePageViewModel { get; }
+        private ViewModelBase SettingsPageViewModel { get; }
 
         [ObservableProperty]
         private bool _isDarkTheme;
@@ -42,6 +44,12 @@ namespace MapWizard.Desktop.ViewModels
 
         [ObservableProperty]
         private bool _isHitSoundCopierSelected;
+
+        [ObservableProperty]
+        private bool _isHitSoundVisualizerSelected;
+
+        [ObservableProperty]
+        private bool _isHitSoundVisualizerEnabled;
 
         [ObservableProperty]
         private bool _isMetadataManagerSelected;
@@ -69,6 +77,7 @@ namespace MapWizard.Desktop.ViewModels
         public MainWindowViewModel(
             WelcomePageViewModel welcomePageViewModel,
             HitSoundCopierViewModel hitSoundCopierViewModel,
+            HitSoundVisualizerViewModel hitSoundVisualizerViewModel,
             MetadataManagerViewModel metadataManagerViewModel,
             ComboColourStudioViewModel comboColourStudioViewModel,
             MapCleanerViewModel mapCleanerViewModel,
@@ -82,11 +91,12 @@ namespace MapWizard.Desktop.ViewModels
             ToastManager = toastManager;
             DialogManager = dialogManager;
             HitSoundCopierViewModel = hitSoundCopierViewModel;
+            HitSoundVisualizerViewModel = hitSoundVisualizerViewModel;
             MetadataManagerViewModel = metadataManagerViewModel;
             ComboColourStudioViewModel = comboColourStudioViewModel;
             MapCleanerViewModel = mapCleanerViewModel;
             WelcomePageViewModel = welcomePageViewModel;
-            SettingsViewModel = settingsViewModel;
+            SettingsPageViewModel = settingsViewModel;
             CurrentPageViewModel = WelcomePageViewModel;
 
             Version = updateService.VersionLabel;
@@ -96,12 +106,18 @@ namespace MapWizard.Desktop.ViewModels
 
             SetPage(NavigationPage.Welcome);
             settingsViewModel.Initialize();
+            UpdateHitSoundVisualizerAvailability(settingsViewModel.IsHitSoundVisualizerEnabled);
+            settingsViewModel.PropertyChanged += OnSettingsViewModelPropertyChanged;
             _ = welcomePageViewModel.CheckForUpdatesOnStartupAsync();
         }
 
         public void NavigateToWelcome() => SetPage(NavigationPage.Welcome);
 
         public void NavigateToHitSoundCopier() => SetPage(NavigationPage.HitSoundCopier);
+
+        public void NavigateToHitSoundVisualizer() => SetPage(IsHitSoundVisualizerEnabled
+            ? NavigationPage.HitSoundVisualizer
+            : NavigationPage.Welcome);
 
         public void NavigateToMetadataManager() => SetPage(NavigationPage.MetadataManager);
 
@@ -113,19 +129,26 @@ namespace MapWizard.Desktop.ViewModels
 
         private void SetPage(NavigationPage page)
         {
+            if (page == NavigationPage.HitSoundVisualizer && !IsHitSoundVisualizerEnabled)
+            {
+                page = NavigationPage.Welcome;
+            }
+
             CurrentPageViewModel = page switch
             {
                 NavigationPage.Welcome => WelcomePageViewModel,
                 NavigationPage.HitSoundCopier => HitSoundCopierViewModel,
+                NavigationPage.HitSoundVisualizer => HitSoundVisualizerViewModel,
                 NavigationPage.MetadataManager => MetadataManagerViewModel,
                 NavigationPage.ComboColourStudio => ComboColourStudioViewModel,
                 NavigationPage.MapCleaner => MapCleanerViewModel,
-                NavigationPage.Settings => SettingsViewModel,
+                NavigationPage.Settings => SettingsPageViewModel,
                 _ => WelcomePageViewModel
             };
 
             IsWelcomeSelected = page == NavigationPage.Welcome;
             IsHitSoundCopierSelected = page == NavigationPage.HitSoundCopier;
+            IsHitSoundVisualizerSelected = page == NavigationPage.HitSoundVisualizer;
             IsMetadataManagerSelected = page == NavigationPage.MetadataManager;
             IsComboColourStudioSelected = page == NavigationPage.ComboColourStudio;
             IsMapCleanerSelected = page == NavigationPage.MapCleaner;
@@ -155,6 +178,14 @@ namespace MapWizard.Desktop.ViewModels
         private void OpenHitSoundCopier()
         {
             SetPage(NavigationPage.HitSoundCopier);
+        }
+
+        [RelayCommand]
+        private void OpenHitSoundVisualizer()
+        {
+            SetPage(IsHitSoundVisualizerEnabled
+                ? NavigationPage.HitSoundVisualizer
+                : NavigationPage.Welcome);
         }
 
         [RelayCommand]
@@ -204,6 +235,29 @@ namespace MapWizard.Desktop.ViewModels
                     .Dismiss().ByClicking()
                     .Dismiss().After(TimeSpan.FromSeconds(8))
                     .Queue();
+            }
+        }
+
+        private void OnSettingsViewModelPropertyChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName != nameof(MapWizard.Desktop.ViewModels.SettingsViewModel.IsHitSoundVisualizerEnabled))
+            {
+                return;
+            }
+
+            if (sender is SettingsViewModel settingsViewModel)
+            {
+                UpdateHitSoundVisualizerAvailability(settingsViewModel.IsHitSoundVisualizerEnabled);
+            }
+        }
+
+        private void UpdateHitSoundVisualizerAvailability(bool isEnabled)
+        {
+            IsHitSoundVisualizerEnabled = isEnabled;
+
+            if (!isEnabled && CurrentPageViewModel == HitSoundVisualizerViewModel)
+            {
+                SetPage(NavigationPage.Welcome);
             }
         }
     }

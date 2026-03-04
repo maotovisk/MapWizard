@@ -16,8 +16,9 @@ public static class BeatmapPathUtils
         {
             return Path.GetDirectoryName(Path.GetFullPath(beatmapPath));
         }
-        catch
+        catch (Exception ex)
         {
+            MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
             return null;
         }
     }

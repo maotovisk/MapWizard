@@ -5,6 +5,12 @@
     xmlns:views="clr-namespace:MapWizard.Desktop.Views"
     xmlns:suki="clr-namespace:SukiUI.Controls;assembly=SukiUI"
     xmlns:materialIcons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+    xmlns:welcomePage="clr-namespace:MapWizard.Desktop.Views.WelcomePage"
+    xmlns:hitSoundVisualizer="clr-namespace:MapWizard.Desktop.Views.HitSoundVisualizer"
+    xmlns:metadataManager="clr-namespace:MapWizard.Desktop.Views.MetadataManager"
+    xmlns:comboColourStudio="clr-namespace:MapWizard.Desktop.Views.ComboColourStudio"
+    xmlns:mapCleaner="clr-namespace:MapWizard.Desktop.Views.MapCleaner"
+    xmlns:settings="clr-namespace:MapWizard.Desktop.Views.Settings"
     x:Class="MapWizard.Desktop.Views.MainWindow"
     x:DataType="vm:MainWindowViewModel"
     IsMenuVisible="False"
@@ -52,22 +58,25 @@
 
     <suki:SukiWindow.DataTemplates>
         <DataTemplate DataType="{x:Type vm:WelcomePageViewModel}">
-            <views:WelcomePageView />
+            <welcomePage:WelcomePageView />
         </DataTemplate>
         <DataTemplate DataType="{x:Type vm:HitSoundCopierViewModel}">
             <views:HitSoundCopierView />
         </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:HitSoundVisualizerViewModel}">
+            <hitSoundVisualizer:HitSoundVisualizerView />
+        </DataTemplate>
         <DataTemplate DataType="{x:Type vm:MetadataManagerViewModel}">
-            <views:MetadataManagerView />
+            <metadataManager:MetadataManagerView />
         </DataTemplate>
         <DataTemplate DataType="{x:Type vm:ComboColourStudioViewModel}">
-            <views:ComboColourStudioView />
+            <comboColourStudio:ComboColourStudioView />
         </DataTemplate>
         <DataTemplate DataType="{x:Type vm:MapCleanerViewModel}">
-            <views:MapCleanerView />
+            <mapCleaner:MapCleanerView />
         </DataTemplate>
         <DataTemplate DataType="{x:Type vm:SettingsViewModel}">
-            <views:SettingsView />
+            <settings:SettingsView />
         </DataTemplate>
     </suki:SukiWindow.DataTemplates>
 
@@ -187,6 +196,36 @@
                                                             VerticalAlignment="Center" />
                             </Grid>
                             <TextBlock Text="Metadata Manager"
+                                       Width="68"
+                                       FontSize="11"
+                                       Foreground="{DynamicResource SukiText}"
+                                       HorizontalAlignment="Center"
+                                       TextAlignment="Center"
+                                       TextWrapping="Wrap" />
+                        </StackPanel>
+                    </Button>
+
+                    <Button Classes="NavButton"
+                            Padding="0"
+                            MinWidth="0"
+                            Width="82"
+                            Foreground="{DynamicResource SukiText}"
+                            HorizontalContentAlignment="Center"
+                            IsVisible="{Binding IsHitSoundVisualizerEnabled}"
+                            Command="{Binding OpenHitSoundVisualizerCommand}">
+                        <StackPanel Spacing="4" HorizontalAlignment="Center" IsHitTestVisible="False">
+                            <Grid Width="44" Height="30">
+                                <Border Classes="NavIconHoverLayer" />
+                                <Border CornerRadius="15"
+                                        Background="{DynamicResource ThemeAccentBrush}"
+                                        Opacity="0.20"
+                                        IsVisible="{Binding IsHitSoundVisualizerSelected}" />
+                                <materialIcons:MaterialIcon Kind="ChartTimelineVariant"
+                                                            Foreground="{DynamicResource SukiText}"
+                                                            HorizontalAlignment="Center"
+                                                            VerticalAlignment="Center" />
+                            </Grid>
+                            <TextBlock Text="HS Visualizer"
                                        Width="68"
                                        FontSize="11"
                                        Foreground="{DynamicResource SukiText}"

@@ -49,14 +49,18 @@ public partial class SongSelectDialogViewModel(
     private SongMapsetCardViewModel? _lastToggledMapset;
     private DateTime _lastMapsetToggleUtc = DateTime.MinValue;
 
-    [ObservableProperty] private bool _isLoading;
+    [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(ReloadLibraryCommand))]
+    private bool _isLoading;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(ShowBusyBox))]
+    [NotifyCanExecuteChangedFor(nameof(ReloadLibraryCommand))]
     private bool _isBusyAreaActive;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(ShowBusyBox))]
+    [NotifyCanExecuteChangedFor(nameof(ReloadLibraryCommand))]
     private bool _isSearchPending;
 
     [ObservableProperty] private string? _searchText = string.Empty;
@@ -74,6 +78,7 @@ public partial class SongSelectDialogViewModel(
                                      VisibleMapsets.Count == 0 &&
                                      GetSearchQuery().Length > 0;
     public bool CanConfirmSelection => AllowMultipleSelection && SelectedDifficultyCount > 0;
+    public bool CanReloadLibrary => HasSongsPath && !IsBusyAreaActive && !IsLoading && !IsSearchPending;
 
     public event Action<IReadOnlyList<string>>? SelectionSubmitted;
 
@@ -144,13 +149,15 @@ public partial class SongSelectDialogViewModel(
             StatusMessage = $"Found {_mapsetDirectories.Count} mapset folders. Loading recent entries...";
             await StartSearchFromBeginningAsync(cancellationToken);
         }
-        catch (OperationCanceledException)
+        catch (OperationCanceledException ex)
         {
+            MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
             StatusMessage = "Song indexing was cancelled.";
         }
-        catch (Exception exception)
+        catch (Exception ex)
         {
-            StatusMessage = $"Failed to prepare song list: {exception.Message}";
+            MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
+            StatusMessage = $"Failed to prepare song list: {ex.Message}";
         }
         finally
         {
@@ -266,6 +273,15 @@ public partial class SongSelectDialogViewModel(
         }
     }
 
+    [RelayCommand(CanExecute = nameof(CanReloadLibrary))]
+    private async Task ReloadLibrary(CancellationToken cancellationToken)
+    {
+        CancelPendingSearchOperations();
+        songLibraryService.InvalidateCache(songsPath);
+        ClearMapsetViewModelCache();
+        await InitializeAsync(cancellationToken);
+    }
+
     [RelayCommand]
     private void ConfirmSelection()
     {
@@ -345,9 +361,10 @@ public partial class SongSelectDialogViewModel(
         {
             await LoadNextPageAsync(queryVersion, CancellationToken.None);
         }
-        catch (Exception exception)
+        catch (Exception ex)
         {
-            StatusMessage = $"Failed to load more mapsets: {exception.Message}";
+            MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
+            StatusMessage = $"Failed to load more mapsets: {ex.Message}";
         }
         finally
         {
@@ -386,8 +403,9 @@ public partial class SongSelectDialogViewModel(
                 executionCts.Dispose();
             }
         }
-        catch (OperationCanceledException)
+        catch (OperationCanceledException ex)
         {
+            MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
             // A newer keystroke superseded this pending search.
         }
         finally
@@ -527,8 +545,9 @@ public partial class SongSelectDialogViewModel(
             UpdateBackgroundCacheForCurrentViewport();
             UpdateStatusMessage();
         }
-        catch (OperationCanceledException)
+        catch (OperationCanceledException ex)
         {
+            MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
             // Expected during debounced typing or dialog dismissal.
         }
         finally
@@ -648,8 +667,9 @@ public partial class SongSelectDialogViewModel(
         {
             return Path.GetFullPath(path);
         }
-        catch
+        catch (Exception ex)
         {
+            MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
             return null;
         }
     }
@@ -739,6 +759,45 @@ public partial class SongSelectDialogViewModel(
         {
             mapset.SetBackgroundActive(false);
         }
+    }
+
+    private void CancelPendingSearchOperations()
+    {
+        _searchDebounceCts?.Cancel();
+        _searchDebounceCts?.Dispose();
+        _searchDebounceCts = null;
+
+        _searchExecutionCts?.Cancel();
+        _searchExecutionCts?.Dispose();
+        _searchExecutionCts = null;
+
+        _isScrollLoadScheduled = false;
+        IsSearchPending = false;
+    }
+
+    private void ClearMapsetViewModelCache()
+    {
+        DeactivateAllCachedBackgrounds();
+
+        foreach (var mapset in _mapsetViewModelCache.Values)
+        {
+            mapset.Dispose();
+        }
+
+        _mapsetViewModelCache.Clear();
+        _visibleDirectoryPaths.Clear();
+        _filteredDirectoryEntries.Clear();
+        _mapsetDirectoryEntries.Clear();
+        _mapsetDirectories.Clear();
+        VisibleMapsets.Clear();
+        _filteredCursor = 0;
+        SelectedDifficultyCount = 0;
+        _lastFirstVisibleIndex = null;
+        _lastLastVisibleIndex = null;
+        _lastToggledMapset = null;
+        _lastMapsetToggleUtc = DateTime.MinValue;
+        NotifyListStateChanged();
+        OnPropertyChanged(nameof(CanConfirmSelection));
     }
 
     private readonly record struct MapsetDirectoryEntry(string DirectoryPath, string FolderName);
@@ -876,8 +935,9 @@ public partial class SongMapsetCardViewModel : ObservableObject, IDisposable
 
             return new Bitmap(fullPath);
         }
-        catch
+        catch (Exception ex)
         {
+            MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
             return null;
         }
     }

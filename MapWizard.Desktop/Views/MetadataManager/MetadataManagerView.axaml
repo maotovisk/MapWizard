@@ -12,7 +12,7 @@
   mc:Ignorable="d"
   d:DesignWidth="800"
   d:DesignHeight="450"
-  x:Class="MapWizard.Desktop.Views.MetadataManagerView"
+  x:Class="MapWizard.Desktop.Views.MetadataManager.MetadataManagerView"
   x:DataType="vm:MetadataManagerViewModel"
   Padding="16">
 

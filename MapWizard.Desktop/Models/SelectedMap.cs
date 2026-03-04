@@ -92,8 +92,9 @@ public class SelectedMap : ObservableObject
             var resolvedBackgroundPath = MapsetAssetPathUtils.ResolveRelativePathFromBeatmap(fullPath, backgroundRelativePath);
             LoadBackgroundImage(resolvedBackgroundPath);
         }
-        catch
+        catch (Exception ex)
         {
+            MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
             ApplyFallbackCardData(normalizedPath);
         }
     }
@@ -128,8 +129,9 @@ public class SelectedMap : ObservableObject
             var fullPath = System.IO.Path.GetFullPath(backgroundPath);
             BackgroundImage = File.Exists(fullPath) ? new Bitmap(fullPath) : null;
         }
-        catch
+        catch (Exception ex)
         {
+            MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
             BackgroundImage = null;
         }
     }
