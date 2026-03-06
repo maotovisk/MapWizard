@@ -2,12 +2,16 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Numerics;
 using BeatmapParser;
 using BeatmapParser.Enums;
+using BeatmapParser.HitObjects;
+using BeatmapParser.HitObjects.HitSounds;
 using BeatmapParser.TimingPoints;
 using MapWizard.Desktop.Models.HitSoundVisualizer;
 using MapWizard.Tools.HelperExtensions;
 using MapWizard.Tools.HitSounds.Copier;
+using MapWizard.Tools.HitSounds.Event;
 using MapWizard.Tools.HitSounds.Extensions;
 using MapWizard.Tools.HitSounds.Timeline;
 using MapWizard.Tools.MapCleaner.Snapping;
@@ -18,10 +22,12 @@ public class HitSoundService : IHitSoundService
 {
     private const double RedlineTimeToleranceMs = 0.5d;
     private const double BeatLengthToleranceMs = 0.001d;
+    private const int VisualizerExportLeniencyMs = 5;
     // Guards against invalid/near-zero intervals when generating snap ticks.
     private const double SnapTickStepToleranceMs = 0.00001d;
     // Inclusive segment-end tolerance to absorb floating-point drift at boundaries.
     private const double SnapTickSegmentEndToleranceMs = 0.0001d;
+    private static readonly Vector2 HitsoundDiffCirclePosition = new(256, 192);
     private static readonly IReadOnlyList<SnapDivisor> VisualizerDivisors =
         Enumerable.Range(1, 16).Select(x => new SnapDivisor(1, x)).ToList();
 
@@ -98,6 +104,88 @@ public class HitSoundService : IHitSoundService
     {
         var beatmap = Beatmap.Decode(File.ReadAllText(beatmapPath));
         return BuildSnapTicks(beatmap, Math.Max(1000, endTimeMs));
+    }
+
+    public bool ApplyVisualizerTimelineToBeatmap(string targetBeatmapPath, HitSoundTimeline timeline, out string errorMessage)
+    {
+        errorMessage = string.Empty;
+
+        try
+        {
+            if (string.IsNullOrWhiteSpace(targetBeatmapPath) || !File.Exists(targetBeatmapPath))
+            {
+                errorMessage = "Target beatmap file was not found.";
+                return false;
+            }
+
+            var normalizedTimeline = NormalizeTimelineForBeatmapEncoding(timeline);
+            var targetBeatmap = Beatmap.Decode(File.ReadAllText(targetBeatmapPath));
+            var options = BuildVisualizerExportOptions();
+
+            targetBeatmap.ApplyNonDraggableHitSounds(normalizedTimeline.NonDraggableSoundTimeline, options);
+            targetBeatmap.ApplySampleTimeline(normalizedTimeline.SampleSetTimeline, options);
+            targetBeatmap.TimingPoints?.RemoveRedundantGreenLines();
+
+            BeatmapBackupHelper.CreateBackupCopy(targetBeatmapPath);
+            WriteBeatmap(targetBeatmapPath, targetBeatmap);
+            return true;
+        }
+        catch (Exception ex)
+        {
+            MapWizardLogger.LogException(ex);
+            errorMessage = ex.Message;
+            return false;
+        }
+    }
+
+    public bool ExportVisualizerHitsoundDiff(
+        string sourceBeatmapPath,
+        HitSoundTimeline timeline,
+        out string exportedBeatmapPath,
+        out string errorMessage)
+    {
+        exportedBeatmapPath = string.Empty;
+        errorMessage = string.Empty;
+
+        try
+        {
+            if (string.IsNullOrWhiteSpace(sourceBeatmapPath) || !File.Exists(sourceBeatmapPath))
+            {
+                errorMessage = "Source beatmap file was not found.";
+                return false;
+            }
+
+            var sourceBeatmap = Beatmap.Decode(File.ReadAllText(sourceBeatmapPath));
+            var normalizedTimeline = NormalizeTimelineForBeatmapEncoding(timeline);
+            if (normalizedTimeline.NonDraggableSoundTimeline.SoundEvents.Count == 0)
+            {
+                errorMessage = "There are no hitsound points to export.";
+                return false;
+            }
+
+            // Clone through encode/decode so we can keep all map metadata while replacing hitobjects.
+            var exportedBeatmap = Beatmap.Decode(sourceBeatmap.Encode());
+            exportedBeatmap.GeneralSection.Mode = Ruleset.Osu;
+            exportedBeatmap.GeneralSection.StackLeniency = 0.0d;
+
+            var versionName = BuildHitsoundDiffVersionName(sourceBeatmap.MetadataSection.Version);
+            exportedBeatmap.MetadataSection.Version = versionName;
+            exportedBeatmap.HitObjects.Objects = BuildCircleOnlyHitObjects(normalizedTimeline.NonDraggableSoundTimeline);
+
+            var options = BuildVisualizerExportOptions();
+            exportedBeatmap.ApplySampleTimeline(normalizedTimeline.SampleSetTimeline, options);
+            exportedBeatmap.TimingPoints?.RemoveRedundantGreenLines();
+
+            exportedBeatmapPath = BuildUniqueHitsoundDiffPath(sourceBeatmapPath, versionName);
+            WriteBeatmap(exportedBeatmapPath, exportedBeatmap);
+            return true;
+        }
+        catch (Exception ex)
+        {
+            MapWizardLogger.LogException(ex);
+            errorMessage = ex.Message;
+            return false;
+        }
     }
 
     private static HitSoundTimingCompatibilityTargetResult CompareTiming(Beatmap source, Beatmap target, string targetPath)
@@ -511,5 +599,232 @@ public class HitSoundService : IHitSoundService
     {
         var rounded = (int)Math.Round(rawVolume);
         return rounded <= 0 ? 100 : Math.Clamp(rounded, 1, 100);
+    }
+
+    private static HitSoundTimeline NormalizeTimelineForBeatmapEncoding(HitSoundTimeline source)
+    {
+        var sourceTimeline = source ?? new HitSoundTimeline();
+
+        var nonDraggable = sourceTimeline.NonDraggableSoundTimeline?.SoundEvents
+                               ?.OrderBy(x => x.Time.TotalMilliseconds)
+                               .Select(NormalizeSoundEventForBeatmapEncoding)
+                               .ToList()
+                           ?? [];
+        var draggable = sourceTimeline.DraggableSoundTimeline?.SoundEvents
+                            ?.OrderBy(x => x.Time.TotalMilliseconds)
+                            .Select(NormalizeSoundEventForBeatmapEncoding)
+                            .ToList()
+                        ?? [];
+        var sampleChanges = sourceTimeline.SampleSetTimeline?.HitSamples
+                                ?.OrderBy(x => x.Time)
+                                .Select(change => new SampleSetEvent(
+                                    change.Time,
+                                    NormalizeSampleSet(change.Sample, SampleSet.Normal),
+                                    NormalizeSampleIndex(change.Index),
+                                    NormalizeSampleVolume(change.Volume)))
+                                .ToList()
+                            ?? [];
+
+        return new HitSoundTimeline
+        {
+            NonDraggableSoundTimeline = new SoundTimeline(nonDraggable),
+            DraggableSoundTimeline = new SoundTimeline(draggable),
+            SampleSetTimeline = new SampleSetTimeline
+            {
+                HitSamples = sampleChanges
+            }
+        };
+    }
+
+    private static SoundEvent NormalizeSoundEventForBeatmapEncoding(SoundEvent source)
+    {
+        var timeMs = Math.Max(0, source.Time.TotalMilliseconds);
+        var normalSample = NormalizeSampleSet(source.NormalSample, SampleSet.Normal);
+        var additionSample = NormalizeSampleSet(source.AdditionSample, normalSample);
+        var fileName = string.IsNullOrWhiteSpace(source.FileName)
+            ? string.Empty
+            : Path.GetFileName(source.FileName.Trim().Trim('"'));
+
+        return new SoundEvent(
+            time: TimeSpan.FromMilliseconds(timeMs),
+            hitSounds: NormalizeHitSoundsForBeatmapEncoding(source.HitSounds),
+            normalSample: normalSample,
+            additionSample: additionSample,
+            fileName: fileName,
+            sampleIndexOverride: NormalizeOptionalSampleIndex(source.SampleIndexOverride),
+            sampleVolumeOverride: NormalizeOptionalSampleVolume(source.SampleVolumeOverride));
+    }
+
+    private static List<HitSound> NormalizeHitSoundsForBeatmapEncoding(IEnumerable<HitSound>? sourceHitSounds)
+    {
+        var combinedFlags = 0;
+        if (sourceHitSounds is not null)
+        {
+            foreach (var hitSound in sourceHitSounds)
+            {
+                // The visualizer uses HitSound.Normal for lane identity.
+                // Beatmap encoding expects "no additions" to be represented by HitSound.None.
+                if (hitSound is HitSound.None or HitSound.Normal)
+                {
+                    continue;
+                }
+
+                combinedFlags |= (int)hitSound;
+            }
+        }
+
+        var normalized = new List<HitSound>();
+        if ((combinedFlags & (int)HitSound.Whistle) == (int)HitSound.Whistle)
+        {
+            normalized.Add(HitSound.Whistle);
+        }
+
+        if ((combinedFlags & (int)HitSound.Finish) == (int)HitSound.Finish)
+        {
+            normalized.Add(HitSound.Finish);
+        }
+
+        if ((combinedFlags & (int)HitSound.Clap) == (int)HitSound.Clap)
+        {
+            normalized.Add(HitSound.Clap);
+        }
+
+        if (normalized.Count == 0)
+        {
+            normalized.Add(HitSound.None);
+        }
+
+        return normalized;
+    }
+
+    private static int? NormalizeOptionalSampleIndex(int? sampleIndexOverride)
+    {
+        if (sampleIndexOverride is not > 0)
+        {
+            return null;
+        }
+
+        return Math.Clamp(sampleIndexOverride.Value, 1, 99);
+    }
+
+    private static int? NormalizeOptionalSampleVolume(int? sampleVolumeOverride)
+    {
+        if (sampleVolumeOverride is not > 0)
+        {
+            return null;
+        }
+
+        return Math.Clamp(sampleVolumeOverride.Value, 1, 100);
+    }
+
+    private static List<IHitObject> BuildCircleOnlyHitObjects(SoundTimeline soundTimeline)
+    {
+        var circles = new List<IHitObject>();
+        var sortedEvents = soundTimeline.SoundEvents
+            .OrderBy(x => x.Time.TotalMilliseconds)
+            .ToList();
+
+        for (var i = 0; i < sortedEvents.Count; i++)
+        {
+            var soundEvent = sortedEvents[i];
+            var hitSample = new HitSample(
+                normalSet: NormalizeSampleSet(soundEvent.NormalSample, SampleSet.Normal),
+                additionSet: NormalizeSampleSet(soundEvent.AdditionSample, NormalizeSampleSet(soundEvent.NormalSample, SampleSet.Normal)),
+                fileName: string.IsNullOrWhiteSpace(soundEvent.FileName)
+                    ? string.Empty
+                    : Path.GetFileName(soundEvent.FileName.Trim().Trim('"')),
+                index: ToOptionalUnsignedInt(NormalizeOptionalSampleIndex(soundEvent.SampleIndexOverride)),
+                volume: ToOptionalUnsignedInt(NormalizeOptionalSampleVolume(soundEvent.SampleVolumeOverride)));
+            var hitSounds = NormalizeHitSoundsForBeatmapEncoding(soundEvent.HitSounds);
+            var isNewCombo = i == 0;
+
+            circles.Add(new Circle(
+                coordinates: HitsoundDiffCirclePosition,
+                time: soundEvent.Time,
+                type: HitObjectType.Circle,
+                hitSounds: (hitSample, hitSounds),
+                newCombo: isNewCombo,
+                comboOffset: 0));
+        }
+
+        return circles;
+    }
+
+    private static HitSoundCopierOptions BuildVisualizerExportOptions()
+    {
+        return new HitSoundCopierOptions
+        {
+            Leniency = VisualizerExportLeniencyMs,
+            OverwriteEverything = true,
+            OverwriteMuting = true,
+            CopySliderBodySounds = false,
+            CopySampleAndVolumeChanges = true
+        };
+    }
+
+    private static uint? ToOptionalUnsignedInt(int? value)
+    {
+        return value is > 0 ? (uint)value.Value : null;
+    }
+
+    private static string BuildHitsoundDiffVersionName(string? sourceVersion)
+    {
+        var trimmed = string.IsNullOrWhiteSpace(sourceVersion)
+            ? "Hitsound"
+            : sourceVersion.Trim();
+
+        if (trimmed.Contains("hitsound", StringComparison.OrdinalIgnoreCase))
+        {
+            return trimmed;
+        }
+
+        return $"{trimmed} (Hitsound)";
+    }
+
+    private static string BuildUniqueHitsoundDiffPath(string sourceBeatmapPath, string versionName)
+    {
+        var sourceDirectory = Path.GetDirectoryName(sourceBeatmapPath) ?? string.Empty;
+        var sourceFileNameWithoutExtension = Path.GetFileNameWithoutExtension(sourceBeatmapPath);
+        var sanitizedVersionName = SanitizeFileNamePart(versionName);
+
+        var bracketStartIndex = sourceFileNameWithoutExtension.LastIndexOf('[');
+        var bracketEndIndex = sourceFileNameWithoutExtension.LastIndexOf(']');
+        var baseFileName = bracketStartIndex >= 0 && bracketEndIndex > bracketStartIndex
+            ? $"{sourceFileNameWithoutExtension[..(bracketStartIndex + 1)]}{sanitizedVersionName}{sourceFileNameWithoutExtension[bracketEndIndex..]}"
+            : $"{sourceFileNameWithoutExtension} [{sanitizedVersionName}]";
+
+        var candidatePath = Path.Combine(sourceDirectory, $"{baseFileName}.osu");
+        if (!File.Exists(candidatePath))
+        {
+            return candidatePath;
+        }
+
+        var suffix = 1;
+        while (true)
+        {
+            var suffixedPath = Path.Combine(sourceDirectory, $"{baseFileName} ({suffix}).osu");
+            if (!File.Exists(suffixedPath))
+            {
+                return suffixedPath;
+            }
+
+            suffix++;
+        }
+    }
+
+    private static string SanitizeFileNamePart(string value)
+    {
+        var sanitized = value;
+        foreach (var invalidCharacter in Path.GetInvalidFileNameChars())
+        {
+            sanitized = sanitized.Replace(invalidCharacter, '_');
+        }
+
+        return string.IsNullOrWhiteSpace(sanitized) ? "Hitsound" : sanitized.Trim();
+    }
+
+    private static void WriteBeatmap(string path, Beatmap beatmap)
+    {
+        File.WriteAllText(path, beatmap.Encode().Replace("\r\n", "\n").Replace("\n", "\r\n"));
     }
 }
