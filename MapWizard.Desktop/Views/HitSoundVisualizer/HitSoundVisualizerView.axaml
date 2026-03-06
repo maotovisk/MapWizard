@@ -168,11 +168,50 @@
     </UserControl.Styles>
 
     <Grid RowDefinitions="Auto,Auto,*,Auto">
-        <Grid VerticalAlignment="Center">
+        <Grid VerticalAlignment="Center" ColumnDefinitions="*,Auto">
             <TextBlock Text="Hitsound Visualizer"
                        FontSize="24"
                        FontWeight="Bold"
                        Margin="16,0" />
+            <Button Grid.Column="1"
+                    Classes="Flat Large"
+                    IsEnabled="{Binding CanExportTimeline}"
+                    Margin="0,0,8,0"
+                    ToolTip.Tip="Export hitsound timeline">
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                    <materialIcons:MaterialIcon Kind="ContentSave" Width="24" Height="24" />
+                    <TextBlock VerticalAlignment="Center"
+                               FontWeight="Bold"
+                               FontSize="16"
+                               Text="Export Hitsounds" />
+                </StackPanel>
+                <Button.Flyout>
+                    <Flyout Placement="BottomEdgeAlignedRight">
+                        <Border Classes="timeline-flyout-surface">
+                            <StackPanel Width="320" Spacing="10">
+                                <TextBlock Text="Export Hitsounds" FontWeight="Bold" />
+                                <TextBlock Classes="timeline-muted"
+                                           Text="Choose whether to apply the timeline to another difficulty or create a new circle-only hitsound diff."
+                                           TextWrapping="Wrap" />
+                                <Button Classes="timeline-btn"
+                                        Command="{Binding ExportApplyToTargetDiffCommand}">
+                                    <StackPanel Orientation="Horizontal" Spacing="6">
+                                        <materialIcons:MaterialIcon Kind="FileReplaceOutline" Width="16" Height="16" />
+                                        <TextBlock VerticalAlignment="Center" Text="Apply To Target Diff" />
+                                    </StackPanel>
+                                </Button>
+                                <Button Classes="timeline-btn"
+                                        Command="{Binding ExportHitsoundDiffCommand}">
+                                    <StackPanel Orientation="Horizontal" Spacing="6">
+                                        <materialIcons:MaterialIcon Kind="MusicCircleOutline" Width="16" Height="16" />
+                                        <TextBlock VerticalAlignment="Center" Text="Export Circle-only Hitsound Diff" />
+                                    </StackPanel>
+                                </Button>
+                            </StackPanel>
+                        </Border>
+                    </Flyout>
+                </Button.Flyout>
+            </Button>
         </Grid>
 
         <Separator Grid.Row="1" Margin="0,10,0,6" />

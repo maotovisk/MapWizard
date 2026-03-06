@@ -179,6 +179,7 @@ public partial class HitSoundVisualizerViewModel(
     public bool ShowSamplePointContextPopup => IsSampleRowContextActive;
     public bool ShowHitsoundContextPopup => !IsSampleRowContextActive;
     public bool CanEditHeaderBanks => HasLoadedMap;
+    public bool CanExportTimeline => HasLoadedMap && Points.Count > 0;
     public bool HasAnyHsSelectorAudioTypeEnabled =>
         HsSelectorIncludeHitNormal || HsSelectorIncludeWhistle || HsSelectorIncludeFinish || HsSelectorIncludeClap;
     public bool IsHitNormalSelected
@@ -257,6 +258,7 @@ public partial class HitSoundVisualizerViewModel(
     {
         RebuildPointTimeCache(value);
         OnPropertyChanged(nameof(VisiblePointCount));
+        OnPropertyChanged(nameof(CanExportTimeline));
     }
 
     partial void OnCursorTimeMsChanged(int value)
@@ -285,6 +287,7 @@ public partial class HitSoundVisualizerViewModel(
     partial void OnHasLoadedMapChanged(bool value)
     {
         OnPropertyChanged(nameof(CanEditHeaderBanks));
+        OnPropertyChanged(nameof(CanExportTimeline));
         OnPropertyChanged(nameof(ShowPlaybackTimeline));
         OnPropertyChanged(nameof(ShowPlaybackTimelineSection));
     }
@@ -490,6 +493,80 @@ public partial class HitSoundVisualizerViewModel(
     private Task LoadTimeline()
     {
         return LoadTimelineCore(preservePlaybackPosition: false);
+    }
+
+    [RelayCommand]
+    private async Task ExportApplyToTargetDiff(CancellationToken token)
+    {
+        if (!CanExportTimeline)
+        {
+            toastManager.ShowToast(NotificationType.Error, "Hitsound Visualizer", "Load a beatmap with hitsound points first.");
+            return;
+        }
+
+        try
+        {
+            var selectedPaths = await ShowSongSelectDialogAsync(
+                allowMultiple: false,
+                token: token,
+                preferredMapsetDirectoryPath: BeatmapPathUtils.TryGetMapsetDirectoryPath(OriginBeatmap.Path));
+            if (token.IsCancellationRequested || selectedPaths is null || selectedPaths.Count == 0)
+            {
+                return;
+            }
+
+            var targetPath = selectedPaths[0];
+            if (!hitSoundService.ApplyVisualizerTimelineToBeatmap(targetPath, _workingTimeline, out var errorMessage))
+            {
+                toastManager.ShowToast(
+                    NotificationType.Error,
+                    "Hitsound Visualizer",
+                    string.IsNullOrWhiteSpace(errorMessage) ? "Failed to apply hitsounds to target diff." : errorMessage);
+                return;
+            }
+
+            toastManager.ShowToast(
+                NotificationType.Success,
+                "Hitsound Visualizer",
+                $"Applied hitsounds to {Path.GetFileName(targetPath)}.");
+        }
+        catch (Exception ex)
+        {
+            MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
+            toastManager.ShowToast(NotificationType.Error, "Hitsound Visualizer", ex.Message);
+        }
+    }
+
+    [RelayCommand]
+    private void ExportHitsoundDiff()
+    {
+        if (!CanExportTimeline)
+        {
+            toastManager.ShowToast(NotificationType.Error, "Hitsound Visualizer", "Load a beatmap with hitsound points first.");
+            return;
+        }
+
+        try
+        {
+            if (!hitSoundService.ExportVisualizerHitsoundDiff(OriginBeatmap.Path, _workingTimeline, out var exportedPath, out var errorMessage))
+            {
+                toastManager.ShowToast(
+                    NotificationType.Error,
+                    "Hitsound Visualizer",
+                    string.IsNullOrWhiteSpace(errorMessage) ? "Failed to export hitsound diff." : errorMessage);
+                return;
+            }
+
+            toastManager.ShowToast(
+                NotificationType.Success,
+                "Hitsound Visualizer",
+                $"Exported hitsound diff: {Path.GetFileName(exportedPath)}");
+        }
+        catch (Exception ex)
+        {
+            MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
+            toastManager.ShowToast(NotificationType.Error, "Hitsound Visualizer", ex.Message);
+        }
     }
 
     private async Task LoadTimelineCore(bool preservePlaybackPosition)
@@ -2898,13 +2975,26 @@ public partial class HitSoundVisualizerViewModel(
 
     private string ResolveSampleFilePath(HitSoundVisualizerPoint point, int index)
     {
-        var mapsetPath = ResolveSampleFilePathFromDirectoryCached(_loadedMapsetDirectoryPath, point.SampleSet, point.HitSound, index);
+        // Mapset lookup should be exact for indexed samples.
+        // If `normal-hitnormal6` is missing in mapset, we should fall through to legacy/default skin
+        // instead of silently substituting mapset `normal-hitnormal`.
+        var mapsetPath = ResolveSampleFilePathFromDirectoryCached(
+            _loadedMapsetDirectoryPath,
+            point.SampleSet,
+            point.HitSound,
+            index,
+            allowIndexOneFallback: false);
         if (!string.IsNullOrWhiteSpace(mapsetPath))
         {
             return mapsetPath;
         }
 
-        return ResolveSampleFilePathFromDirectoryCached(_legacySkinDirectoryPath, point.SampleSet, point.HitSound, index);
+        return ResolveSampleFilePathFromDirectoryCached(
+            _legacySkinDirectoryPath,
+            point.SampleSet,
+            point.HitSound,
+            index,
+            allowIndexOneFallback: true);
     }
 
     private static string ResolvePlaybackBusKey(HitSoundVisualizerPoint point)
@@ -3084,20 +3174,30 @@ public partial class HitSoundVisualizerViewModel(
         }
     }
 
-    private string ResolveSampleFilePathFromDirectoryCached(string directoryPath, SampleSet sampleSet, HitSound hitSound, int index)
+    private string ResolveSampleFilePathFromDirectoryCached(
+        string directoryPath,
+        SampleSet sampleSet,
+        HitSound hitSound,
+        int index,
+        bool allowIndexOneFallback)
     {
         if (string.IsNullOrWhiteSpace(directoryPath))
         {
             return string.Empty;
         }
 
-        var cacheKey = $"{directoryPath}|{(int)sampleSet}|{(int)hitSound}|{Math.Max(1, index)}";
+        var cacheKey = $"{directoryPath}|{(int)sampleSet}|{(int)hitSound}|{Math.Max(1, index)}|{allowIndexOneFallback}";
         return _resolvedPlaybackSamplePathCache.GetOrAdd(
             cacheKey,
-            _ => ResolveSampleFilePathFromDirectoryUncached(directoryPath, sampleSet, hitSound, index));
+            _ => ResolveSampleFilePathFromDirectoryUncached(directoryPath, sampleSet, hitSound, index, allowIndexOneFallback));
     }
 
-    private string ResolveSampleFilePathFromDirectoryUncached(string directoryPath, SampleSet sampleSet, HitSound hitSound, int index)
+    private string ResolveSampleFilePathFromDirectoryUncached(
+        string directoryPath,
+        SampleSet sampleSet,
+        HitSound hitSound,
+        int index,
+        bool allowIndexOneFallback)
     {
         if (string.IsNullOrWhiteSpace(directoryPath) || !Directory.Exists(directoryPath))
         {
@@ -3114,7 +3214,7 @@ public partial class HitSoundVisualizerViewModel(
             }
         }
 
-        if (index <= 1)
+        if (!allowIndexOneFallback || index <= 1)
         {
             return string.Empty;
         }
