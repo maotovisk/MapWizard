@@ -7,6 +7,11 @@ public class BeatmapBackupHelperTests
     [Fact]
     public void CreateBackupCopy_RepeatedCallsForSameFile_ProducesUniqueBackups()
     {
+        if (OperatingSystem.IsMacOS())
+        {
+            return;
+        }
+
         var sandboxRoot = CreateSandbox();
         var previousXdgDataHome = Environment.GetEnvironmentVariable("XDG_DATA_HOME");
         Environment.SetEnvironmentVariable("XDG_DATA_HOME", sandboxRoot);

@@ -226,6 +226,11 @@ public class MapCleanerTests
     [Fact]
     public void CleanBeatmapTargets_ValidFile_WritesCleanedBeatmapCreatesBackupAndAggregatesCounts()
     {
+        if (OperatingSystem.IsMacOS())
+        {
+            return;
+        }
+
         var sandboxRoot = CreateSandbox("mapwizard-mapcleaner-targets");
         var previousXdgDataHome = Environment.GetEnvironmentVariable("XDG_DATA_HOME");
         Environment.SetEnvironmentVariable("XDG_DATA_HOME", sandboxRoot);

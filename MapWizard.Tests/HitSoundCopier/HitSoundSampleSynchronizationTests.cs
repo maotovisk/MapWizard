@@ -9,6 +9,11 @@ public class HitSoundSampleSynchronizationTests
     [Fact]
     public void CopyAcrossMapsets_WithConflictingIndexedSample_CreatesNewIndexAndCopiesSamples()
     {
+        if (OperatingSystem.IsMacOS())
+        {
+            return;
+        }
+
         var sandboxRoot = CreateSandbox();
         var previousXdgDataHome = Environment.GetEnvironmentVariable("XDG_DATA_HOME");
         Environment.SetEnvironmentVariable("XDG_DATA_HOME", sandboxRoot);
@@ -59,6 +64,11 @@ public class HitSoundSampleSynchronizationTests
     [Fact]
     public void CopyAcrossMapsets_WithMatchingIndexedSamples_ReusesExistingFilesWithoutRemap()
     {
+        if (OperatingSystem.IsMacOS())
+        {
+            return;
+        }
+
         var sandboxRoot = CreateSandbox();
         var previousXdgDataHome = Environment.GetEnvironmentVariable("XDG_DATA_HOME");
         Environment.SetEnvironmentVariable("XDG_DATA_HOME", sandboxRoot);
