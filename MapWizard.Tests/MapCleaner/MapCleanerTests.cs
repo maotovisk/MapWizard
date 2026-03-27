@@ -51,7 +51,7 @@ public class MapCleanerTests
 
         Assert.Equal(TimeSpan.FromMilliseconds(125), circle.Time);
         Assert.Equal(TimeSpan.FromMilliseconds(125), greenline.Time);
-        Assert.Equal(TimeSpan.FromMilliseconds(625), secondRedline.Time);
+        Assert.Equal(TimeSpan.FromMilliseconds(626), secondRedline.Time);
         Assert.NotNull(beatmap.Editor);
         var editor = beatmap.Editor!;
         Assert.NotNull(editor.Bookmarks);
@@ -144,9 +144,103 @@ public class MapCleanerTests
             .ToList();
 
         Assert.Equal(TimeSpan.FromMilliseconds(0), redlines[0].Time);
-        Assert.Equal(TimeSpan.FromMilliseconds(375), redlines[1].Time);
+        Assert.Equal(TimeSpan.FromMilliseconds(378), redlines[1].Time);
         Assert.Equal(TimeSpan.FromMilliseconds(878), redlines[2].Time);
         Assert.Equal(2, result.TimingPointsResnapped);
+    }
+
+    [Fact]
+    public void CleanBeatmap_ResnapEverything_DoesNotMoveRedlineAnchoredToObjectStart()
+    {
+        var beatmap = Beatmap.Decode(GetAnchoredRedlineBeatmap());
+
+        var result = MapWizard.Tools.MapCleaner.MapCleaner.CleanBeatmap(beatmap, new MapCleanerOptions
+        {
+            ResnapEverything = true,
+            RemoveMuting = false,
+            RemoveUnusedGreenlines = false,
+            SnapDivisors = ["1/4"]
+        });
+
+        var redlines = beatmap.TimingPoints!.TimingPointList
+            .OfType<UninheritedTimingPoint>()
+            .OrderBy(x => x.Time.TotalMilliseconds)
+            .ToList();
+        var slider = beatmap.HitObjects.Objects.OfType<Slider>().Single();
+
+        Assert.Equal(TimeSpan.FromMilliseconds(3012), redlines[1].Time);
+        Assert.Equal(TimeSpan.FromMilliseconds(3012), slider.Time);
+        Assert.Equal(0, result.TimingPointsResnapped);
+        Assert.Equal(0, result.ObjectsResnapped);
+    }
+
+    [Fact]
+    public void CleanBeatmap_ResnapEverything_DoesNotMoveGreenlineAnchoredToSliderStart()
+    {
+        var beatmap = Beatmap.Decode(GetAnchoredGreenlineBeatmap());
+
+        var result = MapWizard.Tools.MapCleaner.MapCleaner.CleanBeatmap(beatmap, new MapCleanerOptions
+        {
+            ResnapEverything = true,
+            RemoveMuting = false,
+            RemoveUnusedGreenlines = false,
+            SnapDivisors = ["1/4"]
+        });
+
+        var greenline = beatmap.TimingPoints!.TimingPointList.OfType<InheritedTimingPoint>().Single();
+        var redline = beatmap.TimingPoints.TimingPointList.OfType<UninheritedTimingPoint>().Last();
+        var slider = beatmap.HitObjects.Objects.OfType<Slider>().Single();
+
+        Assert.Equal(TimeSpan.FromMilliseconds(3012), greenline.Time);
+        Assert.Equal(TimeSpan.FromMilliseconds(3012), redline.Time);
+        Assert.Equal(TimeSpan.FromMilliseconds(3012), slider.Time);
+        Assert.Equal(0, result.TimingPointsResnapped);
+        Assert.Equal(0, result.GreenLinesResnapped);
+        Assert.Equal(0, result.SliderEndsResnapped);
+    }
+
+    [Fact]
+    public void CleanBeatmap_ResnapEverything_ResnapsOffSnapSliderEndEvenWhenStartDoesNotMove()
+    {
+        var beatmap = Beatmap.Decode(GetAnchoredGreenlineOffSnapSliderEndBeatmap());
+        var slider = beatmap.HitObjects.Objects.OfType<Slider>().Single();
+
+        var result = MapWizard.Tools.MapCleaner.MapCleaner.CleanBeatmap(beatmap, new MapCleanerOptions
+        {
+            ResnapEverything = true,
+            RemoveMuting = false,
+            RemoveUnusedGreenlines = false,
+            SnapDivisors = ["1/4"]
+        });
+
+        Assert.Equal(TimeSpan.FromMilliseconds(3012), slider.Time);
+        Assert.Equal(TimeSpan.FromMilliseconds(3345), slider.EndTime);
+        Assert.Equal(1, result.SliderEndsResnapped);
+    }
+
+    [Fact]
+    public void CleanBeatmap_ResnapEverything_ResnapsSliderEndAgainstCleanedRedlinePhase()
+    {
+        var beatmap = Beatmap.Decode(GetSliderTailOffSnapAfterRedlineResnapBeatmap());
+        var slider = beatmap.HitObjects.Objects.OfType<Slider>().Single();
+
+        var result = MapWizard.Tools.MapCleaner.MapCleaner.CleanBeatmap(beatmap, new MapCleanerOptions
+        {
+            ResnapEverything = true,
+            RemoveMuting = false,
+            RemoveUnusedGreenlines = false,
+            SnapDivisors = ["1/4"]
+        });
+
+        var redline = beatmap.TimingPoints!.TimingPointList.OfType<UninheritedTimingPoint>().Single();
+
+        Assert.Equal(TimeSpan.FromMilliseconds(0), redline.Time);
+        Assert.Equal(TimeSpan.FromMilliseconds(0), slider.Time);
+        Assert.Equal(TimeSpan.FromMilliseconds(83), slider.EndTime);
+        Assert.InRange(slider.Length, 34.859, 34.861);
+        Assert.Equal(1, result.TimingPointsResnapped);
+        Assert.Equal(0, result.ObjectsResnapped);
+        Assert.Equal(1, result.SliderEndsResnapped);
     }
 
     [Fact]
@@ -350,8 +444,8 @@ public class MapCleanerTests
 
                [TimingPoints]
                0,500,4,1,0,100,1,0
-               101,-100,4,1,0,100,0,0
-               626,500,4,1,0,100,1,0
+               101.4,-100,4,1,0,100,0,0
+               626.4,500,4,1,0,100,1,0
 
                [HitObjects]
                256,192,126,1,0,0:0:0:0:
@@ -564,8 +658,8 @@ public class MapCleanerTests
 
                [TimingPoints]
                0,500,4,1,0,100,1,0
-               378,400,4,1,0,100,1,0
-               876,400,4,1,0,100,1,0
+               378.4,400,4,1,0,100,1,0
+               876.4,400,4,1,0,100,1,0
 
                [HitObjects]
                256,192,0,1,0,0:0:0:0:
@@ -625,6 +719,223 @@ public class MapCleanerTests
 
                [HitObjects]
                256,192,0,1,0,0:0:0:0:
+               """.Replace("\n", "\r\n");
+    }
+
+    private static string GetAnchoredRedlineBeatmap()
+    {
+        return """
+               osu file format v14
+
+               [General]
+               AudioFilename: a.mp3
+               AudioLeadIn: 0
+               PreviewTime: -1
+               Countdown: 0
+               SampleSet: Normal
+               StackLeniency: 0.7
+               Mode: 0
+               LetterboxInBreaks: 0
+               WidescreenStoryboard: 0
+
+               [Editor]
+               DistanceSpacing: 1
+               BeatDivisor: 4
+               GridSize: 4
+               TimelineZoom: 1
+
+               [Metadata]
+               Title: t
+               TitleUnicode: t
+               Artist: a
+               ArtistUnicode: a
+               Creator: c
+               Version: test
+               Source:
+               Tags:
+               BeatmapID: 0
+               BeatmapSetID: -1
+
+               [Difficulty]
+               HPDrainRate: 5
+               CircleSize: 4
+               OverallDifficulty: 8
+               ApproachRate: 9
+               SliderMultiplier: 1.4
+               SliderTickRate: 1
+
+               [Events]
+               //Background and Video events
+
+               [TimingPoints]
+               2354,329.670329670329,4,2,3,40,1,0
+               3012,333.333333333333,4,2,3,40,1,0
+
+               [HitObjects]
+               256,192,3012,2,0,B|356:192,1,140
+               """.Replace("\n", "\r\n");
+    }
+
+    private static string GetAnchoredGreenlineBeatmap()
+    {
+        return """
+               osu file format v14
+
+               [General]
+               AudioFilename: a.mp3
+               AudioLeadIn: 0
+               PreviewTime: -1
+               Countdown: 0
+               SampleSet: Normal
+               StackLeniency: 0.7
+               Mode: 0
+               LetterboxInBreaks: 0
+               WidescreenStoryboard: 0
+
+               [Editor]
+               DistanceSpacing: 1
+               BeatDivisor: 4
+               GridSize: 4
+               TimelineZoom: 1
+
+               [Metadata]
+               Title: t
+               TitleUnicode: t
+               Artist: a
+               ArtistUnicode: a
+               Creator: c
+               Version: test
+               Source:
+               Tags:
+               BeatmapID: 0
+               BeatmapSetID: -1
+
+               [Difficulty]
+               HPDrainRate: 5
+               CircleSize: 4
+               OverallDifficulty: 8
+               ApproachRate: 9
+               SliderMultiplier: 1.4
+               SliderTickRate: 1
+
+               [Events]
+               //Background and Video events
+
+               [TimingPoints]
+               2354,329.670329670329,4,2,3,40,1,0
+               3012,333.333333333333,4,2,3,40,1,0
+               3012,-100,4,2,3,40,0,0
+
+               [HitObjects]
+               256,192,3012,2,0,B|356:192,1,140
+               """.Replace("\n", "\r\n");
+    }
+
+    private static string GetAnchoredGreenlineOffSnapSliderEndBeatmap()
+    {
+        return """
+               osu file format v14
+
+               [General]
+               AudioFilename: a.mp3
+               AudioLeadIn: 0
+               PreviewTime: -1
+               Countdown: 0
+               SampleSet: Normal
+               StackLeniency: 0.7
+               Mode: 0
+               LetterboxInBreaks: 0
+               WidescreenStoryboard: 0
+
+               [Editor]
+               DistanceSpacing: 1
+               BeatDivisor: 4
+               GridSize: 4
+               TimelineZoom: 1
+
+               [Metadata]
+               Title: t
+               TitleUnicode: t
+               Artist: a
+               ArtistUnicode: a
+               Creator: c
+               Version: test
+               Source:
+               Tags:
+               BeatmapID: 0
+               BeatmapSetID: -1
+
+               [Difficulty]
+               HPDrainRate: 5
+               CircleSize: 4
+               OverallDifficulty: 8
+               ApproachRate: 9
+               SliderMultiplier: 1.4
+               SliderTickRate: 1
+
+               [Events]
+               //Background and Video events
+
+               [TimingPoints]
+               2354,329.670329670329,4,2,3,40,1,0
+               3012,333.333333333333,4,2,3,40,1,0
+               3012,-100,4,2,3,40,0,0
+
+               [HitObjects]
+               256,192,3012,2,0,B|356:192,1,145
+               """.Replace("\n", "\r\n");
+    }
+
+    private static string GetSliderTailOffSnapAfterRedlineResnapBeatmap()
+    {
+        return """
+               osu file format v14
+
+               [General]
+               AudioFilename: a.mp3
+               AudioLeadIn: 0
+               PreviewTime: -1
+               Countdown: 0
+               SampleSet: Normal
+               StackLeniency: 0.7
+               Mode: 0
+               LetterboxInBreaks: 0
+               WidescreenStoryboard: 0
+
+               [Editor]
+               DistanceSpacing: 1
+               BeatDivisor: 4
+               GridSize: 4
+               TimelineZoom: 1
+
+               [Metadata]
+               Title: t
+               TitleUnicode: t
+               Artist: a
+               ArtistUnicode: a
+               Creator: c
+               Version: test
+               Source:
+               Tags:
+               BeatmapID: 0
+               BeatmapSetID: -1
+
+               [Difficulty]
+               HPDrainRate: 5
+               CircleSize: 4
+               OverallDifficulty: 8
+               ApproachRate: 9
+               SliderMultiplier: 1.4
+               SliderTickRate: 1
+
+               [Events]
+               //Background and Video events
+
+               [TimingPoints]
+               0.4,333.333333333333,4,1,0,100,1,0
+
+               [HitObjects]
+               256,192,0,2,0,B|356:192,1,35.28
                """.Replace("\n", "\r\n");
     }
 
