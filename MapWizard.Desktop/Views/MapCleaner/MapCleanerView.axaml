@@ -181,44 +181,16 @@
                         <Separator />
 
                         <Grid ColumnDefinitions="*,Auto">
-                            <TextBlock Text="Analyze samples" />
-                            <ToggleSwitch Grid.Column="1" IsChecked="{Binding AnalyzeSamples}" />
-                        </Grid>
-                        <Grid ColumnDefinitions="*,Auto">
-                            <TextBlock Text="Resnap objects" />
-                            <ToggleSwitch Grid.Column="1" IsChecked="{Binding ResnapObjects}" />
-                        </Grid>
-                        <Grid ColumnDefinitions="*,Auto" IsVisible="{Binding ResnapObjects}">
-                            <TextBlock Text="Resnap slider ends (recalculate length)" />
-                            <ToggleSwitch Grid.Column="1" IsChecked="{Binding ResnapSliderEnds}" />
-                        </Grid>
-                        <Grid ColumnDefinitions="*,Auto">
-                            <TextBlock Text="Resnap greenlines" />
-                            <ToggleSwitch Grid.Column="1" IsChecked="{Binding ResnapGreenLines}" />
-                        </Grid>
-                        <Grid ColumnDefinitions="*,Auto">
-                            <TextBlock Text="Resnap bookmarks" />
-                            <ToggleSwitch Grid.Column="1" IsChecked="{Binding ResnapBookmarks}" />
-                        </Grid>
-                        <Grid ColumnDefinitions="*,Auto">
-                            <TextBlock Text="Remove hitsounds" />
-                            <ToggleSwitch Grid.Column="1" IsChecked="{Binding RemoveHitSounds}" />
-                        </Grid>
-                        <Grid ColumnDefinitions="*,Auto">
-                            <TextBlock Text="Remove unused samples" />
-                            <ToggleSwitch Grid.Column="1" IsChecked="{Binding RemoveUnusedSamples}" />
+                            <TextBlock Text="Resnap everything" />
+                            <ToggleSwitch Grid.Column="1" IsChecked="{Binding ResnapEverything}" />
                         </Grid>
                         <Grid ColumnDefinitions="*,Auto">
                             <TextBlock Text="Remove muting" />
                             <ToggleSwitch Grid.Column="1" IsChecked="{Binding RemoveMuting}" />
                         </Grid>
                         <Grid ColumnDefinitions="*,Auto">
-                            <TextBlock Text="Mute unclickable hitsounds" />
-                            <ToggleSwitch Grid.Column="1" IsChecked="{Binding MuteUnclickableHitsounds}" />
-                        </Grid>
-                        <Grid ColumnDefinitions="*,Auto">
-                            <TextBlock Text="Remove unused inherited timing points" />
-                            <ToggleSwitch Grid.Column="1" IsChecked="{Binding RemoveUnusedInheritedTimingPoints}" />
+                            <TextBlock Text="Remove unused greenlines" />
+                            <ToggleSwitch Grid.Column="1" IsChecked="{Binding RemoveUnusedGreenlines}" />
                         </Grid>
                     </StackPanel>
                 </suki:GlassCard>

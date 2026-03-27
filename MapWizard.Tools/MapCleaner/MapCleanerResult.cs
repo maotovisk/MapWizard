@@ -2,18 +2,16 @@ namespace MapWizard.Tools.MapCleaner;
 
 public class MapCleanerResult
 {
+    public int TimingPointsResnapped;
     public int ObjectsResnapped;
     public int SliderEndsResnapped;
     public int SpinnerOrHoldEndsResnapped;
     public int BookmarksResnapped;
+    public int PreviewTimeResnapped;
     public int GreenLinesResnapped;
 
-    public int InheritedTimingPointsRemoved;
-    public int HitSoundsRemoved;
+    public int GreenLinesRemoved;
     public int MutedTimingPointsRestored;
-    public int UnclickableHitSoundsMuted;
-
-    public MapCleanerAnalysis Analysis = new();
 }
 
 public class MapCleanerBatchResult
@@ -23,27 +21,27 @@ public class MapCleanerBatchResult
     public List<string> FailedPaths = [];
     public List<string> FailureDetails = [];
 
+    public int TimingPointsResnapped;
     public int ObjectsResnapped;
     public int SliderEndsResnapped;
     public int SpinnerOrHoldEndsResnapped;
     public int BookmarksResnapped;
+    public int PreviewTimeResnapped;
     public int GreenLinesResnapped;
 
-    public int InheritedTimingPointsRemoved;
-    public int HitSoundsRemoved;
+    public int GreenLinesRemoved;
     public int MutedTimingPointsRestored;
-    public int UnclickableHitSoundsMuted;
 
     public void Add(MapCleanerResult result)
     {
+        TimingPointsResnapped += result.TimingPointsResnapped;
         ObjectsResnapped += result.ObjectsResnapped;
         SliderEndsResnapped += result.SliderEndsResnapped;
         SpinnerOrHoldEndsResnapped += result.SpinnerOrHoldEndsResnapped;
         BookmarksResnapped += result.BookmarksResnapped;
+        PreviewTimeResnapped += result.PreviewTimeResnapped;
         GreenLinesResnapped += result.GreenLinesResnapped;
-        InheritedTimingPointsRemoved += result.InheritedTimingPointsRemoved;
-        HitSoundsRemoved += result.HitSoundsRemoved;
+        GreenLinesRemoved += result.GreenLinesRemoved;
         MutedTimingPointsRestored += result.MutedTimingPointsRestored;
-        UnclickableHitSoundsMuted += result.UnclickableHitSoundsMuted;
     }
 }
