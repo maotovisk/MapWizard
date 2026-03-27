@@ -77,7 +77,16 @@ public static class StableSnapEngine
         var redlineTime = snapTimingPoint.Time.TotalMilliseconds;
         var beatLength = snapTimingPoint.BeatLength;
 
-        if (Math.Abs(beatLength) < 0.00001)
+        return SnapRelativeMilliseconds(objectTimeMs, redlineTime, beatLength, divisors);
+    }
+
+    public static int SnapRelativeMilliseconds(
+        double objectTimeMs,
+        double anchorTimeMs,
+        double beatLength,
+        IReadOnlyList<SnapDivisor> divisors)
+    {
+        if (divisors.Count == 0 || Math.Abs(beatLength) < 0.00001)
         {
             return StableRound(objectTimeMs);
         }
@@ -93,12 +102,12 @@ public static class StableSnapEngine
                 continue;
             }
 
-            var relativeStep = (objectTimeMs - redlineTime) / step;
+            var relativeStep = (objectTimeMs - anchorTimeMs) / step;
             var nearestStep = (int)Math.Round(relativeStep, MidpointRounding.AwayFromZero);
 
             for (var offset = -1; offset <= 1; offset++)
             {
-                var candidateTime = redlineTime + ((nearestStep + offset) * step);
+                var candidateTime = anchorTimeMs + ((nearestStep + offset) * step);
                 var candidateRounded = StableRound(candidateTime);
                 var candidateDistance = Math.Abs(candidateRounded - objectTimeMs);
 
@@ -109,13 +118,9 @@ public static class StableSnapEngine
                     continue;
                 }
 
-                if (Math.Abs(candidateDistance - bestDistance) < 0.00001)
+                if (Math.Abs(candidateDistance - bestDistance) < 0.00001 && candidateRounded < best)
                 {
-                    // Favor earlier snaps to reduce accidental forward drift.
-                    if (candidateRounded < best)
-                    {
-                        best = candidateRounded;
-                    }
+                    best = candidateRounded;
                 }
             }
         }

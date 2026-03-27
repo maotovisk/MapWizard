@@ -78,16 +78,9 @@ static class Program
                 var options = new MapCleanerOptions
                 {
                     SnapDivisors = ParseCsv(snapsRaw),
-                    AnalyzeSamples = !args.ArgumentExists("--skip-analysis"),
-                    ResnapObjects = !args.ArgumentExists("--no-resnap-objects"),
-                    ResnapSliderEnds = !args.ArgumentExists("--no-resnap-slider-ends"),
-                    ResnapGreenLines = !args.ArgumentExists("--no-resnap-greenlines"),
-                    ResnapBookmarks = args.ArgumentExists("--resnap-bookmarks"),
-                    RemoveUnusedInheritedTimingPoints = !args.ArgumentExists("--keep-inherited"),
-                    RemoveHitSounds = args.ArgumentExists("--remove-hitsounds"),
-                    RemoveUnusedSamples = args.ArgumentExists("--remove-unused-samples"),
+                    ResnapEverything = !args.ArgumentExists("--no-resnap"),
                     RemoveMuting = args.ArgumentExists("--remove-muting"),
-                    MuteUnclickableHitsounds = args.ArgumentExists("--mute-unclickable-hitsounds")
+                    RemoveUnusedGreenlines = args.ArgumentExists("--remove-unused-greenlines")
                 };
 
                 RunMapCleaner(targetPaths, options);
@@ -106,9 +99,10 @@ static class Program
         {
             Console.WriteLine(
                 $"Map cleaner finished. Cleaned {result.ProcessedBeatmaps} beatmap(s): " +
-                $"{result.ObjectsResnapped} objects resnapped, " +
-                $"{result.GreenLinesResnapped} greenlines resnapped, " +
-                $"{result.InheritedTimingPointsRemoved} greenlines removed.");
+                $"{result.TimingPointsResnapped} timing points resnapped, " +
+                $"{result.ObjectsResnapped} object starts resnapped, " +
+                $"{result.SliderEndsResnapped} slider ends resnapped, " +
+                $"{result.GreenLinesRemoved} greenlines removed.");
             return;
         }
 

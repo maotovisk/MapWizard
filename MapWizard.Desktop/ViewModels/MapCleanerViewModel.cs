@@ -34,16 +34,9 @@ public partial class MapCleanerViewModel(
 {
     [ObservableProperty] private SelectedMap _originBeatmap = new();
 
-    [ObservableProperty] private bool _analyzeSamples = true;
-    [ObservableProperty] private bool _resnapObjects = true;
-    [ObservableProperty] private bool _resnapSliderEnds = true;
-    [ObservableProperty] private bool _resnapGreenLines = true;
-    [ObservableProperty] private bool _resnapBookmarks;
-    [ObservableProperty] private bool _removeHitSounds;
-    [ObservableProperty] private bool _removeUnusedSamples;
+    [ObservableProperty] private bool _resnapEverything = true;
     [ObservableProperty] private bool _removeMuting;
-    [ObservableProperty] private bool _muteUnclickableHitsounds;
-    [ObservableProperty] private bool _removeUnusedInheritedTimingPoints = true;
+    [ObservableProperty] private bool _removeUnusedGreenlines;
 
     [ObservableProperty] private string _customSnapInput = string.Empty;
 
@@ -224,16 +217,9 @@ public partial class MapCleanerViewModel(
 
         var options = new MapCleanerOptions
         {
-            AnalyzeSamples = AnalyzeSamples,
-            ResnapObjects = ResnapObjects,
-            ResnapSliderEnds = ResnapSliderEnds,
-            ResnapGreenLines = ResnapGreenLines,
-            ResnapBookmarks = ResnapBookmarks,
-            RemoveUnusedInheritedTimingPoints = RemoveUnusedInheritedTimingPoints,
-            RemoveHitSounds = RemoveHitSounds,
-            RemoveUnusedSamples = RemoveUnusedSamples,
+            ResnapEverything = ResnapEverything,
             RemoveMuting = RemoveMuting,
-            MuteUnclickableHitsounds = MuteUnclickableHitsounds,
+            RemoveUnusedGreenlines = RemoveUnusedGreenlines,
             SnapDivisors = ActiveSnapDivisors.ToList()
         };
 
@@ -244,7 +230,7 @@ public partial class MapCleanerViewModel(
             toastManager.ShowToast(
                 NotificationType.Success,
                 "Map Cleaner",
-                $"Done. Resnapped {result.ObjectsResnapped} objects, {result.SliderEndsResnapped} slider ends, and {result.GreenLinesResnapped} greenlines; removed {result.InheritedTimingPointsRemoved} greenlines.");
+                $"Done. Resnapped {result.TimingPointsResnapped} timing points, {result.ObjectsResnapped} object starts, {result.SliderEndsResnapped} slider ends, {result.BookmarksResnapped} bookmarks, and {result.PreviewTimeResnapped} preview points; removed {result.GreenLinesRemoved} greenlines.");
 
             LoadOriginBeatmapHeader();
             return;
