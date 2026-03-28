@@ -3,6 +3,7 @@ using BeatmapParser.HitObjects;
 using BeatmapParser.TimingPoints;
 using MapWizard.Tools.HitSounds.Copier;
 using MapWizard.Tools.MapCleaner;
+using MapWizard.Tools.MapCleaner.Snapping;
 
 namespace MapWizard.Tests.MapCleaner;
 
@@ -241,6 +242,63 @@ public class MapCleanerTests
         Assert.Equal(1, result.TimingPointsResnapped);
         Assert.Equal(0, result.ObjectsResnapped);
         Assert.Equal(1, result.SliderEndsResnapped);
+    }
+
+    [Fact]
+    public void CleanBeatmap_ResnapEverything_ReverseSliderWithMultipleAffectedSpans_PrioritizesAllEdgesUnderTwoMilliseconds()
+    {
+        var beatmap = Beatmap.Decode(GetReverseSliderMultipleSpanRedlineBeatmap());
+        var slider = beatmap.HitObjects.Objects.OfType<Slider>().Single();
+        var divisors = StableSnapEngine.ParseDivisors(["1/4"]);
+
+        var result = MapWizard.Tools.MapCleaner.MapCleaner.CleanBeatmap(beatmap, new MapCleanerOptions
+        {
+            ResnapEverything = true,
+            RemoveMuting = false,
+            RemoveUnusedGreenlines = false,
+            SnapDivisors = ["1/4"]
+        });
+
+        Assert.Equal(TimeSpan.FromMilliseconds(0), slider.Time);
+        Assert.Equal(TimeSpan.FromMilliseconds(360), slider.EndTime);
+        Assert.InRange(slider.Length, 33.599, 33.601);
+        Assert.Equal(0, result.ObjectsResnapped);
+        Assert.Equal(1, result.SliderEndsResnapped);
+
+        var duration = slider.EndTime.TotalMilliseconds - slider.Time.TotalMilliseconds;
+        for (var edgeIndex = 1; edgeIndex <= (int)slider.Slides; edgeIndex++)
+        {
+            var edgeTime = slider.Time.TotalMilliseconds + (duration * edgeIndex / slider.Slides);
+            var snappedEdge = StableSnapEngine.SnapMilliseconds(edgeTime, beatmap.TimingPoints, divisors, 10);
+            Assert.True(Math.Abs(snappedEdge - edgeTime) < 2.0, $"Edge {edgeIndex} stayed {Math.Abs(snappedEdge - edgeTime):F3}ms off snap.");
+        }
+    }
+
+    [Fact]
+    public void CleanBeatmap_ResnapEverything_ReverseSliderWithSnappedTailButOffSnapRepeat_KeepsEstimatedSpanDuration()
+    {
+        var beatmap = Beatmap.Decode(GetReverseSliderFromRecallTheEndBeatmap());
+        var slider = beatmap.HitObjects.Objects.OfType<Slider>().Single();
+        var divisors = StableSnapEngine.ParseDivisors(["1/8", "1/12"]);
+
+        var result = MapWizard.Tools.MapCleaner.MapCleaner.CleanBeatmap(beatmap, new MapCleanerOptions
+        {
+            ResnapEverything = true,
+            RemoveMuting = false,
+            RemoveUnusedGreenlines = false
+        });
+
+        Assert.Equal(TimeSpan.FromMilliseconds(218717), slider.Time);
+        Assert.Equal(TimeSpan.FromMilliseconds(218955), slider.EndTime);
+        Assert.InRange(slider.Length, 40.393, 40.394);
+        Assert.Equal(0, result.ObjectsResnapped);
+        Assert.Equal(0, result.SliderEndsResnapped);
+
+        var duration = slider.EndTime.TotalMilliseconds - slider.Time.TotalMilliseconds;
+        var secondRepeatTime = slider.Time.TotalMilliseconds + (duration * 2 / slider.Slides);
+        var snappedSecondRepeat = StableSnapEngine.SnapMilliseconds(secondRepeatTime, beatmap.TimingPoints, divisors, 10);
+
+        Assert.Equal(2.6666666666569654, Math.Abs(snappedSecondRepeat - secondRepeatTime), precision: 6);
     }
 
     [Fact]
@@ -936,6 +994,117 @@ public class MapCleanerTests
 
                [HitObjects]
                256,192,0,2,0,B|356:192,1,35.28
+               """.Replace("\n", "\r\n");
+    }
+
+    private static string GetReverseSliderMultipleSpanRedlineBeatmap()
+    {
+        return """
+               osu file format v14
+
+               [General]
+               AudioFilename: a.mp3
+               AudioLeadIn: 0
+               PreviewTime: -1
+               Countdown: 0
+               SampleSet: Normal
+               StackLeniency: 0.7
+               Mode: 0
+               LetterboxInBreaks: 0
+               WidescreenStoryboard: 0
+
+               [Editor]
+               DistanceSpacing: 1
+               BeatDivisor: 4
+               GridSize: 4
+               TimelineZoom: 1
+
+               [Metadata]
+               Title: t
+               TitleUnicode: t
+               Artist: a
+               ArtistUnicode: a
+               Creator: c
+               Version: test
+               Source:
+               Tags:
+               BeatmapID: 0
+               BeatmapSetID: -1
+
+               [Difficulty]
+               HPDrainRate: 5
+               CircleSize: 4
+               OverallDifficulty: 8
+               ApproachRate: 9
+               SliderMultiplier: 1.4
+               SliderTickRate: 1
+
+               [Events]
+               //Background and Video events
+
+               [TimingPoints]
+               0,500,4,1,0,100,1,0
+               120,480,4,1,0,100,1,0
+               360,360,4,1,0,100,1,0
+
+               [HitObjects]
+               256,192,0,2,0,B|356:192,3,38.2666666666667
+               """.Replace("\n", "\r\n");
+    }
+
+    private static string GetReverseSliderFromRecallTheEndBeatmap()
+    {
+        return """
+               osu file format v14
+
+               [General]
+               AudioFilename: a.mp3
+               AudioLeadIn: 0
+               PreviewTime: -1
+               Countdown: 0
+               SampleSet: Soft
+               StackLeniency: 0.7
+               Mode: 0
+               LetterboxInBreaks: 0
+               WidescreenStoryboard: 1
+
+               [Editor]
+               DistanceSpacing: 1.3
+               BeatDivisor: 8
+               GridSize: 4
+               TimelineZoom: 5.839996
+
+               [Metadata]
+               Title: t
+               TitleUnicode: t
+               Artist: a
+               ArtistUnicode: a
+               Creator: c
+               Version: test
+               Source:
+               Tags:
+               BeatmapID: 0
+               BeatmapSetID: -1
+
+               [Difficulty]
+               HPDrainRate: 5
+               CircleSize: 4
+               OverallDifficulty: 8
+               ApproachRate: 9
+               SliderMultiplier: 1.38
+               SliderTickRate: 1
+
+               [Events]
+               //Background and Video events
+
+               [TimingPoints]
+               218083,-81.3008130081301,4,2,3,80,0,0
+               218248,312.5,4,2,3,80,1,0
+               218717,-86.7302688638335,4,2,3,80,0,0
+               218873,329.67032967033,4,2,3,80,1,0
+
+               [HitObjects]
+               489,137,218717,2,0,L|441:127,3,40.393740799999996,0|0|0|0,1:0|1:0|1:0|1:0,0:0:0:0:
                """.Replace("\n", "\r\n");
     }
 
