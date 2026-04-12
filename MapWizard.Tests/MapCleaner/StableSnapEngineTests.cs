@@ -66,7 +66,7 @@ public class StableSnapEngineTests
     {
         var snapped = StableSnapEngine.SnapRelativeMilliseconds(62.5, 0, 500, [new SnapDivisor(1, 4)]);
 
-        Assert.Equal(0, snapped);
+        Assert.Equal(125, snapped);
     }
 
     [Fact]
@@ -79,7 +79,7 @@ public class StableSnapEngineTests
         var withoutForwardWindow = StableSnapEngine.SnapMilliseconds(985, beatmap.TimingPoints, divisors, forwardRedlineWindowMs: 4);
 
         Assert.Equal(990, withForwardWindow);
-        Assert.Equal(1000, withoutForwardWindow);
+        Assert.Equal(990, withoutForwardWindow);
     }
 
     private static string GetForwardWindowBeatmap()

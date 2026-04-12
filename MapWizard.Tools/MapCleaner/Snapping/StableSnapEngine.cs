@@ -60,7 +60,7 @@ public static class StableSnapEngine
     {
         if (timingPoints == null || timingPoints.TimingPointList.Count == 0 || divisors.Count == 0)
         {
-            return StableRound(objectTimeMs);
+            return StableFloor(objectTimeMs);
         }
 
         var redlines = timingPoints.TimingPointList
@@ -70,14 +70,38 @@ public static class StableSnapEngine
 
         if (redlines.Count == 0)
         {
-            return StableRound(objectTimeMs);
+            return StableFloor(objectTimeMs);
         }
 
-        var snapTimingPoint = ResolveSnapRedline(redlines, objectTimeMs, forwardRedlineWindowMs);
-        var redlineTime = snapTimingPoint.Time.TotalMilliseconds;
-        var beatLength = snapTimingPoint.BeatLength;
+        var previousRedline = redlines[0];
+        UninheritedTimingPoint? nextRedline = null;
+        foreach (var redline in redlines)
+        {
+            var redlineMs = redline.Time.TotalMilliseconds;
+            if (redlineMs <= objectTimeMs)
+            {
+                previousRedline = redline;
+                continue;
+            }
 
-        return SnapRelativeMilliseconds(objectTimeMs, redlineTime, beatLength, divisors);
+            nextRedline = redline;
+            break;
+        }
+
+        var snapped = SnapRelativeMillisecondsRaw(
+            objectTimeMs,
+            previousRedline.Time.TotalMilliseconds,
+            previousRedline.BeatLength,
+            divisors);
+
+        if (nextRedline != null &&
+            snapped > previousRedline.Time.TotalMilliseconds + forwardRedlineWindowMs &&
+            snapped >= nextRedline.Time.TotalMilliseconds - forwardRedlineWindowMs)
+        {
+            snapped = nextRedline.Time.TotalMilliseconds;
+        }
+
+        return StableFloor(snapped);
     }
 
     public static int SnapRelativeMilliseconds(
@@ -86,46 +110,7 @@ public static class StableSnapEngine
         double beatLength,
         IReadOnlyList<SnapDivisor> divisors)
     {
-        if (divisors.Count == 0 || Math.Abs(beatLength) < 0.00001)
-        {
-            return StableRound(objectTimeMs);
-        }
-
-        var best = StableRound(objectTimeMs);
-        var bestDistance = double.MaxValue;
-
-        foreach (var divisor in divisors)
-        {
-            var step = Math.Abs(beatLength) * divisor.Numerator / divisor.Denominator;
-            if (step <= 0.00001)
-            {
-                continue;
-            }
-
-            var relativeStep = (objectTimeMs - anchorTimeMs) / step;
-            var nearestStep = (int)Math.Round(relativeStep, MidpointRounding.AwayFromZero);
-
-            for (var offset = -1; offset <= 1; offset++)
-            {
-                var candidateTime = anchorTimeMs + ((nearestStep + offset) * step);
-                var candidateRounded = StableRound(candidateTime);
-                var candidateDistance = Math.Abs(candidateRounded - objectTimeMs);
-
-                if (candidateDistance < bestDistance)
-                {
-                    best = candidateRounded;
-                    bestDistance = candidateDistance;
-                    continue;
-                }
-
-                if (Math.Abs(candidateDistance - bestDistance) < 0.00001 && candidateRounded < best)
-                {
-                    best = candidateRounded;
-                }
-            }
-        }
-
-        return bestDistance == double.MaxValue ? StableRound(objectTimeMs) : best;
+        return StableFloor(SnapRelativeMillisecondsRaw(objectTimeMs, anchorTimeMs, beatLength, divisors));
     }
 
     public static int StableRound(double value)
@@ -138,30 +123,53 @@ public static class StableSnapEngine
         return (int)Math.Ceiling(value - 0.5);
     }
 
-    private static UninheritedTimingPoint ResolveSnapRedline(
-        IReadOnlyList<UninheritedTimingPoint> redlines,
-        double objectTimeMs,
-        int forwardRedlineWindowMs)
+    public static int StableFloor(double value)
     {
-        var previous = redlines[0];
+        return (int)Math.Floor(value);
+    }
 
-        foreach (var redline in redlines)
+    private static double SnapRelativeMillisecondsRaw(
+        double objectTimeMs,
+        double anchorTimeMs,
+        double beatLength,
+        IReadOnlyList<SnapDivisor> divisors)
+    {
+        if (divisors.Count == 0 || Math.Abs(beatLength) < 0.00001)
         {
-            var redlineMs = redline.Time.TotalMilliseconds;
-            if (redlineMs <= objectTimeMs)
+            return objectTimeMs;
+        }
+
+        var snappedTime = 0d;
+        var lowestDistance = double.PositiveInfinity;
+
+        foreach (var divisor in divisors)
+        {
+            var step = Math.Abs(beatLength) * divisor.Numerator / divisor.Denominator;
+            if (step <= 0.00001)
             {
-                previous = redline;
                 continue;
             }
 
-            if (redlineMs - objectTimeMs <= forwardRedlineWindowMs)
+            var candidate = GetNearestTick(objectTimeMs, anchorTimeMs, step);
+            var distance = Math.Abs(objectTimeMs - candidate);
+            if (distance < lowestDistance)
             {
-                return redline;
+                lowestDistance = distance;
+                snappedTime = candidate;
             }
-
-            break;
         }
 
-        return previous;
+        return double.IsPositiveInfinity(lowestDistance) ? objectTimeMs : snappedTime;
+    }
+
+    private static double GetNearestTick(double timeMs, double anchorTimeMs, double step)
+    {
+        var remainder = (timeMs - anchorTimeMs) % step;
+        if (remainder < 0.5 * step)
+        {
+            return timeMs - remainder;
+        }
+
+        return timeMs - remainder + step;
     }
 }

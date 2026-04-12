@@ -230,7 +230,7 @@ public partial class MapCleanerViewModel(
             toastManager.ShowToast(
                 NotificationType.Success,
                 "Map Cleaner",
-                $"Done. Resnapped {result.TimingPointsResnapped} timing points, {result.ObjectsResnapped} object starts, {result.SliderEndsResnapped} slider ends, {result.BookmarksResnapped} bookmarks, and {result.PreviewTimeResnapped} preview points; removed {result.GreenLinesRemoved} greenlines.");
+                $"Done. Resnapped {result.TimingPointsResnapped} timing points, {result.GreenLinesResnapped} greenlines, {result.ObjectsResnapped} object starts, {result.SliderEndsResnapped} slider ends, {result.BookmarksResnapped} bookmarks, and {result.PreviewTimeResnapped} preview points; removed {result.GreenLinesRemoved} greenlines.");
 
             LoadOriginBeatmapHeader();
             return;

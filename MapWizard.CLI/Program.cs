@@ -100,6 +100,7 @@ static class Program
             Console.WriteLine(
                 $"Map cleaner finished. Cleaned {result.ProcessedBeatmaps} beatmap(s): " +
                 $"{result.TimingPointsResnapped} timing points resnapped, " +
+                $"{result.GreenLinesResnapped} greenlines resnapped, " +
                 $"{result.ObjectsResnapped} object starts resnapped, " +
                 $"{result.SliderEndsResnapped} slider ends resnapped, " +
                 $"{result.GreenLinesRemoved} greenlines removed.");
