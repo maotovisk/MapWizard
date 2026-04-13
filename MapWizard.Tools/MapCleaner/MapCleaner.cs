@@ -30,6 +30,15 @@ public static class MapCleaner
             result.MutedTimingPointsRestored += RemoveMuting(beatmap);
         }
 
+        if (options.ResnapEverything || options.RemoveUnusedGreenlines)
+        {
+            result.GreenLinesResnapped += ResnapGreenlinesToClosestAffectedPieces(
+                beatmap,
+                resnapWithoutAffectedPieces: options.ResnapEverything,
+                divisors,
+                options.ForwardRedlineWindowMs);
+        }
+
         if (options.RemoveUnusedGreenlines)
         {
             result.GreenLinesRemoved += RemoveUnusedGreenlines(beatmap);
@@ -238,18 +247,7 @@ public static class MapCleaner
 
             switch (hitObject)
             {
-                case Slider slider when referenceObject is Slider referenceSlider:
-                    var currentStableSliderEnd = CalculateStableSliderEndTimeMilliseconds(beatmap, slider);
-                    var reverseAffectedByUninheritedTimingPoint =
-                        ReverseAffectedByUninheritedTimingPoint(beatmap, slider, currentStableSliderEnd);
-
-                    if (!startChanged &&
-                        !reverseAffectedByUninheritedTimingPoint &&
-                        !IsOffSnap(currentStableSliderEnd, beatmap.TimingPoints, divisors, options.ForwardRedlineWindowMs))
-                    {
-                        continue;
-                    }
-
+                case Slider slider when referenceObject is Slider:
                     if (ResnapSliderEndAndLength(beatmap, slider, divisors, options.ForwardRedlineWindowMs))
                     {
                         result.SliderEndsResnapped++;
@@ -288,52 +286,112 @@ public static class MapCleaner
         int forwardRedlineWindowMs)
     {
         var slides = Math.Max(1, (int)slider.Slides);
-        var snappedStart = slider.Time.TotalMilliseconds;
-        var currentStableEnd = CalculateStableSliderEndTimeMilliseconds(beatmap, slider);
-        var currentDuration = Math.Max(1.0, currentStableEnd - snappedStart);
+        var startMs = slider.Time.TotalMilliseconds;
+        var currentEndMs = CalculateStableSliderEndTimeMilliseconds(beatmap, slider);
+        if (currentEndMs <= startMs + 0.0001)
+        {
+            currentEndMs = startMs + 1;
+        }
 
-        if (ReverseAffectedByUninheritedTimingPoint(beatmap, slider, currentStableEnd) &&
-            TryResnapReverseSliderEdgesAndLength(
-                beatmap,
-                slider,
+        double targetDurationMs;
+        if (HasUninheritedTimingPointWithinSliderBody(beatmap, startMs, currentEndMs))
+        {
+            var snappedEndMs = StableSnapEngine.SnapMilliseconds(
+                currentEndMs,
+                beatmap.TimingPoints,
                 divisors,
-                forwardRedlineWindowMs,
-                slides,
-                snappedStart,
-                currentDuration,
-                out var reverseDuration))
+                forwardRedlineWindowMs);
+
+            if (snappedEndMs <= startMs)
+            {
+                snappedEndMs = StableSnapEngine.StableFloor(startMs + 1);
+            }
+
+            targetDurationMs = Math.Max(1.0, snappedEndMs - startMs);
+        }
+        else
         {
-            var reverseEnd = snappedStart + reverseDuration;
-            var reverseEndChanged = Math.Abs(reverseEnd - currentStableEnd) > 0.0001;
-            var reverseLength = CalculateSliderLengthFromDuration(beatmap, slider, reverseDuration, slides);
-            var reverseLengthChanged = Math.Abs(reverseLength - slider.Length) > 0.0001;
-
-            slider.EndTime = TimeSpan.FromMilliseconds(reverseEnd);
-            slider.Length = reverseLength;
-
-            return reverseEndChanged || reverseLengthChanged;
+            targetDurationMs = ResnapSliderDurationLikeMappingTools(beatmap, startMs, currentEndMs - startMs, divisors);
         }
 
-        var snappedEnd = StableSnapEngine.SnapMilliseconds(
-            currentStableEnd,
-            beatmap.TimingPoints,
-            divisors,
-            forwardRedlineWindowMs);
+        var targetEndMs = startMs + targetDurationMs;
+        var endChanged = Math.Abs(targetEndMs - currentEndMs) > 0.0001;
+        var targetLength = CalculateSliderLengthFromDuration(beatmap, slider, targetDurationMs, slides);
+        var lengthChanged = Math.Abs(targetLength - slider.Length) > 0.0001;
 
-        if (snappedEnd <= snappedStart)
-        {
-            snappedEnd = StableSnapEngine.StableRound(snappedStart + 1);
-        }
-
-        var endChanged = Math.Abs(snappedEnd - currentStableEnd) > 0.0001;
-        var newDuration = Math.Max(1.0, snappedEnd - snappedStart);
-        var newLength = CalculateSliderLengthFromDuration(beatmap, slider, newDuration, slides);
-        var lengthChanged = Math.Abs(newLength - slider.Length) > 0.0001;
-
-        slider.EndTime = TimeSpan.FromMilliseconds(snappedEnd);
-        slider.Length = newLength;
+        slider.EndTime = TimeSpan.FromMilliseconds(targetEndMs);
+        slider.Length = targetLength;
 
         return endChanged || lengthChanged;
+    }
+
+    private static bool HasUninheritedTimingPointWithinSliderBody(Beatmap beatmap, double startMs, double endMs)
+    {
+        if (beatmap.TimingPoints == null)
+        {
+            return false;
+        }
+
+        return beatmap.TimingPoints.TimingPointList
+            .OfType<UninheritedTimingPoint>()
+            .Any(x =>
+            {
+                var redlineTime = x.Time.TotalMilliseconds;
+                return redlineTime > startMs && redlineTime <= endMs + 20;
+            });
+    }
+
+    private static double ResnapSliderDurationLikeMappingTools(
+        Beatmap beatmap,
+        double startMs,
+        double durationMs,
+        IReadOnlyList<SnapDivisor> divisors)
+    {
+        var safeDuration = Math.Max(1.0, durationMs);
+        if (divisors.Count == 0)
+        {
+            return safeDuration;
+        }
+
+        var startRedline = beatmap.GetUninheritedTimingPointAt(startMs);
+        var beatLength = Math.Abs(startRedline?.BeatLength ?? 0);
+        if (beatLength <= 0.00001)
+        {
+            return safeDuration;
+        }
+
+        var bestDuration = safeDuration;
+        var lowestDistance = double.PositiveInfinity;
+
+        foreach (var divisor in divisors)
+        {
+            var step = beatLength * divisor.Numerator / divisor.Denominator;
+            if (step <= 0.00001)
+            {
+                continue;
+            }
+
+            var candidateDuration = GetNearestMultiple(safeDuration, step);
+            var distance = Math.Abs(safeDuration - candidateDuration);
+            if (distance < lowestDistance)
+            {
+                lowestDistance = distance;
+                bestDuration = candidateDuration;
+            }
+        }
+
+        return Math.Max(1.0, bestDuration);
+    }
+
+    private static double GetNearestMultiple(double value, double divisor)
+    {
+        var remainder = value % divisor;
+        if (remainder < 0.5 * divisor)
+        {
+            return value - remainder;
+        }
+
+        return value - remainder + divisor;
     }
 
     private static bool ReverseAffectedByUninheritedTimingPoint(Beatmap beatmap, Slider slider, double endMs)
@@ -801,6 +859,18 @@ public static class MapCleaner
         }
 
         return restored;
+    }
+
+    private static int ResnapGreenlinesToClosestAffectedPieces(
+        Beatmap beatmap,
+        bool resnapWithoutAffectedPieces,
+        IReadOnlyList<SnapDivisor> divisors,
+        int forwardRedlineWindowMs)
+    {
+        return beatmap.ResnapGreenlinesToClosestAffectedPieces(
+            resnapWithoutAffectedPieces,
+            divisors,
+            forwardRedlineWindowMs);
     }
 
     private static int RemoveUnusedGreenlines(Beatmap beatmap)
