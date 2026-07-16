@@ -33,7 +33,7 @@
         <Grid RowDefinitions="Auto,Auto" RowSpacing="6">
             <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="12">
                 <TextBox Height="38"
-                         Watermark="Search beatmaps..."
+                         PlaceholderText="Search beatmaps..."
                          Text="{Binding SearchText, Mode=TwoWay}" />
 
                 <Button Grid.Column="1"

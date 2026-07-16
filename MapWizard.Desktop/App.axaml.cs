@@ -1,6 +1,5 @@
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
-using Avalonia.Data.Core.Plugins;
 using Avalonia.Markup.Xaml;
 using MapWizard.Desktop.DependencyInjection;
 using MapWizard.Desktop.Services;
@@ -18,7 +17,6 @@ public partial class App : Application
 
     public override void OnFrameworkInitializationCompleted()
     {
-        BindingPlugins.DataValidators.RemoveAt(0);
         var collection = new ServiceCollection();
         collection.AddCommonServices();
         var services = collection.BuildServiceProvider();

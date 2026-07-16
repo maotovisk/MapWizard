@@ -8,11 +8,13 @@
     xmlns:materialIcons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
     xmlns:suki="clr-namespace:SukiUI.Controls;assembly=SukiUI"
     xmlns:theme="https://github.com/kikipoulet/SukiUI"
+    xmlns:models="using:MapWizard.Desktop.Models"
     xmlns:vm="clr-namespace:MapWizard.Desktop.ViewModels"
     mc:Ignorable="d"
     d:DesignWidth="900"
     d:DesignHeight="700"
     x:Class="MapWizard.Desktop.Views.ComboColourStudio.ComboColourStudioView"
+    x:Name="Root"
     x:DataType="vm:ComboColourStudioViewModel"
     Padding="16">
 
@@ -164,7 +166,7 @@
 
                         <ItemsControl ItemsSource="{Binding ComboColours}">
                             <ItemsControl.ItemTemplate>
-                                <DataTemplate>
+                                <DataTemplate x:DataType="models:AvaloniaComboColour">
                                     <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,6">
                                         <TextBlock FontWeight="Bold"
                                                    Text="{Binding Number, StringFormat=Combo {0}}"
@@ -173,7 +175,7 @@
                                             <controls:ModernColorPicker
                                                 SelectedColor="{Binding Colour, Converter={StaticResource AvaloniaColorToColorConverter}, Mode=TwoWay}" />
                                             <Button Classes="Basic"
-                                                    Command="{Binding DataContext.RemoveColourCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                    Command="{Binding #Root.DataContext.RemoveColourCommand}"
                                                     CommandParameter="{Binding}"
                                                     ToolTip.Tip="Remove this combo colour">
                                                 <materialIcons:MaterialIcon Kind="Close" Width="20" Height="20" />
@@ -241,7 +243,7 @@
 
                         <ItemsControl ItemsSource="{Binding ColourPoints}">
                             <ItemsControl.ItemTemplate>
-                                <DataTemplate>
+                                <DataTemplate x:DataType="models:AvaloniaComboColourPoint">
                                     <Border Classes="ColourPointCard"
                                             Classes.latest="{Binding IsLatestAdded}"
                                             BorderBrush="{DynamicResource ThemeAccentBrush}"
@@ -268,15 +270,15 @@
                                                         </ItemsPanelTemplate>
                                                     </ItemsControl.ItemsPanel>
                                                     <ItemsControl.ItemTemplate>
-                                                        <DataTemplate>
+                                                        <DataTemplate x:DataType="models:AvaloniaComboColourToken">
                                                             <Border Classes="SequenceTokenDragHost"
                                                                     DragDrop.AllowDrop="True"
                                                                     DragDrop.DragOver="SequenceToken_OnDragOver"
                                                                     DragDrop.Drop="SequenceToken_OnDrop">
                                                                 <controls:ComboColourDropdown
-                                                                    Options="{Binding DataContext.ColourDropdownOptions, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                                    Options="{Binding #Root.DataContext.ColourDropdownOptions}"
                                                                     SelectedComboNumber="{Binding ComboNumber, Mode=TwoWay}"
-                                                                    RemoveTokenCommand="{Binding DataContext.RemoveColourFromPointCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                                    RemoveTokenCommand="{Binding #Root.DataContext.RemoveColourFromPointCommand}"
                                                                     RemoveTokenCommandParameter="{Binding}" />
                                                             </Border>
                                                         </DataTemplate>
@@ -289,21 +291,21 @@
                                                         Spacing="6"
                                                         HorizontalAlignment="Right">
                                                 <Button Classes="Basic"
-                                                        Command="{Binding DataContext.AddColourToPointCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                        Command="{Binding #Root.DataContext.AddColourToPointCommand}"
                                                         CommandParameter="{Binding}"
                                                         ToolTip.Tip="Add combo colour to this point sequence">
                                                     <materialIcons:MaterialIcon Kind="Add" Width="16" Height="16" />
                                                 </Button>
 
                                                 <Button Classes="Basic"
-                                                        Command="{Binding DataContext.AddColourPointFromSequenceCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                        Command="{Binding #Root.DataContext.AddColourPointFromSequenceCommand}"
                                                         CommandParameter="{Binding}"
                                                         ToolTip.Tip="Create a new colour point from this sequence">
                                                     <materialIcons:MaterialIcon Kind="ContentCopy" Width="16" Height="16" />
                                                 </Button>
 
                                                 <Button Classes="Basic"
-                                                        Command="{Binding DataContext.RemoveColourPointCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                        Command="{Binding #Root.DataContext.RemoveColourPointCommand}"
                                                         CommandParameter="{Binding}"
                                                         ToolTip.Tip="Remove this colour point">
                                                     <materialIcons:MaterialIcon Kind="Delete" Width="18" Height="18" />

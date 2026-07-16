@@ -13,7 +13,7 @@ namespace MapWizard.Desktop.ViewModels
 {
     public partial class MainWindowViewModel : ObservableObject
     {
-        private ISukiToastManager ToastManager { get; }
+        public ISukiToastManager ToastManager { get; }
         public ISukiDialogManager DialogManager { get; }
 
         private readonly IThemeService _themeService;

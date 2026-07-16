@@ -9,7 +9,7 @@
 
   <ItemGroup>
     <PackageReference Include="MapWizard.BeatmapParser" Version="1.0.6" />
-    <PackageReference Include="SkiaSharp" Version="3.119.2" />
+    <PackageReference Include="SkiaSharp" Version="4.150.1" />
   </ItemGroup>
 
 </Project>

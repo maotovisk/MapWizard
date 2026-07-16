@@ -160,7 +160,7 @@
                                                 <Separator />
                                                 <StackPanel Orientation="Horizontal" Spacing="8">
                                                     <TextBox Width="170"
-                                                             Watermark="Custom 1/x"
+                                                             PlaceholderText="Custom 1/x"
                                                              Text="{Binding DataContext.CustomSnapInput, Mode=TwoWay, ElementName=Root}" />
                                                     <Button Classes="Basic Compact"
                                                             Command="{Binding DataContext.AddCustomSnapCommand, ElementName=Root}">

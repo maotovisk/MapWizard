@@ -4,6 +4,7 @@
   xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
   xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
   xmlns:controls="clr-namespace:MapWizard.Desktop.Views.Controls"
+  xmlns:models="using:MapWizard.Desktop.Models"
   xmlns:materialIcons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
   mc:Ignorable="d"
   d:DesignWidth="760"
@@ -393,7 +394,7 @@
 
         <Button Grid.Column="1"
                 Classes="Basic"
-                Command="{Binding OpenOriginFolderCommand}"
+                Command="{ReflectionBinding OpenOriginFolderCommand}"
                 IsEnabled="{Binding HasOriginSelection, ElementName=Root}"
                 ToolTip.Tip="Open the folder of the selected origin beatmap">
           <StackPanel Orientation="Horizontal" Spacing="5">
@@ -457,7 +458,7 @@
                     <StackPanel Orientation="Horizontal"
                                 Spacing="4">
                       <Button Classes="Basic Compact"
-                              Command="{Binding SetOriginFromMemoryCommand}"
+                              Command="{ReflectionBinding SetOriginFromMemoryCommand}"
                               Margin="0,0,4,0"
                               ToolTip.Tip="{Binding OriginMemoryToolTip, ElementName=Root}">
                         <StackPanel Orientation="Horizontal" Spacing="4">
@@ -466,7 +467,7 @@
                         </StackPanel>
                       </Button>
                       <Button Classes="Flat Rounded"
-                              Command="{Binding PickOriginFileCommand}"
+                              Command="{ReflectionBinding PickOriginFileCommand}"
                               ToolTip.Tip="Open Map Picker dialog">
                         <StackPanel Orientation="Horizontal" Spacing="4">
                           <materialIcons:MaterialIcon Kind="FileSearchOutline" Width="13" Height="13" />
@@ -513,10 +514,10 @@
                         </ItemsPanelTemplate>
                       </ItemsControl.ItemsPanel>
                       <ItemsControl.ItemTemplate>
-                        <DataTemplate>
+                        <DataTemplate x:DataType="models:MapsetDifficultyCard">
                           <ToggleButton Classes="MapsetDiffChip"
                                         IsChecked="{Binding IsSelected, Mode=OneWay}"
-                                        Command="{Binding DataContext.SelectOriginMapCommand, RelativeSource={RelativeSource AncestorType=controls:BeatmapSelectionPanel}}"
+                                        Command="{ReflectionBinding DataContext.SelectOriginMapCommand, RelativeSource={RelativeSource AncestorType=controls:BeatmapSelectionPanel}}"
                                         CommandParameter="{Binding Path}">
                             <StackPanel Orientation="Horizontal" Spacing="6">
                               <materialIcons:MaterialIcon Kind="CheckCircle"
@@ -550,7 +551,7 @@
                          VerticalAlignment="Center"
                          Margin="0,0,8,0" />
               <Button Classes="Basic Compact"
-                      Command="{Binding SetOriginFromMemoryCommand}"
+                      Command="{ReflectionBinding SetOriginFromMemoryCommand}"
                       ToolTip.Tip="{Binding OriginMemoryToolTip, ElementName=Root}">
                 <StackPanel Orientation="Horizontal" Spacing="4">
                   <materialIcons:MaterialIcon Kind="Import" Width="16" Height="16" />
@@ -563,7 +564,7 @@
                          Opacity="0.8" />
               <Button Classes="Flat Compact"
                       Margin="6,0,0,0"
-                      Command="{Binding PickOriginFileCommand}"
+                      Command="{ReflectionBinding PickOriginFileCommand}"
                       ToolTip.Tip="Open Map Picker dialog">
                 <StackPanel Orientation="Horizontal" Spacing="4">
                   <materialIcons:MaterialIcon Kind="FileSearchOutline" Width="16" Height="16" />
@@ -624,10 +625,10 @@
                         </ItemsPanelTemplate>
                       </ItemsControl.ItemsPanel>
                       <ItemsControl.ItemTemplate>
-                        <DataTemplate>
+                        <DataTemplate x:DataType="models:MapsetDifficultyCard">
                           <ToggleButton Classes="MapsetDiffChip"
                                         IsChecked="{Binding IsSelected, Mode=OneWay}"
-                                        Command="{Binding DataContext.ToggleDestinationMapCommand, RelativeSource={RelativeSource AncestorType=controls:BeatmapSelectionPanel}}"
+                                        Command="{ReflectionBinding DataContext.ToggleDestinationMapCommand, RelativeSource={RelativeSource AncestorType=controls:BeatmapSelectionPanel}}"
                                         CommandParameter="{Binding Path}">
                             <StackPanel Orientation="Horizontal" Spacing="6">
                               <materialIcons:MaterialIcon Kind="CheckCircle"
@@ -663,7 +664,7 @@
           <ItemsControl IsVisible="{Binding HasVisibleDestinationCards, ElementName=Root}"
                         ItemsSource="{Binding VisibleDestinationMapsets, ElementName=Root}">
             <ItemsControl.ItemTemplate>
-              <DataTemplate>
+              <DataTemplate x:DataType="models:DestinationMapsetCard">
                 <Border Classes="DestinationMapsetCard">
                   <Grid RowDefinitions="58,Auto">
                     <Border Grid.Row="0"
@@ -747,10 +748,10 @@
                             </ItemsPanelTemplate>
                           </ItemsControl.ItemsPanel>
                           <ItemsControl.ItemTemplate>
-                            <DataTemplate>
+                            <DataTemplate x:DataType="models:MapsetDifficultyCard">
                               <ToggleButton Classes="MapsetDiffChip"
                                             IsChecked="{Binding IsSelected, Mode=OneWay}"
-                                            Command="{Binding DataContext.ToggleDestinationMapCommand, RelativeSource={RelativeSource AncestorType=controls:BeatmapSelectionPanel}}"
+                                            Command="{ReflectionBinding DataContext.ToggleDestinationMapCommand, RelativeSource={RelativeSource AncestorType=controls:BeatmapSelectionPanel}}"
                                             CommandParameter="{Binding Path}">
                                 <StackPanel Orientation="Horizontal" Spacing="6">
                                   <materialIcons:MaterialIcon Kind="CheckCircle"
@@ -780,7 +781,7 @@
                      ItemHeight="34"
                      Orientation="Horizontal">
             <Button Classes="Basic"
-                    Command="{Binding AddDestinationFromMemoryCommand}"
+                    Command="{ReflectionBinding AddDestinationFromMemoryCommand}"
                     Margin="0,0,8,0"
                     ToolTip.Tip="{Binding DestinationMemoryToolTip, ElementName=Root}">
               <StackPanel Orientation="Horizontal" Spacing="4">
@@ -789,7 +790,7 @@
               </StackPanel>
             </Button>
             <Button Classes="Flat Rounded"
-                    Command="{Binding PickDestinationFileCommand}"
+                    Command="{ReflectionBinding PickDestinationFileCommand}"
                     MinWidth="122"
                     ToolTip.Tip="Open Map Picker dialog">
               <StackPanel Orientation="Horizontal" Spacing="4">

@@ -70,7 +70,7 @@
                         <Grid ColumnDefinitions="*,Auto" ColumnSpacing="6">
                             <TextBox x:Name="InputTextBox"
                                      Grid.Column="0"
-                                     Watermark="0"
+                                     PlaceholderText="0"
                                      VerticalContentAlignment="Center"
                                      PastingFromClipboard="InputTextBox_OnPastingFromClipboard"
                                      KeyDown="InputTextBox_OnKeyDown" />

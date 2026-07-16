@@ -55,7 +55,7 @@
                                     <TextBlock Text="Map Picker uses this folder to display recent beatmaps and their backgrounds."
                                                TextWrapping="Wrap" />
                                     <TextBox Text="{Binding SongsPath, Mode=TwoWay}"
-                                             Watermark="Path to osu! Songs folder"
+                                             PlaceholderText="Path to osu! Songs folder"
                                              Margin="0,4,0,0" />
                                     <TextBlock Text="{Binding SongsPathStatusText}"
                                                FontSize="12"
