@@ -16,6 +16,8 @@
     IsMenuVisible="False"
     MinWidth="800"
     MinHeight="600"
+    Width="1280"
+    Height="720"
     Title="MapWizard">
 
     <suki:SukiWindow.Styles>
@@ -107,7 +109,9 @@
         </StackPanel>
     </suki:SukiWindow.RightWindowTitleBarControls>
 
-    <Grid ColumnDefinitions="102,*">
+    <!-- SukiWindow's template has no VisualLayerManager, which Avalonia 12 requires for light-dismiss flyouts. -->
+    <VisualLayerManager>
+        <Grid ColumnDefinitions="102,*">
         <suki:GlassCard Grid.Column="0" Classes="Accent" Margin="8,8,8,8" Padding="4,10" CornerRadius="16">
             <Grid RowDefinitions="Auto,*,Auto">
                 <StackPanel Grid.Row="0" Spacing="8" HorizontalAlignment="Center">
@@ -218,7 +222,7 @@
                                                             HorizontalAlignment="Center"
                                                             VerticalAlignment="Center" />
                             </Grid>
-                            <TextBlock Text="HS Visualizer"
+                            <TextBlock Text="Hitsound Visualizer"
                                        Width="68"
                                        FontSize="11"
                                        Foreground="{DynamicResource SukiText}"
@@ -327,6 +331,12 @@
             </Grid>
         </suki:GlassCard>
 
-        <ContentControl Grid.Column="1" Content="{Binding CurrentPageViewModel}" />
-    </Grid>
+        <TransitioningContentControl Grid.Column="1"
+                                     Content="{Binding CurrentPageViewModel}">
+            <TransitioningContentControl.PageTransition>
+                <CrossFade Duration="0:0:0.18" />
+            </TransitioningContentControl.PageTransition>
+        </TransitioningContentControl>
+        </Grid>
+    </VisualLayerManager>
 </suki:SukiWindow>
