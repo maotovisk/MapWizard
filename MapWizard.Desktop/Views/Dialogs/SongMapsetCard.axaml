@@ -257,8 +257,8 @@
                         <Button Classes="SelectMapsetDiffsButton"
                                 HorizontalAlignment="Right"
                                 Classes.selected="{Binding AllDifficultiesSelected}"
-                                IsVisible="{Binding DataContext.AllowMultipleSelection, RelativeSource={RelativeSource AncestorType=dialogs:SongSelectDialog}}"
-                                Command="{Binding DataContext.SelectAllDifficultiesInMapsetCommand, RelativeSource={RelativeSource AncestorType=dialogs:SongSelectDialog}}"
+                                IsVisible="{ReflectionBinding DataContext.AllowMultipleSelection, RelativeSource={RelativeSource AncestorType=dialogs:SongSelectDialog}}"
+                                Command="{ReflectionBinding DataContext.SelectAllDifficultiesInMapsetCommand, RelativeSource={RelativeSource AncestorType=dialogs:SongSelectDialog}}"
                                 CommandParameter="{Binding}"
                                 ToolTip.Tip="Select all difficulties in this mapset">
                             <StackPanel Orientation="Horizontal" Spacing="6">
@@ -270,7 +270,7 @@
 
                     <Button Grid.Column="0"
                             Classes="CardHeaderHit"
-                            Command="{Binding DataContext.ToggleMapsetExpansionCommand, RelativeSource={RelativeSource AncestorType=dialogs:SongSelectDialog}}"
+                            Command="{ReflectionBinding DataContext.ToggleMapsetExpansionCommand, RelativeSource={RelativeSource AncestorType=dialogs:SongSelectDialog}}"
                             CommandParameter="{Binding}" />
                 </Grid>
             </Grid>
@@ -288,7 +288,7 @@
                         <DataTemplate x:DataType="vm:SongDifficultyItemViewModel">
                             <ToggleButton Classes="DifficultyChip"
                                           IsChecked="{Binding IsSelected, Mode=OneWay}"
-                                          Command="{Binding DataContext.SelectDifficultyCommand, RelativeSource={RelativeSource AncestorType=dialogs:SongSelectDialog}}"
+                                          Command="{ReflectionBinding DataContext.SelectDifficultyCommand, RelativeSource={RelativeSource AncestorType=dialogs:SongSelectDialog}}"
                                           CommandParameter="{Binding}">
                                 <StackPanel Orientation="Horizontal" Spacing="7">
                                     <materialIcons:MaterialIcon Kind="CheckCircle"

@@ -177,7 +177,7 @@ public partial class ComboColourStudioViewModel(
         }
         catch (Exception ex)
         {
-            MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
+            Tools.HelperExtensions.MapWizardLogger.LogException(ex);
             ShowToast(NotificationType.Error, "Combo Colour Studio", ex.Message);
         }
     }

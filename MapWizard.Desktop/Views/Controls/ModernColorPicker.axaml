@@ -100,7 +100,7 @@
 
                                 <TextBox x:Name="HexTextBox"
                                          Grid.Column="1"
-                                         Watermark="#RRGGBB"
+                                         PlaceholderText="#RRGGBB"
                                          VerticalContentAlignment="Center"
                                          TextChanged="HexTextBox_OnTextChanged" />
 

@@ -13,10 +13,14 @@ public partial class ComboColourStudioView : UserControl
 {
     private const double DragStartThreshold = 4;
 
-    private Point? _dragStartPoint;
-    private AvaloniaComboColourToken? _pressedToken;
-    private AvaloniaComboColourPoint? _pressedPoint;
-    private Border? _dragSourceHost;
+    private sealed record DragCandidate(
+        PointerPressedEventArgs TriggerEvent,
+        Point StartPosition,
+        Border Host,
+        AvaloniaComboColourToken Token,
+        AvaloniaComboColourPoint Owner);
+
+    private DragCandidate? _dragCandidate;
     private Border? _activeDropHost;
     private bool _dragInProgress;
 
@@ -35,28 +39,25 @@ public partial class ComboColourStudioView : UserControl
             return;
         }
 
-        if (!TryGetTokenContextFromSource(e.Source, out var host, out var token, out var point))
+        if (!TryGetTokenContextFromSource(e.Source, out var host, out var token, out var point) ||
+            !e.GetCurrentPoint(host).Properties.IsLeftButtonPressed)
         {
             ResetDragState();
             return;
         }
 
-        var pointer = e.GetCurrentPoint(host);
-        if (!pointer.Properties.IsLeftButtonPressed)
-        {
-            ResetDragState();
-            return;
-        }
-
-        _pressedToken = token;
-        _pressedPoint = point;
-        _dragSourceHost = host;
-        _dragStartPoint = e.GetPosition(host);
+        _dragCandidate = new DragCandidate(
+            e,
+            e.GetPosition(host),
+            host,
+            token,
+            point);
     }
 
     private async void OnPointerMovedTunnel(object? sender, PointerEventArgs e)
     {
-        if (_dragInProgress || _pressedToken is null || _pressedPoint is null || _dragStartPoint is null || _dragSourceHost is null)
+        var candidate = _dragCandidate;
+        if (_dragInProgress || candidate is null)
         {
             return;
         }
@@ -64,13 +65,13 @@ public partial class ComboColourStudioView : UserControl
         var current = e.GetCurrentPoint(this);
         if (!current.Properties.IsLeftButtonPressed)
         {
-            ClearDragSourceHost();
             ResetDragState();
             return;
         }
 
-        var currentPosition = e.GetPosition(_dragSourceHost);
-        var dragDistance = Math.Abs(currentPosition.X - _dragStartPoint.Value.X) + Math.Abs(currentPosition.Y - _dragStartPoint.Value.Y);
+        var currentPosition = e.GetPosition(candidate.Host);
+        var dragDistance = Math.Abs(currentPosition.X - candidate.StartPosition.X) +
+                           Math.Abs(currentPosition.Y - candidate.StartPosition.Y);
         if (dragDistance < DragStartThreshold)
         {
             return;
@@ -80,17 +81,17 @@ public partial class ComboColourStudioView : UserControl
         dragTransfer.Add(DataTransferItem.CreateText("MapWizardComboColourTokenMove"));
 
         _dragInProgress = true;
-        _dragSourceHost.Classes.Set("drag-source", true);
+        candidate.Host.Classes.Set("drag-source", true);
         try
         {
             e.Handled = true;
-            await DragDrop.DoDragDropAsync(e, dragTransfer, DragDropEffects.Move);
+            await DragDrop.DoDragDropAsync(candidate.TriggerEvent, dragTransfer, DragDropEffects.Move);
         }
         finally
         {
+            candidate.Host.Classes.Set("drag-source", false);
             _dragInProgress = false;
             ClearActiveDropHost();
-            ClearDragSourceHost();
             ResetDragState();
         }
     }
@@ -102,7 +103,6 @@ public partial class ComboColourStudioView : UserControl
             return;
         }
 
-        ClearDragSourceHost();
         ResetDragState();
     }
 
@@ -196,20 +196,21 @@ public partial class ComboColourStudioView : UserControl
             return false;
         }
 
+        var candidate = _dragCandidate;
         var targetPoint = FindOwningColourPoint(host);
-        if (targetPoint is null || _pressedPoint is null || _pressedToken is null)
+        if (targetPoint is null || candidate is null)
         {
             return false;
         }
 
-        if (!ReferenceEquals(targetPoint, _pressedPoint) ||
-            ReferenceEquals(target, _pressedToken))
+        if (!ReferenceEquals(targetPoint, candidate.Owner) ||
+            ReferenceEquals(target, candidate.Token))
         {
             return false;
         }
 
-        sourcePoint = _pressedPoint;
-        sourceToken = _pressedToken;
+        sourcePoint = candidate.Owner;
+        sourceToken = candidate.Token;
         targetToken = target;
         return true;
     }
@@ -271,10 +272,7 @@ public partial class ComboColourStudioView : UserControl
 
     private void ResetDragState()
     {
-        _dragStartPoint = null;
-        _pressedToken = null;
-        _pressedPoint = null;
-        _dragSourceHost = null;
+        _dragCandidate = null;
     }
 
     private void ClearActiveDropHost()
@@ -288,13 +286,4 @@ public partial class ComboColourStudioView : UserControl
         _activeDropHost = null;
     }
 
-    private void ClearDragSourceHost()
-    {
-        if (_dragSourceHost is null)
-        {
-            return;
-        }
-
-        _dragSourceHost.Classes.Set("drag-source", false);
-    }
 }
