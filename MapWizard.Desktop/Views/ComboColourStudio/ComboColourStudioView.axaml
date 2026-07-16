@@ -175,7 +175,7 @@
                                             <controls:ModernColorPicker
                                                 SelectedColor="{Binding Colour, Converter={StaticResource AvaloniaColorToColorConverter}, Mode=TwoWay}" />
                                             <Button Classes="Basic"
-                                                    Command="{Binding #Root.DataContext.RemoveColourCommand}"
+                                                    Command="{ReflectionBinding DataContext.RemoveColourCommand, ElementName=Root}"
                                                     CommandParameter="{Binding}"
                                                     ToolTip.Tip="Remove this combo colour">
                                                 <materialIcons:MaterialIcon Kind="Close" Width="20" Height="20" />
@@ -276,9 +276,9 @@
                                                                     DragDrop.DragOver="SequenceToken_OnDragOver"
                                                                     DragDrop.Drop="SequenceToken_OnDrop">
                                                                 <controls:ComboColourDropdown
-                                                                    Options="{Binding #Root.DataContext.ColourDropdownOptions}"
+                                                                    Options="{ReflectionBinding DataContext.ColourDropdownOptions, ElementName=Root}"
                                                                     SelectedComboNumber="{Binding ComboNumber, Mode=TwoWay}"
-                                                                    RemoveTokenCommand="{Binding #Root.DataContext.RemoveColourFromPointCommand}"
+                                                                    RemoveTokenCommand="{ReflectionBinding DataContext.RemoveColourFromPointCommand, ElementName=Root}"
                                                                     RemoveTokenCommandParameter="{Binding}" />
                                                             </Border>
                                                         </DataTemplate>
@@ -291,21 +291,21 @@
                                                         Spacing="6"
                                                         HorizontalAlignment="Right">
                                                 <Button Classes="Basic"
-                                                        Command="{Binding #Root.DataContext.AddColourToPointCommand}"
+                                                        Command="{ReflectionBinding DataContext.AddColourToPointCommand, ElementName=Root}"
                                                         CommandParameter="{Binding}"
                                                         ToolTip.Tip="Add combo colour to this point sequence">
                                                     <materialIcons:MaterialIcon Kind="Add" Width="16" Height="16" />
                                                 </Button>
 
                                                 <Button Classes="Basic"
-                                                        Command="{Binding #Root.DataContext.AddColourPointFromSequenceCommand}"
+                                                        Command="{ReflectionBinding DataContext.AddColourPointFromSequenceCommand, ElementName=Root}"
                                                         CommandParameter="{Binding}"
                                                         ToolTip.Tip="Create a new colour point from this sequence">
                                                     <materialIcons:MaterialIcon Kind="ContentCopy" Width="16" Height="16" />
                                                 </Button>
 
                                                 <Button Classes="Basic"
-                                                        Command="{Binding #Root.DataContext.RemoveColourPointCommand}"
+                                                        Command="{ReflectionBinding DataContext.RemoveColourPointCommand, ElementName=Root}"
                                                         CommandParameter="{Binding}"
                                                         ToolTip.Tip="Remove this colour point">
                                                     <materialIcons:MaterialIcon Kind="Delete" Width="18" Height="18" />
