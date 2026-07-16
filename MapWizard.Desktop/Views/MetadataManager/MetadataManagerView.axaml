@@ -177,7 +177,7 @@
                           <controls:ModernColorPicker VerticalAlignment="Center"
                                                       SelectedColor="{Binding Colour, Converter={StaticResource AvaloniaColorToColorConverter}, Mode=TwoWay}" />
                           <Button Classes="Basic" 
-                                  Command="{Binding #Root.DataContext.RemoveColourCommand}"
+                                  Command="{ReflectionBinding DataContext.RemoveColourCommand, ElementName=Root}"
                                   CommandParameter="{Binding}" 
                                   ToolTip.Tip="Remove this colour">
                             <materialIcons:MaterialIcon Kind="Close" Width="24" Height="24" />
