@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Linq;
 using Avalonia.Controls;
 using Avalonia.Input;
+using Avalonia.Input.Platform;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
 using MapWizard.Desktop.ViewModels;
@@ -118,12 +119,11 @@ public partial class HitSoundVisualizerView : UserControl
         if (e.KeyModifiers.HasFlag(KeyModifiers.Control) && e.Key == Key.V)
         {
             var topLevel = TopLevel.GetTopLevel(this);
-            if (topLevel?.Clipboard is not null)
-            {
-                var text = await topLevel.Clipboard.GetTextAsync();
-                vm.PastePointClipboardPayload(text);
-                e.Handled = true;
-            }
+            if (topLevel?.Clipboard is null) return;
+            
+            var text = await topLevel.Clipboard.TryGetTextAsync();
+            vm.PastePointClipboardPayload(text);
+            e.Handled = true;
 
             return;
         }
