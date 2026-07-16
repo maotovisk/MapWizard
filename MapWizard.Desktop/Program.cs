@@ -41,8 +41,7 @@ internal static class Program
                         X11RenderingMode.Glx,
                         X11RenderingMode.Vulkan,
                         X11RenderingMode.Software
-                    ],
-                OverlayPopups = true
+                    ]
             })
             .LogToTrace();
     
