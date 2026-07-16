@@ -30,6 +30,7 @@ internal static class Program
     private static AppBuilder BuildAvaloniaApp(bool forceSoftwareRendering)
         => AppBuilder.Configure<App>()
             .UsePlatformDetect()
+            .UseWayland()
             .WithInterFont()
             .With(new X11PlatformOptions()
             {
