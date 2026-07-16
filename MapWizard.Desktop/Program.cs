@@ -2,7 +2,6 @@
 using System;
 using System.Linq;
 using Velopack;
-
 namespace MapWizard.Desktop;
 
 internal static class Program
