@@ -28,21 +28,27 @@ internal static class Program
 
     // Avalonia configuration, don't remove; also used by visual designer.
     private static AppBuilder BuildAvaloniaApp(bool forceSoftwareRendering)
-        => AppBuilder.Configure<App>()
+    {
+        var app = AppBuilder.Configure<App>()
             .UsePlatformDetect()
-            .UseWayland()
             .WithInterFont()
-            .With(new X11PlatformOptions()
-            {
-                RenderingMode = forceSoftwareRendering
-                    ? [X11RenderingMode.Software]
-                    :
-                    [
-                        X11RenderingMode.Glx,
-                        X11RenderingMode.Vulkan,
-                        X11RenderingMode.Software
-                    ]
-            })
             .LogToTrace();
+
+        if (OperatingSystem.IsLinux())
+            app.UseWayland()
+                .With(new X11PlatformOptions()
+                {
+                    RenderingMode = forceSoftwareRendering
+                        ? [X11RenderingMode.Software]
+                        :
+                        [
+                            X11RenderingMode.Glx,
+                            X11RenderingMode.Vulkan,
+                            X11RenderingMode.Software
+                        ]
+                });
+
+        return app;
+    }
     
 }

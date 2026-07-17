@@ -13,6 +13,7 @@
     xmlns:settings="clr-namespace:MapWizard.Desktop.Views.Settings"
     x:Class="MapWizard.Desktop.Views.MainWindow"
     x:DataType="vm:MainWindowViewModel"
+    WindowDecorations="BorderOnly"
     IsMenuVisible="False"
     MinWidth="800"
     MinHeight="600"
