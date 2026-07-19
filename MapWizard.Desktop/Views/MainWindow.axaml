@@ -1,4 +1,4 @@
-<suki:SukiWindow
+<controls:MapWizardWindow
     xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:vm="using:MapWizard.Desktop.ViewModels"
@@ -11,6 +11,7 @@
     xmlns:comboColourStudio="clr-namespace:MapWizard.Desktop.Views.ComboColourStudio"
     xmlns:mapCleaner="clr-namespace:MapWizard.Desktop.Views.MapCleaner"
     xmlns:settings="clr-namespace:MapWizard.Desktop.Views.Settings"
+    xmlns:controls="clr-namespace:MapWizard.Desktop.Controls"
     x:Class="MapWizard.Desktop.Views.MainWindow"
     x:DataType="vm:MainWindowViewModel"
     WindowDecorations="BorderOnly"
@@ -340,4 +341,4 @@
         </TransitioningContentControl>
         </Grid>
     </VisualLayerManager>
-</suki:SukiWindow>
+</controls:MapWizardWindow>
