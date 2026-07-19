@@ -1,12 +1,12 @@
 using Avalonia.Interactivity;
+using MapWizard.Desktop.Controls;
 using MapWizard.Desktop.Services;
 using MapWizard.Desktop.ViewModels;
-using SukiUI.Controls;
 using SukiUI.Enums;
 
 namespace MapWizard.Desktop.Views
 {
-public partial class MainWindow : SukiWindow
+public partial class MainWindow : MapWizardWindow
     {
         private readonly IThemeService _themeService;
 
