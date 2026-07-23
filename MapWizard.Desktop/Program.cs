@@ -34,19 +34,23 @@ internal static class Program
             .WithInterFont()
             .LogToTrace();
 
-        if (OperatingSystem.IsLinux())
-            app.UseWayland()
-                .With(new X11PlatformOptions()
-                {
-                    RenderingMode = forceSoftwareRendering
-                        ? [X11RenderingMode.Software]
-                        :
-                        [
-                            X11RenderingMode.Glx,
-                            X11RenderingMode.Vulkan,
-                            X11RenderingMode.Software
-                        ]
-                });
+        if (!OperatingSystem.IsLinux()) return app;
+        
+        if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("WAYLAND_DISPLAY")))
+            app.UseWayland();
+                    
+        app.With(new X11PlatformOptions()
+        {
+            RenderingMode = forceSoftwareRendering
+                ? [X11RenderingMode.Software]
+                :
+                [
+                    X11RenderingMode.Glx,
+                    X11RenderingMode.Vulkan,
+                    X11RenderingMode.Software
+                ]
+        });
+
 
         return app;
     }
