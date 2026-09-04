@@ -35,8 +35,11 @@ internal static class Program
             .LogToTrace();
 
         if (OperatingSystem.IsLinux())
-            app.UseWayland()
-                .With(new X11PlatformOptions()
+        {
+            if (Environment.GetEnvironmentVariable("WAYLAND_DISPLAY") != null)
+                app.UseWayland();
+            
+            app.With(new X11PlatformOptions
                 {
                     RenderingMode = forceSoftwareRendering
                         ? [X11RenderingMode.Software]
@@ -47,6 +50,7 @@ internal static class Program
                             X11RenderingMode.Software
                         ]
                 });
+        }
 
         return app;
     }

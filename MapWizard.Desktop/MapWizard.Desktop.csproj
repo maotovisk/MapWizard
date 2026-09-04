@@ -11,27 +11,27 @@
   </PropertyGroup>
   
   <ItemGroup>
-    <PackageReference Include="Avalonia" Version="12.1.0" />
-    <PackageReference Include="Avalonia.Controls.ColorPicker" Version="12.1.0" />
-    <PackageReference Include="Avalonia.Desktop" Version="12.1.0" />
-    <PackageReference Include="Avalonia.Themes.Fluent" Version="12.1.0" />
-    <PackageReference Include="Avalonia.Fonts.Inter" Version="12.1.0" />
-    <PackageReference Include="Avalonia.Wayland" Version="12.1.0" />
+    <PackageReference Include="Avalonia" Version="12.1.2" />
+    <PackageReference Include="Avalonia.Controls.ColorPicker" Version="12.1.2" />
+    <PackageReference Include="Avalonia.Desktop" Version="12.1.2" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="12.1.2" />
+    <PackageReference Include="Avalonia.Fonts.Inter" Version="12.1.2" />
+    <PackageReference Include="Avalonia.Wayland" Version="12.1.2" />
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
     <PackageReference Include="DialogHost.Avalonia" Version="0.12.3" />
-    <PackageReference Include="JAJ.Packages.MiniAudioEx" Version="3.3.5" />
+    <PackageReference Include="JAJ.Packages.MiniAudioEx" Version="3.3.6" />
     <PackageReference Include="ManagedBass" Version="4.0.2" />
     <PackageReference Include="MapWizard.BeatmapParser" Version="1.0.6" />
     <PackageReference Include="Material.Icons.Avalonia" Version="3.0.2" />
     <PackageReference Include="MessageBox.Avalonia" Version="12.0.0" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.10" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.11" />
     <PackageReference Include="OsuMemoryDataProvider" Version="0.12.2" />
     <PackageReference Include="OsuWineMemReader" Version="1.0.1" />
-    <PackageReference Include="SkiaSharp.NativeAssets.Linux" Version="4.150.1" />
+    <PackageReference Include="SkiaSharp.NativeAssets.Linux" Version="4.151.2" />
     <PackageReference Include="SukiUI" Version="7.0.1" />
-    <PackageReference Include="System.Reactive" Version="6.1.0" />
+    <PackageReference Include="System.Reactive" Version="7.0.0" />
     <PackageReference Include="Velopack" Version="1.2.0" />
-    <PackageReference Include="Xaml.Behaviors" Version="12.0.5" />
+    <PackageReference Include="Xaml.Behaviors" Version="12.0.7" />
   </ItemGroup>
 
   <ItemGroup>
