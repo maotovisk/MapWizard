@@ -27,8 +27,11 @@ public class ThemeService(ISettingsService settingsService) : IThemeService
     public event EventHandler<bool>? DarkThemeChanged;
     public event EventHandler<ThemeMode>? ThemeModeChanged;
 
+    private bool _hookedActualThemeVariant;
+
     public void Initialize()
     {
+        HookActualThemeVariant();
         var settings = settingsService.GetMainSettings();
         ApplyThemeMode(settings.ThemeMode, persist: false, notify: true);
     }
@@ -74,6 +77,33 @@ public class ThemeService(ISettingsService settingsService) : IThemeService
             ThemeModeChanged?.Invoke(this, themeMode);
             DarkThemeChanged?.Invoke(this, IsDarkTheme);
         }
+    }
+
+    private void HookActualThemeVariant()
+    {
+        if (_hookedActualThemeVariant || Application.Current is null)
+        {
+            return;
+        }
+
+        _hookedActualThemeVariant = true;
+        Application.Current.ActualThemeVariantChanged += OnActualThemeVariantChanged;
+    }
+
+    private void OnActualThemeVariantChanged(object? sender, EventArgs e)
+    {
+        if (_themeMode != ThemeMode.System)
+        {
+            return;
+        }
+
+        var actualVariant = Application.Current?.ActualThemeVariant;
+        if (actualVariant != ThemeVariant.Dark && actualVariant != ThemeVariant.Light)
+        {
+            return;
+        }
+
+        ApplyThemeMode(ThemeMode.System, persist: false, notify: true);
     }
 
     private void EnsureCustomColorTheme()
