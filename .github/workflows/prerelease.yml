@@ -14,6 +14,11 @@ on:
         description: "Optional custom pre-release version (example: 1.2.4-pre.20260217.1)"
         required: false
         default: ""
+      retry_existing:
+        description: "Rebuild and upload assets to an existing pre-release tag"
+        type: boolean
+        required: false
+        default: false
 
 jobs:
   prepare:
@@ -24,9 +29,10 @@ jobs:
       reason: ${{ steps.metadata.outputs.reason }}
       next_version: ${{ steps.metadata.outputs.next_version }}
       tag_name: ${{ steps.metadata.outputs.tag_name }}
+      target_sha: ${{ steps.metadata.outputs.target_sha }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
 
@@ -37,6 +43,9 @@ jobs:
           EVENT_NAME: ${{ github.event_name }}
           INPUT_TAG_NAME: ${{ github.event.inputs.tag_name || '' }}
           INPUT_VERSION: ${{ github.event.inputs.version || '' }}
+          INPUT_RETRY_EXISTING: ${{ github.event.inputs.retry_existing || 'false' }}
+          GITHUB_SHA: ${{ github.sha }}
+          GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
 
@@ -58,6 +67,8 @@ jobs:
 
           tag_name="${default_tag_name}"
           next_version="${default_next_version}"
+          target_sha="${GITHUB_SHA}"
+          trimmed_version=""
 
           if [[ "${EVENT_NAME}" == "workflow_dispatch" ]]; then
             trimmed_tag_name="${INPUT_TAG_NAME#"${INPUT_TAG_NAME%%[![:space:]]*}"}"
@@ -75,8 +86,23 @@ jobs:
           fi
 
           if git rev-parse -q --verify "refs/tags/${tag_name}" >/dev/null; then
-            should_release="false"
-            reason="Skipping: tag ${tag_name} already exists."
+            if [[ "${EVENT_NAME}" == "workflow_dispatch" && "${INPUT_RETRY_EXISTING}" == "true" ]]; then
+              should_release="true"
+              reason="Retrying existing release for ${tag_name}."
+              target_sha="$(git rev-parse "refs/tags/${tag_name}^{commit}")"
+
+              if [[ -z "${trimmed_version}" ]]; then
+                release_name="$(gh release view "${tag_name}" --json name --jq .name)"
+                if [[ "${release_name}" != "MapWizard pre-release "* ]]; then
+                  echo "Existing release name does not contain a version; provide the version input." >&2
+                  exit 1
+                fi
+                next_version="${release_name#MapWizard pre-release }"
+              fi
+            else
+              should_release="false"
+              reason="Skipping: tag ${tag_name} already exists."
+            fi
           else
             should_release="true"
             reason="No existing tag for ${tag_name}."
@@ -84,6 +110,7 @@ jobs:
 
           echo "next_version=${next_version}" >> "$GITHUB_OUTPUT"
           echo "tag_name=${tag_name}" >> "$GITHUB_OUTPUT"
+          echo "target_sha=${target_sha}" >> "$GITHUB_OUTPUT"
           echo "should_release=${should_release}" >> "$GITHUB_OUTPUT"
           echo "reason=${reason}" >> "$GITHUB_OUTPUT"
 
@@ -99,10 +126,12 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ needs.prepare.outputs.target_sha }}
 
       - name: Setup .NET SDK
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
         with:
           dotnet-version: '10.0.x'
 
@@ -138,7 +167,7 @@ jobs:
           ./build-osx.sh ${{ needs.prepare.outputs.next_version }}
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: MapWizard-Pre-${{ matrix.os }}
           path: |
@@ -153,18 +182,19 @@ jobs:
       contents: write
     steps:
       - name: Download all artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
 
       - name: Create pre-release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           name: MapWizard pre-release ${{ needs.prepare.outputs.next_version }}
           tag_name: ${{ needs.prepare.outputs.tag_name }}
-          target_commitish: ${{ github.sha }}
+          target_commitish: ${{ needs.prepare.outputs.target_sha }}
           draft: false
           prerelease: true
           files: |
             MapWizard-Pre-*/**/*
+          fail_on_unmatched_files: true
           body: |
             Automated pre-release from `${{ github.ref_name }}`.
             Version: `${{ needs.prepare.outputs.next_version }}`
