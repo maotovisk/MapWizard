@@ -1046,6 +1046,41 @@ public partial class BeatmapSelectionPanel : UserControl
         e.Handled = true;
     }
 
+    private void DestinationMapsetSelectAllButton_OnClick(object? sender, RoutedEventArgs e)
+    {
+        if (DestinationMaps is null ||
+            sender is not Control { DataContext: DestinationMapsetCard mapsetCard })
+        {
+            return;
+        }
+
+        var selectedPaths = new HashSet<string>(
+            DestinationMaps.Where(map => map.HasPath).Select(map => map.Path),
+            StringComparer.OrdinalIgnoreCase);
+        var missingPaths = mapsetCard.Difficulties
+            .Select(difficulty => difficulty.Path)
+            .Where(selectedPaths.Add)
+            .ToArray();
+
+        _isBulkUpdatingDestinationMaps = true;
+        try
+        {
+            foreach (var path in missingPaths)
+            {
+                DestinationMaps.Add(new SelectedMap { Path = path });
+            }
+        }
+        finally
+        {
+            _isBulkUpdatingDestinationMaps = false;
+        }
+
+        SyncDestinationMapItemObservers(DestinationMaps);
+        UpdateDestinationSelectionState();
+        RefreshMapsetDifficultySelectionState();
+        e.Handled = true;
+    }
+
     private void DestinationMapsetRemoveButton_OnClick(object? sender, RoutedEventArgs e)
     {
         if (DestinationMaps is null ||

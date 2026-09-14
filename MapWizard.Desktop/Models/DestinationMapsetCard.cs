@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace MapWizard.Desktop.Models;
@@ -16,4 +17,5 @@ public partial class DestinationMapsetCard(
     public string MapsetDirectoryPath { get; } = mapsetDirectoryPath;
     public SelectedMap ReferenceBeatmap { get; } = referenceBeatmap;
     public ObservableCollection<MapsetDifficultyCard> Difficulties { get; } = new(difficulties);
+    public bool HasUnselectedDifficulties => Difficulties.Any(difficulty => !difficulty.IsSelected);
 }

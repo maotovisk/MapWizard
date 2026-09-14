@@ -98,11 +98,6 @@
             <Setter Property="Opacity" Value="0" />
             <Setter Property="IsHitTestVisible" Value="False" />
             <Setter Property="CornerRadius" Value="15" />
-            <Setter Property="Transitions">
-                <Transitions>
-                    <DoubleTransition Property="Opacity" Duration="0:0:0.12" />
-                </Transitions>
-            </Setter>
         </Style>
         <Style Selector="Border.CardRoot:pointerover Border.CardHoverHighlight">
             <Setter Property="Opacity" Value="0.08" />

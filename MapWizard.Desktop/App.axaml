@@ -17,6 +17,18 @@
         <StyleInclude Source="avares://Avalonia.Controls.ColorPicker/Themes/Fluent/Fluent.xaml" />
         <sukiUi:SukiTheme Locale="en-US" ThemeColor="Blue" />
         <materialIcons:MaterialIconStyles />
+        <!-- Keep button hover feedback short and avoid animating opacity or scale over image-backed views. -->
+        <Style Selector="Button">
+            <Setter Property="Transitions">
+                <Transitions>
+                    <BrushTransition Property="Background" Duration="0:0:0.08" />
+                    <BrushTransition Property="BorderBrush" Duration="0:0:0.08" />
+                </Transitions>
+            </Setter>
+        </Style>
+        <Style Selector="Button.Basic:pointerover, Button.Void:pointerover">
+            <Setter Property="RenderTransform" Value="scale(1)" />
+        </Style>
         <!-- Pastel accents need dark foregrounds for readable contrast. -->
         <Style Selector="Button.Flat">
             <Setter Property="Foreground" Value="{DynamicResource MapWizardAccentForeground}" />

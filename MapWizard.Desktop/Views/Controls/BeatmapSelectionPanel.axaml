@@ -107,6 +107,23 @@
       <Setter Property="Background" Value="{DynamicResource SukiControlTouchBackground}" />
     </Style>
 
+    <Style Selector="Button.MemoryActionButton">
+      <Setter Property="Background" Value="{DynamicResource SukiControlTouchBackground}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource SukiControlBorderBrush}" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="CornerRadius" Value="8" />
+      <Setter Property="Padding" Value="10,7" />
+      <Setter Property="FontSize" Value="13" />
+      <Setter Property="FontWeight" Value="SemiBold" />
+      <Setter Property="Foreground" Value="{DynamicResource SukiText}" />
+    </Style>
+
+    <Style Selector="Button.MemoryActionButton:pointerover">
+      <Setter Property="Background" Value="{DynamicResource SukiPrimaryColor25}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource ThemeAccentBrush}" />
+      <Setter Property="Foreground" Value="{DynamicResource SukiText}" />
+    </Style>
+
     <Style Selector="TextBlock.PanelTitle">
       <Setter Property="FontSize" Value="20" />
       <Setter Property="FontWeight" Value="Bold" />
@@ -154,11 +171,6 @@
       <Setter Property="CornerRadius" Value="13,13,0,0" />
       <Setter Property="ClipToBounds" Value="True" />
       <Setter Property="Background" Value="Transparent" />
-      <Setter Property="Transitions">
-        <Transitions>
-          <BrushTransition Property="Background" Duration="0:0:0.16" />
-        </Transitions>
-      </Setter>
     </Style>
 
     <Style Selector="Border.TargetMapsetHeaderClip:pointerover">
@@ -208,6 +220,24 @@
 
     <Style Selector="Button.TargetRemoveButton materialIcons|MaterialIcon">
       <Setter Property="Foreground" Value="#E06C75" />
+    </Style>
+
+    <Style Selector="Button.TargetSelectAllButton">
+      <Setter Property="Background" Value="#33000000" />
+      <Setter Property="BorderBrush" Value="#66FFFFFF" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="CornerRadius" Value="8" />
+      <Setter Property="Padding" Value="8,4" />
+      <Setter Property="MinWidth" Value="0" />
+      <Setter Property="MinHeight" Value="0" />
+      <Setter Property="FontSize" Value="11" />
+      <Setter Property="FontWeight" Value="SemiBold" />
+      <Setter Property="Foreground" Value="#EEEEEE" />
+      <Setter Property="Cursor" Value="Hand" />
+    </Style>
+
+    <Style Selector="Button.TargetSelectAllButton:pointerover">
+      <Setter Property="Background" Value="#44FFFFFF" />
     </Style>
 
     <Style Selector="materialIcons|MaterialIcon.MapsetChevron">
@@ -267,12 +297,6 @@
                   CornerRadius="{TemplateBinding CornerRadius}"
                   Padding="{TemplateBinding Padding}"
                   HorizontalAlignment="Stretch">
-            <Border.Transitions>
-              <Transitions>
-                <BrushTransition Property="Background" Duration="0:0:0.18" />
-                <BrushTransition Property="BorderBrush" Duration="0:0:0.18" />
-              </Transitions>
-            </Border.Transitions>
             <ContentPresenter Content="{TemplateBinding Content}"
                               ContentTemplate="{TemplateBinding ContentTemplate}"
                               HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
@@ -396,7 +420,7 @@
                           Orientation="Horizontal"
                           Spacing="8"
                           VerticalAlignment="Center">
-                <Button Classes="Basic Compact SourceActionButton"
+                <Button Classes="Compact MemoryActionButton"
                         Command="{ReflectionBinding SetOriginFromMemoryCommand}"
                         ToolTip.Tip="{Binding OriginMemoryToolTip, ElementName=Root}">
                   <StackPanel Orientation="Horizontal" Spacing="5">
@@ -592,7 +616,7 @@
                           Spacing="8"
                           VerticalAlignment="Center"
                           IsVisible="{Binding ShowDestinationEmptyState, ElementName=Root}">
-                <Button Classes="Basic Compact"
+                <Button Classes="Compact MemoryActionButton"
                         Command="{ReflectionBinding AddDestinationFromMemoryCommand}"
                         ToolTip.Tip="{Binding DestinationMemoryToolTip, ElementName=Root}">
                   <StackPanel Orientation="Horizontal" Spacing="5">
@@ -633,9 +657,9 @@
                         <Border Classes="TargetMapsetHeaderClip"
                                 Height="60">
                           <Grid Margin="4,6,8,6"
-                                  ColumnDefinitions="Auto,*,Auto,Auto"
+                                  ColumnDefinitions="Auto,*,Auto,Auto,Auto"
                                   ColumnSpacing="6">
-                              <Button Grid.ColumnSpan="4"
+                              <Button Grid.ColumnSpan="5"
                                       Classes="TargetHeaderButton"
                                       Click="DestinationMapsetExpandButton_OnClick"
                                       ToolTip.Tip="Show or hide this mapset's difficulties" />
@@ -664,7 +688,15 @@
                                            MaxLines="1" />
                               </StackPanel>
 
-                              <Border Grid.Column="2"
+                              <Button Grid.Column="2"
+                                      Classes="TargetSelectAllButton"
+                                      Content="Select all"
+                                      VerticalAlignment="Center"
+                                      IsEnabled="{Binding HasUnselectedDifficulties}"
+                                      Click="DestinationMapsetSelectAllButton_OnClick"
+                                      ToolTip.Tip="Select all difficulties in this mapset" />
+
+                              <Border Grid.Column="3"
                                       CornerRadius="9"
                                       Padding="8,3"
                                       Background="{DynamicResource SukiPrimaryColor25}"
@@ -680,7 +712,7 @@
                                            VerticalAlignment="Center" />
                               </Border>
 
-                              <Button Grid.Column="3"
+                              <Button Grid.Column="4"
                                       Classes="TargetRemoveButton"
                                       Click="DestinationMapsetRemoveButton_OnClick"
                                       IsVisible="{Binding !IsSuggested}"
@@ -780,7 +812,7 @@
                   </Button>
 
                   <Button Grid.Column="2"
-                          Classes="Basic Compact"
+                          Classes="Compact MemoryActionButton"
                           Command="{ReflectionBinding AddDestinationFromMemoryCommand}"
                           ToolTip.Tip="{Binding DestinationMemoryToolTip, ElementName=Root}">
                     <StackPanel Orientation="Horizontal" Spacing="5">
