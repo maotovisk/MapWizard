@@ -79,8 +79,8 @@ public class SelectedMap : ObservableObject
             var beatmap = Beatmap.Decode(File.ReadAllText(fullPath));
             var metadata = beatmap.MetadataSection;
 
-            var artist = StringValueUtils.FirstNonEmpty(metadata.ArtistUnicode, metadata.Artist, "Unknown Artist");
-            var title = StringValueUtils.FirstNonEmpty(metadata.TitleUnicode, metadata.Title, "Unknown Title");
+            var artist = StringValueUtils.FirstNonEmpty(metadata.Artist, metadata.ArtistUnicode, "Unknown Artist");
+            var title = StringValueUtils.FirstNonEmpty(metadata.Title, metadata.TitleUnicode, "Unknown Title");
             var difficulty = StringValueUtils.FirstNonEmpty(metadata.Version, "Unknown Difficulty");
             var creator = StringValueUtils.FirstNonEmpty(metadata.Creator, "Unknown Mapper");
 

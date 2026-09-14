@@ -12,6 +12,8 @@
     xmlns:mapCleaner="clr-namespace:MapWizard.Desktop.Views.MapCleaner"
     xmlns:settings="clr-namespace:MapWizard.Desktop.Views.Settings"
     xmlns:controls="clr-namespace:MapWizard.Desktop.Controls"
+    xmlns:viewControls="clr-namespace:MapWizard.Desktop.Views.Controls"
+    xmlns:transitions="clr-namespace:MapWizard.Desktop.Transitions"
     x:Class="MapWizard.Desktop.Views.MainWindow"
     x:DataType="vm:MainWindowViewModel"
     WindowDecorations="BorderOnly"
@@ -113,6 +115,7 @@
 
     <!-- SukiWindow's template has no VisualLayerManager, which Avalonia 12 requires for light-dismiss flyouts. -->
     <VisualLayerManager>
+        <Panel>
         <Grid ColumnDefinitions="102,*">
         <suki:GlassCard Grid.Column="0" Classes="Accent" Margin="8,8,8,8" Padding="4,10" CornerRadius="16">
             <Grid RowDefinitions="Auto,*,Auto">
@@ -336,9 +339,11 @@
         <TransitioningContentControl Grid.Column="1"
                                      Content="{Binding CurrentPageViewModel}">
             <TransitioningContentControl.PageTransition>
-                <CrossFade Duration="0:0:0.18" />
+                <transitions:BlurSlideFadeTransition InDuration="0:0:0.3" OutDuration="0:0:0.16" SlideDistance="32" MaxBlurRadius="9" />
             </TransitioningContentControl.PageTransition>
         </TransitioningContentControl>
         </Grid>
+        <viewControls:ModalHost x:Name="ModalHost" />
+        </Panel>
     </VisualLayerManager>
 </controls:MapWizardWindow>

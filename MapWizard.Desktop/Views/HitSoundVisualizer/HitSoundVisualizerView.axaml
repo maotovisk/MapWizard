@@ -6,6 +6,7 @@
     xmlns:materialIcons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
     xmlns:suki="clr-namespace:SukiUI.Controls;assembly=SukiUI"
     xmlns:controls="clr-namespace:MapWizard.Desktop.Views.Controls"
+    xmlns:appControls="clr-namespace:MapWizard.Desktop.Controls"
     xmlns:viewModels="clr-namespace:MapWizard.Desktop.ViewModels"
     xmlns:theme="https://github.com/kikipoulet/SukiUI"
     mc:Ignorable="d"
@@ -80,7 +81,7 @@
         <Style Selector="ToggleButton.timeline-toolbar-toggle:checked">
             <Setter Property="Background" Value="{DynamicResource ThemeAccentBrush}" />
             <Setter Property="BorderBrush" Value="{DynamicResource ThemeAccentBrush}" />
-            <Setter Property="Foreground" Value="#FFFFFF" />
+            <Setter Property="Foreground" Value="{DynamicResource MapWizardAccentForeground}" />
         </Style>
         <Style Selector="Button.timeline-select">
             <Setter Property="Background" Value="{DynamicResource SystemControlBackgroundChromeMediumLowBrush}" />
@@ -107,7 +108,7 @@
         </Style>
         <Style Selector="ToggleButton.timeline-seg-btn:checked">
             <Setter Property="Background" Value="{DynamicResource ThemeAccentBrush}" />
-            <Setter Property="Foreground" Value="#FFFFFF" />
+            <Setter Property="Foreground" Value="{DynamicResource MapWizardAccentForeground}" />
         </Style>
         <Style Selector="ListBox.timeline-snap-list">
             <Setter Property="Background" Value="Transparent" />
@@ -133,7 +134,7 @@
         </Style>
         <Style Selector="ListBox.timeline-snap-list ListBoxItem:selected">
             <Setter Property="Background" Value="{DynamicResource ThemeAccentBrush}" />
-            <Setter Property="Foreground" Value="#FFFFFF" />
+            <Setter Property="Foreground" Value="{DynamicResource MapWizardAccentForeground}" />
         </Style>
         <Style Selector="TextBlock.timeline-muted">
             <Setter Property="Foreground" Value="{DynamicResource SukiLowText}" />
@@ -216,14 +217,13 @@
 
         <Separator Grid.Row="1" Margin="0,10,0,6" />
 
-        <ScrollViewer Grid.Row="2">
-            <StackPanel Spacing="16">
+        <appControls:SmoothScrollViewer Grid.Row="2">
+            <StackPanel Spacing="12">
                 <controls:BeatmapSelectionPanel
                     OriginMap="{Binding OriginBeatmap}"
                     DestinationMaps="{Binding DestinationBeatmaps}"
                     ShowDestinationSelection="False"
-                    FromWatermark="Visualize hitsounds from..."
-                    AdditionalPrefix="{x:Null}"
+                    SourceSubtitle="Select the beatmap you want to visualize hitsounds from."
                     OriginMemoryToolTip="Get the current beatmap selected in the osu! client." />
 
                 <suki:BusyArea IsBusy="{Binding IsPreparingPlayback}"
@@ -756,7 +756,7 @@
                     </StackPanel>
                 </suki:GlassCard>
             </StackPanel>
-        </ScrollViewer>
+        </appControls:SmoothScrollViewer>
 
         <Border Grid.Row="3"
                 Classes="timeline-panel"

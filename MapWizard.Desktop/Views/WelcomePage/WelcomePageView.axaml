@@ -5,6 +5,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:vm="clr-namespace:MapWizard.Desktop.ViewModels"
     xmlns:controls="clr-namespace:MapWizard.Desktop.Views.Controls"
+    xmlns:appControls="clr-namespace:MapWizard.Desktop.Controls"
     xmlns:suki="clr-namespace:SukiUI.Controls;assembly=SukiUI"
     xmlns:materialIcons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
     mc:Ignorable="d"
@@ -20,7 +21,7 @@
         </StackPanel>
         
 
-        <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Disabled">
+        <appControls:SmoothScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Disabled">
             <controls:CenteredWrapPanel HorizontalAlignment="Stretch" VerticalAlignment="Center" ItemSpacing="10">
                 <Grid Margin="15">
                     <suki:GlassCard Width="260" Height="220" Margin="0,0,0,25" Padding="16" CornerRadius="18">
@@ -94,6 +95,6 @@
                     </Button>
                 </Grid>
             </controls:CenteredWrapPanel>
-        </ScrollViewer>
+        </appControls:SmoothScrollViewer>
     </Grid>
 </UserControl>

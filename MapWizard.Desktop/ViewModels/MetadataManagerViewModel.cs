@@ -33,6 +33,7 @@ public partial class MetadataManagerViewModel(
     ISettingsService settingsService,
     ISongLibraryService songLibraryService,
     ISukiDialogManager dialogManager,
+    IModalService modalService,
     ISukiToastManager toastManager) : ViewModelBase
 {
     [ObservableProperty] private SelectedMap _originBeatmap = new();
@@ -331,6 +332,16 @@ public partial class MetadataManagerViewModel(
     }
 
     [RelayCommand]
+    private void ClearSelection()
+    {
+        OriginBeatmap = new SelectedMap();
+        DestinationBeatmaps = [];
+        HasMultiple = false;
+        PreferredDirectory = string.Empty;
+        ClearOriginBeatmapHeader();
+    }
+
+    [RelayCommand]
     private void AddMapsetDiffsToDestination()
     {
         var referencePath = BeatmapPanelViewModelUtils.ResolveMapsetReferenceBeatmapPath(DestinationBeatmaps, OriginBeatmap.Path);
@@ -395,7 +406,7 @@ public partial class MetadataManagerViewModel(
         CancellationToken token,
         string? preferredMapsetDirectoryPath = null)
         => MapPickerDialogUtils.ShowSongSelectDialogAsync(
-            dialogManager,
+            modalService,
             toastManager,
             songLibraryService,
             filesService,

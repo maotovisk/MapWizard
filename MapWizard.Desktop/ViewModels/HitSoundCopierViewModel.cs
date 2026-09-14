@@ -28,6 +28,7 @@ public partial class HitSoundCopierViewModel(
     ISettingsService settingsService,
     ISongLibraryService songLibraryService,
     ISukiDialogManager dialogManager,
+    IModalService modalService,
     ISukiToastManager toastManager) : ViewModelBase
 {
     [ObservableProperty] private SelectedMap _originBeatmap = new();
@@ -176,6 +177,15 @@ public partial class HitSoundCopierViewModel(
     }
 
     [RelayCommand]
+    private void ClearSelection()
+    {
+        OriginBeatmap = new SelectedMap();
+        DestinationBeatmaps = [];
+        HasMultiple = false;
+        PreferredDirectory = string.Empty;
+    }
+
+    [RelayCommand]
     private void AddMapsetDiffsToDestination()
     {
         var referencePath = BeatmapPanelViewModelUtils.ResolveMapsetReferenceBeatmapPath(DestinationBeatmaps, OriginBeatmap.Path);
@@ -246,7 +256,7 @@ public partial class HitSoundCopierViewModel(
         CancellationToken token,
         string? preferredMapsetDirectoryPath = null)
         => MapPickerDialogUtils.ShowSongSelectDialogAsync(
-            dialogManager,
+            modalService,
             toastManager,
             songLibraryService,
             filesService,

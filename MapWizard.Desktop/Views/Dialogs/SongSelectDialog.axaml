@@ -6,6 +6,7 @@
     xmlns:vm="clr-namespace:MapWizard.Desktop.ViewModels"
     xmlns:dialogs="clr-namespace:MapWizard.Desktop.Views.Dialogs"
     xmlns:suki="clr-namespace:SukiUI.Controls;assembly=SukiUI"
+    xmlns:appControls="clr-namespace:MapWizard.Desktop.Controls"
     xmlns:materialIcons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
     mc:Ignorable="d"
     d:DesignWidth="920"
@@ -17,12 +18,12 @@
 
     <UserControl.Styles>
         <Style Selector="Border.SongSurface">
-            <Setter Property="Background" Value="#2A0F1625" />
+            <Setter Property="Background" Value="{DynamicResource MapWizardPickerSurface}" />
             <Setter Property="CornerRadius" Value="16" />
         </Style>
 
         <Style Selector="Border.StatusPill">
-            <Setter Property="Background" Value="#33131E33" />
+            <Setter Property="Background" Value="{DynamicResource SukiControlTouchBackground}" />
             <Setter Property="CornerRadius" Value="8" />
             <Setter Property="Padding" Value="8,4" />
         </Style>
@@ -70,9 +71,9 @@
 
         <suki:BusyArea Grid.Row="1" BusyText="Searching songs..." IsBusy="{Binding ShowBusyBox}">
             <Border Classes="SongSurface" Padding="10" MinHeight="0">
-                <ScrollViewer x:Name="MapsetScrollViewer"
-                              ScrollChanged="MapsetScrollViewer_OnScrollChanged"
-                              HorizontalScrollBarVisibility="Disabled">
+                <appControls:SmoothScrollViewer x:Name="MapsetScrollViewer"
+                               ScrollChanged="MapsetScrollViewer_OnScrollChanged"
+                               HorizontalScrollBarVisibility="Disabled">
                     <StackPanel Spacing="10"
                                 HorizontalAlignment="Stretch">
                         <Border Classes="StatusPill"
@@ -97,7 +98,7 @@
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
                     </StackPanel>
-                </ScrollViewer>
+                </appControls:SmoothScrollViewer>
             </Border>
         </suki:BusyArea>
 

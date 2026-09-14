@@ -59,6 +59,31 @@ public partial class BeatmapSelectionPanel : UserControl
     public static readonly StyledProperty<string> OriginEmptyPromptProperty =
         AvaloniaProperty.Register<BeatmapSelectionPanel, string>(nameof(OriginEmptyPrompt), "Select an origin beatmap");
 
+    public static readonly StyledProperty<string> SourceSubtitleProperty =
+        AvaloniaProperty.Register<BeatmapSelectionPanel, string>(
+            nameof(SourceSubtitle),
+            "Select the difficulty you want to use.");
+
+    public static readonly StyledProperty<string> TargetSubtitleProperty =
+        AvaloniaProperty.Register<BeatmapSelectionPanel, string>(
+            nameof(TargetSubtitle),
+            "Select the difficulties you want to copy to.");
+
+    public static readonly StyledProperty<bool> CanClearSelectionProperty =
+        AvaloniaProperty.Register<BeatmapSelectionPanel, bool>(nameof(CanClearSelection));
+
+    public static readonly StyledProperty<bool> ShowSourceSubtitleProperty =
+        AvaloniaProperty.Register<BeatmapSelectionPanel, bool>(nameof(ShowSourceSubtitle));
+
+    public static readonly StyledProperty<bool> ShowSourceOnlyBackdropProperty =
+        AvaloniaProperty.Register<BeatmapSelectionPanel, bool>(nameof(ShowSourceOnlyBackdrop));
+
+    public static readonly StyledProperty<bool> ShowSourceMapCardBackdropProperty =
+        AvaloniaProperty.Register<BeatmapSelectionPanel, bool>(nameof(ShowSourceMapCardBackdrop));
+
+    public static readonly StyledProperty<int> SourceColumnSpanProperty =
+        AvaloniaProperty.Register<BeatmapSelectionPanel, int>(nameof(SourceColumnSpan), 1);
+
     public static readonly StyledProperty<bool> ShowHeaderBackgroundProperty =
         AvaloniaProperty.Register<BeatmapSelectionPanel, bool>(nameof(ShowHeaderBackground));
 
@@ -235,6 +260,48 @@ public partial class BeatmapSelectionPanel : UserControl
     {
         get => GetValue(OriginEmptyPromptProperty);
         private set => SetValue(OriginEmptyPromptProperty, value);
+    }
+
+    public string SourceSubtitle
+    {
+        get => GetValue(SourceSubtitleProperty);
+        set => SetValue(SourceSubtitleProperty, value);
+    }
+
+    public string TargetSubtitle
+    {
+        get => GetValue(TargetSubtitleProperty);
+        set => SetValue(TargetSubtitleProperty, value);
+    }
+
+    public bool CanClearSelection
+    {
+        get => GetValue(CanClearSelectionProperty);
+        private set => SetValue(CanClearSelectionProperty, value);
+    }
+
+    public bool ShowSourceSubtitle
+    {
+        get => GetValue(ShowSourceSubtitleProperty);
+        private set => SetValue(ShowSourceSubtitleProperty, value);
+    }
+
+    public bool ShowSourceOnlyBackdrop
+    {
+        get => GetValue(ShowSourceOnlyBackdropProperty);
+        private set => SetValue(ShowSourceOnlyBackdropProperty, value);
+    }
+
+    public bool ShowSourceMapCardBackdrop
+    {
+        get => GetValue(ShowSourceMapCardBackdropProperty);
+        private set => SetValue(ShowSourceMapCardBackdropProperty, value);
+    }
+
+    public int SourceColumnSpan
+    {
+        get => GetValue(SourceColumnSpanProperty);
+        private set => SetValue(SourceColumnSpanProperty, value);
     }
 
     public bool ShowHeaderBackground
@@ -602,18 +669,28 @@ public partial class BeatmapSelectionPanel : UserControl
         HasOriginSelection = hasOrigin;
         ShowOriginEmptyState = !hasOrigin;
         UpdateShowDestinationSection();
+        UpdateClearSelectionState();
     }
 
     private void UpdateShowDestinationSection()
     {
-        ShowDestinationSection = ShowDestinationSelection && HasOriginSelection;
+        ShowDestinationSection = ShowDestinationSelection;
+        SourceColumnSpan = ShowDestinationSection ? 1 : 3;
+        ShowSourceSubtitle = ShowDestinationSection || !HasOriginSelection;
+        ShowSourceOnlyBackdrop = HasOriginSelection && !ShowDestinationSection;
+        ShowSourceMapCardBackdrop = HasOriginSelection && ShowDestinationSection;
+    }
+
+    private void UpdateClearSelectionState()
+    {
+        CanClearSelection = HasOriginSelection || HasDestinationSelection;
     }
 
     private void UpdateOriginEmptyPrompt()
     {
         OriginEmptyPrompt = ShowDestinationSelection
-            ? "Select an origin beatmap"
-            : "Select a beatmap";
+            ? "Choose a beatmap and select one difficulty to use as the source."
+            : "Choose a beatmap and select the difficulty to use.";
     }
 
     private void UpdateDestinationSelectionState()
@@ -626,6 +703,7 @@ public partial class BeatmapSelectionPanel : UserControl
         HasDestinationSelection = selectedCount > 0;
         ShowDestinationEmptyState = !HasDestinationSelection;
         RebuildVisibleDestinationMaps();
+        UpdateClearSelectionState();
     }
 
     private void RebuildMapsetDifficultyCards()
@@ -755,23 +833,11 @@ public partial class BeatmapSelectionPanel : UserControl
             .GroupBy(map => GetDestinationMapsetKey(map.Path), System.StringComparer.OrdinalIgnoreCase)
             .OrderBy(group => group.First().DisplayTitle, System.StringComparer.OrdinalIgnoreCase);
 
-        var originMapsetKey = OriginMap is not null && OriginMap.HasPath
-            ? GetDestinationMapsetKey(OriginMap.Path)
-            : null;
-
         var visibleMapsetKeys = new HashSet<string>(System.StringComparer.OrdinalIgnoreCase);
 
         foreach (var group in groupedByMapset)
         {
             var mapsetKey = group.Key;
-
-            // Origin mapset selections are already represented by the "Difficulties from origin" section.
-            if (HasMapsetDifficultyOptions &&
-                !string.IsNullOrWhiteSpace(originMapsetKey) &&
-                string.Equals(mapsetKey, originMapsetKey, System.StringComparison.OrdinalIgnoreCase))
-            {
-                continue;
-            }
 
             visibleMapsetKeys.Add(mapsetKey);
 
@@ -795,6 +861,8 @@ public partial class BeatmapSelectionPanel : UserControl
             VisibleDestinationMapsets.Add(card);
         }
 
+        MaybeAddSuggestedSourceMapset(visibleMapsetKeys);
+
         var staleExpansionKeys = _destinationMapsetExpansionStates.Keys
             .Where(key => !visibleMapsetKeys.Contains(key))
             .ToArray();
@@ -804,6 +872,40 @@ public partial class BeatmapSelectionPanel : UserControl
         }
 
         HasVisibleDestinationCards = VisibleDestinationMapsets.Count > 0;
+    }
+
+    private void MaybeAddSuggestedSourceMapset(HashSet<string> visibleMapsetKeys)
+    {
+        if (OriginMap is null || !OriginMap.HasPath)
+        {
+            return;
+        }
+
+        var originMapsetKey = GetDestinationMapsetKey(OriginMap.Path);
+        if (visibleMapsetKeys.Contains(originMapsetKey))
+        {
+            return;
+        }
+
+        var suggestedPaths = GetMapsetDifficultyPaths(OriginMap.Path, [])
+            .Where(path => !string.Equals(path, OriginMap.Path, System.StringComparison.OrdinalIgnoreCase))
+            .ToList();
+        if (suggestedPaths.Count == 0)
+        {
+            return;
+        }
+
+        var suggestions = suggestedPaths
+            .Select(path => new MapsetDifficultyCard(path) { IsSelected = false })
+            .ToList();
+
+        var card = new DestinationMapsetCard(originMapsetKey, OriginMap, suggestions, isSuggested: true)
+        {
+            IsExpanded = !_destinationMapsetExpansionStates.TryGetValue(originMapsetKey, out var isExpanded) || isExpanded
+        };
+
+        VisibleDestinationMapsets.Insert(0, card);
+        visibleMapsetKeys.Add(originMapsetKey);
     }
 
     private static string GetDestinationMapsetKey(string beatmapPath)

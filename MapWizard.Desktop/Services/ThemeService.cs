@@ -12,11 +12,13 @@ namespace MapWizard.Desktop.Services;
 
 public class ThemeService(ISettingsService settingsService) : IThemeService
 {
-    private const string MapWizardThemeName = "MapWizard";
+    private const string MapWizardDarkThemeName = "MapWizard Dark";
+    private const string MapWizardLightThemeName = "MapWizard Light";
 
     private readonly SukiTheme _theme = SukiTheme.GetInstance();
 
-    private SukiColorTheme? _mapWizardTheme;
+    private SukiColorTheme? _mapWizardDarkTheme;
+    private SukiColorTheme? _mapWizardLightTheme;
     private ThemeMode _themeMode;
 
     public ThemeMode ThemeMode => _themeMode;
@@ -53,11 +55,12 @@ public class ThemeService(ISettingsService settingsService) : IThemeService
         };
 
         _theme.ChangeBaseTheme(targetVariant);
-        _theme.ChangeColorTheme(_mapWizardTheme!);
         ApplyRequestedThemeVariant(targetVariant);
+        var isDarkTheme = ResolveIsDarkTheme(targetVariant);
+        _theme.ChangeColorTheme(isDarkTheme ? _mapWizardDarkTheme! : _mapWizardLightTheme!);
 
         _themeMode = themeMode;
-        IsDarkTheme = ResolveIsDarkTheme(targetVariant);
+        IsDarkTheme = isDarkTheme;
 
         if (persist)
         {
@@ -75,13 +78,15 @@ public class ThemeService(ISettingsService settingsService) : IThemeService
 
     private void EnsureCustomColorTheme()
     {
-        if (_mapWizardTheme != null)
+        if (_mapWizardDarkTheme != null)
         {
             return;
         }
 
-        _mapWizardTheme = new SukiColorTheme(MapWizardThemeName, Colors.DarkSlateBlue, Colors.OrangeRed);
-        _theme.AddColorTheme(_mapWizardTheme);
+        _mapWizardDarkTheme = new SukiColorTheme(MapWizardDarkThemeName, Color.Parse("#B8DB87"), Color.Parse("#FAB283"));
+        _mapWizardLightTheme = new SukiColorTheme(MapWizardLightThemeName, Color.Parse("#5F7488"), Color.Parse("#758B9E"));
+        _theme.AddColorTheme(_mapWizardDarkTheme);
+        _theme.AddColorTheme(_mapWizardLightTheme);
     }
 
     private static void ApplyRequestedThemeVariant(ThemeVariant targetVariant)

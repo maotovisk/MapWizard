@@ -2,6 +2,7 @@
     xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:materialIcons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+    xmlns:appControls="clr-namespace:MapWizard.Desktop.Controls"
     x:Class="MapWizard.Desktop.Views.Controls.AppDropdown"
     x:Name="Root">
 
@@ -87,15 +88,15 @@
                     ShowMode="Transient">
                 <Border Classes="app-dropdown-surface"
                         MinWidth="{Binding FlyoutMinWidth, ElementName=Root}">
-                    <ScrollViewer MaxHeight="{Binding FlyoutMaxHeight, ElementName=Root}"
-                                  VerticalScrollBarVisibility="Auto"
-                                  HorizontalScrollBarVisibility="Disabled">
+                    <appControls:SmoothScrollViewer MaxHeight="{Binding FlyoutMaxHeight, ElementName=Root}"
+                                   VerticalScrollBarVisibility="Auto"
+                                   HorizontalScrollBarVisibility="Disabled">
                         <ListBox x:Name="OptionsListBox"
                                  Classes="app-dropdown-list"
                                  ItemsSource="{Binding ItemsSource, ElementName=Root}"
                                  SelectedItem="{Binding SelectedItem, ElementName=Root, Mode=TwoWay}"
                                  SelectionChanged="OptionsListBox_OnSelectionChanged" />
-                    </ScrollViewer>
+                    </appControls:SmoothScrollViewer>
                 </Border>
             </Flyout>
         </Button.Flyout>

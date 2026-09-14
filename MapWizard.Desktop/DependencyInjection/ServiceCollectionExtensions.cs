@@ -66,6 +66,7 @@ public static class ServiceCollectionExtensions
         
         collection.AddSingleton<ISukiToastManager, SukiToastManager>();
         collection.AddSingleton<ISukiDialogManager, SukiDialogManager>();
+        collection.AddSingleton<IModalService, ModalService>();
     }
 
 }
