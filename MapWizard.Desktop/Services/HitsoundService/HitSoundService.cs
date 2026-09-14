@@ -9,6 +9,7 @@ using BeatmapParser.HitObjects;
 using BeatmapParser.HitObjects.HitSounds;
 using BeatmapParser.TimingPoints;
 using MapWizard.Desktop.Models.HitSoundVisualizer;
+using MapWizard.Desktop.Utils;
 using MapWizard.Tools.HelperExtensions;
 using MapWizard.Tools.HitSounds.Copier;
 using MapWizard.Tools.HitSounds.Event;
@@ -74,12 +75,10 @@ public class HitSoundService : IHitSoundService
         var endTimeMs = ResolveEndTimeMs(beatmap, points, sampleChanges);
         var snapTicks = BuildSnapTicks(beatmap, endTimeMs);
 
-        var artist = string.IsNullOrWhiteSpace(beatmap.MetadataSection.ArtistUnicode)
-            ? beatmap.MetadataSection.Artist
-            : beatmap.MetadataSection.ArtistUnicode;
-        var title = string.IsNullOrWhiteSpace(beatmap.MetadataSection.TitleUnicode)
-            ? beatmap.MetadataSection.Title
-            : beatmap.MetadataSection.TitleUnicode;
+        var artist = StringValueUtils.FirstNonEmpty(
+            beatmap.MetadataSection.Artist, beatmap.MetadataSection.ArtistUnicode, "Unknown Artist");
+        var title = StringValueUtils.FirstNonEmpty(
+            beatmap.MetadataSection.Title, beatmap.MetadataSection.TitleUnicode, "Unknown Title");
         var mapsetDirectory = Path.GetDirectoryName(beatmapPath) ?? string.Empty;
         var audioFileName = beatmap.GeneralSection.AudioFilename;
         var audioFilePath = string.IsNullOrWhiteSpace(audioFileName) || string.IsNullOrWhiteSpace(mapsetDirectory)

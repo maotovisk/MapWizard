@@ -839,7 +839,7 @@ public partial class SongMapsetCardViewModel : ObservableObject, IDisposable
     public string LastEditedLabel => $"Edited {LastEditedUtc.ToLocalTime().ToString("g", CultureInfo.CurrentCulture)}";
     public string DifficultyCountLabel => Difficulties.Count == 1 ? "1 difficulty" : $"{Difficulties.Count} difficulties";
     public bool AllDifficultiesSelected => Difficulties.Count > 0 && Difficulties.All(difficulty => difficulty.IsSelected);
-    public string SelectAllButtonLabel => AllDifficultiesSelected ? "Unselect All Diffs" : "Select All Diffs";
+    public string SelectAllButtonLabel => AllDifficultiesSelected ? "Unselect All" : "Select All";
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(HasBackgroundImage))]
     private Bitmap? _backgroundImage;

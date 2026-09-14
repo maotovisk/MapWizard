@@ -26,7 +26,7 @@ public partial class MapsetDifficultyCard(string path) : ObservableObject
         var closeBracketIndex = fileName.LastIndexOf(']');
         if (openBracketIndex >= 0 && closeBracketIndex > openBracketIndex)
         {
-            return fileName.Substring(openBracketIndex, closeBracketIndex - openBracketIndex + 1);
+            return fileName.Substring(openBracketIndex + 1, closeBracketIndex - openBracketIndex - 1);
         }
 
         return fileName;

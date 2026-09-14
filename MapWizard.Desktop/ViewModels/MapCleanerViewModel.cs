@@ -30,6 +30,7 @@ public partial class MapCleanerViewModel(
     ISettingsService settingsService,
     ISongLibraryService songLibraryService,
     ISukiDialogManager dialogManager,
+    IModalService modalService,
     ISukiToastManager toastManager) : ViewModelBase
 {
     [ObservableProperty] private SelectedMap _originBeatmap = new();
@@ -162,6 +163,13 @@ public partial class MapCleanerViewModel(
             string.IsNullOrWhiteSpace(errorMessage)
                 ? "Unable to open the origin beatmap folder."
                 : errorMessage);
+    }
+
+    [RelayCommand]
+    private void ClearSelection()
+    {
+        OriginBeatmap = new SelectedMap();
+        ClearOriginBeatmapHeader();
     }
 
     [RelayCommand]
@@ -313,7 +321,7 @@ public partial class MapCleanerViewModel(
         CancellationToken token,
         string? preferredMapsetDirectoryPath = null)
         => MapPickerDialogUtils.ShowSongSelectDialogAsync(
-            dialogManager,
+            modalService,
             toastManager,
             songLibraryService,
             filesService,

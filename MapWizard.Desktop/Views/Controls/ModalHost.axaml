@@ -1,0 +1,83 @@
+<UserControl
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:materialIcons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+    mc:Ignorable="d"
+    d:DesignWidth="900"
+    d:DesignHeight="640"
+    x:Class="MapWizard.Desktop.Views.Controls.ModalHost"
+    x:Name="Root"
+    IsVisible="False">
+
+    <Panel>
+        <Border x:Name="BackdropBorder"
+                Background="#000000"
+                Opacity="0">
+            <Border.Transitions>
+                <Transitions>
+                    <DoubleTransition Property="Opacity" Duration="0:0:0.2" />
+                </Transitions>
+            </Border.Transitions>
+        </Border>
+
+        <Border x:Name="DialogCard"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                MaxWidth="1000"
+                Margin="28"
+                Padding="20"
+                CornerRadius="18"
+                Opacity="0"
+                RenderTransform="scale(0.93)"
+                Background="{DynamicResource SukiGlassCardOpaqueBackground}"
+                BorderBrush="{DynamicResource SukiBorderBrush}"
+                BorderThickness="1"
+                BoxShadow="0 12 48 4 #99000000"
+                ClipToBounds="True">
+            <Border.Transitions>
+                <Transitions>
+                    <DoubleTransition Property="Opacity" Duration="0:0:0.28" />
+                    <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.3">
+                        <TransformOperationsTransition.Easing>
+                        <CubicEaseOut />
+                        </TransformOperationsTransition.Easing>
+                    </TransformOperationsTransition>
+                </Transitions>
+            </Border.Transitions>
+            <Grid RowDefinitions="Auto,*,Auto">
+                <Grid ColumnDefinitions="*,Auto" Margin="4,0,4,0">
+                    <TextBlock Text="{Binding Title, ElementName=Root}"
+                               FontSize="18"
+                               FontWeight="Bold"
+                               VerticalAlignment="Center"
+                               Foreground="{DynamicResource SukiText}"
+                               TextTrimming="CharacterEllipsis"
+                               MaxLines="1" />
+                    <Button Grid.Column="1"
+                            Classes="Basic Compact"
+                            Click="CloseButton_OnClick"
+                            IsVisible="{Binding ShowCloseButton, ElementName=Root}"
+                            ToolTip.Tip="Close">
+                        <materialIcons:MaterialIcon Kind="Close" Width="18" Height="18" />
+                    </Button>
+                </Grid>
+
+                <ContentControl Grid.Row="1"
+                                Margin="0,12,0,0"
+                                Content="{Binding DialogContent, ElementName=Root}"
+                                HorizontalContentAlignment="Stretch"
+                                VerticalContentAlignment="Stretch" />
+
+                <Border Grid.Row="2"
+                        x:Name="FooterBorder"
+                        Margin="0,12,0,0"
+                        IsVisible="False">
+                    <ContentControl Content="{Binding FooterContent, ElementName=Root}"
+                                    HorizontalContentAlignment="Stretch" />
+                </Border>
+            </Grid>
+        </Border>
+    </Panel>
+</UserControl>

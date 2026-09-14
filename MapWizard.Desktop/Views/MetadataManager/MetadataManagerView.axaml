@@ -6,6 +6,7 @@
   xmlns:vm="clr-namespace:MapWizard.Desktop.ViewModels"
   xmlns:local="clr-namespace:MapWizard.Desktop.Converters"
   xmlns:controls="clr-namespace:MapWizard.Desktop.Views.Controls"
+  xmlns:appControls="clr-namespace:MapWizard.Desktop.Controls"
   xmlns:materialIcons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
   xmlns:suki="clr-namespace:SukiUI.Controls;assembly=SukiUI"
   xmlns:theme="https://github.com/kikipoulet/SukiUI"
@@ -50,12 +51,14 @@
     
     <Separator Grid.Row="1" Margin="0 10 0 5" />
     
-    <ScrollViewer Grid.Row="2">
+    <appControls:SmoothScrollViewer Grid.Row="2">
       <StackPanel Spacing="16">
 
         <controls:BeatmapSelectionPanel
           OriginMap="{Binding OriginBeatmap}"
-          DestinationMaps="{Binding DestinationBeatmaps}" />
+          DestinationMaps="{Binding DestinationBeatmaps}"
+          SourceSubtitle="Select the beatmap to import metadata from."
+          TargetSubtitle="Select the beatmaps to export the metadata to." />
         
         <!-- METADATA -->
         <Grid ColumnDefinitions="*,*" Margin="0,8,0,0">
@@ -211,6 +214,6 @@
           </StackPanel>
         </suki:GlassCard>
       </StackPanel>
-    </ScrollViewer>
+    </appControls:SmoothScrollViewer>
   </Grid>
 </UserControl>

@@ -6,6 +6,7 @@
     xmlns:materialIcons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
     xmlns:suki="clr-namespace:SukiUI.Controls;assembly=SukiUI"
     xmlns:controls="clr-namespace:MapWizard.Desktop.Views.Controls"
+    xmlns:appControls="clr-namespace:MapWizard.Desktop.Controls"
     mc:Ignorable="d"
     d:DesignWidth="800"
     d:DesignHeight="450"
@@ -40,14 +41,13 @@
         </Grid>
         <Separator Grid.Row="1" Margin="0 10 0 5" />
 
-        <ScrollViewer Grid.Row="2">
+        <appControls:SmoothScrollViewer Grid.Row="2">
             <StackPanel Spacing="16">
                 <controls:BeatmapSelectionPanel
                     OriginMap="{Binding OriginBeatmap}"
                     DestinationMaps="{Binding DestinationBeatmaps}"
-                    FromWatermark="Copy hitsounds from..."
-                    ToWatermark="Copy hitsounds to..."
-                    AdditionalPrefix="{x:Null}"
+                    SourceSubtitle="Select one difficulty to copy hitsounds from."
+                    TargetSubtitle="Select one or more target difficulties to copy to."
                     OriginMemoryToolTip="Get the current beatmap selected in the osu! client."
                     DestinationMemoryToolTip="Add the current beatmap selected in the osu! client." />
 
@@ -94,6 +94,6 @@
                     </StackPanel>
                 </suki:GlassCard>
             </StackPanel>
-        </ScrollViewer>
+        </appControls:SmoothScrollViewer>
     </Grid>
 </UserControl>

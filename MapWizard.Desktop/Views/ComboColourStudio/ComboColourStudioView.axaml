@@ -5,6 +5,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:local="clr-namespace:MapWizard.Desktop.Converters"
     xmlns:controls="clr-namespace:MapWizard.Desktop.Views.Controls"
+    xmlns:appControls="clr-namespace:MapWizard.Desktop.Controls"
     xmlns:materialIcons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
     xmlns:suki="clr-namespace:SukiUI.Controls;assembly=SukiUI"
     xmlns:theme="https://github.com/kikipoulet/SukiUI"
@@ -134,7 +135,7 @@
 
                 <Button Classes="Flat Large"
                         Command="{Binding ExportColourHaxCommand}"
-                        ToolTip.Tip="Export colour hax to destination beatmaps">
+                        ToolTip.Tip="Export colour hax to target beatmaps">
                     <StackPanel Orientation="Horizontal" Spacing="8">
                         <materialIcons:MaterialIcon Kind="ContentSave" Width="24" Height="24" />
                         <TextBlock VerticalAlignment="Center"
@@ -148,14 +149,13 @@
 
         <Separator Grid.Row="1" Margin="0 10 0 5" />
 
-        <ScrollViewer Grid.Row="2">
+        <appControls:SmoothScrollViewer Grid.Row="2">
             <StackPanel Spacing="16">
                 <controls:BeatmapSelectionPanel
                     OriginMap="{Binding OriginBeatmap}"
                     DestinationMaps="{Binding DestinationBeatmaps}"
-                    FromWatermark="Load combo colours from..."
-                    ToWatermark="Export colour hax to..."
-                    AdditionalPrefix="{x:Null}"
+                    SourceSubtitle="Select the beatmap to load combo colours from."
+                    TargetSubtitle="Select the beatmaps to export the colour hax to."
                     OriginMemoryToolTip="Use currently selected osu! beatmap"
                     DestinationMemoryToolTip="Add currently selected osu! beatmap" />
 
@@ -231,7 +231,7 @@
                             <Button Grid.Column="1"
                                     Classes="Basic"
                                     Command="{Binding ImportColourHaxFromOriginCommand}"
-                                    ToolTip.Tip="Import colour hax from selected origin beatmap">
+                                    ToolTip.Tip="Import colour hax from selected source beatmap">
                                 <StackPanel Orientation="Horizontal" Spacing="4">
                                     <materialIcons:MaterialIcon Kind="Import" Width="18" Height="18" />
                                     <TextBlock Text="Import ColourHax" VerticalAlignment="Center" />
@@ -259,7 +259,7 @@
                                                                               Width="102"
                                                                               SelectedMode="{Binding Mode, Mode=TwoWay}" />
 
-                                            <ScrollViewer Grid.Column="2"
+                                            <appControls:SmoothScrollViewer Grid.Column="2"
                                                           HorizontalScrollBarVisibility="Auto"
                                                           VerticalScrollBarVisibility="Disabled"
                                                           VerticalAlignment="Center">
@@ -284,7 +284,7 @@
                                                         </DataTemplate>
                                                     </ItemsControl.ItemTemplate>
                                                 </ItemsControl>
-                                            </ScrollViewer>
+                                            </appControls:SmoothScrollViewer>
 
                                             <StackPanel Grid.Column="3"
                                                         Orientation="Horizontal"
@@ -345,6 +345,6 @@
                     </suki:GroupBox>
                 </suki:GlassCard>
             </StackPanel>
-        </ScrollViewer>
+        </appControls:SmoothScrollViewer>
     </Grid>
 </UserControl>

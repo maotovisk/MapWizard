@@ -37,6 +37,7 @@ public partial class HitSoundVisualizerViewModel(
     ISettingsService settingsService,
     ISongLibraryService songLibraryService,
     ISukiDialogManager dialogManager,
+    IModalService modalService,
     ISukiToastManager toastManager) : ViewModelBase
 {
     public event Action? FocusPlaybackRequested;
@@ -487,6 +488,23 @@ public partial class HitSoundVisualizerViewModel(
         }
 
         SetOriginBeatmapPath(currentBeatmap);
+    }
+
+    [RelayCommand]
+    private void ClearSelection()
+    {
+        StopPlaybackCore(resetPausedState: true);
+        OriginBeatmap = new SelectedMap();
+        PreferredDirectory = string.Empty;
+        HasLoadedMap = false;
+        HasLoadedSongAudio = false;
+        _loadedMapsetDirectoryPath = string.Empty;
+        _loadedAudioFilePath = string.Empty;
+        _workingTimeline = new HitSoundTimeline();
+        Points = [];
+        SampleChanges = [];
+        SnapTicks = [];
+        LoadedMapTitle = string.Empty;
     }
 
     [RelayCommand]
@@ -2029,7 +2047,7 @@ public partial class HitSoundVisualizerViewModel(
         CancellationToken token,
         string? preferredMapsetDirectoryPath = null)
         => MapPickerDialogUtils.ShowSongSelectDialogAsync(
-            dialogManager,
+            modalService,
             toastManager,
             songLibraryService,
             filesService,

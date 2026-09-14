@@ -6,6 +6,7 @@
     xmlns:materialIcons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
     xmlns:suki="clr-namespace:SukiUI.Controls;assembly=SukiUI"
     xmlns:controls="clr-namespace:MapWizard.Desktop.Views.Controls"
+    xmlns:appControls="clr-namespace:MapWizard.Desktop.Controls"
     xmlns:viewModels="clr-namespace:MapWizard.Desktop.ViewModels"
     mc:Ignorable="d"
     d:DesignWidth="800"
@@ -78,13 +79,13 @@
 
         <Separator Grid.Row="1" Margin="0 10 0 5" />
 
-        <ScrollViewer Grid.Row="2">
+        <appControls:SmoothScrollViewer Grid.Row="2">
             <StackPanel Spacing="16">
                 <controls:BeatmapSelectionPanel
                     SectionTitle="Beatmap Selection"
                     OriginMap="{Binding OriginBeatmap}"
                     DestinationMaps="{Binding DestinationBeatmaps}"
-                    FromWatermark="Select beatmap..."
+                    SourceSubtitle="Select the beatmap you want to clean."
                     ShowDestinationSelection="False"
                     OriginPathChangedCommand="{Binding ReanalyzeOriginAfterPathChangeCommand}" />
 
@@ -138,7 +139,7 @@
                                                            FontWeight="SemiBold"
                                                            FontSize="13" />
                                                 <Separator />
-                                                <ScrollViewer MaxHeight="220">
+                                                <appControls:SmoothScrollViewer MaxHeight="220">
                                                     <ItemsControl ItemsSource="{ReflectionBinding DataContext.SnapPresets, ElementName=Root}">
                                                         <ItemsControl.ItemsPanel>
                                                             <ItemsPanelTemplate>
@@ -156,7 +157,7 @@
                                                             </DataTemplate>
                                                         </ItemsControl.ItemTemplate>
                                                     </ItemsControl>
-                                                </ScrollViewer>
+                                                </appControls:SmoothScrollViewer>
                                                 <Separator />
                                                 <StackPanel Orientation="Horizontal" Spacing="8">
                                                     <TextBox Width="170"
@@ -195,6 +196,6 @@
                     </StackPanel>
                 </suki:GlassCard>
             </StackPanel>
-        </ScrollViewer>
+        </appControls:SmoothScrollViewer>
     </Grid>
 </UserControl>

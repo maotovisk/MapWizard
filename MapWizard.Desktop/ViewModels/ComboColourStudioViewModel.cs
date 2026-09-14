@@ -39,6 +39,7 @@ public partial class ComboColourStudioViewModel(
     ISettingsService settingsService,
     ISongLibraryService songLibraryService,
     ISukiDialogManager dialogManager,
+    IModalService modalService,
     ISukiToastManager toastManager) : ViewModelBase
 {
     [NotifyPropertyChangedFor(nameof(HasOriginBeatmap))]
@@ -560,6 +561,18 @@ public partial class ComboColourStudioViewModel(
     }
 
     [RelayCommand]
+    private void ClearSelection()
+    {
+        OriginBeatmap = new SelectedMap();
+        DestinationBeatmaps = [];
+        HasMultiple = false;
+        PreferredDirectory = string.Empty;
+        ClearOriginBeatmapMetadata();
+        HasLocalProjectSnapshot = false;
+        HasUnsavedChanges = false;
+    }
+
+    [RelayCommand]
     private void AddMapsetDiffsToDestination()
     {
         var referencePath = BeatmapPanelViewModelUtils.ResolveMapsetReferenceBeatmapPath(DestinationBeatmaps, OriginBeatmap.Path);
@@ -695,7 +708,7 @@ public partial class ComboColourStudioViewModel(
         CancellationToken token,
         string? preferredMapsetDirectoryPath = null)
         => MapPickerDialogUtils.ShowSongSelectDialogAsync(
-            dialogManager,
+            modalService,
             toastManager,
             songLibraryService,
             filesService,
