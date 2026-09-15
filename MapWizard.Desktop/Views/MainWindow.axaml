@@ -112,7 +112,7 @@
     <VisualLayerManager>
         <Panel>
         <Grid ColumnDefinitions="102,*">
-        <suki:GlassCard Grid.Column="0" Classes="Accent" Margin="8,8,8,8" Padding="4,10" CornerRadius="16">
+        <suki:GlassCard Grid.Column="0" Classes="Primary" Margin="8,8,8,8" Padding="4,10" CornerRadius="16">
             <Grid RowDefinitions="Auto,*,Auto">
                 <StackPanel Grid.Row="0" Spacing="8" HorizontalAlignment="Center">
                     <Button Classes="NavButton"
