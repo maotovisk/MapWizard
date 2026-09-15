@@ -82,6 +82,7 @@ jobs:
           tag_name: ${{ github.ref_name }}
           draft: false
           prerelease: false
+          generate_release_notes: true
           files: |
             MapWizard-*/**/*
           fail_on_unmatched_files: true

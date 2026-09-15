@@ -7,6 +7,7 @@ using Avalonia.Threading;
 using CommunityToolkit.Mvvm.Input;
 using MapWizard.Desktop.Services;
 using MapWizard.Desktop.Views.Dialogs;
+using MapWizard.Tools.HelperExtensions;
 using SukiUI.Dialogs;
 using SukiUI.Enums;
 using SukiUI.Toasts;
@@ -66,7 +67,7 @@ public partial class WelcomePageViewModel(
         }
         catch (Exception ex)
         {
-            MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
+            MapWizardLogger.LogException(ex);
             toastManager.Dismiss(checkingToast);
             toastManager.CreateToast()
                 .OfType(NotificationType.Error)

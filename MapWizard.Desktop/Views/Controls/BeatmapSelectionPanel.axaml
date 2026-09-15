@@ -616,7 +616,7 @@
                           Orientation="Horizontal"
                           Spacing="8"
                           VerticalAlignment="Center"
-                          IsVisible="{Binding ShowDestinationEmptyState, ElementName=Root}">
+                          IsVisible="{Binding !HasVisibleDestinationCards, ElementName=Root}">
                 <Button Classes="Compact MemoryActionButton"
                         Command="{ReflectionBinding AddDestinationFromMemoryCommand}"
                         ToolTip.Tip="{Binding DestinationMemoryToolTip, ElementName=Root}">
@@ -728,12 +728,20 @@
                           <appControls:SmoothScrollViewer MaxHeight="142"
                                                           VerticalScrollBarVisibility="Hidden"
                                                           HorizontalScrollBarVisibility="Disabled">
-                            <ItemsControl Margin="0,0,0,-8"
-                                          ItemsSource="{Binding Difficulties}">
+                            <ItemsControl Margin="4,0"
+                                          ItemsSource="{Binding Difficulties}"
+                                          HorizontalAlignment="Stretch">
+                            <ItemsControl.ItemsPanel>
+                              <ItemsPanelTemplate>
+                                <controls:CenteredWrapPanel ItemSpacing="8"
+                                                            MaxItemsPerLine="4"
+                                                            ItemWidth="210"
+                                                            FillAvailableWidth="True" />
+                              </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
                             <ItemsControl.ItemTemplate>
                               <DataTemplate x:DataType="models:MapsetDifficultyCard">
                                 <ToggleButton Classes="DiffRow"
-                                              Margin="0,0,0,8"
                                               IsChecked="{Binding IsSelected, Mode=OneWay}"
                                               Command="{ReflectionBinding DataContext.ToggleDestinationMapCommand, RelativeSource={RelativeSource AncestorType=controls:BeatmapSelectionPanel}}"
                                               CommandParameter="{Binding Path}">

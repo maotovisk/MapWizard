@@ -198,8 +198,7 @@ public partial class HitSoundCopierViewModel(
             return;
         }
 
-        var siblingDiffs = BeatmapSelectionUtils.GetSiblingDifficultyPaths(referencePath)
-            .Where(path => !string.Equals(path, OriginBeatmap.Path, StringComparison.OrdinalIgnoreCase));
+        var siblingDiffs = BeatmapSelectionUtils.GetSiblingDifficultyPaths(referencePath);
 
         if (!BeatmapSelectionUtils.TryAppendDestinationBeatmaps(
                 DestinationBeatmaps,
@@ -287,6 +286,7 @@ public partial class HitSoundCopierViewModel(
             var destinationPaths = DestinationBeatmaps
                 .Select(x => x.Path)
                 .Where(path => !string.IsNullOrWhiteSpace(path))
+                .Where(path => !string.Equals(path, OriginBeatmap.Path, StringComparison.OrdinalIgnoreCase))
                 .Distinct(StringComparer.OrdinalIgnoreCase)
                 .ToArray();
 
@@ -296,7 +296,7 @@ public partial class HitSoundCopierViewModel(
             }
             else if (destinationPaths.Length == 0)
             {
-                message = "Please select at least one destination beatmap!";
+                message = "Please select at least one target difficulty other than the source.";
             }
             else
             {

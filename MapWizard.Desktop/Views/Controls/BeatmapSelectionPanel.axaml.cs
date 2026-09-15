@@ -138,9 +138,6 @@ public partial class BeatmapSelectionPanel : UserControl
     public static readonly StyledProperty<bool> HasDestinationSelectionProperty =
         AvaloniaProperty.Register<BeatmapSelectionPanel, bool>(nameof(HasDestinationSelection));
 
-    public static readonly StyledProperty<bool> ShowDestinationEmptyStateProperty =
-        AvaloniaProperty.Register<BeatmapSelectionPanel, bool>(nameof(ShowDestinationEmptyState), true);
-
     public static readonly StyledProperty<int> SelectedDestinationCountProperty =
         AvaloniaProperty.Register<BeatmapSelectionPanel, int>(nameof(SelectedDestinationCount));
 
@@ -410,12 +407,6 @@ public partial class BeatmapSelectionPanel : UserControl
     {
         get => GetValue(HasDestinationSelectionProperty);
         private set => SetValue(HasDestinationSelectionProperty, value);
-    }
-
-    public bool ShowDestinationEmptyState
-    {
-        get => GetValue(ShowDestinationEmptyStateProperty);
-        private set => SetValue(ShowDestinationEmptyStateProperty, value);
     }
 
     public int SelectedDestinationCount
@@ -701,7 +692,6 @@ public partial class BeatmapSelectionPanel : UserControl
 
         SelectedDestinationCount = selectedCount;
         HasDestinationSelection = selectedCount > 0;
-        ShowDestinationEmptyState = !HasDestinationSelection;
         RebuildVisibleDestinationMaps();
         UpdateClearSelectionState();
     }
@@ -887,9 +877,7 @@ public partial class BeatmapSelectionPanel : UserControl
             return;
         }
 
-        var suggestedPaths = GetMapsetDifficultyPaths(OriginMap.Path, [])
-            .Where(path => !string.Equals(path, OriginMap.Path, System.StringComparison.OrdinalIgnoreCase))
-            .ToList();
+        var suggestedPaths = GetMapsetDifficultyPaths(OriginMap.Path, []).ToList();
         if (suggestedPaths.Count == 0)
         {
             return;

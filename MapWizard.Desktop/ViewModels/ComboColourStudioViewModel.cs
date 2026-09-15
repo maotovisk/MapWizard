@@ -588,8 +588,7 @@ public partial class ComboColourStudioViewModel(
             return;
         }
 
-        var siblingDiffs = BeatmapSelectionUtils.GetSiblingDifficultyPaths(referencePath)
-            .Where(path => !string.Equals(path, OriginBeatmap.Path, StringComparison.OrdinalIgnoreCase));
+        var siblingDiffs = BeatmapSelectionUtils.GetSiblingDifficultyPaths(referencePath);
 
         if (!BeatmapSelectionUtils.TryAppendDestinationBeatmaps(
                 DestinationBeatmaps,

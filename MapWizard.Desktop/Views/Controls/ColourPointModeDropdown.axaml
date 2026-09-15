@@ -12,6 +12,7 @@
             <Setter Property="BorderBrush" Value="{DynamicResource ThemeAccentBrush}" />
             <Setter Property="CornerRadius" Value="10" />
             <Setter Property="Background" Value="{DynamicResource SystemControlBackgroundChromeMediumLowBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource SukiText}" />
             <Setter Property="Padding" Value="8,5" />
             <Setter Property="HorizontalContentAlignment" Value="Center" />
             <Setter Property="VerticalContentAlignment" Value="Center" />
@@ -38,9 +39,11 @@
             Click="TriggerButton_OnClick">
         <Grid ColumnDefinitions="Auto,Auto" ColumnSpacing="6" VerticalAlignment="Center">
             <TextBlock FontWeight="SemiBold"
+                       Foreground="{DynamicResource SukiText}"
                        VerticalAlignment="Center"
                        Text="{Binding SelectedModeLabel, ElementName=Root}" />
-            <materialIcons:MaterialIcon Grid.Column="1" Kind="ChevronDown" Width="14" Height="14" />
+            <materialIcons:MaterialIcon Grid.Column="1" Kind="ChevronDown" Width="14" Height="14"
+                                        Foreground="{DynamicResource SukiLowText}" />
         </Grid>
 
         <FlyoutBase.AttachedFlyout>

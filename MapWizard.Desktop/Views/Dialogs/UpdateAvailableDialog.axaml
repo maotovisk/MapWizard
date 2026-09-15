@@ -1,6 +1,8 @@
 <UserControl
     xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:md="clr-namespace:Markdown.Avalonia;assembly=Markdown.Avalonia"
+    xmlns:ctxt="clr-namespace:ColorTextBlock.Avalonia;assembly=ColorTextBlock.Avalonia"
     xmlns:d="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
@@ -32,13 +34,19 @@
                     BorderThickness="1"
                     CornerRadius="10"
                     Padding="12">
-                <ScrollViewer MaxHeight="260" HorizontalScrollBarVisibility="Disabled">
-                    <TextBlock x:Name="ChangelogText"
-                               TextWrapping="Wrap"
-                               FontSize="13"
-                               LineHeight="20"
-                               Foreground="{DynamicResource SukiText}" />
-                </ScrollViewer>
+                <md:MarkdownScrollViewer x:Name="ChangelogMarkdown"
+                                         MaxHeight="260">
+                    <md:MarkdownScrollViewer.Styles>
+                        <Style Selector="ctxt|CTextBlock">
+                            <Setter Property="Foreground" Value="{DynamicResource SukiText}" />
+                            <Setter Property="FontSize" Value="13" />
+                        </Style>
+                        <Style Selector="TextBlock">
+                            <Setter Property="Foreground" Value="{DynamicResource SukiText}" />
+                            <Setter Property="FontSize" Value="13" />
+                        </Style>
+                    </md:MarkdownScrollViewer.Styles>
+                </md:MarkdownScrollViewer>
             </Border>
         </StackPanel>
     </StackPanel>

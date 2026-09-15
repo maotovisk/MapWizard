@@ -84,6 +84,7 @@
                             Background="{Binding SelectedPreviewBrush, ElementName=Root}" />
                     <TextBlock FontWeight="Bold"
                                FontSize="9"
+                               Foreground="{Binding SelectedLabelBrush, ElementName=Root}"
                                HorizontalAlignment="Center"
                                VerticalAlignment="Center"
                                Text="{Binding SelectedLabel, ElementName=Root}" />
@@ -137,6 +138,7 @@
                                                             Background="{Binding PreviewBrush}" />
                                                     <TextBlock FontWeight="Bold"
                                                                FontSize="9"
+                                                               Foreground="{Binding LabelBrush}"
                                                                HorizontalAlignment="Center"
                                                                VerticalAlignment="Center"
                                                                Text="{Binding Number, StringFormat=C{0}}" />
@@ -162,7 +164,8 @@
                     Command="{Binding RemoveTokenCommand, ElementName=Root}"
                     CommandParameter="{Binding RemoveTokenCommandParameter, ElementName=Root}"
                     ToolTip.Tip="Remove this combo from sequence">
-                <materialIcons:MaterialIcon Kind="Close" Width="12" Height="12" />
+                <materialIcons:MaterialIcon Kind="Close" Width="12" Height="12"
+                                            Foreground="{DynamicResource SukiLowText}" />
             </Button>
         </Grid>
     </Border>

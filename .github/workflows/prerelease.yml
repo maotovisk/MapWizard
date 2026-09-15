@@ -24,12 +24,15 @@ jobs:
   prepare:
     name: Prepare Pre-release
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     outputs:
       should_release: ${{ steps.metadata.outputs.should_release }}
       reason: ${{ steps.metadata.outputs.reason }}
       next_version: ${{ steps.metadata.outputs.next_version }}
       tag_name: ${{ steps.metadata.outputs.tag_name }}
       target_sha: ${{ steps.metadata.outputs.target_sha }}
+      is_retry: ${{ steps.metadata.outputs.is_retry }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
@@ -68,6 +71,7 @@ jobs:
           tag_name="${default_tag_name}"
           next_version="${default_next_version}"
           target_sha="${GITHUB_SHA}"
+          is_retry="false"
           trimmed_version=""
 
           if [[ "${EVENT_NAME}" == "workflow_dispatch" ]]; then
@@ -90,6 +94,7 @@ jobs:
               should_release="true"
               reason="Retrying existing release for ${tag_name}."
               target_sha="$(git rev-parse "refs/tags/${tag_name}^{commit}")"
+              is_retry="true"
 
               if [[ -z "${trimmed_version}" ]]; then
                 release_name="$(gh release view "${tag_name}" --json name --jq .name)"
@@ -111,9 +116,9 @@ jobs:
           echo "next_version=${next_version}" >> "$GITHUB_OUTPUT"
           echo "tag_name=${tag_name}" >> "$GITHUB_OUTPUT"
           echo "target_sha=${target_sha}" >> "$GITHUB_OUTPUT"
+          echo "is_retry=${is_retry}" >> "$GITHUB_OUTPUT"
           echo "should_release=${should_release}" >> "$GITHUB_OUTPUT"
           echo "reason=${reason}" >> "$GITHUB_OUTPUT"
-
 
   build:
     name: Build for ${{ matrix.os }}
@@ -195,9 +200,7 @@ jobs:
           files: |
             MapWizard-Pre-*/**/*
           fail_on_unmatched_files: true
-          body: |
-            Automated pre-release from `${{ github.ref_name }}`.
-            Version: `${{ needs.prepare.outputs.next_version }}`
+          generate_release_notes: ${{ needs.prepare.outputs.is_retry != 'true' }}
 
   skipped:
     name: Skip Pre-release

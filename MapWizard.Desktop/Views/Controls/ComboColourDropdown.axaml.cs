@@ -38,6 +38,9 @@ public partial class ComboColourDropdown : UserControl
     public static readonly StyledProperty<string> SelectedLabelProperty =
         AvaloniaProperty.Register<ComboColourDropdown, string>(nameof(SelectedLabel), "C1");
 
+    public static readonly StyledProperty<IBrush> SelectedLabelBrushProperty =
+        AvaloniaProperty.Register<ComboColourDropdown, IBrush>(nameof(SelectedLabelBrush), Brushes.Black);
+
     private bool _isUpdating;
 
     public IReadOnlyList<ComboColourOption>? Options
@@ -80,6 +83,12 @@ public partial class ComboColourDropdown : UserControl
     {
         get => GetValue(SelectedLabelProperty);
         set => SetValue(SelectedLabelProperty, value);
+    }
+
+    public IBrush SelectedLabelBrush
+    {
+        get => GetValue(SelectedLabelBrushProperty);
+        set => SetValue(SelectedLabelBrushProperty, value);
     }
 
     public ComboColourDropdown()
@@ -173,10 +182,12 @@ public partial class ComboColourDropdown : UserControl
         {
             SelectedPreviewBrush = new SolidColorBrush(Colors.White);
             SelectedLabel = "C?";
+            SelectedLabelBrush = Brushes.Black;
             return;
         }
 
         SelectedPreviewBrush = SelectedOption.PreviewBrush;
         SelectedLabel = $"C{SelectedOption.Number}";
+        SelectedLabelBrush = SelectedOption.LabelBrush;
     }
 }
