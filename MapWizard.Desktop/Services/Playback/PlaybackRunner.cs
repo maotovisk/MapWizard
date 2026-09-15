@@ -15,8 +15,8 @@ internal enum PlaybackRunnerStartResult
 
 internal sealed class PlaybackRunner(IAudioPlaybackService audioPlaybackService) : IDisposable
 {
-    private const int ClockSampleIntervalMs = 1;
-    private const int UiUpdateIntervalMs = 8;
+    private const int ClockSampleIntervalMs = 4;
+    private const int UiUpdateIntervalMs = 16;
     private const int ClockWarmupWindowMs = 300;
     private const int ClockWarmupJumpToleranceMs = 150;
 

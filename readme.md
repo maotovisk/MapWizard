@@ -64,6 +64,11 @@ Packaging scripts are in `MapWizard.Desktop/`:
 - `build-win.sh`
 - `build-win.bat`
 
+`MapWizard.Desktop/Assets/mapwizard.svg` is the source for the app logo and all
+packaged icons. After changing it, regenerate the PNG, ICO, and ICNS files with
+`python3 MapWizard.Desktop/Assets/generate-app-icons.py` (requires
+`rsvg-convert` and Pillow) before building a release.
+
 ## Config and Data Paths
 
 Settings file: `MainSettings.ini`

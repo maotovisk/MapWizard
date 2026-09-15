@@ -1,7 +1,6 @@
 using System;
 using System.IO;
 using Avalonia.Media.Imaging;
-using BeatmapParser;
 using CommunityToolkit.Mvvm.ComponentModel;
 using MapWizard.Desktop.Utils;
 
@@ -76,8 +75,7 @@ public class SelectedMap : ObservableObject
                 return;
             }
 
-            var beatmap = Beatmap.Decode(File.ReadAllText(fullPath));
-            var metadata = beatmap.MetadataSection;
+            var metadata = BeatmapCardInfoReader.Read(fullPath);
 
             var artist = StringValueUtils.FirstNonEmpty(metadata.Artist, metadata.ArtistUnicode, "Unknown Artist");
             var title = StringValueUtils.FirstNonEmpty(metadata.Title, metadata.TitleUnicode, "Unknown Title");
@@ -88,8 +86,7 @@ public class SelectedMap : ObservableObject
             DisplaySubtitle = $"[{difficulty}]";
             DisplayDetails = $"Mapped by {creator}";
 
-            var backgroundRelativePath = beatmap.GetBgFilename();
-            var resolvedBackgroundPath = MapsetAssetPathUtils.ResolveRelativePathFromBeatmap(fullPath, backgroundRelativePath);
+            var resolvedBackgroundPath = MapsetAssetPathUtils.ResolveRelativePathFromBeatmap(fullPath, metadata.BackgroundFilename);
             LoadBackgroundImage(resolvedBackgroundPath);
         }
         catch (Exception ex)
@@ -127,7 +124,7 @@ public class SelectedMap : ObservableObject
         try
         {
             var fullPath = System.IO.Path.GetFullPath(backgroundPath);
-            BackgroundImage = File.Exists(fullPath) ? new Bitmap(fullPath) : null;
+            BackgroundImage = File.Exists(fullPath) ? ArtworkBitmapUtils.DecodePreview(fullPath, 800) : null;
         }
         catch (Exception ex)
         {

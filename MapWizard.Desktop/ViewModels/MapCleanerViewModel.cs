@@ -18,7 +18,6 @@ using MapWizard.Desktop.Services.MapCleanerService;
 using MapWizard.Desktop.Services.MemoryService;
 using MapWizard.Desktop.Utils;
 using MapWizard.Tools.MapCleaner;
-using SukiUI.Dialogs;
 using SukiUI.Toasts;
 
 namespace MapWizard.Desktop.ViewModels;
@@ -29,7 +28,6 @@ public partial class MapCleanerViewModel(
     IOsuMemoryReaderService osuMemoryReaderService,
     ISettingsService settingsService,
     ISongLibraryService songLibraryService,
-    ISukiDialogManager dialogManager,
     IModalService modalService,
     ISukiToastManager toastManager) : ViewModelBase
 {
@@ -286,7 +284,7 @@ public partial class MapCleanerViewModel(
 
             if (!string.IsNullOrWhiteSpace(resolvedBackgroundPath) && File.Exists(resolvedBackgroundPath))
             {
-                HeaderBackgroundImage = new Bitmap(resolvedBackgroundPath);
+                HeaderBackgroundImage = ArtworkBitmapUtils.DecodePreview(resolvedBackgroundPath, 1200);
             }
         }
         catch (Exception ex)

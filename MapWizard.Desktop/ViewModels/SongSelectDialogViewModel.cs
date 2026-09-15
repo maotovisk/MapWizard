@@ -13,6 +13,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MapWizard.Desktop.Models.SongSelect;
 using MapWizard.Desktop.Services;
+using MapWizard.Desktop.Utils;
 
 namespace MapWizard.Desktop.ViewModels;
 
@@ -933,7 +934,7 @@ public partial class SongMapsetCardViewModel : ObservableObject, IDisposable
                 return null;
             }
 
-            return new Bitmap(fullPath);
+            return ArtworkBitmapUtils.DecodePreview(fullPath, 480);
         }
         catch (Exception ex)
         {

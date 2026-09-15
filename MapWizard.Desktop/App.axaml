@@ -17,13 +17,19 @@
         <StyleInclude Source="avares://Avalonia.Controls.ColorPicker/Themes/Fluent/Fluent.xaml" />
         <sukiUi:SukiTheme Locale="en-US" ThemeColor="Blue" />
         <materialIcons:MaterialIconStyles />
-        <!-- Keep button hover feedback short and avoid animating opacity or scale over image-backed views. -->
-        <Style Selector="Button">
+        <!-- SukiUI draws the tooltip shadow inside its popup; reserve space for the blur. -->
+        <Style Selector="ToolTip">
+            <Setter Property="Margin" Value="18" />
+        </Style>
+        <!-- Desktop interaction states should respond immediately. -->
+        <Style Selector="Button, ToggleButton, ListBoxItem, ComboBoxItem, MenuItem, TabItem, TreeViewItem">
             <Setter Property="Transitions">
-                <Transitions>
-                    <BrushTransition Property="Background" Duration="0:0:0.08" />
-                    <BrushTransition Property="BorderBrush" Duration="0:0:0.08" />
-                </Transitions>
+                <Transitions />
+            </Setter>
+        </Style>
+        <Style Selector="Button.WindowControlsButton">
+            <Setter Property="Transitions">
+                <Transitions />
             </Setter>
         </Style>
         <Style Selector="Button.Basic:pointerover, Button.Void:pointerover">

@@ -14,10 +14,14 @@ public sealed class ManagedBassPlaybackService : IAudioPlaybackService, IDisposa
     private const int PlaybackBufferLengthMs = 150;
     private const int UpdatePeriodMs = 15;
     private const int HitsoundSampleMaxVoices = 256;
+    private const int MaxCachedHitsoundSamples = 128;
     private const int SongClockCompensationMs = -40;
 
     private readonly Lock _sync = new();
     private readonly Dictionary<string, int> _hitsoundSampleCache = new(StringComparer.OrdinalIgnoreCase);
+    private readonly LinkedList<string> _hitsoundSampleCacheOrder = new();
+    private readonly Dictionary<string, LinkedListNode<string>> _hitsoundSampleCacheNodes =
+        new(StringComparer.OrdinalIgnoreCase);
 
     // Prevent the delegate from being garbage-collected while BASS holds a reference to it.
     private static readonly SyncProcedure HitsoundStreamEndSync = OnHitsoundStreamEnd;
@@ -375,11 +379,6 @@ public sealed class ManagedBassPlaybackService : IAudioPlaybackService, IDisposa
         {
             FreeSongStream();
 
-            foreach (var sampleHandle in _hitsoundSampleCache.Values)
-            {
-                _ = sampleHandle;
-            }
-
             FreeHitsoundSamples();
             ClearLoadedSongState();
 
@@ -465,6 +464,8 @@ public sealed class ManagedBassPlaybackService : IAudioPlaybackService, IDisposa
         }
 
         _hitsoundSampleCache.Clear();
+        _hitsoundSampleCacheOrder.Clear();
+        _hitsoundSampleCacheNodes.Clear();
     }
 
     private int GetOrLoadHitsoundSample(string filePath, string playbackBusKey)
@@ -473,6 +474,14 @@ public sealed class ManagedBassPlaybackService : IAudioPlaybackService, IDisposa
         var cacheKey = BuildHitsoundSampleCacheKey(fullPath, playbackBusKey);
         if (_hitsoundSampleCache.TryGetValue(cacheKey, out var existing))
         {
+            var node = _hitsoundSampleCacheNodes[cacheKey];
+            _hitsoundSampleCacheOrder.Remove(node);
+            _hitsoundSampleCacheOrder.AddLast(node);
+            if (_hitsoundSampleCache.Count > MaxCachedHitsoundSamples)
+            {
+                TrimHitsoundSampleCache(cacheKey);
+            }
+
             return existing;
         }
 
@@ -489,7 +498,47 @@ public sealed class ManagedBassPlaybackService : IAudioPlaybackService, IDisposa
         }
 
         _hitsoundSampleCache[cacheKey] = sampleHandle;
+        _hitsoundSampleCacheNodes[cacheKey] = _hitsoundSampleCacheOrder.AddLast(cacheKey);
+        TrimHitsoundSampleCache(cacheKey);
         return sampleHandle;
+    }
+
+    private void TrimHitsoundSampleCache(string protectedKey)
+    {
+        var entriesToCheck = _hitsoundSampleCacheOrder.Count;
+        while (_hitsoundSampleCache.Count > MaxCachedHitsoundSamples && entriesToCheck-- > 0)
+        {
+            var node = _hitsoundSampleCacheOrder.First!;
+            var cacheKey = node.Value;
+            if (string.Equals(cacheKey, protectedKey, StringComparison.OrdinalIgnoreCase))
+            {
+                _hitsoundSampleCacheOrder.Remove(node);
+                _hitsoundSampleCacheOrder.AddLast(node);
+                continue;
+            }
+
+            var sampleHandle = _hitsoundSampleCache[cacheKey];
+            var channels = Bass.SampleGetChannels(sampleHandle);
+            if (channels is null || channels.Length > 0)
+            {
+                _hitsoundSampleCacheOrder.Remove(node);
+                _hitsoundSampleCacheOrder.AddLast(node);
+                continue;
+            }
+
+            if (Bass.SampleFree(sampleHandle))
+            {
+                _hitsoundSampleCache.Remove(cacheKey);
+                _hitsoundSampleCacheNodes.Remove(cacheKey);
+                _hitsoundSampleCacheOrder.Remove(node);
+            }
+            else
+            {
+                _lastBassError = Bass.LastError;
+                _hitsoundSampleCacheOrder.Remove(node);
+                _hitsoundSampleCacheOrder.AddLast(node);
+            }
+        }
     }
 
     private static string BuildHitsoundSampleCacheKey(string fullPath, string playbackBusKey)

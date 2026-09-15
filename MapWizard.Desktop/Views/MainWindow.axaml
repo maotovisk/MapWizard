@@ -22,6 +22,7 @@
     MinHeight="600"
     Width="1280"
     Height="720"
+    Icon="/Assets/app-icon.png"
     Title="MapWizard">
 
     <suki:SukiWindow.Styles>
@@ -31,9 +32,6 @@
             <Setter Property="BorderThickness" Value="0" />
             <Setter Property="CornerRadius" Value="12" />
             <Setter Property="FocusAdorner" Value="{x:Null}" />
-            <Setter Property="Transitions">
-                <Transitions />
-            </Setter>
         </Style>
         <Style Selector="Button.NavButton:pointerover">
             <Setter Property="Background" Value="Transparent" />
@@ -92,7 +90,7 @@
     </suki:SukiWindow.Hosts>
 
     <suki:SukiWindow.LogoContent>
-        <Image Source="/Assets/app-icon.ico"
+        <Image Source="/Assets/app-icon.png"
                MaxWidth="26"
                Stretch="Uniform"
                RenderOptions.BitmapInterpolationMode="HighQuality" />

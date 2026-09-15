@@ -1,0 +1,68 @@
+<svg width="1024" xmlns="http://www.w3.org/2000/svg" height="1024" id="screenshot-fc378a88-cf53-8048-8008-a49ea770ef2d" viewBox="-128 -108 1024 1024" style="-webkit-print-color-adjust::exact" xmlns:xlink="http://www.w3.org/1999/xlink" fill="none" version="1.1">
+  <g id="shape-fc378a88-cf53-8048-8008-a49ea770ef2d" style="fill:#000000" rx="0" ry="0">
+    <g id="shape-fc378a88-cf53-8048-8008-a49ea7716a12" style="display:none">
+      <g class="fills" id="fills-fc378a88-cf53-8048-8008-a49ea7716a12">
+        <rect rx="0" ry="0" x="-128" y="-108" transform="matrix(1.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000)" width="1024" height="1024" fill="none" style="fill:none">
+        </rect>
+      </g>
+    </g>
+    <g id="shape-fc378a88-cf53-8048-8008-a49ea7716a13">
+      <g class="fills" id="fills-fc378a88-cf53-8048-8008-a49ea7716a13">
+        <ellipse cx="384" cy="404.00000000000006" rx="443" ry="443.00000000000006" transform="matrix(1.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000)" style="fill:#151810">
+        </ellipse>
+      </g>
+    </g>
+    <g id="shape-fc378a88-cf53-8048-8008-a49ea7716a14">
+      <g class="fills" id="fills-fc378a88-cf53-8048-8008-a49ea7716a14">
+        <ellipse cx="384" cy="404" rx="460" ry="460" transform="matrix(1.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000)" fill="none" style="fill:none">
+        </ellipse>
+      </g>
+      <g fill="none" id="strokes-fc378a88-cf53-8048-8008-a4a51d357a1a-fc378a88-cf53-8048-8008-a49ea7716a14" class="strokes">
+        <g class="inner-stroke-shape" transform="matrix(1.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000)">
+          <defs>
+            <clipPath id="inner-stroke-render-55-fc378a88-cf53-8048-8008-a49ea7716a14-0">
+              <use href="#stroke-shape-render-55-fc378a88-cf53-8048-8008-a49ea7716a14-0">
+              </use>
+            </clipPath>
+            <ellipse cx="384" cy="404" rx="460" ry="460" style="fill:none;fill-opacity:none;stroke-width:72;stroke:#2a3020;stroke-opacity:1" id="stroke-shape-render-55-fc378a88-cf53-8048-8008-a49ea7716a14-0">
+            </ellipse>
+          </defs>
+          <use href="#stroke-shape-render-55-fc378a88-cf53-8048-8008-a49ea7716a14-0" clip-path="url(&#x27;#inner-stroke-render-55-fc378a88-cf53-8048-8008-a49ea7716a14-0&#x27;)">
+          </use>
+        </g>
+      </g>
+    </g>
+    <g id="shape-fc378a88-cf53-8048-8008-a49ea7719f69" style="fill:#000000" rx="0" ry="0">
+      <g id="shape-fc378a88-cf53-8048-8008-a49ea7719f6a">
+        <g class="fills" id="fills-fc378a88-cf53-8048-8008-a49ea7719f6a">
+          <rect rx="40" ry="40" x="315.8200198350656" y="148.32507438149568" transform="matrix(0.707107, 0.707107, -0.707107, 0.707107, 398.142136, -153.200144)" width="136.3599603298689" height="511.3498512370086" style="fill:#b8db87">
+          </rect>
+        </g>
+      </g>
+      <g id="shape-fc378a88-cf53-8048-8008-a49ea7719f6b">
+        <g class="fills" id="fills-fc378a88-cf53-8048-8008-a49ea7719f6b">
+          <rect rx="24" ry="24" x="478.7187053281933" y="233.4559699992816" transform="matrix(0.707107, 0.707107, -0.707107, 0.707107, 343.643001, -286.013176)" width="76.70247768555123" height="76.70247768555134" style="fill:#151810">
+          </rect>
+        </g>
+      </g>
+      <g id="shape-fc378a88-cf53-8048-8008-a49ea7719f6c">
+        <g class="fills" id="fills-fc378a88-cf53-8048-8008-a49ea7719f6c">
+          <rect rx="24" ry="24" x="317.94716600804617" y="268.16921755799603" transform="matrix(0.707107, 0.707107, -0.707107, 0.707107, 412.700460, -118.043401)" width="61.788107024472026" height="341.96521301474957" style="fill:#151810">
+          </rect>
+        </g>
+      </g>
+    </g>
+    <g id="shape-fc378a88-cf53-8048-8008-a49ea771e300">
+      <g class="fills" id="fills-fc378a88-cf53-8048-8008-a49ea771e300">
+        <path d="M516,565C541.0526733398438,607.9473876953125,541.0526733398438,607.9473876953125,584.0000610351562,632.9999389648438C541.0526733398438,658.0526123046875,541.0526733398438,658.0526123046875,516,701.0000610351562C490.9474182128906,658.0526123046875,490.9474182128906,658.0526123046875,447.9999694824219,633.0000610351562C490.94732666015625,607.9473876953125,490.94732666015625,607.9473876953125,516,565L516,565" style="fill:#f2f3ee;fill-opacity:1">
+        </path>
+      </g>
+    </g>
+    <g id="shape-fc378a88-cf53-8048-8008-a49ea7722d69">
+      <g class="fills" id="fills-fc378a88-cf53-8048-8008-a49ea7722d69">
+        <path d="M223.00013732910156,135.0000457763672C247.87811279296875,178.06651306152344,247.87811279296875,178.06651306152344,291.00018310546875,203.00001525878906C247.8776397705078,227.93333435058594,247.8776397705078,227.93333435058594,222.99996948242188,271.0000305175781C198.12205505371094,227.9332733154297,198.12205505371094,227.9332733154297,154.9999237060547,202.99998474121094C198.12184143066406,178.06663513183594,198.12184143066406,178.06663513183594,223.00013732910156,135.0000457763672L223.00013732910156,135.0000457763672" style="fill:#d3ff99;fill-opacity:1">
+        </path>
+      </g>
+    </g>
+  </g>
+</svg>

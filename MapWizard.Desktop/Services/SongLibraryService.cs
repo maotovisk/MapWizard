@@ -5,8 +5,6 @@ using System.Linq;
 using System.Runtime.Versioning;
 using System.Threading;
 using System.Threading.Tasks;
-using BeatmapParser;
-using BeatmapParser.Events;
 using MapWizard.Desktop.Models.SongSelect;
 using MapWizard.Desktop.Utils;
 using Microsoft.Win32;
@@ -16,12 +14,14 @@ namespace MapWizard.Desktop.Services;
 public sealed class SongLibraryService : ISongLibraryService
 {
     private static readonly TimeSpan CacheLifetime = TimeSpan.FromMinutes(3);
+    private const int MaxCachedMapsets = 256;
     private readonly SemaphoreSlim _scanGate = new(1, 1);
 
     private string? _cachedSongsPath;
     private DateTime _cachedAtUtc;
     private IReadOnlyList<string> _cachedMapsetDirectories = [];
     private readonly Dictionary<string, SongMapsetInfo?> _mapsetCache = new(StringComparer.OrdinalIgnoreCase);
+    private readonly Queue<string> _mapsetCacheOrder = new();
 
     public bool IsValidSongsPath(string? songsPath)
     {
@@ -68,6 +68,7 @@ public sealed class SongLibraryService : ISongLibraryService
             _cachedMapsetDirectories = [];
             _cachedAtUtc = DateTime.MinValue;
             _mapsetCache.Clear();
+            _mapsetCacheOrder.Clear();
         }
         finally
         {
@@ -101,6 +102,7 @@ public sealed class SongLibraryService : ISongLibraryService
             if (!string.Equals(_cachedSongsPath, normalizedSongsPath, StringComparison.OrdinalIgnoreCase))
             {
                 _mapsetCache.Clear();
+                _mapsetCacheOrder.Clear();
             }
 
             _cachedSongsPath = normalizedSongsPath;
@@ -155,6 +157,11 @@ public sealed class SongLibraryService : ISongLibraryService
             }
 
             _mapsetCache[normalizedPath] = parsedMapset;
+            _mapsetCacheOrder.Enqueue(normalizedPath);
+            while (_mapsetCacheOrder.Count > MaxCachedMapsets)
+            {
+                _mapsetCache.Remove(_mapsetCacheOrder.Dequeue());
+            }
             return parsedMapset;
         }
         finally
@@ -232,10 +239,14 @@ public sealed class SongLibraryService : ISongLibraryService
                 mapsetLastEditUtc = fileLastEditUtc;
             }
 
-            Beatmap? beatmap = null;
+            BeatmapCardInfo? cardInfo = null;
             try
             {
-                beatmap = Beatmap.Decode(new FileInfo(osuFile));
+                cardInfo = BeatmapCardInfoReader.Read(osuFile, cancellationToken);
+            }
+            catch (OperationCanceledException)
+            {
+                throw;
             }
             catch (Exception ex)
             {
@@ -243,27 +254,24 @@ public sealed class SongLibraryService : ISongLibraryService
                 // ignored
             }
 
-            if (beatmap is not null && string.IsNullOrWhiteSpace(artist))
+            if (cardInfo is { } info && string.IsNullOrWhiteSpace(artist))
             {
-                artist = StringValueUtils.FirstNonEmpty(beatmap.MetadataSection.Artist, beatmap.MetadataSection.ArtistUnicode);
+                artist = StringValueUtils.FirstNonEmpty(info.Artist, info.ArtistUnicode);
             }
 
-            if (beatmap is not null && string.IsNullOrWhiteSpace(title))
+            if (cardInfo is { } titleInfo && string.IsNullOrWhiteSpace(title))
             {
-                title = StringValueUtils.FirstNonEmpty(beatmap.MetadataSection.Title, beatmap.MetadataSection.TitleUnicode);
+                title = StringValueUtils.FirstNonEmpty(titleInfo.Title, titleInfo.TitleUnicode);
             }
 
-            if (beatmap is not null && string.IsNullOrWhiteSpace(creator))
+            if (cardInfo is { } creatorInfo && string.IsNullOrWhiteSpace(creator))
             {
-                creator = beatmap.MetadataSection.Creator;
+                creator = creatorInfo.Creator;
             }
 
-            if (beatmap is not null && string.IsNullOrWhiteSpace(backgroundPath))
+            if (cardInfo is { } backgroundInfo && string.IsNullOrWhiteSpace(backgroundPath))
             {
-                var backgroundRelativePath = beatmap.Events.EventList
-                    .OfType<Background>()
-                    .Select(background => background.Filename)
-                    .FirstOrDefault(filename => !string.IsNullOrWhiteSpace(filename));
+                var backgroundRelativePath = backgroundInfo.BackgroundFilename;
 
                 if (!string.IsNullOrWhiteSpace(backgroundRelativePath))
                 {
@@ -271,9 +279,9 @@ public sealed class SongLibraryService : ISongLibraryService
                 }
             }
 
-            var difficultyName = beatmap is null || string.IsNullOrWhiteSpace(beatmap.MetadataSection.Version)
+            var difficultyName = cardInfo is not { } difficultyInfo || string.IsNullOrWhiteSpace(difficultyInfo.Version)
                 ? Path.GetFileNameWithoutExtension(osuFile)
-                : beatmap.MetadataSection.Version;
+                : difficultyInfo.Version;
 
             difficulties.Add(new SongDifficultyInfo
             {

@@ -5,6 +5,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MapWizard.Desktop.Enums;
 using MapWizard.Desktop.Services;
+using Microsoft.Extensions.DependencyInjection;
 using SukiUI.Dialogs;
 using SukiUI.Toasts;
 
@@ -15,13 +16,14 @@ namespace MapWizard.Desktop.ViewModels
         public ISukiToastManager ToastManager { get; }
         public ISukiDialogManager DialogManager { get; }
 
-        private ViewModelBase HitSoundCopierViewModel { get; }
-        private ViewModelBase HitSoundVisualizerViewModel { get; }
-        private ViewModelBase MetadataManagerViewModel { get; }
-        private ViewModelBase ComboColourStudioViewModel { get; }
-        private ViewModelBase MapCleanerViewModel { get; }
-        private ViewModelBase WelcomePageViewModel { get; }
-        private ViewModelBase SettingsPageViewModel { get; }
+        private readonly IServiceProvider _services;
+        private HitSoundCopierViewModel? _hitSoundCopierViewModel;
+        private HitSoundVisualizerViewModel? _hitSoundVisualizerViewModel;
+        private MetadataManagerViewModel? _metadataManagerViewModel;
+        private ComboColourStudioViewModel? _comboColourStudioViewModel;
+        private MapCleanerViewModel? _mapCleanerViewModel;
+        private readonly WelcomePageViewModel _welcomePageViewModel;
+        private readonly SettingsViewModel _settingsViewModel;
 
         [ObservableProperty]
         private string _version = "MapWizard-localdev";
@@ -55,26 +57,18 @@ namespace MapWizard.Desktop.ViewModels
 
         public MainWindowViewModel(
             WelcomePageViewModel welcomePageViewModel,
-            HitSoundCopierViewModel hitSoundCopierViewModel,
-            HitSoundVisualizerViewModel hitSoundVisualizerViewModel,
-            MetadataManagerViewModel metadataManagerViewModel,
-            ComboColourStudioViewModel comboColourStudioViewModel,
-            MapCleanerViewModel mapCleanerViewModel,
             SettingsViewModel settingsViewModel,
             IUpdateService updateService,
             ISukiToastManager toastManager,
-            ISukiDialogManager dialogManager)
+            ISukiDialogManager dialogManager,
+            IServiceProvider services)
         {
+            _services = services;
             ToastManager = toastManager;
             DialogManager = dialogManager;
-            HitSoundCopierViewModel = hitSoundCopierViewModel;
-            HitSoundVisualizerViewModel = hitSoundVisualizerViewModel;
-            MetadataManagerViewModel = metadataManagerViewModel;
-            ComboColourStudioViewModel = comboColourStudioViewModel;
-            MapCleanerViewModel = mapCleanerViewModel;
-            WelcomePageViewModel = welcomePageViewModel;
-            SettingsPageViewModel = settingsViewModel;
-            CurrentPageViewModel = WelcomePageViewModel;
+            _welcomePageViewModel = welcomePageViewModel;
+            _settingsViewModel = settingsViewModel;
+            CurrentPageViewModel = _welcomePageViewModel;
 
             Version = updateService.VersionLabel;
 
@@ -110,14 +104,14 @@ namespace MapWizard.Desktop.ViewModels
 
             CurrentPageViewModel = page switch
             {
-                NavigationPage.Welcome => WelcomePageViewModel,
-                NavigationPage.HitSoundCopier => HitSoundCopierViewModel,
-                NavigationPage.HitSoundVisualizer => HitSoundVisualizerViewModel,
-                NavigationPage.MetadataManager => MetadataManagerViewModel,
-                NavigationPage.ComboColourStudio => ComboColourStudioViewModel,
-                NavigationPage.MapCleaner => MapCleanerViewModel,
-                NavigationPage.Settings => SettingsPageViewModel,
-                _ => WelcomePageViewModel
+                NavigationPage.Welcome => _welcomePageViewModel,
+                NavigationPage.HitSoundCopier => _hitSoundCopierViewModel ??= _services.GetRequiredService<HitSoundCopierViewModel>(),
+                NavigationPage.HitSoundVisualizer => _hitSoundVisualizerViewModel ??= _services.GetRequiredService<HitSoundVisualizerViewModel>(),
+                NavigationPage.MetadataManager => _metadataManagerViewModel ??= _services.GetRequiredService<MetadataManagerViewModel>(),
+                NavigationPage.ComboColourStudio => _comboColourStudioViewModel ??= _services.GetRequiredService<ComboColourStudioViewModel>(),
+                NavigationPage.MapCleaner => _mapCleanerViewModel ??= _services.GetRequiredService<MapCleanerViewModel>(),
+                NavigationPage.Settings => _settingsViewModel,
+                _ => _welcomePageViewModel
             };
 
             IsWelcomeSelected = page == NavigationPage.Welcome;
@@ -216,7 +210,7 @@ namespace MapWizard.Desktop.ViewModels
         {
             IsHitSoundVisualizerEnabled = isEnabled;
 
-            if (!isEnabled && CurrentPageViewModel == HitSoundVisualizerViewModel)
+            if (!isEnabled && CurrentPageViewModel == _hitSoundVisualizerViewModel)
             {
                 SetPage(NavigationPage.Welcome);
             }

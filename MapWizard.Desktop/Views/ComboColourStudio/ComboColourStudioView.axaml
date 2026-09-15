@@ -26,11 +26,6 @@
     <UserControl.Styles>
         <Style Selector="Border.ColourPointCard">
             <Setter Property="Background" Value="Transparent" />
-            <Setter Property="Transitions">
-                <Transitions>
-                    <BrushTransition Property="Background" Duration="0:0:0.2" />
-                </Transitions>
-            </Setter>
         </Style>
 
         <Style Selector="Border.ColourPointCard.latest">
@@ -48,13 +43,6 @@
             <Setter Property="BorderBrush" Value="Transparent" />
             <Setter Property="Background" Value="Transparent" />
             <Setter Property="Opacity" Value="1" />
-            <Setter Property="Transitions">
-                <Transitions>
-                    <BrushTransition Property="Background" Duration="0:0:0.12" />
-                    <BrushTransition Property="BorderBrush" Duration="0:0:0.12" />
-                    <DoubleTransition Property="Opacity" Duration="0:0:0.12" />
-                </Transitions>
-            </Setter>
         </Style>
 
         <Style Selector="Border.SequenceTokenDragHost.drag-over">

@@ -24,7 +24,6 @@ using MapWizard.Desktop.Services.Playback;
 using MapWizard.Desktop.Utils;
 using MapWizard.Tools.HitSounds.Event;
 using MapWizard.Tools.HitSounds.Timeline;
-using SukiUI.Dialogs;
 using SukiUI.Toasts;
 
 namespace MapWizard.Desktop.ViewModels;
@@ -36,7 +35,6 @@ public partial class HitSoundVisualizerViewModel(
     IOsuMemoryReaderService osuMemoryReaderService,
     ISettingsService settingsService,
     ISongLibraryService songLibraryService,
-    ISukiDialogManager dialogManager,
     IModalService modalService,
     ISukiToastManager toastManager) : ViewModelBase
 {

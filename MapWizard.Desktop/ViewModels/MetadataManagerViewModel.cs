@@ -20,7 +20,6 @@ using MapWizard.Desktop.Services.MemoryService;
 using MapWizard.Desktop.Services.MetadataService;
 using MapWizard.Desktop.Utils;
 using MapWizard.Tools.MetadataManager;
-using SukiUI.Dialogs;
 using SukiUI.Toasts;
 using Color = System.Drawing.Color;
 
@@ -32,7 +31,6 @@ public partial class MetadataManagerViewModel(
     IOsuMemoryReaderService osuMemoryReaderService,
     ISettingsService settingsService,
     ISongLibraryService songLibraryService,
-    ISukiDialogManager dialogManager,
     IModalService modalService,
     ISukiToastManager toastManager) : ViewModelBase
 {
@@ -438,7 +436,7 @@ public partial class MetadataManagerViewModel(
 
         if (!string.IsNullOrWhiteSpace(resolvedBackgroundPath) && File.Exists(resolvedBackgroundPath))
         {
-            HeaderBackgroundImage = new Bitmap(resolvedBackgroundPath);
+            HeaderBackgroundImage = ArtworkBitmapUtils.DecodePreview(resolvedBackgroundPath, 1200);
         }
     }
 

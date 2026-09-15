@@ -890,7 +890,7 @@ public partial class ComboColourStudioViewModel(
 
             if (!string.IsNullOrWhiteSpace(backgroundPath) && File.Exists(backgroundPath))
             {
-                HeaderBackgroundImage = new Bitmap(backgroundPath);
+                HeaderBackgroundImage = ArtworkBitmapUtils.DecodePreview(backgroundPath, 1200);
                 _ = LoadSuggestedColoursAsync(backgroundPath, generation);
             }
         }
