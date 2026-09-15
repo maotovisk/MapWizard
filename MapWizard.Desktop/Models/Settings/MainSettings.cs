@@ -5,6 +5,9 @@ public class MainSettings
     [Setting("General", "ThemeMode")]
     public ThemeMode ThemeMode { get; set; } = ThemeMode.System;
 
+    [Setting("Appearance", "ColorPalette")]
+    public ThemePalette ColorPalette { get; set; } = ThemePalette.MapWizardNoir;
+
     [Setting("General", "SongsPath")]
     public string SongsPath { get; set; } = string.Empty;
 

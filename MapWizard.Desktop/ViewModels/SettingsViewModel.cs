@@ -31,6 +31,9 @@ public partial class SettingsViewModel(
     
     [ObservableProperty]
     private ThemeMode _selectedThemeMode;
+
+    [ObservableProperty]
+    private ThemePaletteOption? _selectedColorPalette;
     
     [ObservableProperty]
     private UpdateStream _updateStream;
@@ -68,12 +71,39 @@ public partial class SettingsViewModel(
     public string ConfigDirectoryPath { get; } = settingsService.ConfigDirectoryPath;
     public UpdateStream[] UpdateStreams { get; } = [UpdateStream.Release, UpdateStream.PreRelease];
     public ThemeMode[] ThemeModes { get; } = [ThemeMode.System, ThemeMode.Light, ThemeMode.Dark];
+    public IReadOnlyList<ThemePaletteOption> ColorPalettes { get; } =
+    [
+        new(
+            ThemePalette.MapWizardNoir,
+            "MapWizard Noir",
+            Avalonia.Media.Color.Parse("#0A0A0A"),
+            Avalonia.Media.Color.Parse("#1A1A1A"),
+            Avalonia.Media.Color.Parse("#B8DB87"),
+            Avalonia.Media.Color.Parse("#EEEEEE"),
+            Avalonia.Media.Color.Parse("#F7F9FA"),
+            Avalonia.Media.Color.Parse("#FFFFFF"),
+            Avalonia.Media.Color.Parse("#5F7488"),
+            Avalonia.Media.Color.Parse("#20272D")),
+        new(
+            ThemePalette.MapWizardClassic,
+            "MapWizard Classic",
+            Avalonia.Media.Color.Parse("#1B1B2F"),
+            Avalonia.Media.Color.Parse("#292842"),
+            Avalonia.Media.Color.Parse("#483D8B"),
+            Avalonia.Media.Color.Parse("#F4F1FA"),
+            Avalonia.Media.Color.Parse("#F7F6FC"),
+            Avalonia.Media.Color.Parse("#FFFFFF"),
+            Avalonia.Media.Color.Parse("#483D8B"),
+            Avalonia.Media.Color.Parse("#272337"))
+    ];
 
     public void Initialize()
     {
         LoadMainSettingsValues();
         UpdateThemeState(themeService.ThemeMode);
+        UpdateColorPaletteState(themeService.ColorPalette);
         themeService.ThemeModeChanged += OnThemeModeChanged;
+        themeService.ColorPaletteChanged += OnColorPaletteChanged;
         UpdateStream = updateService.CurrentStream;
         InitializeSongsPath();
         LoadAudioOutputDevices();
@@ -90,6 +120,11 @@ public partial class SettingsViewModel(
         UpdateThemeState(themeMode);
     }
 
+    private void OnColorPaletteChanged(object? sender, ThemePalette colorPalette)
+    {
+        UpdateColorPaletteState(colorPalette);
+    }
+
     partial void OnSelectedThemeModeChanged(ThemeMode value)
     {
         if (_isUpdatingFromThemeService)
@@ -100,10 +135,27 @@ public partial class SettingsViewModel(
         themeService.SetThemeMode(value);
     }
 
+    partial void OnSelectedColorPaletteChanged(ThemePaletteOption? value)
+    {
+        if (_isUpdatingFromThemeService || value is null)
+        {
+            return;
+        }
+
+        themeService.SetColorPalette(value.Value);
+    }
+
     private void UpdateThemeState(ThemeMode themeMode)
     {
         _isUpdatingFromThemeService = true;
         SelectedThemeMode = themeMode;
+        _isUpdatingFromThemeService = false;
+    }
+
+    private void UpdateColorPaletteState(ThemePalette colorPalette)
+    {
+        _isUpdatingFromThemeService = true;
+        SelectedColorPalette = ColorPalettes.First(palette => palette.Value == colorPalette);
         _isUpdatingFromThemeService = false;
     }
 

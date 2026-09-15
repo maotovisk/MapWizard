@@ -3,7 +3,6 @@ using System.ComponentModel;
 using Avalonia.Controls.Notifications;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Material.Icons;
 using MapWizard.Desktop.Enums;
 using MapWizard.Desktop.Services;
 using SukiUI.Dialogs;
@@ -16,9 +15,6 @@ namespace MapWizard.Desktop.ViewModels
         public ISukiToastManager ToastManager { get; }
         public ISukiDialogManager DialogManager { get; }
 
-        private readonly IThemeService _themeService;
-        private bool _isUpdatingFromThemeService;
-
         private ViewModelBase HitSoundCopierViewModel { get; }
         private ViewModelBase HitSoundVisualizerViewModel { get; }
         private ViewModelBase MetadataManagerViewModel { get; }
@@ -28,13 +24,7 @@ namespace MapWizard.Desktop.ViewModels
         private ViewModelBase SettingsPageViewModel { get; }
 
         [ObservableProperty]
-        private bool _isDarkTheme;
-
-        [ObservableProperty]
         private string _version = "MapWizard-localdev";
-
-        [ObservableProperty]
-        private MaterialIconKind _themeToggleIcon;
 
         [ObservableProperty]
         private ViewModelBase _currentPageViewModel;
@@ -63,17 +53,6 @@ namespace MapWizard.Desktop.ViewModels
         [ObservableProperty]
         private bool _isSettingsSelected;
 
-        partial void OnIsDarkThemeChanged(bool value)
-        {
-            ThemeToggleIcon = value ? MaterialIconKind.WeatherNight : MaterialIconKind.WhiteBalanceSunny;
-            if (_isUpdatingFromThemeService)
-            {
-                return;
-            }
-
-            _themeService.SetDarkTheme(value);
-        }
-
         public MainWindowViewModel(
             WelcomePageViewModel welcomePageViewModel,
             HitSoundCopierViewModel hitSoundCopierViewModel,
@@ -82,12 +61,10 @@ namespace MapWizard.Desktop.ViewModels
             ComboColourStudioViewModel comboColourStudioViewModel,
             MapCleanerViewModel mapCleanerViewModel,
             SettingsViewModel settingsViewModel,
-            IThemeService themeService,
             IUpdateService updateService,
             ISukiToastManager toastManager,
             ISukiDialogManager dialogManager)
         {
-            _themeService = themeService;
             ToastManager = toastManager;
             DialogManager = dialogManager;
             HitSoundCopierViewModel = hitSoundCopierViewModel;
@@ -100,9 +77,6 @@ namespace MapWizard.Desktop.ViewModels
             CurrentPageViewModel = WelcomePageViewModel;
 
             Version = updateService.VersionLabel;
-
-            _themeService.DarkThemeChanged += OnDarkThemeChanged;
-            UpdateThemeState(_themeService.IsDarkTheme);
 
             SetPage(NavigationPage.Welcome);
             settingsViewModel.Initialize();
@@ -153,19 +127,6 @@ namespace MapWizard.Desktop.ViewModels
             IsComboColourStudioSelected = page == NavigationPage.ComboColourStudio;
             IsMapCleanerSelected = page == NavigationPage.MapCleaner;
             IsSettingsSelected = page == NavigationPage.Settings;
-        }
-
-        private void OnDarkThemeChanged(object? sender, bool isDarkTheme)
-        {
-            UpdateThemeState(isDarkTheme);
-        }
-
-        private void UpdateThemeState(bool isDarkTheme)
-        {
-            _isUpdatingFromThemeService = true;
-            ThemeToggleIcon = isDarkTheme ? MaterialIconKind.WeatherNight : MaterialIconKind.WhiteBalanceSunny;
-            IsDarkTheme = isDarkTheme;
-            _isUpdatingFromThemeService = false;
         }
 
         [RelayCommand]

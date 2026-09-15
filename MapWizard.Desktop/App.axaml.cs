@@ -1,3 +1,4 @@
+using System;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
@@ -10,18 +11,24 @@ namespace MapWizard.Desktop;
 
 public partial class App : Application
 {
+    private ServiceProvider? _services;
+
     public override void Initialize()
     {
+        var collection = new ServiceCollection();
+        collection.AddCommonServices();
+        _services = collection.BuildServiceProvider();
+
+        var settings = _services.GetRequiredService<ISettingsService>().GetMainSettings();
+        RequestedThemeVariant = ThemeService.ToThemeVariant(settings.ThemeMode);
+
         AvaloniaXamlLoader.Load(this);
+        _services.GetRequiredService<IThemeService>().Initialize();
     }
 
     public override void OnFrameworkInitializationCompleted()
     {
-        var collection = new ServiceCollection();
-        collection.AddCommonServices();
-        var services = collection.BuildServiceProvider();
-        services.GetRequiredService<IThemeService>().Initialize();
-
+        var services = _services ?? throw new InvalidOperationException("Application services were not initialized.");
         var mainWindow = services.GetRequiredService<MainWindow>();
 
         switch (ApplicationLifetime)
@@ -33,8 +40,7 @@ public partial class App : Application
                 singleViewPlatform.MainView = mainWindow;
                 break;
         }
-        
+
         base.OnFrameworkInitializationCompleted();
     }
-    
 }

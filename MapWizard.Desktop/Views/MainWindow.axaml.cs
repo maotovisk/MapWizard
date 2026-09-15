@@ -1,6 +1,7 @@
 using Avalonia.Interactivity;
 using Avalonia.Input;
 using MapWizard.Desktop.Controls;
+using MapWizard.Desktop.Models.Settings;
 using MapWizard.Desktop.Services;
 using MapWizard.Desktop.ViewModels;
 using SukiUI.Enums;
@@ -33,15 +34,9 @@ namespace MapWizard.Desktop.Views
             _modalService = modalService;
             modalService.RegisterHost(ModalHost);
             _themeService.DarkThemeChanged += OnDarkThemeChanged;
-            UpdateBackgroundStyle(_themeService.IsDarkTheme);
+            _themeService.ColorPaletteChanged += OnColorPaletteChanged;
+            UpdateBackgroundStyle();
             AddHandler(KeyDownEvent, OnWindowKeyDownTunnel, RoutingStrategies.Tunnel, handledEventsToo: true);
-        }
-
-        protected override void OnLoaded(RoutedEventArgs e)
-        {
-            base.OnLoaded(e);
-            _themeService.Initialize();
-            UpdateBackgroundStyle(_themeService.IsDarkTheme);
         }
 
         private MainWindowViewModel ViewModel => (MainWindowViewModel)DataContext!;
@@ -58,13 +53,23 @@ namespace MapWizard.Desktop.Views
 
         private void OnDarkThemeChanged(object? sender, bool isDarkTheme)
         {
-            UpdateBackgroundStyle(isDarkTheme);
+            UpdateBackgroundStyle();
         }
 
-        private void UpdateBackgroundStyle(bool isDarkTheme)
+        private void OnColorPaletteChanged(object? sender, ThemePalette colorPalette)
         {
-            BackgroundStyle = isDarkTheme ? SukiBackgroundStyle.GradientDarker : SukiBackgroundStyle.Gradient;
-            BackgroundShaderCode = isDarkTheme ? AmoledBackgroundShaderCode : null;
+            UpdateBackgroundStyle();
+        }
+
+        private void UpdateBackgroundStyle()
+        {
+            BackgroundStyle = _themeService.IsDarkTheme
+                ? SukiBackgroundStyle.GradientDarker
+                : SukiBackgroundStyle.Gradient;
+            BackgroundShaderCode = _themeService.IsDarkTheme &&
+                                   _themeService.ColorPalette == ThemePalette.MapWizardNoir
+                ? AmoledBackgroundShaderCode
+                : null;
         }
 
         private async void OnWindowKeyDownTunnel(object? sender, KeyEventArgs e)

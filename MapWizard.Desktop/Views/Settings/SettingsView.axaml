@@ -5,6 +5,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:vm="clr-namespace:MapWizard.Desktop.ViewModels"
     xmlns:controls="clr-namespace:MapWizard.Desktop.Views.Controls"
+    xmlns:settingsModels="clr-namespace:MapWizard.Desktop.Models.Settings"
     xmlns:suki="clr-namespace:SukiUI.Controls;assembly=SukiUI"
     xmlns:objectModel="clr-namespace:System.Collections.ObjectModel;assembly=System.ObjectModel"
     x:Class="MapWizard.Desktop.Views.Settings.SettingsView"
@@ -13,27 +14,126 @@
     d:DesignHeight="450"
     mc:Ignorable="d"
     Padding="24">
+    <UserControl.Styles>
+        <Style Selector="ListBox.palette-list">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Padding" Value="0" />
+        </Style>
+        <Style Selector="ListBox.palette-list ListBoxItem">
+            <Setter Property="Width" Value="224" />
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="Margin" Value="0,0,10,10" />
+            <Setter Property="Background" Value="{DynamicResource SukiCardBackground}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource SukiControlBorderBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="9" />
+            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+            <Setter Property="FocusAdorner" Value="{x:Null}" />
+        </Style>
+        <Style Selector="ListBox.palette-list ListBoxItem:pointerover">
+            <Setter Property="BorderBrush" Value="{DynamicResource SukiLowText}" />
+        </Style>
+        <Style Selector="ListBox.palette-list ListBoxItem:selected">
+            <Setter Property="BorderBrush" Value="{DynamicResource ThemeAccentBrush}" />
+            <Setter Property="BorderThickness" Value="2" />
+        </Style>
+        <Style Selector="ListBox.palette-list ListBoxItem:focus">
+            <Setter Property="BorderBrush" Value="{DynamicResource ThemeAccentBrush}" />
+        </Style>
+    </UserControl.Styles>
+
     <suki:SettingsLayout>
         <suki:SettingsLayout.Items>
             <objectModel:ObservableCollection x:TypeArguments="suki:SettingsLayoutItem">
-                <suki:SettingsLayoutItem Header="General">
+                <suki:SettingsLayoutItem Header="Appearance">
                     <suki:SettingsLayoutItem.Content>
                         <StackPanel Spacing="20">
                             <Grid ColumnDefinitions="*,Auto" VerticalAlignment="Center">
-                                <StackPanel Spacing="4">
-                                    <TextBlock Text="Theme" FontWeight="Bold" />
-                                    <TextBlock Text="Choose System to follow your operating system theme, or force Light/Dark."
-                                               TextWrapping="Wrap" />
-                                </StackPanel>
+                                <TextBlock Text="Variant" FontWeight="Bold" VerticalAlignment="Center" />
                                 <controls:AppDropdown Grid.Column="1"
                                                       MinWidth="140"
                                                       FlyoutMinWidth="180"
                                                       FlyoutMaxHeight="280"
-                                                      PlaceholderText="Select theme mode"
+                                                      PlaceholderText="Select variant"
                                                       ItemsSource="{Binding ThemeModes}"
                                                       SelectedItem="{Binding SelectedThemeMode, Mode=TwoWay}" />
                             </Grid>
 
+                            <StackPanel Spacing="10">
+                                <TextBlock Text="Color palette" FontWeight="Bold" />
+                                <ListBox Classes="palette-list"
+                                         ItemsSource="{Binding ColorPalettes}"
+                                         SelectedItem="{Binding SelectedColorPalette, Mode=TwoWay}"
+                                         SelectionMode="Single"
+                                         ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                                    <ListBox.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <WrapPanel Orientation="Horizontal" />
+                                        </ItemsPanelTemplate>
+                                    </ListBox.ItemsPanel>
+                                    <ListBox.ItemTemplate>
+                                        <DataTemplate x:DataType="settingsModels:ThemePaletteOption">
+                                            <Grid RowDefinitions="92,Auto">
+                                                <Border CornerRadius="7,7,0,0" ClipToBounds="True">
+                                                    <Grid ColumnDefinitions="*,*">
+                                                        <Border Background="{Binding DarkBackgroundBrush}">
+                                                            <Grid Margin="9" RowDefinitions="12,*">
+                                                                <StackPanel Orientation="Horizontal" Spacing="3">
+                                                                    <Border Width="5" Height="5" CornerRadius="3" Background="{Binding DarkAccentBrush}" />
+                                                                    <Border Width="28" Height="4" CornerRadius="2" Background="{Binding DarkTextBrush}" Opacity="0.48" />
+                                                                </StackPanel>
+                                                                <Border Grid.Row="1"
+                                                                        Margin="0,5,0,0"
+                                                                        Padding="7"
+                                                                        CornerRadius="5"
+                                                                        Background="{Binding DarkSurfaceBrush}">
+                                                                    <StackPanel Spacing="6">
+                                                                        <Border Height="6" CornerRadius="3" Background="{Binding DarkAccentBrush}" />
+                                                                        <Border Width="55" Height="4" CornerRadius="2" HorizontalAlignment="Left" Background="{Binding DarkTextBrush}" Opacity="0.72" />
+                                                                        <Border Width="38" Height="4" CornerRadius="2" HorizontalAlignment="Left" Background="{Binding DarkTextBrush}" Opacity="0.38" />
+                                                                    </StackPanel>
+                                                                </Border>
+                                                            </Grid>
+                                                        </Border>
+
+                                                        <Border Grid.Column="1" Background="{Binding LightBackgroundBrush}">
+                                                            <Grid Margin="9" RowDefinitions="12,*">
+                                                                <StackPanel Orientation="Horizontal" Spacing="3">
+                                                                    <Border Width="5" Height="5" CornerRadius="3" Background="{Binding LightAccentBrush}" />
+                                                                    <Border Width="28" Height="4" CornerRadius="2" Background="{Binding LightTextBrush}" Opacity="0.40" />
+                                                                </StackPanel>
+                                                                <Border Grid.Row="1"
+                                                                        Margin="0,5,0,0"
+                                                                        Padding="7"
+                                                                        CornerRadius="5"
+                                                                        Background="{Binding LightSurfaceBrush}">
+                                                                    <StackPanel Spacing="6">
+                                                                        <Border Height="6" CornerRadius="3" Background="{Binding LightAccentBrush}" />
+                                                                        <Border Width="55" Height="4" CornerRadius="2" HorizontalAlignment="Left" Background="{Binding LightTextBrush}" Opacity="0.66" />
+                                                                        <Border Width="38" Height="4" CornerRadius="2" HorizontalAlignment="Left" Background="{Binding LightTextBrush}" Opacity="0.32" />
+                                                                    </StackPanel>
+                                                                </Border>
+                                                            </Grid>
+                                                        </Border>
+                                                    </Grid>
+                                                </Border>
+                                                <TextBlock Grid.Row="1"
+                                                           Margin="10,8"
+                                                           Text="{Binding Name}"
+                                                           FontWeight="SemiBold" />
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ListBox.ItemTemplate>
+                                </ListBox>
+                            </StackPanel>
+                        </StackPanel>
+                    </suki:SettingsLayoutItem.Content>
+                </suki:SettingsLayoutItem>
+
+                <suki:SettingsLayoutItem Header="General">
+                    <suki:SettingsLayoutItem.Content>
+                        <StackPanel Spacing="20">
                             <Grid ColumnDefinitions="*,Auto" VerticalAlignment="Center">
                                 <StackPanel Spacing="4">
                                     <TextBlock Text="Update Stream" FontWeight="Bold" />
