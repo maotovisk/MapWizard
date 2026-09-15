@@ -8,6 +8,9 @@ public class MainSettings
     [Setting("Appearance", "ColorPalette")]
     public ThemePalette ColorPalette { get; set; } = ThemePalette.MapWizardNoir;
 
+    [Setting("Appearance", "EnableSmoothWheelScrolling")]
+    public bool EnableSmoothWheelScrolling { get; set; } = true;
+
     [Setting("General", "SongsPath")]
     public string SongsPath { get; set; } = string.Empty;
 

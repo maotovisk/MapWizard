@@ -14,6 +14,7 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Input.Platform;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform.Storage;
+using Avalonia.Threading;
 using BeatmapParser;
 using BeatmapParser.Colours;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -60,6 +61,7 @@ public partial class ComboColourStudioViewModel(
     [ObservableProperty] private Bitmap? _headerBackgroundImage;
 
     [ObservableProperty] private string _backgroundImagePath = string.Empty;
+    [ObservableProperty] private IReadOnlyList<Avalonia.Media.Color> _suggestedColours = [];
     [NotifyPropertyChangedFor(nameof(OriginContextTopLine))]
     [ObservableProperty] private string _originArtist = string.Empty;
     [NotifyPropertyChangedFor(nameof(OriginContextTopLine))]
@@ -88,6 +90,7 @@ public partial class ComboColourStudioViewModel(
     private readonly HashSet<AvaloniaComboColourPoint> _observedColourPointItems = [];
     private readonly HashSet<AvaloniaComboColourToken> _observedColourPointTokens = [];
     private bool _suppressDirtyTracking;
+    private int _suggestionsGeneration;
 
     public bool HasHeaderBackgroundImage => HeaderBackgroundImage is not null;
     public bool HasOriginBeatmap => !string.IsNullOrWhiteSpace(OriginBeatmap.Path);
@@ -763,6 +766,8 @@ public partial class ComboColourStudioViewModel(
 
     private void ClearOriginBeatmapMetadata()
     {
+        _suggestionsGeneration++;
+        SuggestedColours = [];
         OriginArtist = string.Empty;
         OriginSongName = string.Empty;
         OriginDiffName = string.Empty;
@@ -873,6 +878,8 @@ public partial class ComboColourStudioViewModel(
 
     private void LoadBackgroundImage()
     {
+        var generation = ++_suggestionsGeneration;
+        SuggestedColours = [];
         try
         {
             var backgroundPath = comboColourStudioService.GetBackgroundPath(OriginBeatmap.Path);
@@ -884,6 +891,7 @@ public partial class ComboColourStudioViewModel(
             if (!string.IsNullOrWhiteSpace(backgroundPath) && File.Exists(backgroundPath))
             {
                 HeaderBackgroundImage = new Bitmap(backgroundPath);
+                _ = LoadSuggestedColoursAsync(backgroundPath, generation);
             }
         }
         catch (Exception ex)
@@ -892,6 +900,30 @@ public partial class ComboColourStudioViewModel(
             BackgroundImagePath = string.Empty;
             HeaderBackgroundImage?.Dispose();
             HeaderBackgroundImage = null;
+        }
+    }
+
+    private async Task LoadSuggestedColoursAsync(string backgroundPath, int generation)
+    {
+        try
+        {
+            var colours = await Task.Run(() =>
+                comboColourStudioService.GenerateProminentColours(backgroundPath, 8));
+            var suggestions = colours
+                .Select(colour => new Avalonia.Media.Color(255, colour.R, colour.G, colour.B))
+                .ToArray();
+
+            Dispatcher.UIThread.Post(() =>
+            {
+                if (generation == _suggestionsGeneration && BackgroundImagePath == backgroundPath)
+                {
+                    SuggestedColours = suggestions;
+                }
+            });
+        }
+        catch (Exception ex)
+        {
+            MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
         }
     }
 

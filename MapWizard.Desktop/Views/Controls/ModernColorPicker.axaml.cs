@@ -1,7 +1,10 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
+using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Media;
 
@@ -15,8 +18,14 @@ public partial class ModernColorPicker : UserControl
             Colors.White,
             defaultBindingMode: Avalonia.Data.BindingMode.TwoWay);
 
+    public static readonly StyledProperty<IReadOnlyList<Color>> SuggestedColoursProperty =
+        AvaloniaProperty.Register<ModernColorPicker, IReadOnlyList<Color>>(
+            nameof(SuggestedColours),
+            Array.Empty<Color>());
+
     private bool _isUpdatingFromControl;
     private bool _isUpdatingFromHex;
+    private HsvColor _currentHsv;
 
     public Color SelectedColor
     {
@@ -24,15 +33,21 @@ public partial class ModernColorPicker : UserControl
         set => SetValue(SelectedColorProperty, value);
     }
 
+    public IReadOnlyList<Color> SuggestedColours
+    {
+        get => GetValue(SuggestedColoursProperty);
+        set => SetValue(SuggestedColoursProperty, value);
+    }
+
     public ModernColorPicker()
     {
         InitializeComponent();
 
-        RedSlider.PropertyChanged += SliderOnPropertyChanged;
-        GreenSlider.PropertyChanged += SliderOnPropertyChanged;
-        BlueSlider.PropertyChanged += SliderOnPropertyChanged;
+        ColourSpectrum.PropertyChanged += SpectrumOnPropertyChanged;
+        HueSlider.PropertyChanged += HueSliderOnPropertyChanged;
 
         UpdateUiFromColor(SelectedColor);
+        UpdateSuggestedColours();
     }
 
     protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
@@ -43,28 +58,46 @@ public partial class ModernColorPicker : UserControl
         {
             UpdateUiFromColor(change.GetNewValue<Color>());
         }
+
+        else if (change.Property == SuggestedColoursProperty)
+        {
+            UpdateSuggestedColours();
+        }
     }
 
-    private void SliderOnPropertyChanged(object? sender, AvaloniaPropertyChangedEventArgs e)
+    private void SpectrumOnPropertyChanged(object? sender, AvaloniaPropertyChangedEventArgs e)
     {
-        if (e.Property != RangeBase.ValueProperty || _isUpdatingFromControl)
+        if (e.Property != ColorSpectrum.HsvColorProperty || _isUpdatingFromControl)
         {
             return;
         }
 
-        _isUpdatingFromControl = true;
-        SelectedColor = Color.FromRgb(
-            (byte)Math.Clamp((int)RedSlider.Value, 0, 255),
-            (byte)Math.Clamp((int)GreenSlider.Value, 0, 255),
-            (byte)Math.Clamp((int)BlueSlider.Value, 0, 255));
-        _isUpdatingFromControl = false;
-
-        UpdateUiFromColor(SelectedColor);
+        SetColourFromPicker(ColourSpectrum.HsvColor);
     }
 
-    private void PresetColor_OnClick(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    private void HueSliderOnPropertyChanged(object? sender, AvaloniaPropertyChangedEventArgs e)
     {
-        if (sender is not Button { Tag: string hex } || !TryParseHexColor(hex, out var color))
+        if (e.Property != ColorSlider.HsvColorProperty || _isUpdatingFromControl)
+        {
+            return;
+        }
+
+        SetColourFromPicker(new HsvColor(1, HueSlider.HsvColor.H, _currentHsv.S, _currentHsv.V));
+    }
+
+    private void SetColourFromPicker(HsvColor hsv)
+    {
+        _currentHsv = new HsvColor(1, hsv.H, hsv.S, hsv.V);
+        _isUpdatingFromControl = true;
+        SelectedColor = _currentHsv.ToRgb();
+        _isUpdatingFromControl = false;
+
+        UpdateUiFromHsv(_currentHsv);
+    }
+
+    private void SuggestedColour_OnClick(object? sender, RoutedEventArgs e)
+    {
+        if (sender is not Button { Tag: Color color })
         {
             return;
         }
@@ -86,9 +119,13 @@ public partial class ModernColorPicker : UserControl
         }
     }
 
-    private void ApplyHexColor_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    private void HexTextBox_OnKeyDown(object? sender, KeyEventArgs e)
     {
-        ApplyHexColor();
+        if (e.Key == Key.Enter)
+        {
+            ApplyHexColor();
+            e.Handled = true;
+        }
     }
 
     private void HexTextBox_OnTextChanged(object? sender, TextChangedEventArgs e)
@@ -119,12 +156,18 @@ public partial class ModernColorPicker : UserControl
 
     private void UpdateUiFromColor(Color color)
     {
+        _currentHsv = new HsvColor(color);
+        UpdateUiFromHsv(_currentHsv);
+    }
+
+    private void UpdateUiFromHsv(HsvColor hsv)
+    {
         _isUpdatingFromControl = true;
         _isUpdatingFromHex = true;
 
-        RedSlider.Value = color.R;
-        GreenSlider.Value = color.G;
-        BlueSlider.Value = color.B;
+        ColourSpectrum.HsvColor = hsv;
+        HueSlider.HsvColor = hsv;
+        var color = hsv.ToRgb();
         var hexText = $"#{color.R:X2}{color.G:X2}{color.B:X2}";
         HexTextBox.Text = hexText;
         CompactHexText.Text = hexText;
@@ -133,6 +176,23 @@ public partial class ModernColorPicker : UserControl
 
         _isUpdatingFromHex = false;
         _isUpdatingFromControl = false;
+        UpdateSuggestedColours();
+    }
+
+    private void UpdateSuggestedColours()
+    {
+        if (SuggestedColoursItemsControl is null)
+        {
+            return;
+        }
+
+        var colours = SuggestedColours ?? Array.Empty<Color>();
+        SuggestedColoursSection.IsVisible = colours.Count > 0;
+        SuggestedColoursItemsControl.ItemsSource = colours
+            .Take(8)
+            .Select(color => new SuggestedColourSwatch(color, color.R == SelectedColor.R
+                && color.G == SelectedColor.G && color.B == SelectedColor.B))
+            .ToArray();
     }
 
     private static bool TryParseHexColor(string input, out Color color)
@@ -155,4 +215,10 @@ public partial class ModernColorPicker : UserControl
         color = Color.FromRgb(r, g, b);
         return true;
     }
+}
+
+public sealed record SuggestedColourSwatch(Color Color, bool IsSelected)
+{
+    public IBrush Brush { get; } = new SolidColorBrush(Color);
+    public string Hex { get; } = $"#{Color.R:X2}{Color.G:X2}{Color.B:X2}";
 }

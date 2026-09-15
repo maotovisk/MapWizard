@@ -2,6 +2,7 @@ using System;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
+using MapWizard.Desktop.Controls;
 using MapWizard.Desktop.DependencyInjection;
 using MapWizard.Desktop.Services;
 using MapWizard.Desktop.Views;
@@ -21,6 +22,7 @@ public partial class App : Application
 
         var settings = _services.GetRequiredService<ISettingsService>().GetMainSettings();
         RequestedThemeVariant = ThemeService.ToThemeVariant(settings.ThemeMode);
+        SmoothScrollViewer.SetGlobalSmoothScrollingEnabled(settings.EnableSmoothWheelScrolling);
 
         AvaloniaXamlLoader.Load(this);
         _services.GetRequiredService<IThemeService>().Initialize();

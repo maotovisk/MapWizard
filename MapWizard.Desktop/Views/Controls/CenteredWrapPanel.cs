@@ -19,6 +19,9 @@ public class CenteredWrapPanel : Panel
     public static readonly StyledProperty<bool> FillAvailableWidthProperty =
         AvaloniaProperty.Register<CenteredWrapPanel, bool>(nameof(FillAvailableWidth));
 
+    public static readonly StyledProperty<bool> AlignLinesRightProperty =
+        AvaloniaProperty.Register<CenteredWrapPanel, bool>(nameof(AlignLinesRight));
+
     public static readonly StyledProperty<double> MinimumItemWidthProperty =
         AvaloniaProperty.Register<CenteredWrapPanel, double>(nameof(MinimumItemWidth), 135d);
 
@@ -26,6 +29,7 @@ public class CenteredWrapPanel : Panel
     {
         AffectsMeasure<CenteredWrapPanel>(ItemSpacingProperty, MaxItemsPerLineProperty,
             ItemWidthProperty, FillAvailableWidthProperty, MinimumItemWidthProperty);
+        AffectsArrange<CenteredWrapPanel>(AlignLinesRightProperty);
     }
 
     public double ItemSpacing
@@ -50,6 +54,12 @@ public class CenteredWrapPanel : Panel
     {
         get => GetValue(FillAvailableWidthProperty);
         set => SetValue(FillAvailableWidthProperty, value);
+    }
+
+    public bool AlignLinesRight
+    {
+        get => GetValue(AlignLinesRightProperty);
+        set => SetValue(AlignLinesRightProperty, value);
     }
 
     public double MinimumItemWidth
@@ -128,7 +138,9 @@ public class CenteredWrapPanel : Panel
 
         foreach (var line in lines)
         {
-            var x = Math.Max(0d, (finalSize.Width - line.Width) / 2d);
+            var x = Math.Max(0d, AlignLinesRight
+                ? finalSize.Width - line.Width
+                : (finalSize.Width - line.Width) / 2d);
             foreach (var child in line.Children)
             {
                 var childSize = child.DesiredSize;

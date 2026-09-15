@@ -516,6 +516,7 @@
                       <controls:CenteredWrapPanel ItemSpacing="8"
                                                   MaxItemsPerLine="4"
                                                   ItemWidth="210"
+                                                  AlignLinesRight="{Binding !ShowDestinationSection, ElementName=Root}"
                                                   FillAvailableWidth="{Binding ShowDestinationSection, ElementName=Root}" />
                     </ItemsPanelTemplate>
                   </ItemsControl.ItemsPanel>

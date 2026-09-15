@@ -1,15 +1,20 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Platform.Storage;
+using Avalonia.Controls.Notifications;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using MapWizard.Desktop.Controls;
+using MapWizard.Desktop.Extensions;
 using MapWizard.Desktop.Models.Settings;
 using MapWizard.Desktop.Services;
 using MapWizard.Desktop.Services.Playback;
+using SukiUI.Toasts;
 using Velopack;
 
 namespace MapWizard.Desktop.ViewModels;
@@ -20,7 +25,8 @@ public partial class SettingsViewModel(
     IFilesService filesService,
     ISongLibraryService songLibraryService,
     IUpdateService updateService,
-    IAudioPlaybackService audioPlaybackService) : ViewModelBase
+    IAudioPlaybackService audioPlaybackService,
+    ISukiToastManager toastManager) : ViewModelBase
 {
     private bool _isUpdatingFromThemeService;
     private bool _isUpdatingSongsPath;
@@ -54,6 +60,9 @@ public partial class SettingsViewModel(
     private bool _isHitSoundVisualizerEnabled;
 
     [ObservableProperty]
+    private bool _isSmoothWheelScrollingEnabled = true;
+
+    [ObservableProperty]
     private int _audioPreviewSongVolumePercent = 80;
 
     [ObservableProperty]
@@ -69,6 +78,30 @@ public partial class SettingsViewModel(
     private string _audioOutputDeviceStatusText = "Using system default output device.";
 
     public string ConfigDirectoryPath { get; } = settingsService.ConfigDirectoryPath;
+
+    [RelayCommand]
+    private void OpenConfigDirectory()
+    {
+        if (!Directory.Exists(ConfigDirectoryPath))
+        {
+            toastManager.ShowToast(NotificationType.Warning, "Settings", "Config directory was not found.");
+            return;
+        }
+
+        try
+        {
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = ConfigDirectoryPath,
+                UseShellExecute = true
+            });
+        }
+        catch (Exception ex)
+        {
+            MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
+            toastManager.ShowToast(NotificationType.Error, "Settings", ex.Message);
+        }
+    }
     public UpdateStream[] UpdateStreams { get; } = [UpdateStream.Release, UpdateStream.PreRelease];
     public ThemeMode[] ThemeModes { get; } = [ThemeMode.System, ThemeMode.Light, ThemeMode.Dark];
     public IReadOnlyList<ThemePaletteOption> ColorPalettes { get; } =
@@ -187,6 +220,24 @@ public partial class SettingsViewModel(
         }
 
         SaveHitSoundVisualizerEnabled(value);
+    }
+
+    partial void OnIsSmoothWheelScrollingEnabledChanged(bool value)
+    {
+        SmoothScrollViewer.SetGlobalSmoothScrollingEnabled(value);
+        if (_isLoadingMainSettings)
+        {
+            return;
+        }
+
+        var settings = settingsService.GetMainSettings();
+        if (settings.EnableSmoothWheelScrolling == value)
+        {
+            return;
+        }
+
+        settings.EnableSmoothWheelScrolling = value;
+        settingsService.SaveMainSettings(settings);
     }
 
     partial void OnAudioPreviewSongVolumePercentChanged(int value)
@@ -413,6 +464,8 @@ public partial class SettingsViewModel(
         try
         {
             var settings = settingsService.GetMainSettings();
+            IsSmoothWheelScrollingEnabled = settings.EnableSmoothWheelScrolling;
+            SmoothScrollViewer.SetGlobalSmoothScrollingEnabled(settings.EnableSmoothWheelScrolling);
             IsHitSoundVisualizerEnabled = settings.EnableHitSoundVisualizer;
             AudioPreviewSongVolumePercent = Math.Clamp(settings.AudioPreviewSongVolumePercent, 0, 100);
             AudioPreviewHitSoundVolumePercent = Math.Clamp(settings.AudioPreviewHitSoundVolumePercent, 0, 100);
