@@ -43,6 +43,14 @@ internal static class GithubReleaseNotesService
 
     private static bool MatchesVersion(JsonElement release, string version)
     {
+        var tagName = release.GetProperty("tag_name").GetString();
+        if (string.Equals(tagName, version, StringComparison.OrdinalIgnoreCase)
+            || string.Equals(tagName, $"v{version}", StringComparison.OrdinalIgnoreCase))
+        {
+            return true;
+        }
+
+        // Date-based pre-release tags do not contain the package version.
         var name = release.GetProperty("name").GetString();
         return string.Equals(name, $"MapWizard pre-release {version}", StringComparison.OrdinalIgnoreCase)
                || string.Equals(name, $"MapWizard v{version}", StringComparison.OrdinalIgnoreCase);
