@@ -2,9 +2,11 @@ using System;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Controls.Notifications;
+using Avalonia.Layout;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.Input;
 using MapWizard.Desktop.Services;
+using MapWizard.Desktop.Views.Dialogs;
 using SukiUI.Dialogs;
 using SukiUI.Enums;
 using SukiUI.Toasts;
@@ -15,6 +17,7 @@ namespace MapWizard.Desktop.ViewModels;
 public partial class WelcomePageViewModel(
     ISukiDialogManager dialogManager,
     ISukiToastManager toastManager,
+    IModalService modalService,
     IUpdateService updateService) : ViewModelBase
 {
     public string Message { get; set; } = "Welcome to MapWizard, select a tool to get started!";
@@ -89,14 +92,61 @@ public partial class WelcomePageViewModel(
             return;
         }
 
+        await ShowUpdateAvailableModalAsync(newVersion);
+    }
+
+    private async Task ShowUpdateAvailableModalAsync(UpdateInfo info)
+    {
+        var content = new UpdateAvailableDialog();
+        content.Configure(info, updateService.VersionLabel);
+
+        var footerPanel = new StackPanel
+        {
+            Orientation = Orientation.Horizontal,
+            Spacing = 8,
+            HorizontalAlignment = HorizontalAlignment.Right
+        };
+
+        var laterButton = new Button { Content = "Later" };
+        laterButton.Classes.Add("Basic");
+        laterButton.Classes.Add("Compact");
+        laterButton.Click += async (_, _) => await modalService.CloseAsync(null);
+        footerPanel.Children.Add(laterButton);
+
+        var updateButton = new Button { Content = "Update" };
+        updateButton.Classes.Add("Flat");
+        updateButton.Classes.Add("Compact");
+        updateButton.Click += async (_, _) => await modalService.CloseAsync("Update");
+        footerPanel.Children.Add(updateButton);
+
+        object? result;
+        try
+        {
+            result = await modalService.ShowAsync(
+                new ModalRequest(content, "Update Available", footerPanel));
+        }
+        catch (InvalidOperationException)
+        {
+            ShowUpdateAvailableToast(info);
+            return;
+        }
+
+        if (result as string == "Update")
+        {
+            await ShowUpdateToastWithProgressAsync(info);
+        }
+    }
+
+    private void ShowUpdateAvailableToast(UpdateInfo info)
+    {
         toastManager.CreateToast()
             .OfType(NotificationType.Information)
             .WithTitle("Updates")
-            .WithContent($"New version {newVersion.TargetFullRelease.Version} is available.")
+            .WithContent($"New version {info.TargetFullRelease.Version} is available.")
             .WithActionButton("Later", _ => { }, true, SukiButtonStyles.Flat)
             .WithActionButton("Update", _toast =>
             {
-                _ = ShowUpdateToastWithProgressAsync(newVersion);
+                _ = ShowUpdateToastWithProgressAsync(info);
             }, true, SukiButtonStyles.Accent)
             .Dismiss().ByClicking()
             .Queue();

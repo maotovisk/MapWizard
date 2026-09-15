@@ -1,0 +1,45 @@
+<UserControl
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    d:DesignWidth="560"
+    d:DesignHeight="420"
+    x:Class="MapWizard.Desktop.Views.Dialogs.UpdateAvailableDialog"
+    MinWidth="440"
+    MaxWidth="620">
+
+    <StackPanel Spacing="12">
+        <StackPanel Spacing="3">
+            <TextBlock x:Name="VersionLine"
+                       Text="A new version is available."
+                       FontSize="16"
+                       FontWeight="Bold"
+                       TextWrapping="Wrap"
+                       Foreground="{DynamicResource SukiText}" />
+            <TextBlock x:Name="CurrentVersionLine"
+                       FontSize="12"
+                       Foreground="{DynamicResource SukiLowText}" />
+        </StackPanel>
+
+        <Border Height="1" Background="{DynamicResource SukiBorderBrush}" />
+
+        <StackPanel Spacing="6">
+            <TextBlock Text="Changelog" FontWeight="Bold" />
+            <Border Background="{DynamicResource MapWizardPickerSurface}"
+                    BorderBrush="{DynamicResource MapWizardPickerChipBorder}"
+                    BorderThickness="1"
+                    CornerRadius="10"
+                    Padding="12">
+                <ScrollViewer MaxHeight="260" HorizontalScrollBarVisibility="Disabled">
+                    <TextBlock x:Name="ChangelogText"
+                               TextWrapping="Wrap"
+                               FontSize="13"
+                               LineHeight="20"
+                               Foreground="{DynamicResource SukiText}" />
+                </ScrollViewer>
+            </Border>
+        </StackPanel>
+    </StackPanel>
+</UserControl>
