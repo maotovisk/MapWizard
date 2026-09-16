@@ -58,7 +58,11 @@ public static class MapPickerDialogUtils
         {
             _ = songSelectViewModel.InitializeAsync(dialogLifetimeCts.Token);
             var result = await modalService.ShowAsync(
-                new ModalRequest(dialogContent, title, footerPanel),
+                new ModalRequest(
+                    dialogContent,
+                    title,
+                    footerPanel,
+                    Presentation: ModalPresentation.MapPickerOverlay),
                 token);
             return result as IReadOnlyList<string>;
         }

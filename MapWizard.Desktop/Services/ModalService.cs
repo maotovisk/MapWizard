@@ -46,6 +46,7 @@ public sealed class ModalService : IModalService
         _host.ShowCloseButton = request.ShowCloseButton;
         _host.CloseOnBackdropClick = request.CloseOnBackdropClick;
         _host.CloseOnEscape = request.CloseOnEscape;
+        _host.Presentation = request.Presentation;
 
         using var registration = cancellationToken.Register(() => _ = CloseAsync(null));
 

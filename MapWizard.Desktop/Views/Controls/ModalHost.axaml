@@ -11,6 +11,36 @@
     x:Name="Root"
     IsVisible="False">
 
+    <UserControl.Styles>
+        <Style Selector="Border.ModalCard">
+            <Setter Property="HorizontalAlignment" Value="Center" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="MaxWidth" Value="1000" />
+            <Setter Property="Margin" Value="28" />
+            <Setter Property="Padding" Value="20" />
+            <Setter Property="CornerRadius" Value="18" />
+            <Setter Property="Background" Value="{DynamicResource MapWizardSurfaceOpaqueBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource MapWizardBorderBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="BoxShadow" Value="0 12 48 4 #99000000" />
+            <Setter Property="ClipToBounds" Value="True" />
+        </Style>
+
+        <Style Selector="Border.ModalCard.MapPickerOverlay">
+            <Setter Property="HorizontalAlignment" Value="Right" />
+            <Setter Property="VerticalAlignment" Value="Stretch" />
+            <Setter Property="MaxWidth" Value="620" />
+            <Setter Property="Margin" Value="0,54,14,14" />
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="CornerRadius" Value="0" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderBrush" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="BoxShadow" Value="0 0 0 0 #00000000" />
+            <Setter Property="ClipToBounds" Value="False" />
+        </Style>
+    </UserControl.Styles>
+
     <Panel>
         <Border x:Name="BackdropBorder"
                 Background="#000000"
@@ -23,19 +53,9 @@
         </Border>
 
         <Border x:Name="DialogCard"
-                HorizontalAlignment="Center"
-                VerticalAlignment="Center"
-                MaxWidth="1000"
-                Margin="28"
-                Padding="20"
-                CornerRadius="18"
+                Classes="ModalCard"
                 Opacity="0"
-                RenderTransform="scale(0.93)"
-                Background="{DynamicResource MapWizardSurfaceOpaqueBrush}"
-                BorderBrush="{DynamicResource MapWizardBorderBrush}"
-                BorderThickness="1"
-                BoxShadow="0 12 48 4 #99000000"
-                ClipToBounds="True">
+                RenderTransform="scale(0.93)">
             <Border.Transitions>
                 <Transitions>
                     <DoubleTransition Property="Opacity" Duration="0:0:0.28" />
@@ -47,7 +67,9 @@
                 </Transitions>
             </Border.Transitions>
             <Grid RowDefinitions="Auto,*,Auto">
-                <Grid ColumnDefinitions="*,Auto" Margin="4,0,4,0">
+                <Grid x:Name="HeaderGrid"
+                      ColumnDefinitions="*,Auto"
+                      Margin="4,0,4,0">
                     <TextBlock Text="{Binding Title, ElementName=Root}"
                                FontSize="18"
                                FontWeight="Bold"
@@ -64,7 +86,8 @@
                     </Button>
                 </Grid>
 
-                <ContentControl Grid.Row="1"
+                <ContentControl x:Name="DialogContentPresenter"
+                                Grid.Row="1"
                                 Margin="0,12,0,0"
                                 Content="{Binding DialogContent, ElementName=Root}"
                                 HorizontalContentAlignment="Stretch"

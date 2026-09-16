@@ -166,7 +166,9 @@
                 </Grid>
             </Border>
 
-        <Grid Grid.Row="1" ColumnDefinitions="96,*">
+        <Grid x:Name="AppContentLayer"
+              Grid.Row="1"
+              ColumnDefinitions="96,*">
         <Border Grid.Column="0"
                 Padding="4,10"
                 Background="{DynamicResource MapWizardSurfaceOpaqueBrush}"
@@ -398,7 +400,8 @@
         </TransitioningContentControl>
         </Grid>
         </Grid>
-        <viewControls:ModalHost x:Name="ModalHost" />
+        <viewControls:ModalHost x:Name="ModalHost"
+                                BackgroundBlurTarget="{Binding ElementName=AppContentLayer}" />
         <viewControls:NotificationHost x:Name="NotificationHost" />
         </Panel>
         </Border>
