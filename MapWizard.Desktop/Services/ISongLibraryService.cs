@@ -24,5 +24,8 @@ public interface ISongLibraryService
     void InvalidateCache(string? songsPath = null);
 
     Task<IReadOnlyList<string>> GetMapsetDirectoriesAsync(string songsPath, CancellationToken cancellationToken = default);
-    Task<SongMapsetInfo?> LoadMapsetAsync(string mapsetDirectoryPath, CancellationToken cancellationToken = default);
+    Task<SongMapsetInfo?> LoadMapsetAsync(
+        string mapsetDirectoryPath,
+        CancellationToken cancellationToken = default,
+        bool bypassCache = false);
 }

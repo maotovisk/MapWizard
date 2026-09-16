@@ -1,0 +1,182 @@
+<UserControl
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:models="clr-namespace:MapWizard.Desktop.Models"
+    xmlns:dialogs="clr-namespace:MapWizard.Desktop.Views.Dialogs"
+    x:Class="MapWizard.Desktop.Views.Dialogs.BeatmapSourceCard"
+    x:DataType="dialogs:BeatmapSourceCard"
+    x:Name="Root"
+    d:DesignWidth="520"
+    d:DesignHeight="150"
+    mc:Ignorable="d">
+
+    <UserControl.Styles>
+        <Style Selector="Border.CardRoot">
+            <Setter Property="Background" Value="{DynamicResource MapWizardPickerSurface}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource SukiBorderBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="10" />
+            <Setter Property="ClipToBounds" Value="True" />
+        </Style>
+        <Style Selector="Grid.MapsetHeader TextBlock">
+            <Setter Property="Foreground" Value="#EEEEEE" />
+        </Style>
+        <Style Selector="Border.SourcePill">
+            <Setter Property="Background" Value="{Binding SourceBadgeBrush, ElementName=Root}" />
+            <Setter Property="CornerRadius" Value="6" />
+            <Setter Property="Padding" Value="8,4" />
+        </Style>
+        <Style Selector="Button.DifficultyChip">
+            <Setter Property="Margin" Value="0,0,8,8" />
+            <Setter Property="Padding" Value="12,7" />
+            <Setter Property="MinHeight" Value="32" />
+            <Setter Property="Background" Value="{DynamicResource MapWizardPickerChip}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource MapWizardPickerChipBorder}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="12" />
+            <Setter Property="HorizontalContentAlignment" Value="Center" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+            <Setter Property="FocusAdorner" Value="{x:Null}" />
+        </Style>
+        <Style Selector="Button.DifficultyChip:pointerover">
+            <Setter Property="Background" Value="{DynamicResource MapWizardPickerChipHover}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource MapWizardPickerChipHoverBorder}" />
+        </Style>
+        <Style Selector="Button.DifficultyChip:pressed">
+            <Setter Property="Background" Value="{DynamicResource MapWizardPickerActionPressed}" />
+        </Style>
+        <Style Selector="Button.FallbackCard">
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="Background" Value="{DynamicResource MapWizardPickerChip}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource MapWizardPickerChipBorder}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="10" />
+            <Setter Property="ClipToBounds" Value="True" />
+            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+            <Setter Property="VerticalContentAlignment" Value="Stretch" />
+        </Style>
+        <Style Selector="Button.FallbackCard:pointerover">
+            <Setter Property="BorderBrush" Value="{DynamicResource MapWizardPickerChipHoverBorder}" />
+        </Style>
+        <Style Selector="Button.FallbackCard:pointerover Border.FallbackScrim">
+            <Setter Property="Opacity" Value="0.86" />
+        </Style>
+        <Style Selector="Button.FallbackCard:pressed Border.FallbackScrim">
+            <Setter Property="Opacity" Value="1" />
+        </Style>
+    </UserControl.Styles>
+
+    <Grid>
+        <Border Classes="CardRoot"
+                IsVisible="{Binding !IsFallback, ElementName=Root}">
+            <Grid RowDefinitions="80,Auto">
+                <Grid Classes="MapsetHeader">
+                    <Border Background="#141414" />
+
+                    <Border IsVisible="{Binding HasBackgroundImage, ElementName=Root}">
+                        <Border.Background>
+                            <ImageBrush Source="{Binding BackgroundImage, ElementName=Root}"
+                                        Stretch="UniformToFill"
+                                        AlignmentX="Center"
+                                        AlignmentY="Center" />
+                        </Border.Background>
+                    </Border>
+
+                    <Border>
+                        <Border.Background>
+                            <LinearGradientBrush StartPoint="0,0.5" EndPoint="1,0.5">
+                                <GradientStop Color="#E80A0A0A" Offset="0" />
+                                <GradientStop Color="#C20A0A0A" Offset="0.42" />
+                                <GradientStop Color="#8F0A0A0A" Offset="0.78" />
+                                <GradientStop Color="#750A0A0A" Offset="1" />
+                            </LinearGradientBrush>
+                        </Border.Background>
+                    </Border>
+
+                    <Grid Margin="12,8" ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                        <StackPanel VerticalAlignment="Center" Spacing="2">
+                            <TextBlock Text="{Binding ArtistAndTitle, ElementName=Root}"
+                                       FontWeight="Bold"
+                                       FontSize="16"
+                                       TextTrimming="CharacterEllipsis"
+                                       MaxLines="1" />
+                            <TextBlock Text="{Binding CreatorLabel, ElementName=Root}"
+                                       FontSize="12"
+                                       FontWeight="SemiBold"
+                                       Opacity="0.92"
+                                       TextTrimming="CharacterEllipsis"
+                                       MaxLines="1" />
+                        </StackPanel>
+
+                        <Border Grid.Column="1"
+                                Classes="SourcePill"
+                                VerticalAlignment="Top">
+                            <TextBlock Text="{Binding SourceLabel, ElementName=Root}"
+                                       FontSize="11"
+                                       FontWeight="Bold"
+                                       Foreground="#FFFFFFFF" />
+                        </Border>
+                    </Grid>
+                </Grid>
+
+                <Border Grid.Row="1"
+                        Background="{DynamicResource MapWizardPickerDetail}"
+                        Padding="12,10,4,2">
+                    <ItemsControl ItemsSource="{Binding Difficulties, ElementName=Root}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="models:MapsetDifficultyCard">
+                                <Button Classes="DifficultyChip"
+                                        Click="DifficultyButton_OnClick">
+                                    <TextBlock Text="{Binding DifficultyLabel}"
+                                               TextTrimming="CharacterEllipsis"
+                                               MaxWidth="300" />
+                                </Button>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </Border>
+            </Grid>
+        </Border>
+
+        <Button Classes="FallbackCard"
+                IsVisible="{Binding IsFallback, ElementName=Root}"
+                Background="{Binding FallbackBackgroundBrush, ElementName=Root}"
+                Click="FallbackButton_OnClick">
+            <Grid Width="{Binding Bounds.Width, ElementName=Root}"
+                  Height="52">
+                <Border Classes="FallbackScrim">
+                    <Border.Background>
+                        <LinearGradientBrush StartPoint="0,0.5" EndPoint="1,0.5">
+                            <GradientStop Color="#E30A0A0A" Offset="0" />
+                            <GradientStop Color="#B80A0A0A" Offset="0.55" />
+                            <GradientStop Color="#850A0A0A" Offset="1" />
+                        </LinearGradientBrush>
+                    </Border.Background>
+                </Border>
+
+                <StackPanel Margin="12,5"
+                            VerticalAlignment="Center"
+                            Spacing="0">
+                    <TextBlock Text="{Binding FallbackTitleLabel, ElementName=Root}"
+                               FontSize="14"
+                               FontWeight="SemiBold"
+                               Foreground="#FFFFFFFF"
+                               TextTrimming="CharacterEllipsis"
+                               MaxLines="1" />
+                    <TextBlock Text="{Binding FallbackDetailLabel, ElementName=Root}"
+                               FontSize="11"
+                               Foreground="#E6FFFFFF"
+                               TextTrimming="CharacterEllipsis"
+                               MaxLines="1" />
+                </StackPanel>
+            </Grid>
+        </Button>
+    </Grid>
+</UserControl>

@@ -33,6 +33,7 @@ public partial class HitSoundVisualizerViewModel(
     IHitSoundService hitSoundService,
     IAudioPlaybackService audioPlaybackService,
     IOsuMemoryReaderService osuMemoryReaderService,
+    ILazerLookupService lazerLookupService,
     ISettingsService settingsService,
     ISongLibraryService songLibraryService,
     IModalService modalService,
@@ -477,9 +478,9 @@ public partial class HitSoundVisualizerViewModel(
     }
 
     [RelayCommand]
-    private void SetOriginFromMemory()
+    private async Task SetOriginFromMemory(CancellationToken token)
     {
-        var currentBeatmap = GetBeatmapFromMemory();
+        var currentBeatmap = await GetBeatmapFromOsuAsync(token);
         if (currentBeatmap is null)
         {
             return;
@@ -2029,15 +2030,18 @@ public partial class HitSoundVisualizerViewModel(
         }
     }
 
-    private string? GetBeatmapFromMemory()
+    private Task<string?> GetBeatmapFromOsuAsync(CancellationToken token)
     {
-        return BeatmapSelectionUtils.TryGetBeatmapFromMemory(
+        return BeatmapSelectionUtils.TryGetBeatmapFromOsuAsync(
             osuMemoryReaderService,
+            lazerLookupService,
+            modalService,
             (type, title, message) => toastManager.ShowToast(type, title, message),
             "Memory Error",
             "Something went wrong while getting the beatmap path from memory.",
             "No Beatmap",
-            "No beatmap found in memory.");
+            "No beatmap found in memory.",
+            token);
     }
 
     private Task<IReadOnlyList<string>?> ShowSongSelectDialogAsync(
@@ -2049,6 +2053,7 @@ public partial class HitSoundVisualizerViewModel(
             toastManager,
             songLibraryService,
             filesService,
+            lazerLookupService,
             settingsService,
             "Hitsound Visualizer",
             allowMultiple,

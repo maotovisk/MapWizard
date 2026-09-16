@@ -4,16 +4,61 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using Avalonia.Controls;
 using Avalonia.Controls.Notifications;
 using MapWizard.Desktop.Enums;
 using MapWizard.Desktop.Models;
 using MapWizard.Desktop.Services;
 using MapWizard.Desktop.Services.MemoryService;
+using MapWizard.Desktop.Views.Controls;
+using MapWizard.Desktop.Views.Dialogs;
 
 namespace MapWizard.Desktop.Utils;
 
 public static class BeatmapSelectionUtils
 {
+    public static async Task<string?> TryGetBeatmapFromOsuAsync(
+        IOsuMemoryReaderService osuMemoryReaderService,
+        ILazerLookupService lazerLookupService,
+        IModalService modalService,
+        Action<NotificationType, string, string> showToast,
+        string memoryErrorTitle,
+        string defaultMemoryErrorMessage,
+        string emptyMemoryTitle,
+        string emptyMemoryMessage,
+        CancellationToken cancellationToken = default)
+    {
+        var lazerResult = lazerLookupService.GetMountedBeatmapPaths();
+        var stableResult = osuMemoryReaderService.GetBeatmapPath();
+
+        if (lazerResult.Status == ResultStatus.Success && lazerResult.Value is { Count: > 0 } mountedBeatmaps)
+        {
+            var stableBeatmapPath = stableResult.Status == ResultStatus.Success &&
+                                    !string.IsNullOrWhiteSpace(stableResult.Value)
+                ? stableResult.Value
+                : null;
+
+            return await ShowBeatmapSourcePickerAsync(
+                modalService,
+                mountedBeatmaps,
+                stableBeatmapPath,
+                showToast,
+                cancellationToken);
+        }
+
+        return ResolveBeatmapFromMemoryResult(
+            stableResult,
+            showToast,
+            memoryErrorTitle,
+            lazerResult.Status == ResultStatus.Error
+                ? lazerResult.ErrorMessage ?? defaultMemoryErrorMessage
+                : defaultMemoryErrorMessage,
+            emptyMemoryTitle,
+            emptyMemoryMessage);
+    }
+
     public static string? TryGetBeatmapFromMemory(
         IOsuMemoryReaderService osuMemoryReaderService,
         Action<NotificationType, string, string> showToast,
@@ -22,8 +67,23 @@ public static class BeatmapSelectionUtils
         string emptyMemoryTitle,
         string emptyMemoryMessage)
     {
-        var currentBeatmap = osuMemoryReaderService.GetBeatmapPath();
+        return ResolveBeatmapFromMemoryResult(
+            osuMemoryReaderService.GetBeatmapPath(),
+            showToast,
+            memoryErrorTitle,
+            defaultMemoryErrorMessage,
+            emptyMemoryTitle,
+            emptyMemoryMessage);
+    }
 
+    private static string? ResolveBeatmapFromMemoryResult(
+        Result<string> currentBeatmap,
+        Action<NotificationType, string, string> showToast,
+        string memoryErrorTitle,
+        string defaultMemoryErrorMessage,
+        string emptyMemoryTitle,
+        string emptyMemoryMessage)
+    {
         if (currentBeatmap.Status == ResultStatus.Error)
         {
             showToast(
@@ -40,6 +100,94 @@ public static class BeatmapSelectionUtils
         }
 
         return currentBeatmap.Value;
+    }
+
+    private static async Task<string?> ShowBeatmapSourcePickerAsync(
+        IModalService modalService,
+        IReadOnlyList<string> mountedBeatmaps,
+        string? stableBeatmapPath,
+        Action<NotificationType, string, string> showToast,
+        CancellationToken cancellationToken)
+    {
+        var content = new StackPanel
+        {
+            Width = 580,
+            Spacing = 12
+        };
+
+        content.Children.Add(new ImportantNotice
+        {
+            Message = "Keep lazer's external-edit screen open until MapWizard has finished."
+        });
+
+        var sourceCards = new StackPanel { Spacing = 12 };
+        var cards = new List<BeatmapSourceCard>();
+
+        void AddSourceCard(
+            BeatmapSourceKind sourceKind,
+            IReadOnlyList<string> paths,
+            Panel? parent = null)
+        {
+            var card = new BeatmapSourceCard(sourceKind, paths);
+            card.DifficultySelected += OnDifficultySelected;
+            cards.Add(card);
+            (parent ?? sourceCards).Children.Add(card);
+        }
+
+        void OnDifficultySelected(string path) => _ = modalService.CloseAsync(path);
+
+        AddSourceCard(BeatmapSourceKind.Lazer, mountedBeatmaps);
+        if (!string.IsNullOrWhiteSpace(stableBeatmapPath))
+        {
+            var fallbackSection = new StackPanel
+            {
+                Spacing = 6,
+                Children =
+                {
+                    new TextBlock
+                    {
+                        Text = "Currently on osu!stable",
+                        FontSize = 11,
+                        FontWeight = Avalonia.Media.FontWeight.SemiBold,
+                        Opacity = 0.66,
+                        Margin = new Avalonia.Thickness(2, 0, 0, 0)
+                    }
+                }
+            };
+
+            AddSourceCard(BeatmapSourceKind.Stable, [stableBeatmapPath], fallbackSection);
+            sourceCards.Children.Add(fallbackSection);
+        }
+
+        content.Children.Add(new ScrollViewer
+        {
+            MaxHeight = 520,
+            Content = sourceCards,
+            VerticalScrollBarVisibility = Avalonia.Controls.Primitives.ScrollBarVisibility.Auto
+        });
+
+        try
+        {
+            return await modalService.ShowAsync(
+                new ModalRequest(content, "Select lazer difficulty"),
+                cancellationToken) as string;
+        }
+        catch (InvalidOperationException)
+        {
+            showToast(
+                NotificationType.Warning,
+                "osu!lazer",
+                "Could not open the difficulty picker because another dialog is already open.");
+            return null;
+        }
+        finally
+        {
+            foreach (var card in cards)
+            {
+                card.DifficultySelected -= OnDifficultySelected;
+                card.Dispose();
+            }
+        }
     }
 
     public static ObservableCollection<SelectedMap> NormalizeDestinationBeatmaps(IReadOnlyCollection<string> beatmapPaths)

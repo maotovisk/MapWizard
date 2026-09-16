@@ -8,6 +8,7 @@ using Avalonia.Data;
 using Avalonia.Layout;
 using MapWizard.Desktop.Extensions;
 using MapWizard.Desktop.Services;
+using MapWizard.Desktop.Services.MemoryService;
 using MapWizard.Desktop.ViewModels;
 using MapWizard.Desktop.Views.Dialogs;
 using SukiUI.Toasts;
@@ -21,6 +22,7 @@ public static class MapPickerDialogUtils
         ISukiToastManager toastManager,
         ISongLibraryService songLibraryService,
         IFilesService filesService,
+        ILazerLookupService lazerLookupService,
         ISettingsService settingsService,
         string featureName,
         bool allowMultiple,
@@ -31,6 +33,7 @@ public static class MapPickerDialogUtils
         var songSelectViewModel = new SongSelectDialogViewModel(
             songLibraryService,
             filesService,
+            lazerLookupService,
             songsPath,
             allowMultiple,
             preferredMapsetDirectoryPath);
