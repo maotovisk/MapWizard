@@ -718,6 +718,7 @@ public partial class ComboColourStudioViewModel(
             toastManager,
             songLibraryService,
             filesService,
+            lazerLookupService,
             settingsService,
             "Combo Colour Studio",
             allowMultiple,

@@ -327,6 +327,7 @@ public partial class MapCleanerViewModel(
             toastManager,
             songLibraryService,
             filesService,
+            lazerLookupService,
             settingsService,
             "Map Cleaner",
             allowMultiple,

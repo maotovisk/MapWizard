@@ -118,7 +118,8 @@ public sealed class SongLibraryService : ISongLibraryService
 
     public async Task<SongMapsetInfo?> LoadMapsetAsync(
         string mapsetDirectoryPath,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default,
+        bool bypassCache = false)
     {
         if (string.IsNullOrWhiteSpace(mapsetDirectoryPath))
         {
@@ -131,22 +132,30 @@ public sealed class SongLibraryService : ISongLibraryService
             return null;
         }
 
-        await _scanGate.WaitAsync(cancellationToken);
-        try
+        if (!bypassCache)
         {
-            if (_mapsetCache.TryGetValue(normalizedPath, out var cachedMapset))
+            await _scanGate.WaitAsync(cancellationToken);
+            try
             {
-                return cachedMapset;
+                if (_mapsetCache.TryGetValue(normalizedPath, out var cachedMapset))
+                {
+                    return cachedMapset;
+                }
             }
-        }
-        finally
-        {
-            _scanGate.Release();
+            finally
+            {
+                _scanGate.Release();
+            }
         }
 
         var parsedMapset = await Task.Run(
             () => TryBuildMapsetInfo(normalizedPath, cancellationToken),
             cancellationToken);
+
+        if (bypassCache)
+        {
+            return parsedMapset;
+        }
 
         await _scanGate.WaitAsync(cancellationToken);
         try

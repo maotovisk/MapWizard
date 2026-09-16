@@ -411,6 +411,7 @@ public partial class MetadataManagerViewModel(
             toastManager,
             songLibraryService,
             filesService,
+            lazerLookupService,
             settingsService,
             "Metadata Manager",
             allowMultiple,

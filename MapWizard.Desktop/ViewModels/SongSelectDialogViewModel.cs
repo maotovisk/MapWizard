@@ -11,8 +11,10 @@ using Avalonia.Media.Imaging;
 using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using MapWizard.Desktop.Enums;
 using MapWizard.Desktop.Models.SongSelect;
 using MapWizard.Desktop.Services;
+using MapWizard.Desktop.Services.MemoryService;
 using MapWizard.Desktop.Utils;
 
 namespace MapWizard.Desktop.ViewModels;
@@ -20,6 +22,7 @@ namespace MapWizard.Desktop.ViewModels;
 public partial class SongSelectDialogViewModel(
     ISongLibraryService songLibraryService,
     IFilesService filesService,
+    ILazerLookupService lazerLookupService,
     string songsPath,
     bool allowMultipleSelection,
     string? preferredMapsetDirectoryPath = null) : ViewModelBase, IDisposable
@@ -68,18 +71,26 @@ public partial class SongSelectDialogViewModel(
     [ObservableProperty] private string _statusMessage = string.Empty;
     [ObservableProperty] private ObservableCollection<SongMapsetCardViewModel> _visibleMapsets = [];
     [ObservableProperty] private int _selectedDifficultyCount;
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasMountedLazerMapset))]
+    [NotifyPropertyChangedFor(nameof(ShowEmptyState))]
+    private SongMapsetCardViewModel? _mountedLazerMapset;
 
     public bool AllowMultipleSelection { get; } = allowMultipleSelection;
     public bool HasSongsPath => !string.IsNullOrWhiteSpace(songsPath);
     public bool HasMoreResults => _filteredCursor < _filteredDirectoryEntries.Count;
     public bool ShowBusyBox => IsBusyAreaActive || IsSearchPending;
-    public bool ShowEmptyState => !ShowBusyBox && VisibleMapsets.Count == 0 && !ShowNotFoundBadge;
+    public bool ShowEmptyState => !ShowBusyBox &&
+                                  VisibleMapsets.Count == 0 &&
+                                  !HasMountedLazerMapset &&
+                                  !ShowNotFoundBadge;
     public bool ShowNotFoundBadge => !ShowBusyBox &&
                                      !HasMoreResults &&
                                      VisibleMapsets.Count == 0 &&
                                      GetSearchQuery().Length > 0;
     public bool CanConfirmSelection => AllowMultipleSelection && SelectedDifficultyCount > 0;
-    public bool CanReloadLibrary => HasSongsPath && !IsBusyAreaActive && !IsLoading && !IsSearchPending;
+    public bool CanReloadLibrary => !IsBusyAreaActive && !IsLoading && !IsSearchPending;
+    public bool HasMountedLazerMapset => MountedLazerMapset is not null;
 
     public event Action<IReadOnlyList<string>>? SelectionSubmitted;
 
@@ -125,6 +136,8 @@ public partial class SongSelectDialogViewModel(
 
         try
         {
+            await LoadMountedLazerMapsetAsync(cancellationToken);
+
             if (!HasSongsPath)
             {
                 StatusMessage = "Songs folder is not configured. Use Manual Open.";
@@ -222,6 +235,11 @@ public partial class SongSelectDialogViewModel(
             {
                 item.IsExpanded = false;
             }
+        }
+
+        if (!ReferenceEquals(MountedLazerMapset, mapset) && MountedLazerMapset is not null)
+        {
+            MountedLazerMapset.IsExpanded = false;
         }
 
         mapset.IsExpanded = !mapset.IsExpanded;
@@ -559,6 +577,56 @@ public partial class SongSelectDialogViewModel(
         }
     }
 
+    private async Task LoadMountedLazerMapsetAsync(CancellationToken cancellationToken)
+    {
+        try
+        {
+            var mountedBeatmaps = lazerLookupService.GetMountedBeatmapPaths();
+            if (mountedBeatmaps.Status != ResultStatus.Success || mountedBeatmaps.Value is not { Count: > 0 })
+            {
+                MountedLazerMapset = null;
+                return;
+            }
+
+            var mountedDirectory = Path.GetDirectoryName(mountedBeatmaps.Value[0]);
+            if (string.IsNullOrWhiteSpace(mountedDirectory) || !Directory.Exists(mountedDirectory))
+            {
+                MountedLazerMapset = null;
+                return;
+            }
+
+            var normalizedDirectory = Path.GetFullPath(mountedDirectory);
+            var mapset = await songLibraryService.LoadMapsetAsync(
+                normalizedDirectory,
+                cancellationToken,
+                bypassCache: true);
+            cancellationToken.ThrowIfCancellationRequested();
+
+            if (mapset is null)
+            {
+                MountedLazerMapset = null;
+                return;
+            }
+
+            var mountedViewModel = new SongMapsetCardViewModel(
+                mapset,
+                isPreferredMapset: false,
+                isMountedInLazer: true);
+            mountedViewModel.SetBackgroundActive(true);
+            _mapsetViewModelCache[normalizedDirectory] = mountedViewModel;
+            MountedLazerMapset = mountedViewModel;
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
+        catch (Exception ex)
+        {
+            MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
+            MountedLazerMapset = null;
+        }
+    }
+
     private void UpdateStatusMessage()
     {
         if (_mapsetDirectories.Count == 0)
@@ -758,7 +826,7 @@ public partial class SongSelectDialogViewModel(
     {
         foreach (var mapset in _mapsetViewModelCache.Values)
         {
-            mapset.SetBackgroundActive(false);
+            mapset.SetBackgroundActive(ReferenceEquals(mapset, MountedLazerMapset));
         }
     }
 
@@ -779,6 +847,7 @@ public partial class SongSelectDialogViewModel(
     private void ClearMapsetViewModelCache()
     {
         DeactivateAllCachedBackgrounds();
+        MountedLazerMapset = null;
 
         foreach (var mapset in _mapsetViewModelCache.Values)
         {
@@ -811,7 +880,10 @@ public partial class SongMapsetCardViewModel : ObservableObject, IDisposable
     private bool _isBackgroundActive;
     private bool _isDisposed;
 
-    public SongMapsetCardViewModel(SongMapsetInfo mapset, bool isPreferredMapset)
+    public SongMapsetCardViewModel(
+        SongMapsetInfo mapset,
+        bool isPreferredMapset,
+        bool isMountedInLazer = false)
     {
         Artist = mapset.Artist;
         Title = mapset.Title;
@@ -819,6 +891,7 @@ public partial class SongMapsetCardViewModel : ObservableObject, IDisposable
         LastEditedUtc = mapset.LastEditUtc;
         _backgroundImagePath = mapset.BackgroundImagePath;
         IsPreferredMapset = isPreferredMapset;
+        IsMountedInLazer = isMountedInLazer;
         Difficulties = new ObservableCollection<SongDifficultyItemViewModel>(mapset.Difficulties
             .OrderByDescending(difficulty => difficulty.LastEditUtc)
             .Select(difficulty => new SongDifficultyItemViewModel(difficulty)));
@@ -831,6 +904,7 @@ public partial class SongMapsetCardViewModel : ObservableObject, IDisposable
 
     [ObservableProperty] private bool _isExpanded;
     [ObservableProperty] private bool _isPreferredMapset;
+    public bool IsMountedInLazer { get; }
     public string Artist { get; }
     public string Title { get; }
     public string Creator { get; }

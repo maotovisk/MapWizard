@@ -249,6 +249,20 @@
                                 Margin="0"
                                 Panel.ZIndex="2">
                         <Border Classes="HintPill"
+                                IsVisible="{Binding IsMountedInLazer}">
+                            <StackPanel Orientation="Horizontal" Spacing="5">
+                                <materialIcons:MaterialIcon Kind="Pin"
+                                                            Width="11"
+                                                            Height="11"
+                                                            Foreground="{DynamicResource MapWizardPickerHintIcon}" />
+                                <TextBlock Text="Mounted in osu!lazer"
+                                           FontSize="11"
+                                           FontWeight="SemiBold"
+                                           Foreground="{DynamicResource MapWizardPickerHintText}" />
+                            </StackPanel>
+                        </Border>
+
+                        <Border Classes="HintPill"
                                 IsVisible="{Binding IsPreferredMapset}">
                             <StackPanel Orientation="Horizontal" Spacing="5">
                                 <materialIcons:MaterialIcon Kind="Pin"

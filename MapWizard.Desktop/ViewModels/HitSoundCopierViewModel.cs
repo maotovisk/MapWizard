@@ -263,6 +263,7 @@ public partial class HitSoundCopierViewModel(
             toastManager,
             songLibraryService,
             filesService,
+            lazerLookupService,
             settingsService,
             "HitSound Copier",
             allowMultiple,

@@ -76,6 +76,10 @@
                                HorizontalScrollBarVisibility="Disabled">
                     <StackPanel Spacing="10"
                                 HorizontalAlignment="Stretch">
+                        <Border IsVisible="{Binding HasMountedLazerMapset}">
+                            <dialogs:SongMapsetCard DataContext="{Binding MountedLazerMapset}" />
+                        </Border>
+
                         <Border Classes="StatusPill"
                                 Margin="2"
                                 IsVisible="{Binding ShowEmptyState}">

@@ -2053,6 +2053,7 @@ public partial class HitSoundVisualizerViewModel(
             toastManager,
             songLibraryService,
             filesService,
+            lazerLookupService,
             settingsService,
             "Hitsound Visualizer",
             allowMultiple,
