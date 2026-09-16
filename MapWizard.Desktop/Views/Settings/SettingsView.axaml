@@ -247,7 +247,7 @@
                                 </ListBox>
                             </StackPanel>
                             <Grid ColumnDefinitions="*,Auto" VerticalAlignment="Center">
-                                <TextBlock Text="Smooth wheel scrolling" FontWeight="Bold" VerticalAlignment="Center" />
+                                <TextBlock Text="Smooth Scrolling" FontWeight="Bold" VerticalAlignment="Center" />
                                 <ToggleSwitch Grid.Column="1"
                                               IsChecked="{Binding IsSmoothWheelScrollingEnabled, Mode=TwoWay}" />
                             </Grid>
