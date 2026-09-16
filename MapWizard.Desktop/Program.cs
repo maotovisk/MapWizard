@@ -31,7 +31,6 @@ internal static class Program
     {
         var app = AppBuilder.Configure<App>()
             .UsePlatformDetect()
-            .WithInterFont()
             .LogToTrace();
 
         if (OperatingSystem.IsLinux())

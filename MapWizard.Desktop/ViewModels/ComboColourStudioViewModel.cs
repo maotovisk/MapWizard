@@ -36,6 +36,7 @@ public partial class ComboColourStudioViewModel(
     IFilesService filesService,
     IComboColourStudioService comboColourStudioService,
     IOsuMemoryReaderService osuMemoryReaderService,
+    ILazerLookupService lazerLookupService,
     IComboColourProjectStore comboColourProjectStore,
     ISettingsService settingsService,
     ISongLibraryService songLibraryService,
@@ -493,9 +494,9 @@ public partial class ComboColourStudioViewModel(
     }
 
     [RelayCommand]
-    private async Task SetOriginFromMemory()
+    private async Task SetOriginFromMemory(CancellationToken token)
     {
-        var beatmapPath = GetBeatmapFromMemory();
+        var beatmapPath = await GetBeatmapFromOsuAsync(token);
 
         if (beatmapPath is null)
         {
@@ -529,9 +530,9 @@ public partial class ComboColourStudioViewModel(
     }
 
     [RelayCommand]
-    private void AddDestinationFromMemory()
+    private async Task AddDestinationFromMemory(CancellationToken token)
     {
-        var beatmapPath = GetBeatmapFromMemory();
+        var beatmapPath = await GetBeatmapFromOsuAsync(token);
         if (beatmapPath is null)
         {
             return;
@@ -694,15 +695,18 @@ public partial class ComboColourStudioViewModel(
         return false;
     }
 
-    private string? GetBeatmapFromMemory()
+    private Task<string?> GetBeatmapFromOsuAsync(CancellationToken token)
     {
-        return BeatmapSelectionUtils.TryGetBeatmapFromMemory(
+        return BeatmapSelectionUtils.TryGetBeatmapFromOsuAsync(
             osuMemoryReaderService,
+            lazerLookupService,
+            modalService,
             ShowToast,
             "Memory Error",
             "Failed to read beatmap path from memory.",
             "Memory Error",
-            "No beatmap is currently loaded in osu!.");
+            "No beatmap is currently loaded in osu!.",
+            token);
     }
 
     private Task<IReadOnlyList<string>?> ShowSongSelectDialogAsync(

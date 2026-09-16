@@ -92,6 +92,9 @@
                 <Color x:Key="MapWizardPickerHintIcon">#FFC7FFD9</Color>
                 <Color x:Key="MapWizardPickerHintText">#FFEAFBF2</Color>
                 <Color x:Key="MapWizardPickerCheckIcon">#FFBEEFD5</Color>
+                <Color x:Key="MapWizardImportantNoticeBackground">#1FF5A742</Color>
+                <Color x:Key="MapWizardImportantNoticeBorder">#73F5A742</Color>
+                <Color x:Key="MapWizardImportantNoticeAccent">#FFFFBD69</Color>
                 <Color x:Key="ThemeAccentBadgeColor">#30B8DB87</Color>
                 <SolidColorBrush x:Key="ThemeAccentBrush" Color="#B8DB87" />
                 <Color x:Key="ThemeAccentColor">#FFB8DB87</Color>
@@ -142,6 +145,9 @@
                 <Color x:Key="MapWizardPickerHintIcon">#FFD7E4ED</Color>
                 <Color x:Key="MapWizardPickerHintText">#FFF1F6FA</Color>
                 <Color x:Key="MapWizardPickerCheckIcon">#FFD7E4ED</Color>
+                <Color x:Key="MapWizardImportantNoticeBackground">#26D7831F</Color>
+                <Color x:Key="MapWizardImportantNoticeBorder">#99B86A12</Color>
+                <Color x:Key="MapWizardImportantNoticeAccent">#FF92510B</Color>
                 <Color x:Key="ThemeAccentBadgeColor">#305F7488</Color>
                 <SolidColorBrush x:Key="ThemeAccentBrush" Color="#5F7488" />
                 <Color x:Key="ThemeAccentColor">#FF5F7488</Color>

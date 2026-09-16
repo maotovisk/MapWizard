@@ -1,0 +1,39 @@
+<UserControl
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:controls="clr-namespace:MapWizard.Desktop.Views.Controls"
+    xmlns:materialIcons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+    x:Class="MapWizard.Desktop.Views.Controls.ImportantNotice"
+    x:DataType="controls:ImportantNotice"
+    x:Name="Root"
+    d:DesignWidth="540"
+    d:DesignHeight="72"
+    mc:Ignorable="d">
+
+    <Border Background="{DynamicResource MapWizardImportantNoticeBackground}"
+            BorderBrush="{DynamicResource MapWizardImportantNoticeBorder}"
+            BorderThickness="1"
+            CornerRadius="10"
+            Padding="12,10">
+        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
+            <materialIcons:MaterialIcon Kind="AlertCircleOutline"
+                                        Width="20"
+                                        Height="20"
+                                        Margin="0,1,0,0"
+                                        Foreground="{DynamicResource MapWizardImportantNoticeAccent}" />
+
+            <StackPanel Grid.Column="1" Spacing="2">
+                <TextBlock Text="{Binding Title, ElementName=Root}"
+                           FontSize="13"
+                           FontWeight="Bold"
+                           Foreground="{DynamicResource MapWizardImportantNoticeAccent}" />
+                <TextBlock Text="{Binding Message, ElementName=Root}"
+                           FontSize="13"
+                           Foreground="{DynamicResource SukiText}"
+                           TextWrapping="Wrap" />
+            </StackPanel>
+        </Grid>
+    </Border>
+</UserControl>

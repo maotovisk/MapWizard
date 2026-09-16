@@ -29,6 +29,7 @@ public partial class MetadataManagerViewModel(
     IFilesService filesService,
     IMetadataManagerService metadataManagerService,
     IOsuMemoryReaderService osuMemoryReaderService,
+    ILazerLookupService lazerLookupService,
     ISettingsService settingsService,
     ISongLibraryService songLibraryService,
     IModalService modalService,
@@ -190,7 +191,7 @@ public partial class MetadataManagerViewModel(
     [RelayCommand]
     private async Task SetOriginFromMemory(CancellationToken token)
     {
-        var currentBeatmap = GetBeatmapFromMemory();
+        var currentBeatmap = await GetBeatmapFromOsuAsync(token);
         if (currentBeatmap is null)
         {
             return;
@@ -212,9 +213,9 @@ public partial class MetadataManagerViewModel(
     }
 
     [RelayCommand]
-    private void AddDestinationFromMemory()
+    private async Task AddDestinationFromMemory(CancellationToken token)
     {
-        var currentBeatmap = GetBeatmapFromMemory();
+        var currentBeatmap = await GetBeatmapFromOsuAsync(token);
         if (currentBeatmap is null)
         {
             return;
@@ -230,15 +231,18 @@ public partial class MetadataManagerViewModel(
         HasMultiple = DestinationBeatmaps.Count > 1;
     }
 
-    private string? GetBeatmapFromMemory()
+    private Task<string?> GetBeatmapFromOsuAsync(CancellationToken token)
     {
-        return BeatmapSelectionUtils.TryGetBeatmapFromMemory(
+        return BeatmapSelectionUtils.TryGetBeatmapFromOsuAsync(
             osuMemoryReaderService,
+            lazerLookupService,
+            modalService,
             (type, title, message) => toastManager.ShowToast(type, title, message),
             "Memory Error",
             "Failed to get beatmap from memory.",
             "No Beatmap",
-            "No beatmap is currently loaded.");
+            "No beatmap is currently loaded.",
+            token);
     }
 
     [RelayCommand]
