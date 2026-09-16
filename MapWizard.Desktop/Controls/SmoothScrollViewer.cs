@@ -10,7 +10,7 @@ using Avalonia.Media;
 using Avalonia.Rendering.Composition;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
-using SukiUI.Theme;
+using MapWizard.Theme.Motion;
 
 namespace MapWizard.Desktop.Controls;
 
@@ -37,6 +37,7 @@ public class SmoothScrollViewer : ScrollViewer
 
     private IDisposable? _presenterBoundsSubscription;
     private ScrollContentPresenter? _presenter;
+    private int _lastFadeStateKey = int.MinValue;
     private ScrollBar? _horizontalScrollBar;
     private ScrollBar? _verticalScrollBar;
     private CompositionVisual? _smoothContentVisual;
@@ -91,6 +92,37 @@ public class SmoothScrollViewer : ScrollViewer
     {
         get => GetValue(FadeSizeProperty);
         set => SetValue(FadeSizeProperty, value);
+    }
+
+    /// <summary>
+    /// Navigates to an offset using the same compositor animation as wheel scrolling.
+    /// </summary>
+    public void ScrollTo(Vector offset, bool animated = true)
+    {
+        if (!animated || !IsSmoothScrollingEnabled || !IsGlobalSmoothScrollingEnabled)
+        {
+            Offset = offset;
+            return;
+        }
+
+        ResolveContentVisual();
+        ResolveThumbVisuals();
+        _ownsContentAnimation |= EnsureWheelAnimation(_smoothContentVisual);
+        _ownsHorizontalThumbAnimation |= EnsureWheelAnimation(_horizontalThumbVisual);
+        _ownsVerticalThumbAnimation |= EnsureWheelAnimation(_verticalThumbVisual);
+        _isWheelAnimationActive = true;
+        _isWheelDispatching = true;
+
+        try
+        {
+            Offset = offset;
+        }
+        finally
+        {
+            _isWheelDispatching = false;
+            _wheelAnimationTimer.Stop();
+            _wheelAnimationTimer.Start();
+        }
     }
 
     protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
@@ -296,16 +328,13 @@ public class SmoothScrollViewer : ScrollViewer
             return;
         }
 
-        if (!IsScrollFadeEnabled)
+        if (!IsScrollFadeEnabled || Extent.Height <= Viewport.Height + ScrollEpsilon)
         {
-            _presenter.OpacityMask = null;
-            return;
-        }
-
-        var canScrollVertically = Extent.Height > Viewport.Height + ScrollEpsilon;
-        if (!canScrollVertically)
-        {
-            _presenter.OpacityMask = null;
+            if (_presenter.OpacityMask is not null)
+            {
+                _presenter.OpacityMask = null;
+            }
+            _lastFadeStateKey = int.MinValue;
             return;
         }
 
@@ -320,11 +349,33 @@ public class SmoothScrollViewer : ScrollViewer
         var hasHiddenContentAbove = Offset.Y > ScrollEpsilon;
         var hasHiddenContentBelow = Offset.Y + Viewport.Height < Extent.Height - ScrollEpsilon;
 
-        var brush = new LinearGradientBrush
+        // Hysteresis: rebuilding/reassigning the mask forces an off-screen pass,
+        // so only refresh when the fade geometry actually moved. A sub-pixel
+        // drift (ratio * height < ~0.5px) is imperceptible and skipped.
+        if (hasHiddenContentAbove == ((_lastFadeStateKey & 1) != 0) &&
+            hasHiddenContentBelow == ((_lastFadeStateKey & 2) != 0))
         {
-            StartPoint = new RelativePoint(0d, 0d, RelativeUnit.Relative),
-            EndPoint = new RelativePoint(0d, 1d, RelativeUnit.Relative)
-        };
+            var lastRatio = (_lastFadeStateKey >> 2) / 1024d;
+            if (Math.Abs(ratio - lastRatio) <= 0.004d)
+            {
+                return;
+            }
+        }
+
+        _lastFadeStateKey = (hasHiddenContentAbove ? 1 : 0)
+                            | (hasHiddenContentBelow ? 2 : 0)
+                            | ((int)MathF.Round((float)(ratio * 1024f)) << 2);
+
+        var brush = _presenter.OpacityMask as LinearGradientBrush;
+        if (brush is null)
+        {
+            brush = new LinearGradientBrush
+            {
+                StartPoint = new RelativePoint(0d, 0d, RelativeUnit.Relative),
+                EndPoint = new RelativePoint(0d, 1d, RelativeUnit.Relative)
+            };
+        }
+        brush.GradientStops.Clear();
 
         if (hasHiddenContentAbove)
         {
@@ -346,6 +397,9 @@ public class SmoothScrollViewer : ScrollViewer
             brush.GradientStops.Add(new GradientStop(Colors.Black, 1d));
         }
 
-        _presenter.OpacityMask = brush;
+        if (_presenter.OpacityMask != brush)
+        {
+            _presenter.OpacityMask = brush;
+        }
     }
 }

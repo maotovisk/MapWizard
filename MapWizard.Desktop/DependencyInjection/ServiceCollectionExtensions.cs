@@ -10,8 +10,6 @@ using MapWizard.Desktop.Services.Playback;
 using MapWizard.Desktop.ViewModels;
 using MapWizard.Desktop.Views;
 using Microsoft.Extensions.DependencyInjection;
-using SukiUI.Dialogs;
-using SukiUI.Toasts;
 using ComboColourStudioView = MapWizard.Desktop.Views.ComboColourStudio.ComboColourStudioView;
 using HitSoundVisualizerView = MapWizard.Desktop.Views.HitSoundVisualizer.HitSoundVisualizerView;
 using MapCleanerView = MapWizard.Desktop.Views.MapCleaner.MapCleanerView;
@@ -65,8 +63,7 @@ public static class ServiceCollectionExtensions
         collection.AddSingleton<IThemeService, ThemeService>();
         collection.AddSingleton<IUpdateService, UpdateService>();
         
-        collection.AddSingleton<ISukiToastManager, SukiToastManager>();
-        collection.AddSingleton<ISukiDialogManager, SukiDialogManager>();
+        collection.AddSingleton<INotificationService, NotificationService>();
         collection.AddSingleton<IModalService, ModalService>();
     }
 

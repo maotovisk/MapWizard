@@ -34,6 +34,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\MapWizard.Theme\MapWizard.Theme.csproj" />
     <ProjectReference Include="..\MapWizard.Tools\MapWizard.Tools.csproj" />
   </ItemGroup>
 

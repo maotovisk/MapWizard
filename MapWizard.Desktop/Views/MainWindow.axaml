@@ -1,9 +1,9 @@
-<controls:MapWizardWindow
+<theme:MapWizardWindow
     xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:vm="using:MapWizard.Desktop.ViewModels"
     xmlns:views="clr-namespace:MapWizard.Desktop.Views"
-    xmlns:suki="clr-namespace:SukiUI.Controls;assembly=SukiUI"
+    xmlns:theme="clr-namespace:MapWizard.Theme.Controls;assembly=MapWizard.Theme"
     xmlns:materialIcons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
     xmlns:welcomePage="clr-namespace:MapWizard.Desktop.Views.WelcomePage"
     xmlns:hitSoundVisualizer="clr-namespace:MapWizard.Desktop.Views.HitSoundVisualizer"
@@ -11,13 +11,11 @@
     xmlns:comboColourStudio="clr-namespace:MapWizard.Desktop.Views.ComboColourStudio"
     xmlns:mapCleaner="clr-namespace:MapWizard.Desktop.Views.MapCleaner"
     xmlns:settings="clr-namespace:MapWizard.Desktop.Views.Settings"
-    xmlns:controls="clr-namespace:MapWizard.Desktop.Controls"
     xmlns:viewControls="clr-namespace:MapWizard.Desktop.Views.Controls"
     xmlns:transitions="clr-namespace:MapWizard.Desktop.Transitions"
     x:Class="MapWizard.Desktop.Views.MainWindow"
     x:DataType="vm:MainWindowViewModel"
-    WindowDecorations="BorderOnly"
-    IsMenuVisible="False"
+    TransparencyBackgroundFallback="{DynamicResource MapWizardWindowBackgroundBrush}"
     MinWidth="800"
     MinHeight="600"
     Width="1280"
@@ -25,42 +23,62 @@
     Icon="/Assets/app-icon.png"
     Title="MapWizard">
 
-    <suki:SukiWindow.Styles>
-        <Style Selector="Button.NavButton">
+    <theme:MapWizardWindow.Styles>
+        <Style Selector="theme|NavigationButton.NavButton">
             <Setter Property="Background" Value="Transparent" />
             <Setter Property="BorderBrush" Value="Transparent" />
             <Setter Property="BorderThickness" Value="0" />
             <Setter Property="CornerRadius" Value="12" />
             <Setter Property="FocusAdorner" Value="{x:Null}" />
         </Style>
-        <Style Selector="Button.NavButton:pointerover">
+        <Style Selector="theme|NavigationButton.NavButton:pointerover">
             <Setter Property="Background" Value="Transparent" />
             <Setter Property="BorderBrush" Value="Transparent" />
             <Setter Property="BorderThickness" Value="0" />
         </Style>
-        <Style Selector="Button.NavButton:pressed">
+        <Style Selector="theme|NavigationButton.NavButton:pressed">
             <Setter Property="Background" Value="Transparent" />
             <Setter Property="BorderBrush" Value="Transparent" />
             <Setter Property="BorderThickness" Value="0" />
         </Style>
-        <Style Selector="Button.NavButton:focus">
+        <Style Selector="theme|NavigationButton.NavButton:focus">
             <Setter Property="BorderBrush" Value="Transparent" />
             <Setter Property="BorderThickness" Value="0" />
         </Style>
         <Style Selector="Border.NavIconHoverLayer">
-            <Setter Property="Background" Value="{DynamicResource ThemeAccentBrush}" />
+            <Setter Property="Background" Value="{DynamicResource MapWizardAccentBrush}" />
             <Setter Property="Opacity" Value="0" />
             <Setter Property="CornerRadius" Value="15" />
+            <Setter Property="Transitions">
+                <Transitions>
+                    <DoubleTransition Property="Opacity" Duration="0:0:0.12" />
+                </Transitions>
+            </Setter>
         </Style>
-        <Style Selector="Button.NavButton:pointerover Border.NavIconHoverLayer">
-            <Setter Property="Opacity" Value="0.12" />
+        <Style Selector="theme|NavigationButton.NavButton:pointerover Border.NavIconHoverLayer">
+            <Setter Property="Opacity" Value="0.14" />
         </Style>
-        <Style Selector="Button.NavButton:pressed Border.NavIconHoverLayer">
+        <Style Selector="theme|NavigationButton.NavButton:pressed Border.NavIconHoverLayer">
             <Setter Property="Opacity" Value="0.18" />
         </Style>
-    </suki:SukiWindow.Styles>
+        <Style Selector="Button.WindowControlButton">
+            <Setter Property="MinWidth" Value="42" />
+            <Setter Property="MinHeight" Value="34" />
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="CornerRadius" Value="5" />
+        </Style>
+        <Style Selector="Button.WindowControlButton:pointerover">
+            <Setter Property="Background" Value="{DynamicResource MapWizardControlHoverBrush}" />
+        </Style>
+        <Style Selector="Button.WindowControlButton.Close:pointerover">
+            <Setter Property="Background" Value="#C42B1C" />
+            <Setter Property="Foreground" Value="White" />
+        </Style>
+    </theme:MapWizardWindow.Styles>
 
-    <suki:SukiWindow.DataTemplates>
+    <theme:MapWizardWindow.DataTemplates>
         <DataTemplate DataType="{x:Type vm:WelcomePageViewModel}">
             <welcomePage:WelcomePageView />
         </DataTemplate>
@@ -82,129 +100,172 @@
         <DataTemplate DataType="{x:Type vm:SettingsViewModel}">
             <settings:SettingsView />
         </DataTemplate>
-    </suki:SukiWindow.DataTemplates>
+    </theme:MapWizardWindow.DataTemplates>
 
-    <suki:SukiWindow.Hosts>
-        <suki:SukiToastHost Manager="{Binding ToastManager}" Position="BottomRight" MaxToasts="3" />
-        <suki:SukiDialogHost Manager="{Binding DialogManager}"></suki:SukiDialogHost>
-    </suki:SukiWindow.Hosts>
-
-    <suki:SukiWindow.LogoContent>
-        <Image Source="/Assets/app-icon.png"
-               MaxWidth="26"
-               Stretch="Uniform"
-               RenderOptions.BitmapInterpolationMode="HighQuality" />
-    </suki:SukiWindow.LogoContent>
-
-    <suki:SukiWindow.RightWindowTitleBarControls>
-        <StackPanel Orientation="Horizontal" Spacing="8">
-            <Button Classes="Basic Compact"
-                    Command="{Binding OpenGithubCommand}"
-                    ToolTip.Tip="View on GitHub">
-                <materialIcons:MaterialIcon Kind="Github" />
-            </Button>
-        </StackPanel>
-    </suki:SukiWindow.RightWindowTitleBarControls>
-
-    <!-- SukiWindow's template has no VisualLayerManager, which Avalonia 12 requires for light-dismiss flyouts. -->
     <VisualLayerManager>
         <Panel>
-        <Grid ColumnDefinitions="102,*">
-        <suki:GlassCard Grid.Column="0" Classes="Primary" Margin="8,8,8,8" Padding="4,10" CornerRadius="16">
+        <!-- Rounded, self-drawn window shell: dark base + backdrop, clipped to
+             the shell shape so the drawn frame's shadow shows around it. -->
+        <Border x:Name="WindowShell"
+                Classes="WindowShell"
+                Background="{DynamicResource MapWizardWindowBackgroundBrush}"
+                CornerRadius="12"
+                ClipToBounds="True">
+        <Panel>
+        <Border Classes="WindowBackdrop" />
+        <Grid RowDefinitions="42,*">
+            <Border Grid.Row="0"
+                    Classes="WindowTitleBar"
+                    Background="{DynamicResource MapWizardSurfaceOpaqueBrush}"
+                    BorderBrush="{DynamicResource MapWizardBorderBrush}"
+                    BorderThickness="0,0,0,1">
+                <Grid ColumnDefinitions="Auto,*,Auto,Auto">
+                    <StackPanel Orientation="Horizontal"
+                                Spacing="9"
+                                Margin="12,0"
+                                VerticalAlignment="Center"
+                                IsHitTestVisible="False">
+                        <Image Source="/Assets/app-icon.png"
+                               Width="24"
+                               Height="24"
+                               Stretch="Uniform"
+                               RenderOptions.BitmapInterpolationMode="HighQuality" />
+                        <TextBlock Text="MapWizard"
+                                   FontWeight="SemiBold"
+                                   VerticalAlignment="Center" />
+                    </StackPanel>
+
+                    <Button Grid.Column="2"
+                            Classes="Basic Compact"
+                            Margin="0,4"
+                            Command="{Binding OpenGithubCommand}"
+                            ToolTip.Tip="View on GitHub">
+                        <materialIcons:MaterialIcon Kind="Github" Width="18" Height="18" />
+                    </Button>
+                    <StackPanel Grid.Column="3"
+                                Orientation="Horizontal"
+                                Spacing="2"
+                                Margin="0,4,10,4"
+                                VerticalAlignment="Center">
+                        <Button Classes="WindowControlButton"
+                                Click="MinimizeButton_OnClick"
+                                ToolTip.Tip="Minimize">
+                            <materialIcons:MaterialIcon Kind="WindowMinimize" Width="17" Height="17" />
+                        </Button>
+                        <Button Classes="WindowControlButton"
+                                Click="MaximizeButton_OnClick"
+                                ToolTip.Tip="Maximize or restore">
+                            <materialIcons:MaterialIcon Kind="WindowMaximize" Width="15" Height="15" />
+                        </Button>
+                        <Button Classes="WindowControlButton Close"
+                                Click="CloseButton_OnClick"
+                                ToolTip.Tip="Close">
+                            <materialIcons:MaterialIcon Kind="WindowClose" Width="17" Height="17" />
+                        </Button>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+        <Grid Grid.Row="1" ColumnDefinitions="96,*">
+        <Border Grid.Column="0"
+                Padding="4,10"
+                Background="{DynamicResource MapWizardSurfaceOpaqueBrush}"
+                BorderBrush="{DynamicResource MapWizardBorderBrush}"
+                BorderThickness="0,0,1,0">
             <Grid RowDefinitions="Auto,*,Auto">
                 <StackPanel Grid.Row="0" Spacing="8" HorizontalAlignment="Center">
-                    <Button Classes="NavButton"
+                    <theme:NavigationButton Classes="NavButton"
                             Padding="0"
                             MinWidth="0"
                             Width="82"
-                            Foreground="{DynamicResource SukiText}"
+                            Foreground="{DynamicResource MapWizardTextBrush}"
                             HorizontalContentAlignment="Center"
                             Command="{Binding OpenWelcomeCommand}">
                         <StackPanel Spacing="4" HorizontalAlignment="Center" IsHitTestVisible="False">
                             <Grid Width="44" Height="30">
                                 <Border Classes="NavIconHoverLayer" />
                                 <Border CornerRadius="15"
-                                        Background="{DynamicResource ThemeAccentBrush}"
+                                        Background="{DynamicResource MapWizardAccentBrush}"
                                         Opacity="0.20"
                                         IsVisible="{Binding IsWelcomeSelected}" />
                                 <materialIcons:MaterialIcon Kind="Home"
-                                                            Foreground="{DynamicResource SukiText}"
+                                                            Foreground="{DynamicResource MapWizardTextBrush}"
                                                             HorizontalAlignment="Center"
                                                             VerticalAlignment="Center" />
                             </Grid>
                             <TextBlock Text="Start"
                                        Width="68"
                                        FontSize="11"
-                                       Foreground="{DynamicResource SukiText}"
+                                       Foreground="{DynamicResource MapWizardTextBrush}"
                                        HorizontalAlignment="Center"
                                        TextAlignment="Center"
                                        TextWrapping="Wrap" />
                         </StackPanel>
-                    </Button>
+                    </theme:NavigationButton>
 
-                    <Button Classes="NavButton"
+                    <theme:NavigationButton Classes="NavButton"
                             Padding="0"
                             MinWidth="0"
                             Width="82"
-                            Foreground="{DynamicResource SukiText}"
+                            Foreground="{DynamicResource MapWizardTextBrush}"
                             HorizontalContentAlignment="Center"
                             Command="{Binding OpenHitSoundCopierCommand}">
                         <StackPanel Spacing="4" HorizontalAlignment="Center" IsHitTestVisible="False">
                             <Grid Width="44" Height="30">
                                 <Border Classes="NavIconHoverLayer" />
                                 <Border CornerRadius="15"
-                                        Background="{DynamicResource ThemeAccentBrush}"
+                                        Background="{DynamicResource MapWizardAccentBrush}"
                                         Opacity="0.20"
                                         IsVisible="{Binding IsHitSoundCopierSelected}" />
                                 <materialIcons:MaterialIcon Kind="ContentCopy"
-                                                            Foreground="{DynamicResource SukiText}"
+                                                            Foreground="{DynamicResource MapWizardTextBrush}"
                                                             HorizontalAlignment="Center"
                                                             VerticalAlignment="Center" />
                             </Grid>
                             <TextBlock Text="Hitsound Copier"
                                        Width="68"
                                        FontSize="11"
-                                       Foreground="{DynamicResource SukiText}"
+                                       Foreground="{DynamicResource MapWizardTextBrush}"
                                        HorizontalAlignment="Center"
                                        TextAlignment="Center"
                                        TextWrapping="Wrap" />
                         </StackPanel>
-                    </Button>
+                    </theme:NavigationButton>
 
-                    <Button Classes="NavButton"
+                    <theme:NavigationButton Classes="NavButton"
                             Padding="0"
                             MinWidth="0"
                             Width="82"
-                            Foreground="{DynamicResource SukiText}"
+                            Foreground="{DynamicResource MapWizardTextBrush}"
                             HorizontalContentAlignment="Center"
                             Command="{Binding OpenMetadataManagerCommand}">
                         <StackPanel Spacing="4" HorizontalAlignment="Center" IsHitTestVisible="False">
                             <Grid Width="44" Height="30">
                                 <Border Classes="NavIconHoverLayer" />
                                 <Border CornerRadius="15"
-                                        Background="{DynamicResource ThemeAccentBrush}"
+                                        Background="{DynamicResource MapWizardAccentBrush}"
                                         Opacity="0.20"
                                         IsVisible="{Binding IsMetadataManagerSelected}" />
                                 <materialIcons:MaterialIcon Kind="FileDocumentMultiple"
-                                                            Foreground="{DynamicResource SukiText}"
+                                                            Foreground="{DynamicResource MapWizardTextBrush}"
                                                             HorizontalAlignment="Center"
                                                             VerticalAlignment="Center" />
                             </Grid>
                             <TextBlock Text="Metadata Manager"
                                        Width="68"
                                        FontSize="11"
-                                       Foreground="{DynamicResource SukiText}"
+                                       Foreground="{DynamicResource MapWizardTextBrush}"
                                        HorizontalAlignment="Center"
                                        TextAlignment="Center"
                                        TextWrapping="Wrap" />
                         </StackPanel>
-                    </Button>
+                    </theme:NavigationButton>
 
-                    <Button Classes="NavButton"
+                    <theme:NavigationButton Classes="NavButton"
                             Padding="0"
                             MinWidth="0"
                             Width="82"
-                            Foreground="{DynamicResource SukiText}"
+                            Foreground="{DynamicResource MapWizardTextBrush}"
                             HorizontalContentAlignment="Center"
                             IsVisible="{Binding IsHitSoundVisualizerEnabled}"
                             Command="{Binding OpenHitSoundVisualizerCommand}">
@@ -212,122 +273,122 @@
                             <Grid Width="44" Height="30">
                                 <Border Classes="NavIconHoverLayer" />
                                 <Border CornerRadius="15"
-                                        Background="{DynamicResource ThemeAccentBrush}"
+                                        Background="{DynamicResource MapWizardAccentBrush}"
                                         Opacity="0.20"
                                         IsVisible="{Binding IsHitSoundVisualizerSelected}" />
                                 <materialIcons:MaterialIcon Kind="ChartTimelineVariant"
-                                                            Foreground="{DynamicResource SukiText}"
+                                                            Foreground="{DynamicResource MapWizardTextBrush}"
                                                             HorizontalAlignment="Center"
                                                             VerticalAlignment="Center" />
                             </Grid>
                             <TextBlock Text="Hitsound Visualizer"
                                        Width="68"
                                        FontSize="11"
-                                       Foreground="{DynamicResource SukiText}"
+                                       Foreground="{DynamicResource MapWizardTextBrush}"
                                        HorizontalAlignment="Center"
                                        TextAlignment="Center"
                                        TextWrapping="Wrap" />
                         </StackPanel>
-                    </Button>
+                    </theme:NavigationButton>
 
-                    <Button Classes="NavButton"
+                    <theme:NavigationButton Classes="NavButton"
                             Padding="0"
                             MinWidth="0"
                             Width="82"
-                            Foreground="{DynamicResource SukiText}"
+                            Foreground="{DynamicResource MapWizardTextBrush}"
                             HorizontalContentAlignment="Center"
                             Command="{Binding OpenComboColourStudioCommand}">
                         <StackPanel Spacing="4" HorizontalAlignment="Center" IsHitTestVisible="False">
                             <Grid Width="44" Height="30">
                                 <Border Classes="NavIconHoverLayer" />
                                 <Border CornerRadius="15"
-                                        Background="{DynamicResource ThemeAccentBrush}"
+                                        Background="{DynamicResource MapWizardAccentBrush}"
                                         Opacity="0.20"
                                         IsVisible="{Binding IsComboColourStudioSelected}" />
                                 <materialIcons:MaterialIcon Kind="Palette"
-                                                            Foreground="{DynamicResource SukiText}"
+                                                            Foreground="{DynamicResource MapWizardTextBrush}"
                                                             HorizontalAlignment="Center"
                                                             VerticalAlignment="Center" />
                             </Grid>
                             <TextBlock Text="Combo Colour Studio"
                                        Width="68"
                                        FontSize="11"
-                                       Foreground="{DynamicResource SukiText}"
+                                       Foreground="{DynamicResource MapWizardTextBrush}"
                                        HorizontalAlignment="Center"
                                        TextAlignment="Center"
                                        TextWrapping="Wrap" />
                         </StackPanel>
-                    </Button>
+                    </theme:NavigationButton>
 
-                    <Button Classes="NavButton"
+                    <theme:NavigationButton Classes="NavButton"
                             Padding="0"
                             MinWidth="0"
                             Width="82"
-                            Foreground="{DynamicResource SukiText}"
+                            Foreground="{DynamicResource MapWizardTextBrush}"
                             HorizontalContentAlignment="Center"
                             Command="{Binding OpenMapCleanerCommand}">
                         <StackPanel Spacing="4" HorizontalAlignment="Center" IsHitTestVisible="False">
                             <Grid Width="44" Height="30">
                                 <Border Classes="NavIconHoverLayer" />
                                 <Border CornerRadius="15"
-                                        Background="{DynamicResource ThemeAccentBrush}"
+                                        Background="{DynamicResource MapWizardAccentBrush}"
                                         Opacity="0.20"
                                         IsVisible="{Binding IsMapCleanerSelected}" />
                                 <materialIcons:MaterialIcon Kind="Broom"
-                                                            Foreground="{DynamicResource SukiText}"
+                                                            Foreground="{DynamicResource MapWizardTextBrush}"
                                                             HorizontalAlignment="Center"
                                                             VerticalAlignment="Center" />
                             </Grid>
                             <TextBlock Text="Map Cleaner"
                                        Width="68"
                                        FontSize="11"
-                                       Foreground="{DynamicResource SukiText}"
+                                       Foreground="{DynamicResource MapWizardTextBrush}"
                                        HorizontalAlignment="Center"
                                        TextAlignment="Center"
                                        TextWrapping="Wrap" />
                         </StackPanel>
-                    </Button>
+                    </theme:NavigationButton>
                 </StackPanel>
 
                 <StackPanel Grid.Row="2" Spacing="8" HorizontalAlignment="Center">
-                    <Button Classes="NavButton"
+                    <theme:NavigationButton Classes="NavButton"
                             Padding="0"
                             MinWidth="0"
                             Width="82"
-                            Foreground="{DynamicResource SukiText}"
+                            Foreground="{DynamicResource MapWizardTextBrush}"
                             HorizontalContentAlignment="Center"
                             Command="{Binding OpenSettingsCommand}">
                         <StackPanel Spacing="4" HorizontalAlignment="Center" IsHitTestVisible="False">
                             <Grid Width="44" Height="30">
                                 <Border Classes="NavIconHoverLayer" />
                                 <Border CornerRadius="15"
-                                        Background="{DynamicResource ThemeAccentBrush}"
+                                        Background="{DynamicResource MapWizardAccentBrush}"
                                         Opacity="0.20"
                                         IsVisible="{Binding IsSettingsSelected}" />
                                 <materialIcons:MaterialIcon Kind="Cog"
-                                                            Foreground="{DynamicResource SukiText}"
+                                                            Foreground="{DynamicResource MapWizardTextBrush}"
                                                             HorizontalAlignment="Center"
                                                             VerticalAlignment="Center" />
                             </Grid>
                             <TextBlock Text="Settings"
                                        Width="68"
                                        FontSize="11"
-                                       Foreground="{DynamicResource SukiText}"
+                                       Foreground="{DynamicResource MapWizardTextBrush}"
                                        HorizontalAlignment="Center"
                                        TextAlignment="Center"
                                        TextWrapping="Wrap" />
                         </StackPanel>
-                    </Button>
+                    </theme:NavigationButton>
 
                     <TextBlock Text="{Binding Version}"
                                Width="68"
                                TextAlignment="Center"
                                TextWrapping="Wrap"
                                FontSize="10"
-                               Foreground="{DynamicResource SukiLowText}" />
+                               Foreground="{DynamicResource MapWizardTextSecondaryBrush}" />
                 </StackPanel>
             </Grid>
-        </suki:GlassCard>
+        </Border>
 
         <TransitioningContentControl Grid.Column="1"
                                      Content="{Binding CurrentPageViewModel}">
@@ -336,7 +397,21 @@
             </TransitioningContentControl.PageTransition>
         </TransitioningContentControl>
         </Grid>
+        </Grid>
         <viewControls:ModalHost x:Name="ModalHost" />
+        <viewControls:NotificationHost x:Name="NotificationHost" />
+        </Panel>
+        </Border>
+
+        <!-- Explicit resize grips keep CSD resizing reliable on Wayland. -->
+        <Border Tag="North" Height="5" VerticalAlignment="Top" Background="Transparent" />
+        <Border Tag="South" Height="5" VerticalAlignment="Bottom" Background="Transparent" />
+        <Border Tag="West" Width="5" HorizontalAlignment="Left" Background="Transparent" />
+        <Border Tag="East" Width="5" HorizontalAlignment="Right" Background="Transparent" />
+        <Border Tag="NW" Width="9" Height="9" HorizontalAlignment="Left" VerticalAlignment="Top" Background="Transparent" />
+        <Border Tag="NE" Width="9" Height="9" HorizontalAlignment="Right" VerticalAlignment="Top" Background="Transparent" />
+        <Border Tag="SW" Width="9" Height="9" HorizontalAlignment="Left" VerticalAlignment="Bottom" Background="Transparent" />
+        <Border Tag="SE" Width="9" Height="9" HorizontalAlignment="Right" VerticalAlignment="Bottom" Background="Transparent" />
         </Panel>
     </VisualLayerManager>
-</controls:MapWizardWindow>
+</theme:MapWizardWindow>

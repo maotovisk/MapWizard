@@ -11,7 +11,6 @@ using MapWizard.Desktop.Services;
 using MapWizard.Desktop.Services.MemoryService;
 using MapWizard.Desktop.ViewModels;
 using MapWizard.Desktop.Views.Dialogs;
-using SukiUI.Toasts;
 
 namespace MapWizard.Desktop.Utils;
 
@@ -19,7 +18,7 @@ public static class MapPickerDialogUtils
 {
     public static async Task<IReadOnlyList<string>?> ShowSongSelectDialogAsync(
         IModalService modalService,
-        ISukiToastManager toastManager,
+        INotificationService notificationService,
         ISongLibraryService songLibraryService,
         IFilesService filesService,
         ILazerLookupService lazerLookupService,
@@ -65,7 +64,7 @@ public static class MapPickerDialogUtils
         }
         catch (InvalidOperationException)
         {
-            toastManager.ShowToast(
+            notificationService.ShowToast(
                 NotificationType.Warning,
                 featureName,
                 "Could not open Map Picker because another dialog is already open.");

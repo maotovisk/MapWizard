@@ -1,41 +1,37 @@
-using Avalonia.Interactivity;
+using System;
+using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Input;
-using MapWizard.Desktop.Controls;
-using MapWizard.Desktop.Models.Settings;
+using Avalonia.Interactivity;
+using Avalonia.Media;
 using MapWizard.Desktop.Services;
 using MapWizard.Desktop.ViewModels;
-using SukiUI.Enums;
+using MapWizard.Theme.Controls;
 
 namespace MapWizard.Desktop.Views
 {
     public partial class MainWindow : MapWizardWindow
     {
-        // Ultra-dark pitch-black backdrop with only a breath of gradient,
-        // applied on top of (and taking priority over) the Suki background style.
-        private const string AmoledBackgroundShaderCode = """
-            vec4 main(vec2 fragCoord) {
-                vec2 uv = fragCoord / iResolution.xy;
-                vec3 col = mix(vec3(0.0), vec3(0.02), uv.y);
-                vec2 centered = (uv - vec2(0.5, 0.0)) * vec2(1.3, 1.0);
-                float halo = (1.0 - smoothstep(0.05, 0.8, length(centered))) * 0.018;
-                col += iPrimary * halo;
-                return vec4(col, iAlpha);
-            }
-            """;
-
-        private readonly IThemeService _themeService;
         private readonly IModalService _modalService;
 
-        public MainWindow(MainWindowViewModel viewModel, IThemeService themeService, IModalService modalService)
+        public MainWindow(
+            MainWindowViewModel viewModel,
+            IModalService modalService,
+            INotificationService notificationService)
         {
             InitializeComponent();
-            DataContext = viewModel;
-            _themeService = themeService;
             _modalService = modalService;
             modalService.RegisterHost(ModalHost);
-            _themeService.DarkThemeChanged += OnDarkThemeChanged;
-            _themeService.ColorPaletteChanged += OnColorPaletteChanged;
-            UpdateBackgroundStyle();
+            NotificationHost.NotificationService = notificationService;
+            DataContext = viewModel;
+            PropertyChanged += (_, args) =>
+            {
+                if (args.Property == WindowStateProperty)
+                {
+                    UpdateShellCorners();
+                }
+            };
+            UpdateShellCorners();
             AddHandler(KeyDownEvent, OnWindowKeyDownTunnel, RoutingStrategies.Tunnel, handledEventsToo: true);
         }
 
@@ -51,26 +47,17 @@ namespace MapWizard.Desktop.Views
 
         public void NavigateToSettings() => ViewModel.NavigateToSettings();
 
-        private void OnDarkThemeChanged(object? sender, bool isDarkTheme)
+        private void UpdateShellCorners()
         {
-            UpdateBackgroundStyle();
+            var square = WindowState is WindowState.Maximized or WindowState.FullScreen;
+            WindowShell.CornerRadius = square ? default : new CornerRadius(ShellCornerRadius);
         }
 
-        private void OnColorPaletteChanged(object? sender, ThemePalette colorPalette)
-        {
-            UpdateBackgroundStyle();
-        }
+        private void MinimizeButton_OnClick(object? sender, RoutedEventArgs e) => MinimizeWindow();
 
-        private void UpdateBackgroundStyle()
-        {
-            BackgroundStyle = _themeService.IsDarkTheme
-                ? SukiBackgroundStyle.GradientDarker
-                : SukiBackgroundStyle.Gradient;
-            BackgroundShaderCode = _themeService.IsDarkTheme &&
-                                   _themeService.ColorPalette == ThemePalette.MapWizardNoir
-                ? AmoledBackgroundShaderCode
-                : null;
-        }
+        private void MaximizeButton_OnClick(object? sender, RoutedEventArgs e) => ToggleMaximizeWindow();
+
+        private void CloseButton_OnClick(object? sender, RoutedEventArgs e) => CloseWindow();
 
         private async void OnWindowKeyDownTunnel(object? sender, KeyEventArgs e)
         {

@@ -14,7 +14,6 @@ using MapWizard.Desktop.Extensions;
 using MapWizard.Desktop.Models.Settings;
 using MapWizard.Desktop.Services;
 using MapWizard.Desktop.Services.Playback;
-using SukiUI.Toasts;
 using Velopack;
 
 namespace MapWizard.Desktop.ViewModels;
@@ -26,7 +25,7 @@ public partial class SettingsViewModel(
     ISongLibraryService songLibraryService,
     IUpdateService updateService,
     IAudioPlaybackService audioPlaybackService,
-    ISukiToastManager toastManager) : ViewModelBase
+    INotificationService notificationService) : ViewModelBase
 {
     private bool _isUpdatingFromThemeService;
     private bool _isUpdatingSongsPath;
@@ -84,7 +83,7 @@ public partial class SettingsViewModel(
     {
         if (!Directory.Exists(ConfigDirectoryPath))
         {
-            toastManager.ShowToast(NotificationType.Warning, "Settings", "Config directory was not found.");
+            notificationService.ShowToast(NotificationType.Warning, "Settings", "Config directory was not found.");
             return;
         }
 
@@ -99,7 +98,7 @@ public partial class SettingsViewModel(
         catch (Exception ex)
         {
             MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
-            toastManager.ShowToast(NotificationType.Error, "Settings", ex.Message);
+            notificationService.ShowToast(NotificationType.Error, "Settings", ex.Message);
         }
     }
     public UpdateStream[] UpdateStreams { get; } = [UpdateStream.Release, UpdateStream.PreRelease];

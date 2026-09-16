@@ -1,0 +1,80 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:services="clr-namespace:MapWizard.Desktop.Services"
+             xmlns:controls="clr-namespace:MapWizard.Desktop.Views.Controls"
+             x:Class="MapWizard.Desktop.Views.Controls.NotificationHost"
+             x:DataType="controls:NotificationHost"
+             x:Name="Root"
+             HorizontalAlignment="Right"
+             VerticalAlignment="Bottom">
+    <ItemsControl ItemsSource="{Binding NotificationService.Notifications, ElementName=Root}"
+                  HorizontalAlignment="Right"
+                  VerticalAlignment="Bottom"
+                  Margin="16,16,16,20">
+        <ItemsControl.ItemsPanel>
+            <ItemsPanelTemplate>
+                <StackPanel Spacing="8" />
+            </ItemsPanelTemplate>
+        </ItemsControl.ItemsPanel>
+        <ItemsControl.ItemTemplate>
+            <DataTemplate x:DataType="services:AppNotification">
+                <Border Width="360"
+                        Padding="12"
+                        Background="{DynamicResource MapWizardPopupBrush}"
+                        BorderBrush="{DynamicResource MapWizardBorderBrush}"
+                        BorderThickness="1"
+                        CornerRadius="10"
+                        BoxShadow="0 8 24 0 #40000000"
+                        IsHitTestVisible="True"
+                        Loaded="OnToastLoaded">
+                    <Border.Transitions>
+                        <Transitions>
+                            <DoubleTransition Property="Opacity" Duration="0:0:0.22" />
+                            <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.22" />
+                        </Transitions>
+                    </Border.Transitions>
+                    <Grid ColumnDefinitions="4,Auto,*,Auto" ColumnSpacing="10">
+                        <Border Background="{Binding AccentBrush}" CornerRadius="2" />
+                        <Border Grid.Column="1" Width="24" Height="24" CornerRadius="12"
+                                Background="{Binding AccentBrush}">
+                            <TextBlock Text="{Binding Symbol}" Foreground="#FF111111"
+                                       FontWeight="Bold" HorizontalAlignment="Center"
+                                       VerticalAlignment="Center" />
+                        </Border>
+                        <StackPanel Grid.Column="2" Spacing="5">
+                            <TextBlock Text="{Binding Title}" FontWeight="SemiBold" />
+                            <TextBlock Text="{Binding Message}"
+                                       TextWrapping="Wrap"
+                                       Foreground="{DynamicResource MapWizardTextSecondaryBrush}" />
+                            <ProgressBar IsVisible="{Binding IsBusy}" IsIndeterminate="True" Height="3" />
+                            <ProgressBar IsVisible="{Binding HasProgress}"
+                                         IsIndeterminate="False"
+                                         Minimum="0"
+                                         Maximum="100"
+                                         Value="{Binding Progress}"
+                                         Height="4" />
+                            <ItemsControl ItemsSource="{Binding Actions}" HorizontalAlignment="Right">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate><StackPanel Orientation="Horizontal" Spacing="6" /></ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate x:DataType="services:AppNotificationAction">
+                                        <Panel>
+                                            <Button Content="{Binding Label}" Command="{Binding Command}"
+                                                    Classes="Basic Compact" IsVisible="{Binding !IsPrimary}" />
+                                            <Button Content="{Binding Label}" Command="{Binding Command}"
+                                                    Classes="Flat Compact" IsVisible="{Binding IsPrimary}" />
+                                        </Panel>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                        <Button Grid.Column="3" Classes="Basic Compact" Content="×"
+                                MinWidth="26" MinHeight="26" Padding="3,0"
+                                Command="{Binding CloseCommand}" ToolTip.Tip="Dismiss" />
+                    </Grid>
+                </Border>
+            </DataTemplate>
+        </ItemsControl.ItemTemplate>
+    </ItemsControl>
+</UserControl>

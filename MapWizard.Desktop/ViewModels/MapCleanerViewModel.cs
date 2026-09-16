@@ -18,7 +18,6 @@ using MapWizard.Desktop.Services.MapCleanerService;
 using MapWizard.Desktop.Services.MemoryService;
 using MapWizard.Desktop.Utils;
 using MapWizard.Tools.MapCleaner;
-using SukiUI.Toasts;
 
 namespace MapWizard.Desktop.ViewModels;
 
@@ -30,7 +29,7 @@ public partial class MapCleanerViewModel(
     ISettingsService settingsService,
     ISongLibraryService songLibraryService,
     IModalService modalService,
-    ISukiToastManager toastManager) : ViewModelBase
+    INotificationService notificationService) : ViewModelBase
 {
     [ObservableProperty] private SelectedMap _originBeatmap = new();
 
@@ -120,7 +119,7 @@ public partial class MapCleanerViewModel(
         catch (Exception ex)
         {
             MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
-            toastManager.ShowToast(NotificationType.Error, "Map Cleaner", ex.Message);
+            notificationService.ShowToast(NotificationType.Error, "Map Cleaner", ex.Message);
         }
     }
 
@@ -156,7 +155,7 @@ public partial class MapCleanerViewModel(
             return;
         }
 
-        toastManager.ShowToast(
+        notificationService.ShowToast(
             NotificationType.Warning,
             "Map Cleaner",
             string.IsNullOrWhiteSpace(errorMessage)
@@ -193,7 +192,7 @@ public partial class MapCleanerViewModel(
     {
         if (!TryNormalizeSnap(CustomSnapInput, out var normalized))
         {
-            toastManager.ShowToast(NotificationType.Error, "Map Cleaner", "Invalid snap format. Use values like 1/8 or 2/3.");
+            notificationService.ShowToast(NotificationType.Error, "Map Cleaner", "Invalid snap format. Use values like 1/8 or 2/3.");
             return;
         }
 
@@ -206,7 +205,7 @@ public partial class MapCleanerViewModel(
     {
         if (ActiveSnapDivisors.Count <= 1)
         {
-            toastManager.ShowToast(NotificationType.Warning, "Map Cleaner", "At least one snap divisor is required.");
+            notificationService.ShowToast(NotificationType.Warning, "Map Cleaner", "At least one snap divisor is required.");
             return;
         }
 
@@ -218,7 +217,7 @@ public partial class MapCleanerViewModel(
     {
         if (string.IsNullOrWhiteSpace(OriginBeatmap.Path))
         {
-            toastManager.ShowToast(NotificationType.Error, "Map Cleaner", "Please select a beatmap first.");
+            notificationService.ShowToast(NotificationType.Error, "Map Cleaner", "Please select a beatmap first.");
             return;
         }
 
@@ -234,7 +233,7 @@ public partial class MapCleanerViewModel(
 
         if (success)
         {
-            toastManager.ShowToast(
+            notificationService.ShowToast(
                 NotificationType.Success,
                 "Map Cleaner",
                 $"Done. Resnapped {result.TimingPointsResnapped} timing points, {result.GreenLinesResnapped} greenlines, {result.ObjectsResnapped} object starts, {result.SliderEndsResnapped} slider ends, {result.BookmarksResnapped} bookmarks, and {result.PreviewTimeResnapped} preview points; removed {result.GreenLinesRemoved} greenlines.");
@@ -244,7 +243,7 @@ public partial class MapCleanerViewModel(
         }
 
         var message = result.FailureDetails.Count > 0 ? result.FailureDetails[0] : "Map cleaning failed.";
-        toastManager.ShowToast(NotificationType.Error, "Map Cleaner", message);
+        notificationService.ShowToast(NotificationType.Error, "Map Cleaner", message);
     }
 
     private void SetOriginBeatmapPath(string beatmapPath)
@@ -310,7 +309,7 @@ public partial class MapCleanerViewModel(
             osuMemoryReaderService,
             lazerLookupService,
             modalService,
-            (type, title, message) => toastManager.ShowToast(type, title, message),
+            (type, title, message) => notificationService.ShowToast(type, title, message),
             "Memory Error",
             "Something went wrong while getting the beatmap path from memory.",
             "No Beatmap",
@@ -324,7 +323,7 @@ public partial class MapCleanerViewModel(
         string? preferredMapsetDirectoryPath = null)
         => MapPickerDialogUtils.ShowSongSelectDialogAsync(
             modalService,
-            toastManager,
+            notificationService,
             songLibraryService,
             filesService,
             lazerLookupService,

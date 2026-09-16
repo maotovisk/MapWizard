@@ -8,8 +8,7 @@
   xmlns:controls="clr-namespace:MapWizard.Desktop.Views.Controls"
   xmlns:appControls="clr-namespace:MapWizard.Desktop.Controls"
   xmlns:materialIcons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
-  xmlns:suki="clr-namespace:SukiUI.Controls;assembly=SukiUI"
-  xmlns:theme="https://github.com/kikipoulet/SukiUI"
+  xmlns:theme="clr-namespace:MapWizard.Theme.Controls;assembly=MapWizard.Theme"
   xmlns:models="using:MapWizard.Desktop.Models"
   mc:Ignorable="d"
   d:DesignWidth="800"
@@ -62,7 +61,7 @@
         
         <!-- METADATA -->
         <Grid ColumnDefinitions="*,*" Margin="0,8,0,0">
-          <suki:GlassCard Margin="8" Padding="12" CornerRadius="15" Grid.Column="0">
+          <theme:Surface Margin="8" Padding="12" CornerRadius="15" Grid.Column="0">
             <StackPanel Spacing="8">
               <Grid ColumnDefinitions="*,Auto" VerticalAlignment="Center">
                 <TextBlock Text="Metadata" FontWeight="Bold" FontSize="16" VerticalAlignment="Center" />
@@ -70,20 +69,20 @@
               </Grid>
               <Separator />
               <StackPanel Spacing="8" IsEnabled="{Binding ApplyMetadataSection}">
-                <TextBox theme:TextBoxExtensions.Prefix="Title: " theme:TextBoxExtensions.AddDeleteButton="True" PlaceholderText="Title" Text="{Binding Metadata.Title, Mode=TwoWay}" />
-                <TextBox theme:TextBoxExtensions.Prefix="Romanized Title: " theme:TextBoxExtensions.AddDeleteButton="True" PlaceholderText="Romanized Title" Text="{Binding Metadata.RomanizedTitle, Mode=TwoWay}" />
-                <TextBox theme:TextBoxExtensions.Prefix="Artist: " theme:TextBoxExtensions.AddDeleteButton="True" PlaceholderText="Artist" Text="{Binding Metadata.Artist, Mode=TwoWay}" />
-                <TextBox theme:TextBoxExtensions.Prefix="Romanized Artist: " theme:TextBoxExtensions.AddDeleteButton="True" PlaceholderText="Romanized Artist" Text="{Binding Metadata.RomanizedArtist, Mode=TwoWay}" />
-                <TextBox theme:TextBoxExtensions.Prefix="Creator: " theme:TextBoxExtensions.AddDeleteButton="True" PlaceholderText="Creator" Text="{Binding Metadata.Creator, Mode=TwoWay}" />
-                <TextBox theme:TextBoxExtensions.Prefix="Source: " theme:TextBoxExtensions.AddDeleteButton="True" PlaceholderText="Source" Text="{Binding Metadata.Source, Mode=TwoWay}" />
-                <TextBox theme:TextBoxExtensions.Prefix="Tags: " theme:TextBoxExtensions.AddDeleteButton="True" PlaceholderText="Tags" AcceptsReturn="True" TextWrapping="Wrap" Text="{Binding Metadata.Tags, Mode=TwoWay}" />
-                <TextBox theme:TextBoxExtensions.Prefix="Beatmap Set ID: " theme:TextBoxExtensions.AddDeleteButton="True" PlaceholderText="Beatmap Set ID" Text="{Binding Metadata.BeatmapSetId, Mode=TwoWay}" />
+                <theme:FieldTextBox Prefix="Title: " PlaceholderText="Title" Text="{Binding Metadata.Title, Mode=TwoWay}" />
+                <theme:FieldTextBox Prefix="Romanized Title: " PlaceholderText="Romanized Title" Text="{Binding Metadata.RomanizedTitle, Mode=TwoWay}" />
+                <theme:FieldTextBox Prefix="Artist: " PlaceholderText="Artist" Text="{Binding Metadata.Artist, Mode=TwoWay}" />
+                <theme:FieldTextBox Prefix="Romanized Artist: " PlaceholderText="Romanized Artist" Text="{Binding Metadata.RomanizedArtist, Mode=TwoWay}" />
+                <theme:FieldTextBox Prefix="Creator: " PlaceholderText="Creator" Text="{Binding Metadata.Creator, Mode=TwoWay}" />
+                <theme:FieldTextBox Prefix="Source: " PlaceholderText="Source" Text="{Binding Metadata.Source, Mode=TwoWay}" />
+                <theme:FieldTextBox Prefix="Tags: " PlaceholderText="Tags" AcceptsReturn="True" TextWrapping="Wrap" Text="{Binding Metadata.Tags, Mode=TwoWay}" />
+                <theme:FieldTextBox Prefix="Beatmap Set ID: " PlaceholderText="Beatmap Set ID" Text="{Binding Metadata.BeatmapSetId, Mode=TwoWay}" />
               </StackPanel>
             </StackPanel>
-          </suki:GlassCard>
+          </theme:Surface>
           
           <!-- GENERAL -->
-          <suki:GlassCard Margin="8" Padding="12" CornerRadius="15" Grid.Column="1">
+          <theme:Surface Margin="8" Padding="12" CornerRadius="15" Grid.Column="1">
             <StackPanel Spacing="8">
               <Grid ColumnDefinitions="*,Auto" VerticalAlignment="Center">
                 <TextBlock Text="General" FontWeight="Bold" FontSize="16" VerticalAlignment="Center" />
@@ -93,21 +92,24 @@
               <StackPanel Spacing="8" IsEnabled="{Binding ApplyGeneralSection}">
                 <Grid ColumnDefinitions="*,Auto">
                   <TextBlock VerticalAlignment="Center">Preview Time</TextBlock>
-                  <NumericUpDown Grid.Column="1" theme:NumericUpDownExtensions.Unit="ms" Increment="1" Minimum="-1"
-                                 Value="{Binding Metadata.PreviewTime, Mode=TwoWay}" />
+                  <theme:UnitNumericUpDown Grid.Column="1"
+                                           Unit="ms"
+                                           Increment="1"
+                                           Minimum="-1"
+                                           Value="{Binding Metadata.PreviewTime, Mode=TwoWay}" />
                 </Grid>
-                <TextBox theme:TextBoxExtensions.Prefix="Audio File: " theme:TextBoxExtensions.AddDeleteButton="True" PlaceholderText="Audio File" Text="{Binding Metadata.AudioFilename, Mode=TwoWay}" />
+                <theme:FieldTextBox Prefix="Audio File: " PlaceholderText="Audio File" Text="{Binding Metadata.AudioFilename, Mode=TwoWay}" />
                 <Grid ColumnDefinitions="*,Auto">
                   <TextBlock Text="Overwrite background file for all difficulties" VerticalAlignment="Center" />
                   <ToggleSwitch Grid.Column="1" IsChecked="{Binding OverwriteBackground, Mode=TwoWay}" />
                 </Grid>
-                <TextBox IsVisible="{Binding OverwriteBackground}" theme:TextBoxExtensions.Prefix="Background Image: " theme:TextBoxExtensions.AddDeleteButton="True" PlaceholderText="Background Image" Text="{Binding Metadata.BackgroundFilename, Mode=TwoWay}" />
+                <theme:FieldTextBox IsVisible="{Binding OverwriteBackground}" Prefix="Background Image: " PlaceholderText="Background Image" Text="{Binding Metadata.BackgroundFilename, Mode=TwoWay}" />
                 <Grid ColumnDefinitions="*,Auto">
                   <TextBlock Text="Overwrite video for all difficulties" VerticalAlignment="Center" />
                   <ToggleSwitch Grid.Column="1" IsChecked="{Binding OverwriteVideo, Mode=TwoWay}" />
                 </Grid>
-                <TextBox IsVisible="{Binding OverwriteVideo}" theme:TextBoxExtensions.Prefix="Video Offset: " theme:TextBoxExtensions.AddDeleteButton="True" PlaceholderText="Video Offset" Text="{Binding Metadata.VideoOffset, Mode=TwoWay}" />
-                <TextBox IsVisible="{Binding OverwriteVideo}" theme:TextBoxExtensions.Prefix="Video File: " theme:TextBoxExtensions.AddDeleteButton="True" PlaceholderText="Video File" Text="{Binding Metadata.VideoFilename, Mode=TwoWay}" />
+                <theme:FieldTextBox IsVisible="{Binding OverwriteVideo}" Prefix="Video Offset: " PlaceholderText="Video Offset" Text="{Binding Metadata.VideoOffset, Mode=TwoWay}" />
+                <theme:FieldTextBox IsVisible="{Binding OverwriteVideo}" Prefix="Video File: " PlaceholderText="Video File" Text="{Binding Metadata.VideoFilename, Mode=TwoWay}" />
                 <Grid ColumnDefinitions="*,Auto">
                   <TextBlock Text="Widescreen Support" VerticalAlignment="Center" />
                   <ToggleSwitch Grid.Column="1" IsChecked="{Binding Metadata.WidescreenStoryboard, Mode=TwoWay}" />
@@ -126,12 +128,12 @@
                 </Grid>
               </StackPanel>
             </StackPanel>
-          </suki:GlassCard>
+          </theme:Surface>
         </Grid>
 
         <!-- COLOURS & COMBOS -->
         <Grid ColumnDefinitions="*,*" Margin="0,8,0,0">
-          <suki:GlassCard Margin="8" Padding="12" CornerRadius="15" Grid.Column="0">
+          <theme:Surface Margin="8" Padding="12" CornerRadius="15" Grid.Column="0">
             <StackPanel Spacing="8">
               <Grid ColumnDefinitions="*,Auto" VerticalAlignment="Center">
                 <TextBlock Text="Colours" FontWeight="Bold" FontSize="16" VerticalAlignment="Center" />
@@ -161,9 +163,9 @@
                 </Grid>
               </StackPanel>
             </StackPanel>
-          </suki:GlassCard>
+          </theme:Surface>
         
-          <suki:GlassCard Margin="8" Padding="12" CornerRadius="15" Grid.Column="1">
+          <theme:Surface Margin="8" Padding="12" CornerRadius="15" Grid.Column="1">
             <StackPanel Spacing="8">
               <Grid ColumnDefinitions="*,Auto" VerticalAlignment="Center">
                 <TextBlock Text="Combos" FontWeight="Bold" FontSize="16" VerticalAlignment="Center" />
@@ -195,14 +197,12 @@
                 </Button>
               </StackPanel>
             </StackPanel>
-          </suki:GlassCard>
+          </theme:Surface>
         </Grid>
 
         <!-- OPTIONS -->
-        <suki:GlassCard Margin="8" Padding="12" CornerRadius="15">
+        <theme:CollapsibleSection Header="Options">
           <StackPanel Spacing="8">
-            <TextBlock Text="Options" />
-            <Separator />
             <Grid ColumnDefinitions="*,Auto">
               <TextBlock Text="Remove Duplicate Tags" VerticalAlignment="Center" />
               <ToggleSwitch Grid.Column="1" IsChecked="{Binding RemoveDuplicateTags, Mode=TwoWay}" />
@@ -212,7 +212,7 @@
               <ToggleSwitch Grid.Column="1" IsChecked="{Binding ResetBeatmapIds, Mode=TwoWay}" />
             </Grid>
           </StackPanel>
-        </suki:GlassCard>
+        </theme:CollapsibleSection>
       </StackPanel>
     </appControls:SmoothScrollViewer>
   </Grid>

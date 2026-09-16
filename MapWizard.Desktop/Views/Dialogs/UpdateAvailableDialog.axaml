@@ -19,13 +19,13 @@
                        FontSize="16"
                        FontWeight="Bold"
                        TextWrapping="Wrap"
-                       Foreground="{DynamicResource SukiText}" />
+                       Foreground="{DynamicResource MapWizardTextBrush}" />
             <TextBlock x:Name="CurrentVersionLine"
                        FontSize="12"
-                       Foreground="{DynamicResource SukiLowText}" />
+                       Foreground="{DynamicResource MapWizardTextSecondaryBrush}" />
         </StackPanel>
 
-        <Border Height="1" Background="{DynamicResource SukiBorderBrush}" />
+        <Border Height="1" Background="{DynamicResource MapWizardBorderBrush}" />
 
         <StackPanel Spacing="6">
             <TextBlock Text="Changelog" FontWeight="Bold" />
@@ -38,11 +38,11 @@
                                          MaxHeight="260">
                     <md:MarkdownScrollViewer.Styles>
                         <Style Selector="ctxt|CTextBlock">
-                            <Setter Property="Foreground" Value="{DynamicResource SukiText}" />
+                            <Setter Property="Foreground" Value="{DynamicResource MapWizardTextBrush}" />
                             <Setter Property="FontSize" Value="13" />
                         </Style>
                         <Style Selector="TextBlock">
-                            <Setter Property="Foreground" Value="{DynamicResource SukiText}" />
+                            <Setter Property="Foreground" Value="{DynamicResource MapWizardTextBrush}" />
                             <Setter Property="FontSize" Value="13" />
                         </Style>
                     </md:MarkdownScrollViewer.Styles>

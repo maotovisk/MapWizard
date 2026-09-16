@@ -31,8 +31,8 @@
                 CornerRadius="18"
                 Opacity="0"
                 RenderTransform="scale(0.93)"
-                Background="{DynamicResource SukiGlassCardOpaqueBackground}"
-                BorderBrush="{DynamicResource SukiBorderBrush}"
+                Background="{DynamicResource MapWizardSurfaceOpaqueBrush}"
+                BorderBrush="{DynamicResource MapWizardBorderBrush}"
                 BorderThickness="1"
                 BoxShadow="0 12 48 4 #99000000"
                 ClipToBounds="True">
@@ -52,7 +52,7 @@
                                FontSize="18"
                                FontWeight="Bold"
                                VerticalAlignment="Center"
-                               Foreground="{DynamicResource SukiText}"
+                               Foreground="{DynamicResource MapWizardTextBrush}"
                                TextTrimming="CharacterEllipsis"
                                MaxLines="1" />
                     <Button Grid.Column="1"

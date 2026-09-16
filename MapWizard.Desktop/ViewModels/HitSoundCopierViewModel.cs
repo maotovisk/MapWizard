@@ -16,8 +16,6 @@ using MapWizard.Desktop.Services.HitsoundService;
 using MapWizard.Desktop.Services.MemoryService;
 using MapWizard.Desktop.Utils;
 using MapWizard.Tools.HitSounds.Copier;
-using SukiUI.Dialogs;
-using SukiUI.Toasts;
 
 namespace MapWizard.Desktop.ViewModels;
 
@@ -28,9 +26,8 @@ public partial class HitSoundCopierViewModel(
     ILazerLookupService lazerLookupService,
     ISettingsService settingsService,
     ISongLibraryService songLibraryService,
-    ISukiDialogManager dialogManager,
     IModalService modalService,
-    ISukiToastManager toastManager) : ViewModelBase
+    INotificationService notificationService) : ViewModelBase
 {
     [ObservableProperty] private SelectedMap _originBeatmap = new();
     [ObservableProperty] private bool _hasMultiple;
@@ -103,7 +100,7 @@ public partial class HitSoundCopierViewModel(
         catch (Exception ex)
         {
             MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
-            toastManager.ShowToast(NotificationType.Error, "HitSound Copier", ex.Message);
+            notificationService.ShowToast(NotificationType.Error, "HitSound Copier", ex.Message);
         }
     }
 
@@ -126,7 +123,7 @@ public partial class HitSoundCopierViewModel(
         catch (Exception ex)
         {
             MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
-            toastManager.ShowToast(NotificationType.Error, "HitSound Copier", ex.Message);
+            notificationService.ShowToast(NotificationType.Error, "HitSound Copier", ex.Message);
         }
     }
 
@@ -153,7 +150,7 @@ public partial class HitSoundCopierViewModel(
 
         if (!BeatmapSelectionUtils.TryAppendDestinationBeatmap(DestinationBeatmaps, currentBeatmap, out var destinationBeatmaps))
         {
-            toastManager.ShowToast(NotificationType.Error, "Duplicate Beatmap", "This beatmap is already in the list.");
+            notificationService.ShowToast(NotificationType.Error, "Duplicate Beatmap", "This beatmap is already in the list.");
             return;
         }
 
@@ -169,7 +166,7 @@ public partial class HitSoundCopierViewModel(
             return;
         }
 
-        toastManager.ShowToast(
+        notificationService.ShowToast(
             NotificationType.Warning,
             "HitSound Copier",
             string.IsNullOrWhiteSpace(errorMessage)
@@ -192,7 +189,7 @@ public partial class HitSoundCopierViewModel(
         var referencePath = BeatmapPanelViewModelUtils.ResolveMapsetReferenceBeatmapPath(DestinationBeatmaps, OriginBeatmap.Path);
         if (referencePath is null)
         {
-            toastManager.ShowToast(
+            notificationService.ShowToast(
                 NotificationType.Warning,
                 "HitSound Copier",
                 "Select an origin beatmap (or target beatmaps from one mapset) first.");
@@ -207,7 +204,7 @@ public partial class HitSoundCopierViewModel(
                 out var updatedDestinationBeatmaps,
                 out var addedCount))
         {
-            toastManager.ShowToast(
+            notificationService.ShowToast(
                 NotificationType.Warning,
                 "HitSound Copier",
                 "No additional mapset difficulties were available to add.");
@@ -216,7 +213,7 @@ public partial class HitSoundCopierViewModel(
 
         DestinationBeatmaps = updatedDestinationBeatmaps;
         HasMultiple = BeatmapPanelViewModelUtils.HasMultipleDestinationBeatmaps(DestinationBeatmaps);
-        toastManager.ShowToast(
+        notificationService.ShowToast(
             NotificationType.Success,
             "HitSound Copier",
             $"Added {addedCount} mapset diff(s) to destination.");
@@ -246,7 +243,7 @@ public partial class HitSoundCopierViewModel(
             osuMemoryReaderService,
             lazerLookupService,
             modalService,
-            (type, title, message) => toastManager.ShowToast(type, title, message),
+            (type, title, message) => notificationService.ShowToast(type, title, message),
             "Memory Error",
             "Something went wrong while getting the beatmap path from memory.",
             "No Beatmap",
@@ -260,7 +257,7 @@ public partial class HitSoundCopierViewModel(
         string? preferredMapsetDirectoryPath = null)
         => MapPickerDialogUtils.ShowSongSelectDialogAsync(
             modalService,
-            toastManager,
+            notificationService,
             songLibraryService,
             filesService,
             lazerLookupService,
@@ -309,11 +306,11 @@ public partial class HitSoundCopierViewModel(
 
                 if (compatibility.HasTimingMismatch)
                 {
-                    var shouldProceed = await dialogManager.CreateDialog()
-                        .WithTitle("Timing Mismatch Warning")
-                        .WithContent(BuildTimingMismatchDialogContent(compatibility))
-                        .WithYesNoResult("Copy Anyway", "Cancel")
-                        .TryShowAsync();
+                    var shouldProceed = await modalService.ShowConfirmationAsync(
+                        "Timing Mismatch Warning",
+                        BuildTimingMismatchDialogContent(compatibility),
+                        "Copy Anyway",
+                        "Cancel");
 
                     if (!shouldProceed)
                     {
@@ -323,11 +320,11 @@ public partial class HitSoundCopierViewModel(
                 else if (compatibility.HasOffsetOnlyMismatch)
                 {
                     var suggestedLeniency = Math.Max(Leniency, compatibility.SuggestedLeniencyMs);
-                    var shouldProceed = await dialogManager.CreateDialog()
-                        .WithTitle("Offset Detected")
-                        .WithContent(BuildOffsetDialogContent(compatibility, suggestedLeniency))
-                        .WithYesNoResult($"Copy with {suggestedLeniency}ms leniency", "Cancel")
-                        .TryShowAsync();
+                    var shouldProceed = await modalService.ShowConfirmationAsync(
+                        "Offset Detected",
+                        BuildOffsetDialogContent(compatibility, suggestedLeniency),
+                        $"Copy with {suggestedLeniency}ms leniency",
+                        "Cancel");
 
                     if (!shouldProceed)
                     {
@@ -355,7 +352,7 @@ public partial class HitSoundCopierViewModel(
             message = ex.Message;
         }
 
-        toastManager.ShowToast(type, "HitSound Copier", message);
+        notificationService.ShowToast(type, "HitSound Copier", message);
     }
 
     private static string BuildOffsetDialogContent(HitSoundTimingCompatibilityReport compatibility, int suggestedLeniency)

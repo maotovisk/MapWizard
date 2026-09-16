@@ -26,8 +26,6 @@ using MapWizard.Desktop.Services.ComboColourService;
 using MapWizard.Desktop.Services.MemoryService;
 using MapWizard.Desktop.Utils;
 using MapWizard.Tools.ComboColourStudio;
-using SukiUI.Dialogs;
-using SukiUI.Toasts;
 using ToolComboColourPoint = MapWizard.Tools.ComboColourStudio.ComboColourPoint;
 
 namespace MapWizard.Desktop.ViewModels;
@@ -40,9 +38,8 @@ public partial class ComboColourStudioViewModel(
     IComboColourProjectStore comboColourProjectStore,
     ISettingsService settingsService,
     ISongLibraryService songLibraryService,
-    ISukiDialogManager dialogManager,
     IModalService modalService,
-    ISukiToastManager toastManager) : ViewModelBase
+    INotificationService notificationService) : ViewModelBase
 {
     [NotifyPropertyChangedFor(nameof(HasOriginBeatmap))]
     [NotifyPropertyChangedFor(nameof(CanSaveProject))]
@@ -715,7 +712,7 @@ public partial class ComboColourStudioViewModel(
         string? preferredMapsetDirectoryPath = null)
         => MapPickerDialogUtils.ShowSongSelectDialogAsync(
             modalService,
-            toastManager,
+            notificationService,
             songLibraryService,
             filesService,
             lazerLookupService,
@@ -829,11 +826,11 @@ public partial class ComboColourStudioViewModel(
             return SavedProjectRestoreState.NotFound;
         }
 
-        var shouldRestore = await dialogManager.CreateDialog()
-            .WithTitle("Restore Saved Project")
-            .WithContent("A saved Combo Colour project was found for this beatmap. Do you want to restore it?")
-            .WithYesNoResult("Restore", "Ignore")
-            .TryShowAsync();
+        var shouldRestore = await modalService.ShowConfirmationAsync(
+            "Restore Saved Project",
+            "A saved Combo Colour project was found for this beatmap. Do you want to restore it?",
+            "Restore",
+            "Ignore");
 
         if (!shouldRestore)
         {
@@ -1268,6 +1265,6 @@ public partial class ComboColourStudioViewModel(
 
     private void ShowToast(NotificationType type, string title, string message)
     {
-        toastManager.ShowToast(type, title, message);
+        notificationService.ShowToast(type, title, message);
     }
 }

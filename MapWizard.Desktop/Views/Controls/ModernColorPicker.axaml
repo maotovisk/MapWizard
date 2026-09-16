@@ -19,10 +19,10 @@
 
         <Style Selector="Button.PickerTrigger">
             <Setter Property="BorderThickness" Value="1" />
-            <Setter Property="BorderBrush" Value="{DynamicResource ThemeAccentBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource MapWizardAccentBrush}" />
             <Setter Property="CornerRadius" Value="10" />
             <Setter Property="Background" Value="{DynamicResource SystemControlBackgroundChromeMediumLowBrush}" />
-            <Setter Property="Foreground" Value="{DynamicResource SukiText}" />
+            <Setter Property="Foreground" Value="{DynamicResource MapWizardTextBrush}" />
             <Setter Property="Padding" Value="10,7" />
             <Setter Property="HorizontalContentAlignment" Value="Stretch" />
         </Style>
@@ -40,14 +40,14 @@
             <Setter Property="Height" Value="30" />
             <Setter Property="CornerRadius" Value="15" />
             <Setter Property="BorderThickness" Value="1" />
-            <Setter Property="BorderBrush" Value="{DynamicResource SukiText}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource MapWizardTextBrush}" />
             <Setter Property="Padding" Value="0" />
             <Setter Property="HorizontalAlignment" Value="Center" />
         </Style>
 
         <Style Selector="Button.SuggestedSwatch.selected">
             <Setter Property="BorderThickness" Value="3" />
-            <Setter Property="BorderBrush" Value="{DynamicResource ThemeAccentBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource MapWizardAccentBrush}" />
         </Style>
     </UserControl.Styles>
 
@@ -62,29 +62,26 @@
                         Height="18"
                         CornerRadius="9"
                         BorderThickness="1"
-                        BorderBrush="{DynamicResource ThemeAccentBrush}" />
+                        BorderBrush="{DynamicResource MapWizardAccentBrush}" />
                 <TextBlock x:Name="CompactHexText"
                            Grid.Column="1"
                            FontWeight="SemiBold"
-                           Foreground="{DynamicResource SukiText}"
+                           Foreground="{DynamicResource MapWizardTextBrush}"
                            VerticalAlignment="Center"
                            Text="#FFFFFF" />
                 <materialIcons:MaterialIcon Grid.Column="2"
                                             Kind="ChevronDown"
                                             Width="16"
                                             Height="16"
-                                            Foreground="{DynamicResource SukiText}" />
+                                            Foreground="{DynamicResource MapWizardTextBrush}" />
             </Grid>
 
             <FlyoutBase.AttachedFlyout>
                 <Flyout Placement="BottomEdgeAlignedLeft"
                         ShowMode="Transient">
-                    <Border Width="316"
-                            Padding="14"
-                            CornerRadius="12"
-                            BorderThickness="1"
-                            BorderBrush="{DynamicResource ThemeAccentBrush}"
-                            Background="{DynamicResource SystemControlBackgroundAltHighBrush}">
+                    <Border Classes="PopupSurface"
+                            Width="316"
+                            Padding="14">
                         <StackPanel Spacing="12">
                             <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8" VerticalAlignment="Center">
                                 <TextBlock Text="Choose colour"
@@ -105,7 +102,7 @@
                                                       Shape="Box" />
 
                             <StackPanel Spacing="4">
-                                <TextBlock Text="Hue" FontSize="11" Foreground="{DynamicResource SukiLowText}" />
+                                <TextBlock Text="Hue" FontSize="11" Foreground="{DynamicResource MapWizardTextSecondaryBrush}" />
                                 <primitives:ColorSlider x:Name="HueSlider"
                                                         Height="22"
                                                         ColorModel="Hsva"
@@ -120,7 +117,7 @@
                                         Height="28"
                                         CornerRadius="14"
                                         BorderThickness="1"
-                                        BorderBrush="{DynamicResource ThemeAccentBrush}" />
+                                        BorderBrush="{DynamicResource MapWizardAccentBrush}" />
 
                                 <TextBox x:Name="HexTextBox"
                                          Grid.Column="1"
@@ -132,7 +129,7 @@
                                 <TextBlock Grid.Column="2"
                                            Text="RGB"
                                            FontSize="11"
-                                           Foreground="{DynamicResource SukiLowText}"
+                                           Foreground="{DynamicResource MapWizardTextSecondaryBrush}"
                                            VerticalAlignment="Center" />
                             </Grid>
 

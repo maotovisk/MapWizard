@@ -4,17 +4,15 @@ using Avalonia.Controls.Notifications;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MapWizard.Desktop.Enums;
+using MapWizard.Desktop.Extensions;
 using MapWizard.Desktop.Services;
 using Microsoft.Extensions.DependencyInjection;
-using SukiUI.Dialogs;
-using SukiUI.Toasts;
 
 namespace MapWizard.Desktop.ViewModels
 {
     public partial class MainWindowViewModel : ObservableObject
     {
-        public ISukiToastManager ToastManager { get; }
-        public ISukiDialogManager DialogManager { get; }
+        public INotificationService NotificationService { get; }
 
         private readonly IServiceProvider _services;
         private HitSoundCopierViewModel? _hitSoundCopierViewModel;
@@ -59,13 +57,11 @@ namespace MapWizard.Desktop.ViewModels
             WelcomePageViewModel welcomePageViewModel,
             SettingsViewModel settingsViewModel,
             IUpdateService updateService,
-            ISukiToastManager toastManager,
-            ISukiDialogManager dialogManager,
+            INotificationService notificationService,
             IServiceProvider services)
         {
             _services = services;
-            ToastManager = toastManager;
-            DialogManager = dialogManager;
+            NotificationService = notificationService;
             _welcomePageViewModel = welcomePageViewModel;
             _settingsViewModel = settingsViewModel;
             CurrentPageViewModel = _welcomePageViewModel;
@@ -183,13 +179,11 @@ namespace MapWizard.Desktop.ViewModels
             }
             else
             {
-                ToastManager.CreateToast()
-                    .OfType(NotificationType.Error)
-                    .WithTitle("Invalid URL")
-                    .WithContent("The URL is not valid.")
-                    .Dismiss().ByClicking()
-                    .Dismiss().After(TimeSpan.FromSeconds(8))
-                    .Queue();
+                NotificationService.ShowToast(
+                    NotificationType.Error,
+                    "Invalid URL",
+                    "The URL is not valid.",
+                    TimeSpan.FromSeconds(8));
             }
         }
 

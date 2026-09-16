@@ -6,7 +6,7 @@
     xmlns:vm="clr-namespace:MapWizard.Desktop.ViewModels"
     xmlns:controls="clr-namespace:MapWizard.Desktop.Views.Controls"
     xmlns:appControls="clr-namespace:MapWizard.Desktop.Controls"
-    xmlns:suki="clr-namespace:SukiUI.Controls;assembly=SukiUI"
+    xmlns:theme="clr-namespace:MapWizard.Theme.Controls;assembly=MapWizard.Theme"
     xmlns:materialIcons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
     mc:Ignorable="d"
     d:DesignWidth="800"
@@ -24,9 +24,9 @@
         <appControls:SmoothScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Disabled">
             <controls:CenteredWrapPanel HorizontalAlignment="Stretch" VerticalAlignment="Center" ItemSpacing="10">
                 <Grid Margin="15">
-                    <suki:GlassCard Width="260" Height="220" Margin="0,0,0,25" Padding="16" CornerRadius="18">
+                    <theme:Surface Width="260" Height="220" Margin="0,0,0,25" Padding="16" CornerRadius="18">
                         <StackPanel VerticalAlignment="Center" Spacing="12">
-                            <Border Width="56" Height="56" CornerRadius="28" HorizontalAlignment="Center" Background="{DynamicResource ThemeAccentBrush}" Opacity="0.2">
+                            <Border Width="56" Height="56" CornerRadius="28" HorizontalAlignment="Center" Background="{DynamicResource MapWizardAccentBrush}" Opacity="0.2">
                                 <materialIcons:MaterialIcon Kind="ContentCopy" Width="28" Height="28" HorizontalAlignment="Center" VerticalAlignment="Center" />
                             </Border>
                             <TextBlock Text="Hitsound Copier" FontWeight="Bold" FontSize="18" HorizontalAlignment="Center" />
@@ -35,7 +35,7 @@
                                        HorizontalAlignment="Center"
                                        TextAlignment="Center" />
                         </StackPanel>
-                    </suki:GlassCard>
+                    </theme:Surface>
                     <Button Width="160"
                             Height="40"
                             Margin="0,0,0,7"
@@ -48,9 +48,9 @@
                 </Grid>
 
                 <Grid Margin="15">
-                    <suki:GlassCard Width="260" Height="220" Margin="0,0,0,25" Padding="16" CornerRadius="18">
+                    <theme:Surface Width="260" Height="220" Margin="0,0,0,25" Padding="16" CornerRadius="18">
                         <StackPanel VerticalAlignment="Center" Spacing="12">
-                            <Border Width="56" Height="56" CornerRadius="28" HorizontalAlignment="Center" Background="{DynamicResource ThemeAccentBrush}" Opacity="0.2">
+                            <Border Width="56" Height="56" CornerRadius="28" HorizontalAlignment="Center" Background="{DynamicResource MapWizardAccentBrush}" Opacity="0.2">
                                 <materialIcons:MaterialIcon Kind="FileDocumentMultiple" Width="28" Height="28" HorizontalAlignment="Center" VerticalAlignment="Center" />
                             </Border>
                             <TextBlock Text="Metadata Manager" FontWeight="Bold" FontSize="18" HorizontalAlignment="Center" />
@@ -59,7 +59,7 @@
                                        HorizontalAlignment="Center"
                                        TextAlignment="Center" />
                         </StackPanel>
-                    </suki:GlassCard>
+                    </theme:Surface>
                     <Button Width="160"
                             Height="40"
                             Margin="0,0,0,7"
@@ -72,9 +72,9 @@
                 </Grid>
 
                 <Grid Margin="15">
-                    <suki:GlassCard Width="260" Height="220" Margin="0,0,0,25" Padding="16" CornerRadius="18">
+                    <theme:Surface Width="260" Height="220" Margin="0,0,0,25" Padding="16" CornerRadius="18">
                         <StackPanel VerticalAlignment="Center" Spacing="12">
-                            <Border Width="56" Height="56" CornerRadius="28" HorizontalAlignment="Center" Background="{DynamicResource ThemeAccentBrush}" Opacity="0.2">
+                            <Border Width="56" Height="56" CornerRadius="28" HorizontalAlignment="Center" Background="{DynamicResource MapWizardAccentBrush}" Opacity="0.2">
                                 <materialIcons:MaterialIcon Kind="Palette" Width="28" Height="28" HorizontalAlignment="Center" VerticalAlignment="Center" />
                             </Border>
                             <TextBlock Text="Combo Colour Studio" FontWeight="Bold" FontSize="18" HorizontalAlignment="Center" />
@@ -83,7 +83,7 @@
                                        HorizontalAlignment="Center"
                                        TextAlignment="Center" />
                         </StackPanel>
-                    </suki:GlassCard>
+                    </theme:Surface>
                     <Button Width="160"
                             Height="40"
                             Margin="0,0,0,7"
