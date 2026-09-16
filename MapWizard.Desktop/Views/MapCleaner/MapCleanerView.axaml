@@ -70,7 +70,7 @@
                     <materialIcons:MaterialIcon Kind="ContentSave" Width="24" Height="24" />
                     <TextBlock
                         VerticalAlignment="Center"
-                        FontWeight="Bold"
+                        FontWeight="Normal"
                         FontSize="16"
                         Text="Clean Beatmap" />
                 </StackPanel>
@@ -130,7 +130,7 @@
                                                 Padding="10">
                                             <StackPanel Spacing="8">
                                                 <TextBlock Text="Preset Snaps"
-                                                           FontWeight="SemiBold"
+                                                           FontWeight="Normal"
                                                            FontSize="13" />
                                                 <Separator />
                                                 <appControls:SmoothScrollViewer MaxHeight="220">

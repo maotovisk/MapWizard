@@ -41,7 +41,7 @@
           <materialIcons:MaterialIcon Kind="ContentSave" Width="24" Height="24" />
           <TextBlock
             VerticalAlignment="Center"
-            FontWeight="Bold"
+            FontWeight="Normal"
             FontSize="16"
             Text="Export Metadata" />
         </StackPanel>

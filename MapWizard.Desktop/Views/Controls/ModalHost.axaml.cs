@@ -241,9 +241,9 @@ public partial class ModalHost : UserControl
         DialogCard.Classes.Set("MapPickerOverlay", isMapPickerOverlay);
         DialogCard.RenderTransformOrigin = isMapPickerOverlay ? RightCenterOrigin : CenterOrigin;
         HeaderGrid.IsVisible = !isMapPickerOverlay;
-        BackdropBorder.Margin = isMapPickerOverlay
-            ? new Thickness(0d, 42d, 0d, 0d)
-            : default;
+        // The dark plane now covers the entire window; the blur target (the
+        // window shell) handles the seam, and the top islands float above it.
+        BackdropBorder.Margin = default;
         DialogContentPresenter.Margin = isMapPickerOverlay
             ? default
             : new Thickness(0d, 12d, 0d, 0d);

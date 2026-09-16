@@ -82,7 +82,7 @@
                             BorderThickness="1"
                             BorderBrush="{DynamicResource MapWizardAccentBrush}"
                             Background="{Binding SelectedPreviewBrush, ElementName=Root}" />
-                    <TextBlock FontWeight="Bold"
+                    <TextBlock FontWeight="Normal"
                                FontSize="9"
                                Foreground="{Binding SelectedLabelBrush, ElementName=Root}"
                                HorizontalAlignment="Center"
@@ -99,7 +99,7 @@
                             <StackPanel Spacing="8">
                                 <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8" VerticalAlignment="Center">
                                     <TextBlock Text="Select Combo"
-                                               FontWeight="Bold"
+                                               FontWeight="Normal"
                                                FontSize="13"
                                                VerticalAlignment="Center" />
 
@@ -133,7 +133,7 @@
                                                             BorderThickness="1"
                                                             BorderBrush="{DynamicResource MapWizardAccentBrush}"
                                                             Background="{Binding PreviewBrush}" />
-                                                    <TextBlock FontWeight="Bold"
+                                                    <TextBlock FontWeight="Normal"
                                                                FontSize="9"
                                                                Foreground="{Binding LabelBrush}"
                                                                HorizontalAlignment="Center"

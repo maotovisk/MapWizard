@@ -80,7 +80,7 @@
         <Style Selector="RadioButton.SettingsNav:checked">
             <Setter Property="Background" Value="{DynamicResource MapWizardAccent25Brush}" />
             <Setter Property="Foreground" Value="{DynamicResource MapWizardAccentBrush}" />
-            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="FontWeight" Value="Normal" />
         </Style>
         <Style Selector="RadioButton.SettingsNav:checked /template/ Border#SelectionMarker">
             <Setter Property="Opacity" Value="1" />
@@ -160,7 +160,7 @@
                                     Command="{Binding RestartToApplyUpdateCommand}">
                                 <TextBlock Text="{Binding UpdateStreamBadgeText}"
                                            FontSize="12"
-                                           FontWeight="SemiBold"
+                                           FontWeight="Normal"
                                            TextDecorations="Underline" />
                             </Button>
                         </StackPanel>

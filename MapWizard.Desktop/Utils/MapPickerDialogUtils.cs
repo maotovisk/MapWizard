@@ -41,8 +41,11 @@ public static class MapPickerDialogUtils
         {
             DataContext = songSelectViewModel
         };
+        // The close action lives in the picker toolbar (X icon button).
+        dialogContent.PickerCloseRequested += (_, _) => _ = modalService.CloseAsync(null);
 
-        var footerPanel = BuildFooterPanel(modalService, songSelectViewModel, allowMultiple);
+        // No footer Close button — the X icon frees vertical space for the list.
+        var footerPanel = BuildFooterPanel(songSelectViewModel, allowMultiple);
         var title = allowMultiple ? "Select destination beatmap(s)" : "Select beatmap";
 
         var dialogLifetimeCts = CancellationTokenSource.CreateLinkedTokenSource(token);
@@ -93,7 +96,6 @@ public static class MapPickerDialogUtils
     }
 
     private static StackPanel BuildFooterPanel(
-        IModalService modalService,
         SongSelectDialogViewModel songSelectViewModel,
         bool allowMultiple)
     {
@@ -103,12 +105,6 @@ public static class MapPickerDialogUtils
             Spacing = 8,
             HorizontalAlignment = HorizontalAlignment.Right
         };
-
-        var closeButton = new Button { Content = "Close" };
-        closeButton.Classes.Add("Basic");
-        closeButton.Classes.Add("Compact");
-        closeButton.Click += (_, _) => _ = modalService.CloseAsync(null);
-        footerPanel.Children.Add(closeButton);
 
         if (allowMultiple)
         {

@@ -30,7 +30,9 @@
             <Setter Property="HorizontalAlignment" Value="Right" />
             <Setter Property="VerticalAlignment" Value="Stretch" />
             <Setter Property="MaxWidth" Value="620" />
-            <Setter Property="Margin" Value="0,54,14,14" />
+            <!-- Starts at the content-plane (below the 60px title band) so the
+                 gap under the topbar islands matches the content gap (10px). -->
+            <Setter Property="Margin" Value="0,60,14,14" />
             <Setter Property="Padding" Value="0" />
             <Setter Property="CornerRadius" Value="0" />
             <Setter Property="Background" Value="Transparent" />

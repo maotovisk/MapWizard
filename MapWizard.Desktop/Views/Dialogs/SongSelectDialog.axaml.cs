@@ -14,6 +14,14 @@ public partial class SongSelectDialog : UserControl
 {
     private const double CenterScrollEdgeThreshold = 56d;
 
+    /// <summary>Raised when the header close (X) button is clicked.</summary>
+    public event EventHandler? PickerCloseRequested;
+
+    private void ClosePickerButton_OnClick(object? sender, RoutedEventArgs e)
+    {
+        PickerCloseRequested?.Invoke(this, EventArgs.Empty);
+    }
+
     public SongSelectDialog()
     {
         InitializeComponent();

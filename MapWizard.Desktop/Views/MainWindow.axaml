@@ -158,108 +158,7 @@
         <Grid RowDefinitions="60,*">
             <!-- Window chrome is grouped into functional islands instead of a
                  full-width title bar. The transparent center remains draggable. -->
-            <Grid Grid.Row="0"
-                  Classes="WindowTitleBar"
-                  Background="Transparent">
-              <Grid Margin="10,8,10,10"
-                    ColumnDefinitions="Auto,*,Auto,Auto"
-                    ColumnSpacing="8">
-                <Border x:Name="TitleIsland"
-                        Classes="TitleBarIsland"
-                        Padding="12,0">
-                    <StackPanel Orientation="Horizontal"
-                                Spacing="9"
-                                VerticalAlignment="Center"
-                                IsHitTestVisible="False">
-                        <Image Source="/Assets/app-icon.png"
-                               Width="23"
-                               Height="23"
-                               Stretch="Uniform"
-                               RenderOptions.BitmapInterpolationMode="HighQuality" />
-                        <TextBlock Text="MapWizard"
-                                   FontSize="13"
-                                   FontWeight="SemiBold"
-                                   VerticalAlignment="Center" />
-                    </StackPanel>
-                </Border>
-
-                <Border Grid.Column="2"
-                        Classes="TitleBarIsland">
-                    <Button Classes="TitleBarActionButton"
-                            Command="{Binding OpenGithubCommand}"
-                            ToolTip.Tip="View on GitHub">
-                        <materialIcons:MaterialIcon Kind="Github" Width="18" Height="18"
-                                                    HorizontalAlignment="Center"
-                                                    VerticalAlignment="Center" />
-                    </Button>
-                </Border>
-
-                <Border Grid.Column="3"
-                        Classes="TitleBarIsland"
-                        Padding="3,3">
-                    <StackPanel x:Name="WindowControlsPanel"
-                                Orientation="Horizontal"
-                                Spacing="1"
-                                VerticalAlignment="Center">
-                        <Button Classes="WindowControlButton"
-                                Click="MinimizeButton_OnClick"
-                                ToolTip.Tip="Minimize">
-                            <Path Width="18" Height="18"
-                                  HorizontalAlignment="Center" VerticalAlignment="Center"
-                                  Data="M5.8 12.4 H12.2"
-                                  Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
-                                  StrokeThickness="1.6" StrokeLineCap="Round" StrokeJoin="Round"
-                                  IsHitTestVisible="False" />
-                        </Button>
-                        <Button Classes="WindowControlButton"
-                                Click="MaximizeButton_OnClick"
-                                ToolTip.Tip="Maximize or restore">
-                            <Panel IsHitTestVisible="False">
-                                <Path x:Name="MaximizeGlyph"
-                                      Width="18" Height="18"
-                                      HorizontalAlignment="Center" VerticalAlignment="Center"
-                                      Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
-                                      StrokeThickness="1.6" StrokeLineCap="Round" StrokeJoin="Round"
-                                      IsHitTestVisible="False">
-                                    <Path.Data>
-                                        <RectangleGeometry Rect="5,5,8,8" RadiusX="2.6" RadiusY="2.6" />
-                                    </Path.Data>
-                                </Path>
-                                <Path x:Name="RestoreIcon"
-                                      Width="18" Height="18"
-                                      HorizontalAlignment="Center" VerticalAlignment="Center"
-                                      IsVisible="False"
-                                      Data="M7.1 5.6 H10.9 A1.8,1.8 0 0 1 12.7 7.4 V11.2"
-                                      Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
-                                      StrokeThickness="1.6" StrokeLineCap="Round" StrokeJoin="Round"
-                                      IsHitTestVisible="False" />
-                                <Path x:Name="RestoreFront"
-                                      Width="18" Height="18"
-                                      HorizontalAlignment="Center" VerticalAlignment="Center"
-                                      IsVisible="False"
-                                      Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
-                                      StrokeThickness="1.6" StrokeLineCap="Round" StrokeJoin="Round"
-                                      IsHitTestVisible="False">
-                                    <Path.Data>
-                                        <RectangleGeometry Rect="4.6,7,8,8" RadiusX="2.6" RadiusY="2.6" />
-                                    </Path.Data>
-                                </Path>
-                            </Panel>
-                        </Button>
-                        <Button Classes="WindowControlButton Close"
-                                Click="CloseButton_OnClick"
-                                ToolTip.Tip="Close">
-                            <Path Width="18" Height="18"
-                                  HorizontalAlignment="Center" VerticalAlignment="Center"
-                                  Data="M5.9 5.9 L12.1 12.1 M12.1 5.9 L5.9 12.1"
-                                  Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
-                                  StrokeThickness="1.6" StrokeLineCap="Round" StrokeJoin="Round"
-                                  IsHitTestVisible="False" />
-                        </Button>
-                    </StackPanel>
-                </Border>
-              </Grid>
-            </Grid>
+            <Grid Grid.Row="0" />
 
         <Grid x:Name="AppContentLayer"
               Grid.Row="1"
@@ -496,11 +395,123 @@
         </Border>
         </Grid>
         </Grid>
-        <viewControls:ModalHost x:Name="ModalHost"
-                                BackgroundBlurTarget="{Binding ElementName=AppContentLayer}" />
-        <viewControls:NotificationHost x:Name="NotificationHost" />
         </Panel>
         </Border>
+
+        <viewControls:ModalHost x:Name="ModalHost"
+                                BackgroundBlurTarget="{Binding ElementName=WindowShell}" />
+
+        <!-- The window-chrome islands live above the modal backdrop so the
+             blur covers the whole shell plane without blurring the top islands. -->
+        <Grid x:Name="TitleBarLayer"
+              HorizontalAlignment="Stretch"
+              VerticalAlignment="Top"
+              Height="60">
+            <Grid
+                  Classes="WindowTitleBar"
+                  Background="Transparent">
+              <Grid Margin="10,8,10,10"
+                    ColumnDefinitions="Auto,*,Auto,Auto"
+                    ColumnSpacing="8">
+                <Border x:Name="TitleIsland"
+                        Classes="TitleBarIsland"
+                        Padding="12,0">
+                    <StackPanel Orientation="Horizontal"
+                                Spacing="9"
+                                VerticalAlignment="Center"
+                                IsHitTestVisible="False">
+                        <Image Source="/Assets/app-icon.png"
+                               Width="23"
+                               Height="23"
+                               Stretch="Uniform"
+                               RenderOptions.BitmapInterpolationMode="HighQuality" />
+                        <TextBlock Text="MapWizard"
+                                   FontSize="13"
+                                   FontWeight="SemiBold"
+                                   VerticalAlignment="Center" />
+                    </StackPanel>
+                </Border>
+
+                <Border Grid.Column="2"
+                        Classes="TitleBarIsland">
+                    <Button Classes="TitleBarActionButton"
+                            Command="{Binding OpenGithubCommand}"
+                            ToolTip.Tip="View on GitHub">
+                        <materialIcons:MaterialIcon Kind="Github" Width="18" Height="18"
+                                                    HorizontalAlignment="Center"
+                                                    VerticalAlignment="Center" />
+                    </Button>
+                </Border>
+
+                <Border Grid.Column="3"
+                        Classes="TitleBarIsland"
+                        Padding="3,3">
+                    <StackPanel x:Name="WindowControlsPanel"
+                                Orientation="Horizontal"
+                                Spacing="1"
+                                VerticalAlignment="Center">
+                        <Button Classes="WindowControlButton"
+                                Click="MinimizeButton_OnClick"
+                                ToolTip.Tip="Minimize">
+                            <Path Width="18" Height="18"
+                                  HorizontalAlignment="Center" VerticalAlignment="Center"
+                                  Data="M5.8 12.4 H12.2"
+                                  Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
+                                  StrokeThickness="1.6" StrokeLineCap="Round" StrokeJoin="Round"
+                                  IsHitTestVisible="False" />
+                        </Button>
+                        <Button Classes="WindowControlButton"
+                                Click="MaximizeButton_OnClick"
+                                ToolTip.Tip="Maximize or restore">
+                            <Panel IsHitTestVisible="False">
+                                <Path x:Name="MaximizeGlyph"
+                                      Width="18" Height="18"
+                                      HorizontalAlignment="Center" VerticalAlignment="Center"
+                                      Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
+                                      StrokeThickness="1.6" StrokeLineCap="Round" StrokeJoin="Round"
+                                      IsHitTestVisible="False">
+                                    <Path.Data>
+                                        <RectangleGeometry Rect="5,5,8,8" RadiusX="2.6" RadiusY="2.6" />
+                                    </Path.Data>
+                                </Path>
+                                <Path x:Name="RestoreIcon"
+                                      Width="18" Height="18"
+                                      HorizontalAlignment="Center" VerticalAlignment="Center"
+                                      IsVisible="False"
+                                      Data="M7.1 5.6 H10.9 A1.8,1.8 0 0 1 12.7 7.4 V11.2"
+                                      Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
+                                      StrokeThickness="1.6" StrokeLineCap="Round" StrokeJoin="Round"
+                                      IsHitTestVisible="False" />
+                                <Path x:Name="RestoreFront"
+                                      Width="18" Height="18"
+                                      HorizontalAlignment="Center" VerticalAlignment="Center"
+                                      IsVisible="False"
+                                      Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
+                                      StrokeThickness="1.6" StrokeLineCap="Round" StrokeJoin="Round"
+                                      IsHitTestVisible="False">
+                                    <Path.Data>
+                                        <RectangleGeometry Rect="4.6,7,8,8" RadiusX="2.6" RadiusY="2.6" />
+                                    </Path.Data>
+                                </Path>
+                            </Panel>
+                        </Button>
+                        <Button Classes="WindowControlButton Close"
+                                Click="CloseButton_OnClick"
+                                ToolTip.Tip="Close">
+                            <Path Width="18" Height="18"
+                                  HorizontalAlignment="Center" VerticalAlignment="Center"
+                                  Data="M5.9 5.9 L12.1 12.1 M12.1 5.9 L5.9 12.1"
+                                  Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
+                                  StrokeThickness="1.6" StrokeLineCap="Round" StrokeJoin="Round"
+                                  IsHitTestVisible="False" />
+                        </Button>
+                    </StackPanel>
+                </Border>
+              </Grid>
+            </Grid>
+        </Grid>
+
+        <viewControls:NotificationHost x:Name="NotificationHost" />
 
         <!-- Explicit resize grips keep CSD resizing reliable on Wayland. -->
         <Border Tag="North" Height="5" VerticalAlignment="Top" Background="Transparent" />

@@ -65,7 +65,7 @@
                         BorderBrush="{DynamicResource MapWizardAccentBrush}" />
                 <TextBlock x:Name="CompactHexText"
                            Grid.Column="1"
-                           FontWeight="SemiBold"
+                           FontWeight="Normal"
                            Foreground="{DynamicResource MapWizardTextBrush}"
                            VerticalAlignment="Center"
                            Text="#FFFFFF" />
@@ -85,7 +85,7 @@
                         <StackPanel Spacing="12">
                             <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8" VerticalAlignment="Center">
                                 <TextBlock Text="Choose colour"
-                                           FontWeight="Bold"
+                                           FontWeight="Normal"
                                            FontSize="14"
                                            VerticalAlignment="Center" />
 

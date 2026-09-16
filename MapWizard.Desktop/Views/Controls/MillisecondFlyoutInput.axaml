@@ -36,7 +36,7 @@
             <materialIcons:MaterialIcon Kind="TimerOutline" Width="14" Height="14"
                                         Foreground="{DynamicResource MapWizardTextSecondaryBrush}" />
             <TextBlock Grid.Column="1"
-                       FontWeight="SemiBold"
+                       FontWeight="Normal"
                        Foreground="{DynamicResource MapWizardTextBrush}"
                        VerticalAlignment="Center"
                        Text="{Binding DisplayValue, ElementName=Root}" />
@@ -54,7 +54,7 @@
                     <StackPanel Spacing="8">
                         <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8" VerticalAlignment="Center">
                             <TextBlock Text="Point Time (ms)"
-                                       FontWeight="Bold"
+                                       FontWeight="Normal"
                                        FontSize="13"
                                        VerticalAlignment="Center" />
 

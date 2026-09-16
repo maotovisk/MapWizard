@@ -287,7 +287,7 @@
         <Setter Property="CornerRadius" Value="{DynamicResource MapWizardCornerLarge}" />
         <Setter Property="HorizontalContentAlignment" Value="Stretch" />
         <Setter Property="VerticalContentAlignment" Value="Center" />
-        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="FontWeight" Value="Normal" />
         <Setter Property="Cursor" Value="Hand" />
         <Setter Property="Template">
             <ControlTemplate>
@@ -361,6 +361,7 @@
         <Setter Property="Padding" Value="12,7" />
         <Setter Property="CornerRadius" Value="{DynamicResource MapWizardCornerSmall}" />
         <Setter Property="Foreground" Value="{DynamicResource MapWizardTextBrush}" />
+        <Setter Property="FontWeight" Value="Normal" />
         <Setter Property="HorizontalContentAlignment" Value="Center" />
         <Setter Property="VerticalContentAlignment" Value="Center" />
     </Style>

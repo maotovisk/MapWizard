@@ -135,7 +135,7 @@
       <Setter Property="CornerRadius" Value="8" />
       <Setter Property="Padding" Value="10,7" />
       <Setter Property="FontSize" Value="13" />
-      <Setter Property="FontWeight" Value="SemiBold" />
+      <Setter Property="FontWeight" Value="Normal" />
       <Setter Property="Foreground" Value="{DynamicResource MapWizardTextBrush}" />
     </Style>
 
@@ -252,7 +252,7 @@
       <Setter Property="MinWidth" Value="0" />
       <Setter Property="MinHeight" Value="0" />
       <Setter Property="FontSize" Value="11" />
-      <Setter Property="FontWeight" Value="SemiBold" />
+      <Setter Property="FontWeight" Value="Normal" />
       <Setter Property="Foreground" Value="#EEEEEE" />
       <Setter Property="Cursor" Value="Hand" />
     </Style>
@@ -666,12 +666,12 @@
                                           IsHitTestVisible="False"
                                           Spacing="1">
                                 <TextBlock Text="{Binding ReferenceBeatmap.DisplayTitle}"
-                                           FontWeight="Bold"
+                                           FontWeight="Normal"
                                            FontSize="13"
                                            TextTrimming="CharacterEllipsis"
                                            MaxLines="1" />
                                 <TextBlock Text="{Binding ReferenceBeatmap.DisplayDetails}"
-                                           FontWeight="SemiBold"
+                                           FontWeight="Normal"
                                            Opacity="0.85"
                                            FontSize="11"
                                            TextTrimming="CharacterEllipsis"
@@ -697,7 +697,7 @@
                                       IsVisible="{Binding IsSuggested}">
                                 <TextBlock Text="Suggested"
                                            FontSize="10.5"
-                                           FontWeight="SemiBold"
+                                           FontWeight="Normal"
                                            Foreground="{DynamicResource MapWizardAccentBrush}"
                                            VerticalAlignment="Center" />
                               </Border>

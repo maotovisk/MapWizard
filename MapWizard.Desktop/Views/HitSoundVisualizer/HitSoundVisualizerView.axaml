@@ -177,7 +177,7 @@
                 <StackPanel Orientation="Horizontal" Spacing="6">
                     <materialIcons:MaterialIcon Kind="ContentSave" Width="24" Height="24" />
                     <TextBlock VerticalAlignment="Center"
-                               FontWeight="Bold"
+                               FontWeight="Normal"
                                FontSize="16"
                                Text="Export Hitsounds" />
                 </StackPanel>
@@ -185,7 +185,7 @@
                     <Flyout Placement="BottomEdgeAlignedRight">
                         <Border Classes="PopupSurface timeline-flyout-surface">
                             <StackPanel Width="320" Spacing="10">
-                                <TextBlock Text="Export Hitsounds" FontWeight="Bold" />
+                                <TextBlock Text="Export Hitsounds" FontWeight="Normal" />
                                 <TextBlock Classes="timeline-muted"
                                            Text="Choose whether to apply the timeline to another difficulty or create a new circle-only hitsound diff."
                                            TextWrapping="Wrap" />
@@ -233,7 +233,7 @@
                                     <Flyout Placement="BottomEdgeAlignedRight">
                                         <Border Classes="PopupSurface timeline-flyout-surface">
                                             <StackPanel Width="360" Spacing="10">
-                                                <TextBlock Text="Hitsound Editor" FontWeight="Bold" />
+                                                <TextBlock Text="Hitsound Editor" FontWeight="Normal" />
                                                 <TextBlock Classes="timeline-muted"
                                                            Text="{Binding SelectedPointSummary}"
                                                            TextWrapping="Wrap" />
@@ -362,7 +362,7 @@
                                     <Flyout Placement="BottomEdgeAlignedRight">
                                         <Border Classes="PopupSurface timeline-flyout-surface">
                                             <StackPanel Width="380" Spacing="10">
-                                                <TextBlock Text="HS Selector" FontWeight="Bold" />
+                                                <TextBlock Text="HS Selector" FontWeight="Normal" />
                                                 <TextBlock Classes="timeline-muted"
                                                            Text="Select matching hitsound points across the entire timeline."
                                                            TextWrapping="Wrap" />
@@ -506,7 +506,7 @@
                                     <Flyout Placement="BottomEdgeAlignedLeft">
                                         <Border Classes="PopupSurface timeline-flyout-surface">
                                             <StackPanel Width="120" Spacing="6">
-                                                <TextBlock Text="Beat Snap" FontWeight="Bold" />
+                                                <TextBlock Text="Beat Snap" FontWeight="Normal" />
                                                 <ListBox Classes="timeline-snap-list"
                                                          ItemsSource="{Binding SnapDivisorOptions}"
                                                          SelectedItem="{Binding SelectedSnapDivisorDenominator}"

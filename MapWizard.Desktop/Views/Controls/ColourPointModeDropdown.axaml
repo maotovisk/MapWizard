@@ -38,7 +38,7 @@
             HorizontalAlignment="Stretch"
             Click="TriggerButton_OnClick">
         <Grid ColumnDefinitions="Auto,Auto" ColumnSpacing="6" VerticalAlignment="Center">
-            <TextBlock FontWeight="SemiBold"
+            <TextBlock FontWeight="Normal"
                        Foreground="{DynamicResource MapWizardTextBrush}"
                        VerticalAlignment="Center"
                        Text="{Binding SelectedModeLabel, ElementName=Root}" />
@@ -55,7 +55,7 @@
                     <StackPanel Spacing="8">
                         <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8" VerticalAlignment="Center">
                             <TextBlock Text="Point Mode"
-                                       FontWeight="Bold"
+                                       FontWeight="Normal"
                                        FontSize="13"
                                        VerticalAlignment="Center" />
 

@@ -62,7 +62,7 @@
     <Grid RowDefinitions="Auto,*" RowSpacing="10">
         <Border Classes="FloatingToolbar">
             <Grid RowDefinitions="Auto,Auto" RowSpacing="6">
-            <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="6">
+            <Grid ColumnDefinitions="*,Auto,Auto,Auto" ColumnSpacing="6">
                 <TextBox Classes="PickerSearchBox"
                          Height="38"
                          PlaceholderText="Search beatmaps..."
@@ -86,6 +86,16 @@
                         Padding="8"
                         ToolTip.Tip="Open native file picker fallback">
                     <materialIcons:MaterialIcon Kind="FolderOpen" Width="18" Height="18" />
+                </Button>
+
+                <Button Grid.Column="3"
+                        Classes="Basic Compact"
+                        Click="ClosePickerButton_OnClick"
+                        MinWidth="38"
+                        MinHeight="38"
+                        Padding="8"
+                        ToolTip.Tip="Close">
+                    <materialIcons:MaterialIcon Kind="Close" Width="18" Height="18" />
                 </Button>
             </Grid>
 

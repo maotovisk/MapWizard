@@ -639,7 +639,7 @@ public partial class SongSelectDialogViewModel(
         if (query.Length == 0)
         {
             StatusMessage =
-                $"Loaded {VisibleMapsets.Count} mapset(s). Parsed {_filteredCursor} of {_filteredDirectoryEntries.Count}.";
+                $"Loaded {VisibleMapsets.Count} beatmaps of {_filteredDirectoryEntries.Count}.";
             return;
         }
 

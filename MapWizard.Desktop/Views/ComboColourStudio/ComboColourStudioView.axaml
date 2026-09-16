@@ -114,7 +114,7 @@
                     <StackPanel Orientation="Horizontal" Spacing="8">
                         <materialIcons:MaterialIcon Kind="ContentSaveOutline" Width="24" Height="24" />
                         <TextBlock VerticalAlignment="Center"
-                                   FontWeight="Bold"
+                                   FontWeight="Normal"
                                    FontSize="16"
                                    Text="Save Project" />
                     </StackPanel>
@@ -126,7 +126,7 @@
                     <StackPanel Orientation="Horizontal" Spacing="8">
                         <materialIcons:MaterialIcon Kind="ContentSave" Width="24" Height="24" />
                         <TextBlock VerticalAlignment="Center"
-                                   FontWeight="Bold"
+                                   FontWeight="Normal"
                                    FontSize="16"
                                    Text="Apply / Export" />
                     </StackPanel>
