@@ -755,13 +755,35 @@
                         <StackPanel HorizontalAlignment="Center"
                                     VerticalAlignment="Center"
                                     Spacing="10">
-                            <ProgressBar Width="160" IsIndeterminate="True" />
+                            <controls:BusyIndicator />
                             <TextBlock Text="{TemplateBinding BusyText}"
                                        FontWeight="SemiBold"
                                        TextAlignment="Center" />
                         </StackPanel>
                     </Border>
                 </Grid>
+            </ControlTemplate>
+        </Setter>
+    </Style>
+
+    <Style Selector="controls|BusyIndicator">
+        <Setter Property="Width" Value="160" />
+        <Setter Property="Height" Value="4" />
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Border x:Name="PART_Track"
+                        Background="{DynamicResource MapWizardControlBackgroundBrush}"
+                        CornerRadius="2"
+                        ClipToBounds="True">
+                    <Panel>
+                        <Border x:Name="PART_Indicator"
+                                Width="48"
+                                Height="4"
+                                HorizontalAlignment="Left"
+                                Background="{DynamicResource MapWizardAccentBrush}"
+                                CornerRadius="2" />
+                    </Panel>
+                </Border>
             </ControlTemplate>
         </Setter>
     </Style>
