@@ -99,7 +99,6 @@
                        Margin="9,0,0,6" />
             <RadioButton x:Name="GeneralNav" Classes="SettingsNav" Content="General" Tag="General" IsChecked="True" Click="CategoryButton_OnClick" />
             <RadioButton x:Name="AppearanceNav" Classes="SettingsNav" Content="Appearance" Tag="Appearance" Click="CategoryButton_OnClick" />
-            <RadioButton x:Name="ExperimentalNav" Classes="SettingsNav" Content="Experimental" Tag="Experimental" Click="CategoryButton_OnClick" />
             <RadioButton x:Name="AudioNav" Classes="SettingsNav" Content="Audio" Tag="Audio" Click="CategoryButton_OnClick" />
             <RadioButton x:Name="InformationNav" Classes="SettingsNav" Content="Information" Tag="Information" Click="CategoryButton_OnClick" />
         </StackPanel>
@@ -254,18 +253,6 @@
                         </StackPanel>
                 </theme:SectionGroup></theme:Surface>
 
-                <theme:Surface x:Name="ExperimentalSection" Margin="0,0,0,16" Padding="20"><theme:SectionGroup Header="Experimental">
-                        <Grid ColumnDefinitions="*,Auto" VerticalAlignment="Center">
-                            <StackPanel Spacing="4">
-                                <TextBlock Text="Enable Hitsound Visualizer" FontWeight="Bold" />
-                                <TextBlock Text="Shows the Hitsound Visualizer tool in the sidebar when enabled."
-                                           TextWrapping="Wrap" />
-                            </StackPanel>
-                            <ToggleSwitch Grid.Column="1"
-                                          IsChecked="{Binding IsHitSoundVisualizerEnabled, Mode=TwoWay}" />
-                        </Grid>
-                </theme:SectionGroup></theme:Surface>
-
                 <theme:Surface x:Name="AudioSection" Margin="0,0,0,16" Padding="20"><theme:SectionGroup Header="Audio">
                         <StackPanel Spacing="20">
                             <Grid ColumnDefinitions="*,Auto" VerticalAlignment="Center">
@@ -290,7 +277,7 @@
                             <Grid ColumnDefinitions="*,Auto" VerticalAlignment="Center">
                                 <StackPanel Spacing="4">
                                     <TextBlock Text="Song Volume" FontWeight="Bold" />
-                                    <TextBlock Text="Default music volume for editor audio previews (including the Hitsound Visualizer)."
+                                    <TextBlock Text="Default music volume for editor audio previews (including the HitSound Editor)."
                                                TextWrapping="Wrap" />
                                 </StackPanel>
                                 <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
@@ -307,7 +294,7 @@
                             <Grid ColumnDefinitions="*,Auto" VerticalAlignment="Center">
                                 <StackPanel Spacing="4">
                                     <TextBlock Text="Hitsound Volume" FontWeight="Bold" />
-                                    <TextBlock Text="Default hitsound volume for editor audio previews (including the Hitsound Visualizer)."
+                                    <TextBlock Text="Default hitsound volume for editor audio previews (including the HitSound Editor)."
                                                TextWrapping="Wrap" />
                                 </StackPanel>
                                 <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">

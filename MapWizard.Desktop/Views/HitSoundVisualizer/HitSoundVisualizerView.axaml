@@ -161,14 +161,36 @@
         <Style Selector="Button.timeline-mute-btn:pressed">
             <Setter Property="Background" Value="{DynamicResource SystemControlBackgroundAltHighBrush}" />
         </Style>
+        <Style Selector="Border.BetaBadge">
+            <Setter Property="Background" Value="{DynamicResource MapWizardAccent25Brush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource MapWizardAccentBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="7" />
+            <Setter Property="Padding" Value="8,2" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+        </Style>
+        <Style Selector="Border.BetaBadge TextBlock">
+            <Setter Property="FontSize" Value="11" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="LetterSpacing" Value="1" />
+            <Setter Property="Foreground" Value="{DynamicResource MapWizardAccentBrush}" />
+        </Style>
     </UserControl.Styles>
 
     <Grid RowDefinitions="Auto,Auto,*,Auto">
         <Grid VerticalAlignment="Center" ColumnDefinitions="*,Auto">
-            <TextBlock Text="Hitsound Visualizer"
-                       FontSize="24"
-                       FontWeight="Bold"
-                       Margin="16,0" />
+            <StackPanel Orientation="Horizontal"
+                        Spacing="10"
+                        Margin="16,0"
+                        VerticalAlignment="Center">
+                <TextBlock Text="HitSound Editor"
+                           FontSize="24"
+                           FontWeight="Bold"
+                           VerticalAlignment="Center" />
+                <Border Classes="BetaBadge">
+                    <TextBlock Text="BETA" />
+                </Border>
+            </StackPanel>
             <Button Grid.Column="1"
                     Classes="Flat Large"
                     IsEnabled="{Binding CanExportTimeline}"

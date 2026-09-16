@@ -435,7 +435,7 @@ public partial class HitSoundVisualizerViewModel(
         catch (Exception ex)
         {
             MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
-            notificationService.ShowToast(NotificationType.Error, "Hitsound Visualizer", ex.Message);
+            notificationService.ShowToast(NotificationType.Error, "HitSound Editor", ex.Message);
         }
     }
 
@@ -477,7 +477,7 @@ public partial class HitSoundVisualizerViewModel(
 
         notificationService.ShowToast(
             NotificationType.Warning,
-            "Hitsound Visualizer",
+            "HitSound Editor",
             string.IsNullOrWhiteSpace(errorMessage)
                 ? "Unable to open the origin beatmap folder."
                 : errorMessage);
@@ -523,7 +523,7 @@ public partial class HitSoundVisualizerViewModel(
     {
         if (!CanExportTimeline)
         {
-            notificationService.ShowToast(NotificationType.Error, "Hitsound Visualizer", "Load a beatmap with hitsound points first.");
+            notificationService.ShowToast(NotificationType.Error, "HitSound Editor", "Load a beatmap with hitsound points first.");
             return;
         }
 
@@ -543,20 +543,20 @@ public partial class HitSoundVisualizerViewModel(
             {
                 notificationService.ShowToast(
                     NotificationType.Error,
-                    "Hitsound Visualizer",
+                    "HitSound Editor",
                     string.IsNullOrWhiteSpace(errorMessage) ? "Failed to apply hitsounds to target diff." : errorMessage);
                 return;
             }
 
             notificationService.ShowToast(
                 NotificationType.Success,
-                "Hitsound Visualizer",
+                "HitSound Editor",
                 $"Applied hitsounds to {Path.GetFileName(targetPath)}.");
         }
         catch (Exception ex)
         {
             MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
-            notificationService.ShowToast(NotificationType.Error, "Hitsound Visualizer", ex.Message);
+            notificationService.ShowToast(NotificationType.Error, "HitSound Editor", ex.Message);
         }
     }
 
@@ -565,7 +565,7 @@ public partial class HitSoundVisualizerViewModel(
     {
         if (!CanExportTimeline)
         {
-            notificationService.ShowToast(NotificationType.Error, "Hitsound Visualizer", "Load a beatmap with hitsound points first.");
+            notificationService.ShowToast(NotificationType.Error, "HitSound Editor", "Load a beatmap with hitsound points first.");
             return;
         }
 
@@ -575,20 +575,20 @@ public partial class HitSoundVisualizerViewModel(
             {
                 notificationService.ShowToast(
                     NotificationType.Error,
-                    "Hitsound Visualizer",
+                    "HitSound Editor",
                     string.IsNullOrWhiteSpace(errorMessage) ? "Failed to export hitsound diff." : errorMessage);
                 return;
             }
 
             notificationService.ShowToast(
                 NotificationType.Success,
-                "Hitsound Visualizer",
+                "HitSound Editor",
                 $"Exported hitsound diff: {Path.GetFileName(exportedPath)}");
         }
         catch (Exception ex)
         {
             MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
-            notificationService.ShowToast(NotificationType.Error, "Hitsound Visualizer", ex.Message);
+            notificationService.ShowToast(NotificationType.Error, "HitSound Editor", ex.Message);
         }
     }
 
@@ -596,7 +596,7 @@ public partial class HitSoundVisualizerViewModel(
     {
         if (string.IsNullOrWhiteSpace(OriginBeatmap.Path))
         {
-            notificationService.ShowToast(NotificationType.Error, "Hitsound Visualizer", "Please select a beatmap first.");
+            notificationService.ShowToast(NotificationType.Error, "HitSound Editor", "Please select a beatmap first.");
             return;
         }
 
@@ -677,7 +677,7 @@ public partial class HitSoundVisualizerViewModel(
         catch (Exception ex)
         {
             MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
-            notificationService.ShowToast(NotificationType.Error, "Hitsound Visualizer", ex.Message);
+            notificationService.ShowToast(NotificationType.Error, "HitSound Editor", ex.Message);
             PlaybackStatus = "Idle";
         }
         finally
@@ -965,7 +965,7 @@ public partial class HitSoundVisualizerViewModel(
     {
         if (!HasLoadedMap)
         {
-            notificationService.ShowToast(NotificationType.Error, "Hitsound Visualizer", "Load a beatmap first.");
+            notificationService.ShowToast(NotificationType.Error, "HitSound Editor", "Load a beatmap first.");
             return;
         }
 
@@ -988,7 +988,7 @@ public partial class HitSoundVisualizerViewModel(
 
         if (HasPointConflict(point, out var conflictMessage))
         {
-            notificationService.ShowToast(NotificationType.Error, "Hitsound Visualizer", conflictMessage);
+            notificationService.ShowToast(NotificationType.Error, "HitSound Editor", conflictMessage);
             return;
         }
 
@@ -1027,7 +1027,7 @@ public partial class HitSoundVisualizerViewModel(
         if (HasPointConflict(point, out var conflictMessage))
         {
             _nextPointId = Math.Max(1, _nextPointId - 1);
-            notificationService.ShowToast(NotificationType.Error, "Hitsound Visualizer", conflictMessage);
+            notificationService.ShowToast(NotificationType.Error, "HitSound Editor", conflictMessage);
             return;
         }
 
@@ -1049,7 +1049,7 @@ public partial class HitSoundVisualizerViewModel(
 
         if (!HasAnyHsSelectorAudioTypeEnabled)
         {
-            notificationService.ShowToast(NotificationType.Error, "Hitsound Visualizer", "Select at least one hitsound type in HS Selector.");
+            notificationService.ShowToast(NotificationType.Error, "HitSound Editor", "Select at least one hitsound type in HS Selector.");
             return;
         }
 
@@ -1062,7 +1062,7 @@ public partial class HitSoundVisualizerViewModel(
 
         if (matched.Count == 0)
         {
-            notificationService.ShowToast(NotificationType.Error, "Hitsound Visualizer", "No hitsound points matched the current HS selector filters.");
+            notificationService.ShowToast(NotificationType.Error, "HitSound Editor", "No hitsound points matched the current HS selector filters.");
             return;
         }
 
@@ -1088,7 +1088,7 @@ public partial class HitSoundVisualizerViewModel(
 
         if (selectedIds.Count == 0)
         {
-            notificationService.ShowToast(NotificationType.Error, "Hitsound Visualizer", "Select at least one hitsound point to copy.");
+            notificationService.ShowToast(NotificationType.Error, "HitSound Editor", "Select at least one hitsound point to copy.");
             return false;
         }
 
@@ -1101,7 +1101,7 @@ public partial class HitSoundVisualizerViewModel(
 
         if (selectedPoints.Count == 0)
         {
-            notificationService.ShowToast(NotificationType.Error, "Hitsound Visualizer", "No hitsound points available to copy.");
+            notificationService.ShowToast(NotificationType.Error, "HitSound Editor", "No hitsound points available to copy.");
             return false;
         }
 
@@ -1125,13 +1125,13 @@ public partial class HitSoundVisualizerViewModel(
     {
         if (!HasLoadedMap)
         {
-            notificationService.ShowToast(NotificationType.Error, "Hitsound Visualizer", "Load a beatmap first.");
+            notificationService.ShowToast(NotificationType.Error, "HitSound Editor", "Load a beatmap first.");
             return;
         }
 
         if (string.IsNullOrWhiteSpace(clipboardText))
         {
-            notificationService.ShowToast(NotificationType.Error, "Hitsound Visualizer", "Clipboard is empty.");
+            notificationService.ShowToast(NotificationType.Error, "HitSound Editor", "Clipboard is empty.");
             return;
         }
 
@@ -1143,13 +1143,13 @@ public partial class HitSoundVisualizerViewModel(
         catch (Exception ex)
         {
             MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
-            notificationService.ShowToast(NotificationType.Error, "Hitsound Visualizer", "Clipboard does not contain valid hitsound point data.");
+            notificationService.ShowToast(NotificationType.Error, "HitSound Editor", "Clipboard does not contain valid hitsound point data.");
             return;
         }
 
         if (payload?.Points is null || payload.Points.Count == 0 || payload.Format != PointClipboardFormatId)
         {
-            notificationService.ShowToast(NotificationType.Error, "Hitsound Visualizer", "Clipboard does not contain hitsound point data.");
+            notificationService.ShowToast(NotificationType.Error, "HitSound Editor", "Clipboard does not contain hitsound point data.");
             return;
         }
 
@@ -1180,7 +1180,7 @@ public partial class HitSoundVisualizerViewModel(
         {
             notificationService.ShowToast(
                 NotificationType.Error,
-                "Hitsound Visualizer",
+                "HitSound Editor",
                 $"Paste would create duplicate points at {duplicateInPaste.Key.TimeMs}ms.");
             return;
         }
@@ -1193,7 +1193,7 @@ public partial class HitSoundVisualizerViewModel(
         {
             notificationService.ShowToast(
                 NotificationType.Error,
-                "Hitsound Visualizer",
+                "HitSound Editor",
                 $"Clipboard contains conflicting addition sample sets at {conflictingPastedAdditionTime.Key}ms.");
             return;
         }
@@ -1226,7 +1226,7 @@ public partial class HitSoundVisualizerViewModel(
     {
         if (SelectedPointIds.Count == 0 && SelectedPointId < 0)
         {
-            notificationService.ShowToast(NotificationType.Error, "Hitsound Visualizer", "Select a point to remove.");
+            notificationService.ShowToast(NotificationType.Error, "HitSound Editor", "Select a point to remove.");
             return;
         }
 
@@ -1248,7 +1248,7 @@ public partial class HitSoundVisualizerViewModel(
 
         if (ids.Count == 0)
         {
-            notificationService.ShowToast(NotificationType.Error, "Hitsound Visualizer", "Select a point to edit.");
+            notificationService.ShowToast(NotificationType.Error, "HitSound Editor", "Select a point to edit.");
             return;
         }
 
@@ -1261,7 +1261,7 @@ public partial class HitSoundVisualizerViewModel(
         var selected = Points.FirstOrDefault(x => x.Id == ids[0]);
         if (selected is null)
         {
-            notificationService.ShowToast(NotificationType.Error, "Hitsound Visualizer", "Select a point to edit.");
+            notificationService.ShowToast(NotificationType.Error, "HitSound Editor", "Select a point to edit.");
             return;
         }
 
@@ -1286,7 +1286,7 @@ public partial class HitSoundVisualizerViewModel(
 
         if (HasPointConflict(edited, out var conflictMessage, ignorePointId: selected.Id))
         {
-            notificationService.ShowToast(NotificationType.Error, "Hitsound Visualizer", conflictMessage);
+            notificationService.ShowToast(NotificationType.Error, "HitSound Editor", conflictMessage);
             return;
         }
 
@@ -1306,7 +1306,7 @@ public partial class HitSoundVisualizerViewModel(
 
         if (ids.Count == 0)
         {
-            notificationService.ShowToast(NotificationType.Error, "Hitsound Visualizer", "Select at least one point first.");
+            notificationService.ShowToast(NotificationType.Error, "HitSound Editor", "Select at least one point first.");
             return;
         }
 
@@ -1379,7 +1379,7 @@ public partial class HitSoundVisualizerViewModel(
         var selectedIds = transformedPoints.Select(point => point.Id).ToArray();
         if (selectedIds.Length == 0)
         {
-            notificationService.ShowToast(NotificationType.Error, "Hitsound Visualizer", "Batch edit produced no points.");
+            notificationService.ShowToast(NotificationType.Error, "HitSound Editor", "Batch edit produced no points.");
             return;
         }
 
@@ -1441,7 +1441,7 @@ public partial class HitSoundVisualizerViewModel(
         var point = Points.FirstOrDefault(x => x.Id == SelectedPointId);
         if (point is null)
         {
-            notificationService.ShowToast(NotificationType.Error, "Hitsound Visualizer", "Select a point first.");
+            notificationService.ShowToast(NotificationType.Error, "HitSound Editor", "Select a point first.");
             return;
         }
 
@@ -2061,7 +2061,7 @@ public partial class HitSoundVisualizerViewModel(
             filesService,
             lazerLookupService,
             settingsService,
-            "Hitsound Visualizer",
+            "HitSound Editor",
             allowMultiple,
             token,
             preferredMapsetDirectoryPath);
@@ -2073,7 +2073,7 @@ public partial class HitSoundVisualizerViewModel(
     {
         if (!TryRebuildWorkingTimeline(updatedPoints, out var timeline, out var error))
         {
-            notificationService.ShowToast(NotificationType.Error, "Hitsound Visualizer", error);
+            notificationService.ShowToast(NotificationType.Error, "HitSound Editor", error);
             return false;
         }
 
@@ -2106,7 +2106,7 @@ public partial class HitSoundVisualizerViewModel(
     {
         if (!TryRebuildWorkingTimeline(Points.ToList(), out var timeline, out var error, updatedSampleChanges))
         {
-            notificationService.ShowToast(NotificationType.Error, "Hitsound Visualizer", error);
+            notificationService.ShowToast(NotificationType.Error, "HitSound Editor", error);
             return false;
         }
 
@@ -2173,7 +2173,7 @@ public partial class HitSoundVisualizerViewModel(
     {
         if (!TryRebuildWorkingTimeline(state.Points, out var timeline, out var error, state.SampleChanges))
         {
-            notificationService.ShowToast(NotificationType.Error, "Hitsound Visualizer", error);
+            notificationService.ShowToast(NotificationType.Error, "HitSound Editor", error);
             return false;
         }
 

@@ -266,7 +266,6 @@
                             Width="82"
                             Foreground="{DynamicResource MapWizardTextBrush}"
                             HorizontalContentAlignment="Center"
-                            IsVisible="{Binding IsHitSoundVisualizerEnabled}"
                             Command="{Binding OpenHitSoundVisualizerCommand}">
                         <StackPanel Spacing="4" HorizontalAlignment="Center" IsHitTestVisible="False">
                             <Grid Width="44" Height="30">
@@ -280,7 +279,7 @@
                                                             HorizontalAlignment="Center"
                                                             VerticalAlignment="Center" />
                             </Grid>
-                            <TextBlock Text="Hitsound Visualizer"
+                            <TextBlock Text="HitSound Editor"
                                        Width="68"
                                        FontSize="11"
                                        Foreground="{DynamicResource MapWizardTextBrush}"

@@ -56,9 +56,6 @@ public partial class SettingsViewModel(
     private string _songsPathStatusText = "Songs folder not configured.";
 
     [ObservableProperty]
-    private bool _isHitSoundVisualizerEnabled;
-
-    [ObservableProperty]
     private bool _isSmoothWheelScrollingEnabled = true;
 
     [ObservableProperty]
@@ -209,16 +206,6 @@ public partial class SettingsViewModel(
         SongsPathStatusText = songLibraryService.IsValidSongsPath(normalized)
             ? "Using configured Songs folder."
             : "Folder not found. Map Picker will use manual picker fallback.";
-    }
-
-    partial void OnIsHitSoundVisualizerEnabledChanged(bool value)
-    {
-        if (_isLoadingMainSettings)
-        {
-            return;
-        }
-
-        SaveHitSoundVisualizerEnabled(value);
     }
 
     partial void OnIsSmoothWheelScrollingEnabledChanged(bool value)
@@ -465,7 +452,6 @@ public partial class SettingsViewModel(
             var settings = settingsService.GetMainSettings();
             IsSmoothWheelScrollingEnabled = settings.EnableSmoothWheelScrolling;
             SmoothScrollViewer.SetGlobalSmoothScrollingEnabled(settings.EnableSmoothWheelScrolling);
-            IsHitSoundVisualizerEnabled = settings.EnableHitSoundVisualizer;
             AudioPreviewSongVolumePercent = Math.Clamp(settings.AudioPreviewSongVolumePercent, 0, 100);
             AudioPreviewHitSoundVolumePercent = Math.Clamp(settings.AudioPreviewHitSoundVolumePercent, 0, 100);
         }
@@ -529,18 +515,6 @@ public partial class SettingsViewModel(
         }
 
         settings.SongsPath = path;
-        settingsService.SaveMainSettings(settings);
-    }
-
-    private void SaveHitSoundVisualizerEnabled(bool enabled)
-    {
-        var settings = settingsService.GetMainSettings();
-        if (settings.EnableHitSoundVisualizer == enabled)
-        {
-            return;
-        }
-
-        settings.EnableHitSoundVisualizer = enabled;
         settingsService.SaveMainSettings(settings);
     }
 

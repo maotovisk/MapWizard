@@ -61,7 +61,6 @@ public partial class SettingsView : UserControl
         {
             (GeneralSection, GeneralNav),
             (AppearanceSection, AppearanceNav),
-            (ExperimentalSection, ExperimentalNav),
             (AudioSection, AudioNav),
             (InformationSection, InformationNav)
         };
@@ -85,7 +84,6 @@ public partial class SettingsView : UserControl
     private Control GetSection(string sectionName) => sectionName switch
     {
         "Appearance" => AppearanceSection,
-        "Experimental" => ExperimentalSection,
         "Audio" => AudioSection,
         "Information" => InformationSection,
         _ => GeneralSection
