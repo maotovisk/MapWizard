@@ -3,21 +3,17 @@ using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Controls.Notifications;
 using Avalonia.Layout;
-using Avalonia.Threading;
 using CommunityToolkit.Mvvm.Input;
+using MapWizard.Desktop.Extensions;
 using MapWizard.Desktop.Services;
 using MapWizard.Desktop.Views.Dialogs;
 using MapWizard.Tools.HelperExtensions;
-using SukiUI.Dialogs;
-using SukiUI.Enums;
-using SukiUI.Toasts;
 using Velopack;
 
 namespace MapWizard.Desktop.ViewModels;
 
 public partial class WelcomePageViewModel(
-    ISukiDialogManager dialogManager,
-    ISukiToastManager toastManager,
+    INotificationService notificationService,
     IModalService modalService,
     IUpdateService updateService) : ViewModelBase
 {
@@ -42,23 +38,19 @@ public partial class WelcomePageViewModel(
         {
             if (showNotInstalledMessage)
             {
-                await dialogManager.CreateDialog()
-                    .WithTitle("Update Check")
-                    .WithContent("MapWizard is not installed. Please install it to check for updates.")
-                    .WithOkResult("Ok")
-                    .TryShowAsync();
+                await modalService.ShowMessageAsync(
+                    "Update Check",
+                    "MapWizard is not installed. Please install it to check for updates.");
             }
 
             return;
         }
 
-        var checkingToast = toastManager.CreateToast()
-            .OfType(NotificationType.Information)
-            .WithLoadingState(true)
-            .WithTitle("Updates")
-            .WithContent("Checking for updates...")
-            .Dismiss().ByClicking()
-            .Queue();
+        var checkingToast = notificationService.Show(
+            NotificationType.Information,
+            "Updates",
+            "Checking for updates...",
+            isBusy: true);
 
         UpdateInfo? newVersion;
         try
@@ -68,28 +60,24 @@ public partial class WelcomePageViewModel(
         catch (Exception ex)
         {
             MapWizardLogger.LogException(ex);
-            toastManager.Dismiss(checkingToast);
-            toastManager.CreateToast()
-                .OfType(NotificationType.Error)
-                .WithTitle("Update error")
-                .WithContent(ex.Message)
-                .Dismiss().ByClicking()
-                .Dismiss().After(TimeSpan.FromSeconds(6))
-                .Queue();
+            notificationService.Dismiss(checkingToast);
+            notificationService.ShowToast(
+                NotificationType.Error,
+                "Update error",
+                ex.Message,
+                TimeSpan.FromSeconds(6));
             return;
         }
 
-        toastManager.Dismiss(checkingToast);
+        notificationService.Dismiss(checkingToast);
 
         if (newVersion == null)
         {
-            toastManager.CreateToast()
-                .OfType(NotificationType.Information)
-                .WithTitle("Updates")
-                .WithContent("You are up to date.")
-                .Dismiss().ByClicking()
-                .Dismiss().After(TimeSpan.FromSeconds(4))
-                .Queue();
+            notificationService.ShowToast(
+                NotificationType.Information,
+                "Updates",
+                "You are up to date.",
+                TimeSpan.FromSeconds(4));
             return;
         }
 
@@ -140,58 +128,54 @@ public partial class WelcomePageViewModel(
 
     private void ShowUpdateAvailableToast(UpdateInfo info)
     {
-        toastManager.CreateToast()
-            .OfType(NotificationType.Information)
-            .WithTitle("Updates")
-            .WithContent($"New version {info.TargetFullRelease.Version} is available.")
-            .WithActionButton("Later", _ => { }, true, SukiButtonStyles.Flat)
-            .WithActionButton("Update", _toast =>
-            {
-                _ = ShowUpdateToastWithProgressAsync(info);
-            }, true, SukiButtonStyles.Accent)
-            .Dismiss().ByClicking()
-            .Queue();
+        notificationService.Show(
+            NotificationType.Information,
+            "Updates",
+            $"New version {info.TargetFullRelease.Version} is available.",
+            actions:
+            [
+                new NotificationAction("Later", () => { }),
+                new NotificationAction("Update", () => _ = ShowUpdateToastWithProgressAsync(info), IsPrimary: true)
+            ]);
     }
 
     private async Task ShowUpdateToastWithProgressAsync(UpdateInfo info)
     {
-        var progress = new ProgressBar { Value = 0, ShowProgressText = true };
-        var downloadingToast = toastManager.CreateToast()
-            .WithTitle("Downloading Update...")
-            .WithContent(progress)
-            .Dismiss().ByClicking()
-            .Queue();
+        var downloadingToast = notificationService.Show(
+            NotificationType.Information,
+            "Downloading Update...",
+            "Preparing download...",
+            progress: 0);
 
         try
         {
             await updateService.DownloadUpdatesAsync(info, percentage =>
             {
-                Dispatcher.UIThread.Post(() => { progress.Value = percentage; });
+                notificationService.UpdateProgress(downloadingToast, percentage);
             });
         }
         catch (Exception ex)
         {
             MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
-            toastManager.Dismiss(downloadingToast);
-            toastManager.CreateToast()
-                .OfType(NotificationType.Error)
-                .WithTitle("Update error")
-                .WithContent(ex.Message)
-                .Dismiss().ByClicking()
-                .Dismiss().After(TimeSpan.FromSeconds(6))
-                .Queue();
+            notificationService.Dismiss(downloadingToast);
+            notificationService.ShowToast(
+                NotificationType.Error,
+                "Update error",
+                ex.Message,
+                TimeSpan.FromSeconds(6));
             return;
         }
 
-        toastManager.Dismiss(downloadingToast);
+        notificationService.Dismiss(downloadingToast);
 
-        toastManager.CreateToast()
-            .OfType(NotificationType.Success)
-            .WithTitle("Update Downloaded")
-            .WithContent("The update has been downloaded. Please restart the app to apply the update.")
-            .WithActionButton("Next Restart", _ => { updateService.WaitExitThenApplyUpdates(info); }, true)
-            .WithActionButton("Restart Now", _ => { updateService.ApplyUpdatesAndRestart(info); }, true, SukiButtonStyles.Accent)
-            .Dismiss().ByClicking()
-            .Queue();
+        notificationService.Show(
+            NotificationType.Success,
+            "Update Downloaded",
+            "The update has been downloaded. Please restart the app to apply the update.",
+            actions:
+            [
+                new NotificationAction("Next Restart", () => updateService.WaitExitThenApplyUpdates(info)),
+                new NotificationAction("Restart Now", () => updateService.ApplyUpdatesAndRestart(info), IsPrimary: true)
+            ]);
     }
 }

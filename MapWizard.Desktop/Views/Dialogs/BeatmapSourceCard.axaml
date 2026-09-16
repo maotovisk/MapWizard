@@ -15,7 +15,7 @@
     <UserControl.Styles>
         <Style Selector="Border.CardRoot">
             <Setter Property="Background" Value="{DynamicResource MapWizardPickerSurface}" />
-            <Setter Property="BorderBrush" Value="{DynamicResource SukiBorderBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource MapWizardBorderBrush}" />
             <Setter Property="BorderThickness" Value="1" />
             <Setter Property="CornerRadius" Value="10" />
             <Setter Property="ClipToBounds" Value="True" />
@@ -166,7 +166,7 @@
                             Spacing="0">
                     <TextBlock Text="{Binding FallbackTitleLabel, ElementName=Root}"
                                FontSize="14"
-                               FontWeight="SemiBold"
+                               FontWeight="Normal"
                                Foreground="#FFFFFFFF"
                                TextTrimming="CharacterEllipsis"
                                MaxLines="1" />

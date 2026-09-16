@@ -5,7 +5,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:vm="clr-namespace:MapWizard.Desktop.ViewModels"
     xmlns:dialogs="clr-namespace:MapWizard.Desktop.Views.Dialogs"
-    xmlns:suki="clr-namespace:SukiUI.Controls;assembly=SukiUI"
+    xmlns:theme="clr-namespace:MapWizard.Theme.Controls;assembly=MapWizard.Theme"
     xmlns:appControls="clr-namespace:MapWizard.Desktop.Controls"
     xmlns:materialIcons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
     mc:Ignorable="d"
@@ -13,52 +13,89 @@
     d:DesignHeight="660"
     x:Class="MapWizard.Desktop.Views.Dialogs.SongSelectDialog"
     x:DataType="vm:SongSelectDialogViewModel"
-    MinWidth="680"
+    MinWidth="460"
     MinHeight="420">
 
+    <UserControl.Resources>
+        <SolidColorBrush x:Key="PickerToolbarSurfaceBrush"
+                         Color="{DynamicResource MapWizardSurfaceOpaque}"
+                         Opacity="0.94" />
+    </UserControl.Resources>
+
     <UserControl.Styles>
-        <Style Selector="Border.SongSurface">
-            <Setter Property="Background" Value="{DynamicResource MapWizardPickerSurface}" />
-            <Setter Property="CornerRadius" Value="16" />
+        <Style Selector="Border.FloatingToolbar">
+            <Setter Property="Background" Value="{StaticResource PickerToolbarSurfaceBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource MapWizardBorderBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="14" />
+            <Setter Property="Padding" Value="8" />
+            <Setter Property="BoxShadow" Value="0 8 24 0 #40000000" />
         </Style>
 
         <Style Selector="Border.StatusPill">
-            <Setter Property="Background" Value="{DynamicResource SukiControlTouchBackground}" />
+            <Setter Property="Background" Value="{DynamicResource MapWizardControlBackgroundBrush}" />
             <Setter Property="CornerRadius" Value="8" />
             <Setter Property="Padding" Value="8,4" />
+        </Style>
+
+        <Style Selector="TextBox.PickerSearchBox">
+            <Setter Property="Background" Value="{DynamicResource MapWizardSurfaceOpaqueBrush}" />
+        </Style>
+        <Style Selector="TextBox.PickerSearchBox:pointerover">
+            <Setter Property="Background" Value="{DynamicResource MapWizardSurfaceOpaqueBrush}" />
+        </Style>
+        <Style Selector="TextBox.PickerSearchBox:focus-within">
+            <Setter Property="Background" Value="{DynamicResource MapWizardSurfaceOpaqueBrush}" />
+        </Style>
+        <Style Selector="TextBox.PickerSearchBox /template/ Border#PART_BorderElement">
+            <Setter Property="Background" Value="{DynamicResource MapWizardSurfaceOpaqueBrush}" />
+        </Style>
+        <Style Selector="TextBox.PickerSearchBox:pointerover /template/ Border#PART_BorderElement">
+            <Setter Property="Background" Value="{DynamicResource MapWizardSurfaceOpaqueBrush}" />
+        </Style>
+        <Style Selector="TextBox.PickerSearchBox:focus-within /template/ Border#PART_BorderElement">
+            <Setter Property="Background" Value="{DynamicResource MapWizardSurfaceOpaqueBrush}" />
         </Style>
 
     </UserControl.Styles>
 
     <Grid RowDefinitions="Auto,*" RowSpacing="10">
-        <Grid RowDefinitions="Auto,Auto" RowSpacing="6">
-            <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="12">
-                <TextBox Height="38"
+        <Border Classes="FloatingToolbar">
+            <Grid RowDefinitions="Auto,Auto" RowSpacing="6">
+            <Grid ColumnDefinitions="*,Auto,Auto,Auto" ColumnSpacing="6">
+                <TextBox Classes="PickerSearchBox"
+                         Height="38"
                          PlaceholderText="Search beatmaps..."
                          Text="{Binding SearchText, Mode=TwoWay}" />
 
                 <Button Grid.Column="1"
-                        Classes="Basic"
+                        Classes="Basic Compact"
                         Command="{Binding ReloadLibraryCommand}"
+                        MinWidth="38"
                         MinHeight="38"
-                        Padding="14,0,14,0"
+                        Padding="8"
                         ToolTip.Tip="Reload song folders and refresh results">
-                    <StackPanel Orientation="Horizontal" Spacing="7">
-                        <materialIcons:MaterialIcon Kind="Refresh" Width="18" Height="18" />
-                        <TextBlock Text="Reload" VerticalAlignment="Center" />
-                    </StackPanel>
+                    <materialIcons:MaterialIcon Kind="Refresh" Width="18" Height="18" />
                 </Button>
 
                 <Button Grid.Column="2"
-                        Classes="Basic"
+                        Classes="Basic Compact"
                         Command="{Binding PickFilesManuallyCommand}"
+                        MinWidth="38"
                         MinHeight="38"
-                        Padding="14,0,14,0"
+                        Padding="8"
                         ToolTip.Tip="Open native file picker fallback">
-                    <StackPanel Orientation="Horizontal" Spacing="7">
-                        <materialIcons:MaterialIcon Kind="FolderOpen" Width="18" Height="18" />
-                        <TextBlock Text="Manual Open" VerticalAlignment="Center" />
-                    </StackPanel>
+                    <materialIcons:MaterialIcon Kind="FolderOpen" Width="18" Height="18" />
+                </Button>
+
+                <Button Grid.Column="3"
+                        Classes="Basic Compact"
+                        Click="ClosePickerButton_OnClick"
+                        MinWidth="38"
+                        MinHeight="38"
+                        Padding="8"
+                        ToolTip.Tip="Close">
+                    <materialIcons:MaterialIcon Kind="Close" Width="18" Height="18" />
                 </Button>
             </Grid>
 
@@ -67,44 +104,43 @@
                            FontSize="12"
                            TextTrimming="CharacterEllipsis" />
             </Border>
-        </Grid>
+            </Grid>
+        </Border>
 
-        <suki:BusyArea Grid.Row="1" BusyText="Searching songs..." IsBusy="{Binding ShowBusyBox}">
-            <Border Classes="SongSurface" Padding="10" MinHeight="0">
-                <appControls:SmoothScrollViewer x:Name="MapsetScrollViewer"
-                               ScrollChanged="MapsetScrollViewer_OnScrollChanged"
-                               HorizontalScrollBarVisibility="Disabled">
-                    <StackPanel Spacing="10"
-                                HorizontalAlignment="Stretch">
-                        <Border IsVisible="{Binding HasMountedLazerMapset}">
-                            <dialogs:SongMapsetCard DataContext="{Binding MountedLazerMapset}" />
-                        </Border>
+        <theme:BusyArea Grid.Row="1" BusyText="Searching songs..." IsBusy="{Binding ShowBusyBox}">
+            <appControls:SmoothScrollViewer x:Name="MapsetScrollViewer"
+                                            ScrollChanged="MapsetScrollViewer_OnScrollChanged"
+                                            HorizontalScrollBarVisibility="Disabled">
+                <StackPanel HorizontalAlignment="Stretch"
+                            Margin="0,2,4,0">
+                    <Border IsVisible="{Binding HasMountedLazerMapset}">
+                        <dialogs:SongMapsetCard DataContext="{Binding MountedLazerMapset}" />
+                    </Border>
 
-                        <Border Classes="StatusPill"
-                                Margin="2"
-                                IsVisible="{Binding ShowEmptyState}">
-                            <TextBlock Text="{Binding StatusMessage}"
-                                       FontWeight="SemiBold" />
-                        </Border>
+                    <Border Classes="StatusPill"
+                            Margin="2"
+                            IsVisible="{Binding ShowEmptyState}">
+                        <TextBlock Text="{Binding StatusMessage}"
+                                   FontWeight="SemiBold" />
+                    </Border>
 
-                        <ItemsControl x:Name="MapsetItemsControl"
-                                      ItemsSource="{Binding VisibleMapsets}"
-                                      HorizontalAlignment="Stretch">
-                            <ItemsControl.ItemsPanel>
-                                <ItemsPanelTemplate>
-                                    <StackPanel HorizontalAlignment="Stretch" />
-                                </ItemsPanelTemplate>
-                            </ItemsControl.ItemsPanel>
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate x:DataType="vm:SongMapsetCardViewModel">
-                                    <dialogs:SongMapsetCard />
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-                    </StackPanel>
-                </appControls:SmoothScrollViewer>
-            </Border>
-        </suki:BusyArea>
+                    <ItemsControl x:Name="MapsetItemsControl"
+                                  ItemsSource="{Binding VisibleMapsets}"
+                                  HorizontalAlignment="Stretch">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <StackPanel HorizontalAlignment="Stretch" />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="vm:SongMapsetCardViewModel">
+                                <dialogs:SongMapsetCard />
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </appControls:SmoothScrollViewer>
+        </theme:BusyArea>
 
     </Grid>
 </UserControl>

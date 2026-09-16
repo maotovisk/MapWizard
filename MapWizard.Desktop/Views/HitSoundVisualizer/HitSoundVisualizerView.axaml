@@ -4,11 +4,10 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:materialIcons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
-    xmlns:suki="clr-namespace:SukiUI.Controls;assembly=SukiUI"
+    xmlns:theme="clr-namespace:MapWizard.Theme.Controls;assembly=MapWizard.Theme"
     xmlns:controls="clr-namespace:MapWizard.Desktop.Views.Controls"
     xmlns:appControls="clr-namespace:MapWizard.Desktop.Controls"
     xmlns:viewModels="clr-namespace:MapWizard.Desktop.ViewModels"
-    xmlns:theme="https://github.com/kikipoulet/SukiUI"
     mc:Ignorable="d"
     d:DesignWidth="1200"
     d:DesignHeight="760"
@@ -21,35 +20,31 @@
     <UserControl.Styles>
         <Style Selector="Border.timeline-shell">
             <Setter Property="Background" Value="{DynamicResource SystemControlBackgroundChromeMediumLowBrush}" />
-            <Setter Property="BorderBrush" Value="{DynamicResource SukiBorderBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource MapWizardBorderBrush}" />
             <Setter Property="BorderThickness" Value="1" />
             <Setter Property="CornerRadius" Value="14" />
             <Setter Property="Padding" Value="12" />
         </Style>
         <Style Selector="Border.timeline-panel">
             <Setter Property="Background" Value="{DynamicResource SystemControlBackgroundAltMediumBrush}" />
-            <Setter Property="BorderBrush" Value="{DynamicResource SukiBorderBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource MapWizardBorderBrush}" />
             <Setter Property="BorderThickness" Value="1" />
             <Setter Property="CornerRadius" Value="12" />
         </Style>
         <Style Selector="Border.timeline-flyout-surface">
-            <Setter Property="Background" Value="{DynamicResource SystemControlBackgroundAltHighBrush}" />
-            <Setter Property="BorderBrush" Value="{DynamicResource SukiBorderBrush}" />
-            <Setter Property="BorderThickness" Value="1" />
-            <Setter Property="CornerRadius" Value="12" />
-            <Setter Property="Padding" Value="12" />
+            <Setter Property="Padding" Value="10,8" />
         </Style>
         <Style Selector="Button.timeline-btn">
             <Setter Property="Background" Value="{DynamicResource SystemControlBackgroundChromeMediumLowBrush}" />
-            <Setter Property="BorderBrush" Value="{DynamicResource SukiBorderBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource MapWizardBorderBrush}" />
             <Setter Property="BorderThickness" Value="1" />
             <Setter Property="Padding" Value="10,6" />
             <Setter Property="CornerRadius" Value="9" />
-            <Setter Property="Foreground" Value="{DynamicResource SukiText}" />
+            <Setter Property="Foreground" Value="{DynamicResource MapWizardTextBrush}" />
         </Style>
         <Style Selector="Button.timeline-btn:pointerover">
             <Setter Property="Background" Value="{DynamicResource SystemControlBackgroundAltMediumBrush}" />
-            <Setter Property="BorderBrush" Value="{DynamicResource ThemeAccentBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource MapWizardAccentBrush}" />
         </Style>
         <Style Selector="Button.timeline-btn:pressed">
             <Setter Property="Background" Value="{DynamicResource SystemControlBackgroundAltHighBrush}" />
@@ -60,7 +55,7 @@
             <Setter Property="BorderThickness" Value="0" />
             <Setter Property="Padding" Value="8,6" />
             <Setter Property="CornerRadius" Value="8" />
-            <Setter Property="Foreground" Value="{DynamicResource SukiText}" />
+            <Setter Property="Foreground" Value="{DynamicResource MapWizardTextBrush}" />
             
         </Style>
         <Style Selector="Button.timeline-transport-btn:pressed">
@@ -68,32 +63,32 @@
         </Style>
         <Style Selector="ToggleButton.timeline-toolbar-toggle">
             <Setter Property="Background" Value="{DynamicResource SystemControlBackgroundChromeMediumLowBrush}" />
-            <Setter Property="BorderBrush" Value="{DynamicResource SukiBorderBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource MapWizardBorderBrush}" />
             <Setter Property="BorderThickness" Value="1" />
             <Setter Property="Padding" Value="10,6" />
             <Setter Property="CornerRadius" Value="9" />
-            <Setter Property="Foreground" Value="{DynamicResource SukiText}" />
+            <Setter Property="Foreground" Value="{DynamicResource MapWizardTextBrush}" />
         </Style>
         <Style Selector="ToggleButton.timeline-toolbar-toggle:pointerover">
             <Setter Property="Background" Value="{DynamicResource SystemControlBackgroundAltMediumBrush}" />
-            <Setter Property="BorderBrush" Value="{DynamicResource ThemeAccentBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource MapWizardAccentBrush}" />
         </Style>
         <Style Selector="ToggleButton.timeline-toolbar-toggle:checked">
-            <Setter Property="Background" Value="{DynamicResource ThemeAccentBrush}" />
-            <Setter Property="BorderBrush" Value="{DynamicResource ThemeAccentBrush}" />
+            <Setter Property="Background" Value="{DynamicResource MapWizardAccentBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource MapWizardAccentBrush}" />
             <Setter Property="Foreground" Value="{DynamicResource MapWizardAccentForeground}" />
         </Style>
         <Style Selector="Button.timeline-select">
             <Setter Property="Background" Value="{DynamicResource SystemControlBackgroundChromeMediumLowBrush}" />
-            <Setter Property="BorderBrush" Value="{DynamicResource SukiBorderBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource MapWizardBorderBrush}" />
             <Setter Property="BorderThickness" Value="1" />
             <Setter Property="Padding" Value="10,6" />
             <Setter Property="CornerRadius" Value="8" />
-            <Setter Property="Foreground" Value="{DynamicResource SukiText}" />
+            <Setter Property="Foreground" Value="{DynamicResource MapWizardTextBrush}" />
         </Style>
         <Style Selector="Button.timeline-select:pointerover">
             <Setter Property="Background" Value="{DynamicResource SystemControlBackgroundAltMediumBrush}" />
-            <Setter Property="BorderBrush" Value="{DynamicResource ThemeAccentBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource MapWizardAccentBrush}" />
         </Style>
         <Style Selector="ToggleButton.timeline-seg-btn">
             <Setter Property="Background" Value="{DynamicResource SystemControlBackgroundChromeMediumLowBrush}" />
@@ -101,13 +96,13 @@
             <Setter Property="BorderThickness" Value="0" />
             <Setter Property="Padding" Value="10,8" />
             <Setter Property="CornerRadius" Value="8" />
-            <Setter Property="Foreground" Value="{DynamicResource SukiText}" />
+            <Setter Property="Foreground" Value="{DynamicResource MapWizardTextBrush}" />
         </Style>
         <Style Selector="ToggleButton.timeline-seg-btn:pointerover">
             <Setter Property="Background" Value="{DynamicResource SystemControlBackgroundAltMediumBrush}" />
         </Style>
         <Style Selector="ToggleButton.timeline-seg-btn:checked">
-            <Setter Property="Background" Value="{DynamicResource ThemeAccentBrush}" />
+            <Setter Property="Background" Value="{DynamicResource MapWizardAccentBrush}" />
             <Setter Property="Foreground" Value="{DynamicResource MapWizardAccentForeground}" />
         </Style>
         <Style Selector="ListBox.timeline-snap-list">
@@ -126,18 +121,18 @@
             <Setter Property="Padding" Value="8,5" />
             <Setter Property="Margin" Value="0,0,0,4" />
             <Setter Property="CornerRadius" Value="8" />
-            <Setter Property="Foreground" Value="{DynamicResource SukiText}" />
+            <Setter Property="Foreground" Value="{DynamicResource MapWizardTextBrush}" />
             <Setter Property="HorizontalContentAlignment" Value="Stretch" />
         </Style>
         <Style Selector="ListBox.timeline-snap-list ListBoxItem:pointerover">
             <Setter Property="Background" Value="{DynamicResource SystemControlBackgroundAltMediumBrush}" />
         </Style>
         <Style Selector="ListBox.timeline-snap-list ListBoxItem:selected">
-            <Setter Property="Background" Value="{DynamicResource ThemeAccentBrush}" />
+            <Setter Property="Background" Value="{DynamicResource MapWizardAccentBrush}" />
             <Setter Property="Foreground" Value="{DynamicResource MapWizardAccentForeground}" />
         </Style>
         <Style Selector="TextBlock.timeline-muted">
-            <Setter Property="Foreground" Value="{DynamicResource SukiLowText}" />
+            <Setter Property="Foreground" Value="{DynamicResource MapWizardTextSecondaryBrush}" />
         </Style>
         <Style Selector="Button.timeline-volume-label">
             <Setter Property="Background" Value="Transparent" />
@@ -145,35 +140,57 @@
             <Setter Property="BorderThickness" Value="0" />
             <Setter Property="Padding" Value="2" />
             <Setter Property="CornerRadius" Value="6" />
-            <Setter Property="Foreground" Value="{DynamicResource SukiLowText}" />
+            <Setter Property="Foreground" Value="{DynamicResource MapWizardTextSecondaryBrush}" />
         </Style>
         <Style Selector="Button.timeline-volume-label:pointerover">
             <Setter Property="Background" Value="{DynamicResource SystemControlBackgroundAltMediumBrush}" />
-            <Setter Property="Foreground" Value="{DynamicResource SukiText}" />
+            <Setter Property="Foreground" Value="{DynamicResource MapWizardTextBrush}" />
         </Style>
         <Style Selector="Button.timeline-mute-btn">
             <Setter Property="Background" Value="{DynamicResource SystemControlBackgroundChromeMediumLowBrush}" />
-            <Setter Property="BorderBrush" Value="{DynamicResource SukiBorderBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource MapWizardBorderBrush}" />
             <Setter Property="BorderThickness" Value="1" />
             <Setter Property="Padding" Value="8,6" />
             <Setter Property="CornerRadius" Value="8" />
-            <Setter Property="Foreground" Value="{DynamicResource SukiText}" />
+            <Setter Property="Foreground" Value="{DynamicResource MapWizardTextBrush}" />
         </Style>
         <Style Selector="Button.timeline-mute-btn:pointerover">
             <Setter Property="Background" Value="{DynamicResource SystemControlBackgroundAltMediumBrush}" />
-            <Setter Property="BorderBrush" Value="{DynamicResource ThemeAccentBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource MapWizardAccentBrush}" />
         </Style>
         <Style Selector="Button.timeline-mute-btn:pressed">
             <Setter Property="Background" Value="{DynamicResource SystemControlBackgroundAltHighBrush}" />
+        </Style>
+        <Style Selector="Border.BetaBadge">
+            <Setter Property="Background" Value="{DynamicResource MapWizardAccent25Brush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource MapWizardAccentBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="7" />
+            <Setter Property="Padding" Value="8,2" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+        </Style>
+        <Style Selector="Border.BetaBadge TextBlock">
+            <Setter Property="FontSize" Value="11" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="LetterSpacing" Value="1" />
+            <Setter Property="Foreground" Value="{DynamicResource MapWizardAccentBrush}" />
         </Style>
     </UserControl.Styles>
 
     <Grid RowDefinitions="Auto,Auto,*,Auto">
         <Grid VerticalAlignment="Center" ColumnDefinitions="*,Auto">
-            <TextBlock Text="Hitsound Visualizer"
-                       FontSize="24"
-                       FontWeight="Bold"
-                       Margin="16,0" />
+            <StackPanel Orientation="Horizontal"
+                        Spacing="10"
+                        Margin="16,0"
+                        VerticalAlignment="Center">
+                <TextBlock Text="HitSound Editor"
+                           FontSize="24"
+                           FontWeight="Bold"
+                           VerticalAlignment="Center" />
+                <Border Classes="BetaBadge">
+                    <TextBlock Text="BETA" />
+                </Border>
+            </StackPanel>
             <Button Grid.Column="1"
                     Classes="Flat Large"
                     IsEnabled="{Binding CanExportTimeline}"
@@ -182,15 +199,15 @@
                 <StackPanel Orientation="Horizontal" Spacing="6">
                     <materialIcons:MaterialIcon Kind="ContentSave" Width="24" Height="24" />
                     <TextBlock VerticalAlignment="Center"
-                               FontWeight="Bold"
+                               FontWeight="Normal"
                                FontSize="16"
                                Text="Export Hitsounds" />
                 </StackPanel>
                 <Button.Flyout>
                     <Flyout Placement="BottomEdgeAlignedRight">
-                        <Border Classes="timeline-flyout-surface">
+                        <Border Classes="PopupSurface timeline-flyout-surface">
                             <StackPanel Width="320" Spacing="10">
-                                <TextBlock Text="Export Hitsounds" FontWeight="Bold" />
+                                <TextBlock Text="Export Hitsounds" FontWeight="Normal" />
                                 <TextBlock Classes="timeline-muted"
                                            Text="Choose whether to apply the timeline to another difficulty or create a new circle-only hitsound diff."
                                            TextWrapping="Wrap" />
@@ -226,7 +243,7 @@
                     SourceSubtitle="Select the beatmap you want to visualize hitsounds from."
                     OriginMemoryToolTip="Get the current beatmap selected in the osu! client." />
 
-                <suki:BusyArea IsBusy="{Binding IsPreparingPlayback}"
+                <theme:BusyArea IsBusy="{Binding IsPreparingPlayback}"
                                BusyText="Preparing visualizer audio and timeline..."
                                IsVisible="{Binding ShowPlaybackTimelineSection}">
                     <StackPanel Margin="8" Spacing="10">
@@ -236,9 +253,9 @@
                                 <materialIcons:MaterialIcon Kind="Pencil" Width="16" Height="16" />
                                 <Button.Flyout>
                                     <Flyout Placement="BottomEdgeAlignedRight">
-                                        <Border Classes="timeline-flyout-surface">
+                                        <Border Classes="PopupSurface timeline-flyout-surface">
                                             <StackPanel Width="360" Spacing="10">
-                                                <TextBlock Text="Hitsound Editor" FontWeight="Bold" />
+                                                <TextBlock Text="Hitsound Editor" FontWeight="Normal" />
                                                 <TextBlock Classes="timeline-muted"
                                                            Text="{Binding SelectedPointSummary}"
                                                            TextWrapping="Wrap" />
@@ -252,7 +269,7 @@
                                                         </Grid>
                                                         <Button.Flyout>
                                                             <Flyout Placement="BottomEdgeAlignedLeft">
-                                                                <Border Classes="timeline-flyout-surface">
+                                                                <Border Classes="PopupSurface timeline-flyout-surface">
                                                                     <ListBox Classes="timeline-snap-list"
                                                                              Width="140"
                                                                              ItemsSource="{Binding PointSampleSetNames}"
@@ -266,7 +283,7 @@
                                                     <Border Grid.Row="1"
                                                             Grid.Column="1"
                                                             Background="{DynamicResource SystemControlBackgroundChromeMediumLowBrush}"
-                                                            BorderBrush="{DynamicResource SukiBorderBrush}"
+                                                            BorderBrush="{DynamicResource MapWizardBorderBrush}"
                                                             BorderThickness="1"
                                                             CornerRadius="10"
                                                             Padding="4">
@@ -365,15 +382,14 @@
                                 </Grid>
                                 <Button.Flyout>
                                     <Flyout Placement="BottomEdgeAlignedRight">
-                                        <Border Classes="timeline-flyout-surface">
-                                            <StackPanel Width="380" Spacing="10">
-                                                <TextBlock Text="HS Selector" FontWeight="Bold" />
+                                        <Border Classes="PopupSurface timeline-flyout-surface">
+                                            <StackPanel Width="380" Spacing="8">
                                                 <TextBlock Classes="timeline-muted"
                                                            Text="Select matching hitsound points across the entire timeline."
                                                            TextWrapping="Wrap" />
 
                                                 <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto" ColumnSpacing="8" RowSpacing="8">
-                                                    <TextBlock Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" Text="Hitnormal Bank" />
+                                                    <TextBlock Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" Text="HitNormal Bank" />
                                                     <Button Grid.Row="0" Grid.Column="1" Classes="timeline-select">
                                                         <Grid ColumnDefinitions="*,Auto" ColumnSpacing="6">
                                                             <TextBlock VerticalAlignment="Center" Text="{Binding HsSelectorNormalBankFilterName}" />
@@ -381,7 +397,7 @@
                                                         </Grid>
                                                         <Button.Flyout>
                                                             <Flyout Placement="BottomEdgeAlignedLeft">
-                                                                <Border Classes="timeline-flyout-surface">
+                                                                <Border Classes="PopupSurface timeline-flyout-surface">
                                                                     <ListBox Classes="timeline-snap-list"
                                                                              Width="140"
                                                                              ItemsSource="{Binding SelectorBankFilterNames}"
@@ -399,7 +415,7 @@
                                                         </Grid>
                                                         <Button.Flyout>
                                                             <Flyout Placement="BottomEdgeAlignedLeft">
-                                                                <Border Classes="timeline-flyout-surface">
+                                                                <Border Classes="PopupSurface timeline-flyout-surface">
                                                                     <ListBox Classes="timeline-snap-list"
                                                                              Width="140"
                                                                              ItemsSource="{Binding SelectorBankFilterNames}"
@@ -413,7 +429,7 @@
                                                 <StackPanel Spacing="6">
                                                     <TextBlock Text="Hitsound Types" FontWeight="SemiBold" />
                                                     <Border Background="{DynamicResource SystemControlBackgroundChromeMediumLowBrush}"
-                                                            BorderBrush="{DynamicResource SukiBorderBrush}"
+                                                            BorderBrush="{DynamicResource MapWizardBorderBrush}"
                                                             BorderThickness="1"
                                                             CornerRadius="10"
                                                             Padding="4">
@@ -466,7 +482,7 @@
                                 </Grid>
                                 <Button.Flyout>
                                     <Flyout Placement="BottomEdgeAlignedLeft">
-                                        <Border Classes="timeline-flyout-surface">
+                                        <Border Classes="PopupSurface timeline-flyout-surface">
                                             <ListBox Classes="timeline-snap-list"
                                                      Width="140"
                                                      ItemsSource="{Binding HeaderBankNames}"
@@ -491,7 +507,7 @@
                                 </Grid>
                                 <Button.Flyout>
                                     <Flyout Placement="BottomEdgeAlignedLeft">
-                                        <Border Classes="timeline-flyout-surface">
+                                        <Border Classes="PopupSurface timeline-flyout-surface">
                                             <ListBox Classes="timeline-snap-list"
                                                      Width="140"
                                                      ItemsSource="{Binding HeaderBankNames}"
@@ -509,9 +525,9 @@
                                 </StackPanel>
                                 <Button.Flyout>
                                     <Flyout Placement="BottomEdgeAlignedLeft">
-                                        <Border Classes="timeline-flyout-surface">
+                                        <Border Classes="PopupSurface timeline-flyout-surface">
                                             <StackPanel Width="120" Spacing="6">
-                                                <TextBlock Text="Beat Snap" FontWeight="Bold" />
+                                                <TextBlock Text="Beat Snap" FontWeight="Normal" />
                                                 <ListBox Classes="timeline-snap-list"
                                                          ItemsSource="{Binding SnapDivisorOptions}"
                                                          SelectedItem="{Binding SelectedSnapDivisorDenominator}"
@@ -534,16 +550,34 @@
                             <Grid ColumnDefinitions="170,*">
                                 <Border Grid.Column="0"
                                         Background="{DynamicResource SystemControlBackgroundChromeMediumLowBrush}"
-                                        BorderBrush="{DynamicResource SukiBorderBrush}"
+                                        BorderBrush="{DynamicResource MapWizardBorderBrush}"
                                         BorderThickness="0,0,1,0">
-                                    <ItemsControl ItemsSource="{Binding TimelineRowLabels}">
+                                    <ItemsControl x:Name="RowLabelsControl"
+                                                  ItemsSource="{Binding TimelineRowLabels}">
                                         <ItemsControl.ItemTemplate>
-                                            <DataTemplate>
-                                                <Border Height="34" Padding="10,0" BorderBrush="{DynamicResource SukiBorderBrush}" BorderThickness="0,0,0,1">
-                                                    <TextBlock VerticalAlignment="Center"
-                                                               Text="{Binding .}"
-                                                               FontFamily="Consolas"
-                                                               FontSize="12" />
+                                            <DataTemplate x:DataType="viewModels:TimelineRowLabel">
+                                                <Border Height="34" Padding="0"
+                                                        BorderBrush="{DynamicResource MapWizardBorderBrush}"
+                                                        BorderThickness="0,0,0,1">
+                                                    <Panel>
+                                                        <Border Classes="RowFlashOverlay"
+                                                                Background="{DynamicResource MapWizardAccentBrush}"
+                                                                IsHitTestVisible="False"
+                                                                Opacity="0" />
+                                                        <StackPanel Orientation="Horizontal"
+                                                                    Spacing="7"
+                                                                    Margin="10,0"
+                                                                    VerticalAlignment="Center">
+                                                            <materialIcons:MaterialIcon Kind="{Binding Icon}"
+                                                                                        Width="13"
+                                                                                        Height="13"
+                                                                                        VerticalAlignment="Center" />
+                                                            <TextBlock VerticalAlignment="Center"
+                                                                       Text="{Binding Title}"
+                                                                       FontFamily="Consolas"
+                                                                       FontSize="12" />
+                                                        </StackPanel>
+                                                    </Panel>
                                                 </Border>
                                             </DataTemplate>
                                         </ItemsControl.ItemTemplate>
@@ -578,7 +612,7 @@
                                     ZoomTimelineCommand="{Binding ZoomTimelineCommand}">
                                     <controls:HitSoundTimelinePlot.ContextFlyout>
                                         <Flyout Placement="Pointer">
-                                            <Border Classes="timeline-flyout-surface">
+                                            <Border Classes="PopupSurface timeline-flyout-surface">
                                                 <StackPanel Width="360" Spacing="10">
                                                     <StackPanel Spacing="10" IsVisible="{Binding ShowHitsoundContextPopup}">
                                                         <TextBlock Text="Hitsound Editor" FontWeight="Bold" />
@@ -595,7 +629,7 @@
                                                                 </Grid>
                                                                 <Button.Flyout>
                                                                     <Flyout Placement="BottomEdgeAlignedLeft">
-                                                                        <Border Classes="timeline-flyout-surface">
+                                                                        <Border Classes="PopupSurface timeline-flyout-surface">
                                                                             <ListBox Classes="timeline-snap-list"
                                                                                      Width="140"
                                                                                      ItemsSource="{Binding PointSampleSetNames}"
@@ -609,7 +643,7 @@
                                                             <Border Grid.Row="1"
                                                                     Grid.Column="1"
                                                                     Background="{DynamicResource SystemControlBackgroundChromeMediumLowBrush}"
-                                                                    BorderBrush="{DynamicResource SukiBorderBrush}"
+                                                                    BorderBrush="{DynamicResource MapWizardBorderBrush}"
                                                                     BorderThickness="1"
                                                                     CornerRadius="10"
                                                                     Padding="4">
@@ -688,7 +722,7 @@
                                                                 </Grid>
                                                                 <Button.Flyout>
                                                                     <Flyout Placement="BottomEdgeAlignedLeft">
-                                                                        <Border Classes="timeline-flyout-surface">
+                                                                        <Border Classes="PopupSurface timeline-flyout-surface">
                                                                             <ListBox Classes="timeline-snap-list"
                                                                                      Width="140"
                                                                                      ItemsSource="{Binding SampleSetNames}"
@@ -699,10 +733,10 @@
                                                             </Button>
 
                                                             <TextBlock Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" Text="Index" />
-                                                            <NumericUpDown Grid.Row="1" Grid.Column="1"
-                                                                           Value="{Binding ContextSampleIndex}"
-                                                                           Minimum="1"
-                                                                           Maximum="99" />
+                                                            <theme:UnitNumericUpDown Grid.Row="1" Grid.Column="1"
+                                                                                     Value="{Binding ContextSampleIndex}"
+                                                                                     Minimum="1"
+                                                                                     Maximum="99" />
 
                                                             <TextBlock Grid.Row="2" Grid.Column="0" VerticalAlignment="Center" Text="Volume" />
                                                             <Grid Grid.Row="2" Grid.Column="1" ColumnDefinitions="*,Auto" ColumnSpacing="8">
@@ -740,21 +774,21 @@
                             </Grid>
                         </Border>
                     </StackPanel>
-                </suki:BusyArea>
+                </theme:BusyArea>
 
-                <suki:GlassCard Margin="8" Padding="12" CornerRadius="15" IsVisible="{Binding ShowDebugInfoCard}">
+                <theme:Surface Margin="8" Padding="12" CornerRadius="15" IsVisible="{Binding ShowDebugInfoCard}">
                     <StackPanel Spacing="6">
                         <TextBlock Text="{Binding LoadedMapTitle}" FontWeight="Bold" />
-                        <TextBlock Text="{Binding TimelineStats}" Foreground="{DynamicResource SukiLowText}" />
-                        <TextBlock Text="{Binding PlaybackStatus, StringFormat=Playback: {0}}" Foreground="{DynamicResource SukiLowText}" />
-                        <TextBlock Text="{Binding TimingDebugStatus}" Foreground="{DynamicResource SukiLowText}" TextWrapping="Wrap" />
-                        <TextBlock Text="{Binding AudioDebugStatus}" Foreground="{DynamicResource SukiLowText}" TextWrapping="Wrap" />
-                        <TextBlock Text="{Binding HitsoundDebugStatus}" Foreground="{DynamicResource SukiLowText}" TextWrapping="Wrap" />
-                        <TextBlock Text="{Binding AudioSourceStatus}" Foreground="{DynamicResource SukiLowText}" />
-                        <TextBlock Text="{Binding LegacySkinStatus}" Foreground="{DynamicResource SukiLowText}" />
-                        <TextBlock Text="{Binding SelectedPointSummary}" Foreground="{DynamicResource SukiLowText}" />
+                        <TextBlock Text="{Binding TimelineStats}" Foreground="{DynamicResource MapWizardTextSecondaryBrush}" />
+                        <TextBlock Text="{Binding PlaybackStatus, StringFormat=Playback: {0}}" Foreground="{DynamicResource MapWizardTextSecondaryBrush}" />
+                        <TextBlock Text="{Binding TimingDebugStatus}" Foreground="{DynamicResource MapWizardTextSecondaryBrush}" TextWrapping="Wrap" />
+                        <TextBlock Text="{Binding AudioDebugStatus}" Foreground="{DynamicResource MapWizardTextSecondaryBrush}" TextWrapping="Wrap" />
+                        <TextBlock Text="{Binding HitsoundDebugStatus}" Foreground="{DynamicResource MapWizardTextSecondaryBrush}" TextWrapping="Wrap" />
+                        <TextBlock Text="{Binding AudioSourceStatus}" Foreground="{DynamicResource MapWizardTextSecondaryBrush}" />
+                        <TextBlock Text="{Binding LegacySkinStatus}" Foreground="{DynamicResource MapWizardTextSecondaryBrush}" />
+                        <TextBlock Text="{Binding SelectedPointSummary}" Foreground="{DynamicResource MapWizardTextSecondaryBrush}" />
                     </StackPanel>
-                </suki:GlassCard>
+                </theme:Surface>
             </StackPanel>
         </appControls:SmoothScrollViewer>
 
@@ -763,7 +797,7 @@
                 Padding="10"
                 Margin="8,0,8,8"
                 IsVisible="{Binding ShowPlaybackTimelineSection}">
-            <suki:BusyArea IsBusy="{Binding IsPreparingPlayback}" BusyText="Preparing timeline...">
+            <theme:BusyArea IsBusy="{Binding IsPreparingPlayback}" BusyText="Preparing timeline...">
                 <Grid ColumnDefinitions="Auto,*,180" ColumnSpacing="10">
                     <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="3">
                         <Button Classes="timeline-transport-btn"
@@ -784,7 +818,7 @@
                             <materialIcons:MaterialIcon Kind="{Binding SongVolumeIconKind}" Width="16" Height="16" />
                             <Button.ContextFlyout>
                                 <Flyout Placement="TopEdgeAlignedLeft">
-                                    <Border Classes="timeline-flyout-surface">
+                                    <Border Classes="PopupSurface timeline-flyout-surface">
                                         <StackPanel Width="220" Spacing="8">
                                             <Button Classes="timeline-volume-label"
                                                     Command="{Binding ToggleSongMuteCommand}"
@@ -817,7 +851,7 @@
                             <materialIcons:MaterialIcon Kind="{Binding EffectsVolumeIconKind}" Width="16" Height="16" />
                             <Button.ContextFlyout>
                                 <Flyout Placement="TopEdgeAlignedLeft">
-                                    <Border Classes="timeline-flyout-surface">
+                                    <Border Classes="PopupSurface timeline-flyout-surface">
                                         <StackPanel Width="220" Spacing="8">
                                             <Button Classes="timeline-volume-label"
                                                     Command="{Binding ToggleHitSoundMuteCommand}"
@@ -870,7 +904,7 @@
                         <Run Text="{Binding TimelineEndText}" />
                     </TextBlock>
                 </Grid>
-            </suki:BusyArea>
+            </theme:BusyArea>
         </Border>
     </Grid>
 </UserControl>

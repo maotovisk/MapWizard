@@ -11,7 +11,6 @@ using MapWizard.Desktop.Services;
 using MapWizard.Desktop.Services.MemoryService;
 using MapWizard.Desktop.ViewModels;
 using MapWizard.Desktop.Views.Dialogs;
-using SukiUI.Toasts;
 
 namespace MapWizard.Desktop.Utils;
 
@@ -19,7 +18,7 @@ public static class MapPickerDialogUtils
 {
     public static async Task<IReadOnlyList<string>?> ShowSongSelectDialogAsync(
         IModalService modalService,
-        ISukiToastManager toastManager,
+        INotificationService notificationService,
         ISongLibraryService songLibraryService,
         IFilesService filesService,
         ILazerLookupService lazerLookupService,
@@ -42,8 +41,11 @@ public static class MapPickerDialogUtils
         {
             DataContext = songSelectViewModel
         };
+        // The close action lives in the picker toolbar (X icon button).
+        dialogContent.PickerCloseRequested += (_, _) => _ = modalService.CloseAsync(null);
 
-        var footerPanel = BuildFooterPanel(modalService, songSelectViewModel, allowMultiple);
+        // No footer Close button — the X icon frees vertical space for the list.
+        var footerPanel = BuildFooterPanel(songSelectViewModel, allowMultiple);
         var title = allowMultiple ? "Select destination beatmap(s)" : "Select beatmap";
 
         var dialogLifetimeCts = CancellationTokenSource.CreateLinkedTokenSource(token);
@@ -59,13 +61,17 @@ public static class MapPickerDialogUtils
         {
             _ = songSelectViewModel.InitializeAsync(dialogLifetimeCts.Token);
             var result = await modalService.ShowAsync(
-                new ModalRequest(dialogContent, title, footerPanel),
+                new ModalRequest(
+                    dialogContent,
+                    title,
+                    footerPanel,
+                    Presentation: ModalPresentation.MapPickerOverlay),
                 token);
             return result as IReadOnlyList<string>;
         }
         catch (InvalidOperationException)
         {
-            toastManager.ShowToast(
+            notificationService.ShowToast(
                 NotificationType.Warning,
                 featureName,
                 "Could not open Map Picker because another dialog is already open.");
@@ -90,7 +96,6 @@ public static class MapPickerDialogUtils
     }
 
     private static StackPanel BuildFooterPanel(
-        IModalService modalService,
         SongSelectDialogViewModel songSelectViewModel,
         bool allowMultiple)
     {
@@ -100,12 +105,6 @@ public static class MapPickerDialogUtils
             Spacing = 8,
             HorizontalAlignment = HorizontalAlignment.Right
         };
-
-        var closeButton = new Button { Content = "Close" };
-        closeButton.Classes.Add("Basic");
-        closeButton.Classes.Add("Compact");
-        closeButton.Click += (_, _) => _ = modalService.CloseAsync(null);
-        footerPanel.Children.Add(closeButton);
 
         if (allowMultiple)
         {

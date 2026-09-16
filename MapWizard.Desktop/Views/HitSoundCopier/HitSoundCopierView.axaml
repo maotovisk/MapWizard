@@ -4,7 +4,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:materialIcons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
-    xmlns:suki="clr-namespace:SukiUI.Controls;assembly=SukiUI"
+    xmlns:theme="clr-namespace:MapWizard.Theme.Controls;assembly=MapWizard.Theme"
     xmlns:controls="clr-namespace:MapWizard.Desktop.Views.Controls"
     xmlns:appControls="clr-namespace:MapWizard.Desktop.Controls"
     mc:Ignorable="d"
@@ -12,7 +12,6 @@
     d:DesignHeight="450"
     x:Class="MapWizard.Desktop.Views.HitSoundCopierView"
     xmlns:viewModels="clr-namespace:MapWizard.Desktop.ViewModels"
-    xmlns:theme="https://github.com/kikipoulet/SukiUI"
     x:DataType="viewModels:HitSoundCopierViewModel"
     Padding="16">
     <Grid RowDefinitions="Auto,Auto,*">
@@ -33,7 +32,7 @@
                 <materialIcons:MaterialIcon Kind="ContentSave" Width="24" Height="24" />
                 <TextBlock
                     VerticalAlignment="Center"
-                    FontWeight="Bold"
+                    FontWeight="Normal"
                     FontSize="16"
                     Text="Copy Hitsounds" />
             </StackPanel>
@@ -52,13 +51,8 @@
                     DestinationMemoryToolTip="Add the current beatmap selected in the osu! client." />
 
                 <!-- Options & Slider -->
-                <suki:GlassCard
-                    Margin="8"
-                    Padding="12"
-                    CornerRadius="15">
+                <theme:CollapsibleSection Header="Options">
                     <StackPanel Spacing="8">
-                        <TextBlock Text="Options" />
-                        <Separator />
                         <Grid ColumnDefinitions="*,Auto">
                             <TextBlock Text="Copy sampleset and volume changes"></TextBlock>
                             <ToggleSwitch Grid.Column="1"
@@ -88,11 +82,12 @@
                         </Grid>
                         <Grid ColumnDefinitions="*,Auto">
                             <TextBlock VerticalAlignment="Center">Leniency</TextBlock>
-                            <NumericUpDown Grid.Column="1" theme:NumericUpDownExtensions.Unit="ms"
-                                           Value="{Binding Leniency}" />
+                            <theme:UnitNumericUpDown Grid.Column="1"
+                                                     Unit="ms"
+                                                     Value="{Binding Leniency, Mode=TwoWay}" />
                         </Grid>
                     </StackPanel>
-                </suki:GlassCard>
+                </theme:CollapsibleSection>
             </StackPanel>
         </appControls:SmoothScrollViewer>
     </Grid>

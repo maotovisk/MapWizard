@@ -1,0 +1,839 @@
+<Styles x:Class="MapWizard.Theme.MapWizardTheme"
+        xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="clr-namespace:MapWizard.Theme.Controls"
+        xmlns:chrome="using:Avalonia.Controls.Chrome"
+        xmlns:system="clr-namespace:System;assembly=netstandard">
+
+    <Styles.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.ThemeDictionaries>
+                <ResourceDictionary x:Key="Dark">
+                    <Color x:Key="MapWizardWindowBackground">#FF0A0A0A</Color>
+                    <Color x:Key="MapWizardCard">#FF101010</Color>
+                    <Color x:Key="MapWizardSurface">#F2121212</Color>
+                    <Color x:Key="MapWizardSurfaceOpaque">#FF101010</Color>
+                    <Color x:Key="MapWizardPopup">#FF141414</Color>
+                    <Color x:Key="MapWizardControlBackground">#FF1A1A1A</Color>
+                    <Color x:Key="MapWizardControlHover">#FF262626</Color>
+                    <Color x:Key="MapWizardControlPressed">#FF303030</Color>
+                    <Color x:Key="MapWizardBorder">#FF232323</Color>
+                    <Color x:Key="MapWizardControlBorder">#FF303030</Color>
+                    <Color x:Key="MapWizardText">#FFEEEEEE</Color>
+                    <Color x:Key="MapWizardTextSecondary">#FFA8A8A8</Color>
+                    <Color x:Key="MapWizardTextMuted">#FF808080</Color>
+                    <Color x:Key="MapWizardTextDisabled">#FF5A5A5A</Color>
+                    <Color x:Key="MapWizardAccent">#FFB8DB87</Color>
+                    <Color x:Key="MapWizardAccentHover">#FFC9E6A1</Color>
+                    <Color x:Key="MapWizardAccentPressed">#FF8FAE63</Color>
+                    <Color x:Key="MapWizardAccentForeground">#FF151A0E</Color>
+                    <Color x:Key="MapWizardAccent25">#40B8DB87</Color>
+                    <Color x:Key="MapWizardAccent50">#80B8DB87</Color>
+                    <Color x:Key="MapWizardTooltipBackground">#FF2B2B2B</Color>
+                    <Color x:Key="MapWizardTooltipText">#FFF2F2F2</Color>
+
+                    <Color x:Key="MapWizardScrollBarThumb">#4DFFFFFF</Color>
+                    <Color x:Key="MapWizardScrollBarThumbHover">#7DFFFFFF</Color>
+                    <Color x:Key="MapWizardScrollBarThumbPressed">#99FFFFFF</Color>
+                </ResourceDictionary>
+                <ResourceDictionary x:Key="Light">
+                    <Color x:Key="MapWizardWindowBackground">#FFF7F9FA</Color>
+                    <Color x:Key="MapWizardCard">#FFFFFFFF</Color>
+                    <Color x:Key="MapWizardSurface">#F2F9FAFB</Color>
+                    <Color x:Key="MapWizardSurfaceOpaque">#FFFFFFFF</Color>
+                    <Color x:Key="MapWizardPopup">#FFFFFFFF</Color>
+                    <Color x:Key="MapWizardControlBackground">#FFF0F3F5</Color>
+                    <Color x:Key="MapWizardControlHover">#FFE9EFF3</Color>
+                    <Color x:Key="MapWizardControlPressed">#FFDDE5EA</Color>
+                    <Color x:Key="MapWizardBorder">#FFD4DCE2</Color>
+                    <Color x:Key="MapWizardControlBorder">#FFC5D0D9</Color>
+                    <Color x:Key="MapWizardText">#FF20272D</Color>
+                    <Color x:Key="MapWizardTextSecondary">#FF56636E</Color>
+                    <Color x:Key="MapWizardTextMuted">#FF707B84</Color>
+                    <Color x:Key="MapWizardTextDisabled">#FF929DA6</Color>
+                    <Color x:Key="MapWizardAccent">#FF5F7488</Color>
+                    <Color x:Key="MapWizardAccentHover">#FF52687C</Color>
+                    <Color x:Key="MapWizardAccentPressed">#FF4B5F70</Color>
+                    <Color x:Key="MapWizardAccentForeground">#FFFFFFFF</Color>
+                    <Color x:Key="MapWizardAccent25">#405F7488</Color>
+                    <Color x:Key="MapWizardAccent50">#805F7488</Color>
+                    <Color x:Key="MapWizardTooltipBackground">#FFFFFFFF</Color>
+                    <Color x:Key="MapWizardTooltipText">#FF20272D</Color>
+
+                    <Color x:Key="MapWizardScrollBarThumb">#55000000</Color>
+                    <Color x:Key="MapWizardScrollBarThumbHover">#80000000</Color>
+                    <Color x:Key="MapWizardScrollBarThumbPressed">#99000000</Color>
+                </ResourceDictionary>
+            </ResourceDictionary.ThemeDictionaries>
+
+            <SolidColorBrush x:Key="MapWizardWindowBackgroundBrush" Color="{DynamicResource MapWizardWindowBackground}" />
+            <SolidColorBrush x:Key="MapWizardCardBrush" Color="{DynamicResource MapWizardCard}" />
+            <SolidColorBrush x:Key="MapWizardSurfaceBrush" Color="{DynamicResource MapWizardSurface}" />
+            <SolidColorBrush x:Key="MapWizardSurfaceOpaqueBrush" Color="{DynamicResource MapWizardSurfaceOpaque}" />
+            <SolidColorBrush x:Key="MapWizardPopupBrush" Color="{DynamicResource MapWizardPopup}" />
+            <SolidColorBrush x:Key="MapWizardControlBackgroundBrush" Color="{DynamicResource MapWizardControlBackground}" />
+            <SolidColorBrush x:Key="MapWizardControlHoverBrush" Color="{DynamicResource MapWizardControlHover}" />
+            <SolidColorBrush x:Key="MapWizardControlPressedBrush" Color="{DynamicResource MapWizardControlPressed}" />
+            <SolidColorBrush x:Key="MapWizardBorderBrush" Color="{DynamicResource MapWizardBorder}" />
+            <SolidColorBrush x:Key="MapWizardControlBorderBrush" Color="{DynamicResource MapWizardControlBorder}" />
+            <SolidColorBrush x:Key="MapWizardTextBrush" Color="{DynamicResource MapWizardText}" />
+            <SolidColorBrush x:Key="MapWizardTextSecondaryBrush" Color="{DynamicResource MapWizardTextSecondary}" />
+            <SolidColorBrush x:Key="MapWizardTextMutedBrush" Color="{DynamicResource MapWizardTextMuted}" />
+            <SolidColorBrush x:Key="MapWizardTextDisabledBrush" Color="{DynamicResource MapWizardTextDisabled}" />
+            <SolidColorBrush x:Key="MapWizardAccentBrush" Color="{DynamicResource MapWizardAccent}" />
+            <SolidColorBrush x:Key="MapWizardAccentHoverBrush" Color="{DynamicResource MapWizardAccentHover}" />
+            <SolidColorBrush x:Key="MapWizardAccentPressedBrush" Color="{DynamicResource MapWizardAccentPressed}" />
+            <SolidColorBrush x:Key="MapWizardAccentForegroundBrush" Color="{DynamicResource MapWizardAccentForeground}" />
+            <SolidColorBrush x:Key="MapWizardAccent25Brush" Color="{DynamicResource MapWizardAccent25}" />
+            <SolidColorBrush x:Key="MapWizardAccent50Brush" Color="{DynamicResource MapWizardAccent50}" />
+            <SolidColorBrush x:Key="MapWizardTooltipBackgroundBrush" Color="{DynamicResource MapWizardTooltipBackground}" />
+            <SolidColorBrush x:Key="MapWizardTooltipTextBrush" Color="{DynamicResource MapWizardTooltipText}" />
+
+            <!-- ScrollBar: subtle neutral thumb, accent-tinted on interaction;
+                 the hovered/expanded bar gets no track or arrow buttons. -->
+            <SolidColorBrush x:Key="MapWizardScrollBarThumbBrush" Color="{DynamicResource MapWizardScrollBarThumb}" />
+            <SolidColorBrush x:Key="MapWizardScrollBarThumbHoverBrush" Color="{DynamicResource MapWizardScrollBarThumbHover}" />
+            <SolidColorBrush x:Key="MapWizardScrollBarThumbPressedBrush" Color="{DynamicResource MapWizardScrollBarThumbPressed}" />
+
+            <SolidColorBrush x:Key="ScrollBarPanningThumbBackground" Color="{DynamicResource MapWizardScrollBarThumb}" />
+            <SolidColorBrush x:Key="ScrollBarThumbFillPointerOver" Color="{DynamicResource MapWizardScrollBarThumbHover}" />
+            <SolidColorBrush x:Key="ScrollBarThumbFillPressed" Color="{DynamicResource MapWizardScrollBarThumbPressed}" />
+            <SolidColorBrush x:Key="ScrollBarThumbBackgroundColor" Color="{DynamicResource MapWizardScrollBarThumbHover}" />
+            <SolidColorBrush x:Key="ScrollBarBackgroundPointerOver" Color="Transparent" />
+            <SolidColorBrush x:Key="ScrollBarTrackFill" Color="Transparent" />
+            <SolidColorBrush x:Key="ScrollBarTrackFillPointerOver" Color="Transparent" />
+            <SolidColorBrush x:Key="ScrollBarButtonArrowForeground" Color="Transparent" />
+            <SolidColorBrush x:Key="ScrollBarButtonArrowForegroundPointerOver" Color="Transparent" />
+            <SolidColorBrush x:Key="ScrollBarButtonArrowForegroundPressed" Color="Transparent" />
+            <SolidColorBrush x:Key="ScrollBarButtonBackgroundPointerOver" Color="Transparent" />
+            <SolidColorBrush x:Key="ScrollBarButtonBackgroundPressed" Color="Transparent" />
+
+            <CornerRadius x:Key="MapWizardCornerSmall">6</CornerRadius>
+            <CornerRadius x:Key="MapWizardCornerMedium">10</CornerRadius>
+            <CornerRadius x:Key="MapWizardCornerLarge">15</CornerRadius>
+            <system:TimeSpan x:Key="MapWizardMotionFast">0:0:0.12</system:TimeSpan>
+            <system:TimeSpan x:Key="MapWizardMotionNormal">0:0:0.2</system:TimeSpan>
+            <FontFamily x:Key="MapWizardFontFamily">Quicksand, Noto Sans, Noto Sans CJK SC, Segoe UI, Arial</FontFamily>
+        </ResourceDictionary>
+    </Styles.Resources>
+
+    <Style Selector="Window">
+        <Setter Property="Background" Value="{DynamicResource MapWizardWindowBackgroundBrush}" />
+        <Setter Property="Foreground" Value="{DynamicResource MapWizardTextBrush}" />
+        <Setter Property="FontFamily" Value="{DynamicResource MapWizardFontFamily}" />
+        <Setter Property="FontSize" Value="14" />
+    </Style>
+
+    <Style Selector="Border.WindowBackdrop">
+        <Setter Property="IsHitTestVisible" Value="False" />
+        <Setter Property="Background">
+            <RadialGradientBrush Center="50%,0%" GradientOrigin="50%,0%" RadiusX="75%" RadiusY="75%">
+                <GradientStop Color="{DynamicResource MapWizardAccentBackdrop}" Offset="0" />
+                <GradientStop Color="Transparent" Offset="1" />
+            </RadialGradientBrush>
+        </Setter>
+    </Style>
+
+    <!-- Rounded drawn window frame matching the app's window shell. -->
+    <Style Selector="chrome|WindowDrawnDecorations /template/ Border#PART_WindowBorder">
+        <Setter Property="CornerRadius" Value="13" />
+    </Style>
+    <Style Selector="chrome|WindowDrawnDecorations:maximized /template/ Border#PART_WindowBorder">
+        <Setter Property="CornerRadius" Value="0" />
+    </Style>
+
+    <!-- Keep scrollbars inset from host edges (islands/dialog borders). -->
+    <Style Selector="ScrollViewer /template/ ScrollBar#PART_VerticalScrollBar">
+        <Setter Property="Margin" Value="0,6,4,6" />
+    </Style>
+    <Style Selector="ScrollViewer /template/ ScrollBar#PART_HorizontalScrollBar">
+        <Setter Property="Margin" Value="6,0,6,4" />
+    </Style>
+
+    <!-- Thinner, capsule-shaped scrollbar thumbs, pinned centered in the track. -->
+    <Style Selector="ScrollBar:vertical /template/ Thumb">
+        <Setter Property="Width" Value="6" />
+        <Setter Property="MinHeight" Value="24" />
+        <Setter Property="CornerRadius" Value="4" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+    </Style>
+    <Style Selector="ScrollBar:horizontal /template/ Thumb">
+        <Setter Property="Height" Value="6" />
+        <Setter Property="MinWidth" Value="24" />
+        <Setter Property="CornerRadius" Value="4" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+    <!-- Interaction states keep the same geometry as the resting thumb. -->
+    <Style Selector="ScrollBar:pointerover:vertical /template/ Thumb,
+                     ScrollBar:pressed:vertical /template/ Thumb,
+                     ScrollBar:dragging:vertical /template/ Thumb">
+        <Setter Property="Width" Value="6" />
+    </Style>
+    <Style Selector="ScrollBar:pointerover:horizontal /template/ Thumb,
+                     ScrollBar:pressed:horizontal /template/ Thumb,
+                     ScrollBar:dragging:horizontal /template/ Thumb">
+        <Setter Property="Height" Value="6" />
+    </Style>
+    <Style Selector="ScrollBar:vertical">
+        <Setter Property="MinWidth" Value="14" />
+    </Style>
+    <Style Selector="ScrollBar:horizontal">
+        <Setter Property="MinHeight" Value="14" />
+    </Style>
+
+    <Style Selector="TextBlock, SelectableTextBlock">
+        <Setter Property="Foreground" Value="{DynamicResource MapWizardTextBrush}" />
+        <Setter Property="TextElement.FontFamily" Value="{DynamicResource MapWizardFontFamily}" />
+    </Style>
+
+    <Style Selector="TextBox, Button, RepeatButton, ToggleButton, RadioButton, NumericUpDown">
+        <Setter Property="TextElement.FontFamily" Value="{DynamicResource MapWizardFontFamily}" />
+    </Style>
+
+    <Style Selector="controls|Surface">
+        <Setter Property="Background" Value="{DynamicResource MapWizardSurfaceBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource MapWizardBorderBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="{DynamicResource MapWizardCornerLarge}" />
+        <Setter Property="Padding" Value="20" />
+    </Style>
+
+    <Style Selector="controls|Surface.Primary">
+        <Setter Property="Background" Value="{DynamicResource MapWizardSurfaceOpaqueBrush}" />
+    </Style>
+
+    <Style Selector="controls|AnimatedHeightBorder">
+        <Setter Property="Opacity" Value="0" />
+        <Setter Property="MaxHeight" Value="0" />
+        <Setter Property="IsHitTestVisible" Value="False" />
+        <Setter Property="ClipToBounds" Value="True" />
+        <Setter Property="Transitions">
+            <Transitions>
+                <DoubleTransition Property="Opacity" Duration="0:0:0.18" />
+                <DoubleTransition Property="MaxHeight" Duration="0:0:0.3">
+                    <DoubleTransition.Easing>
+                        <CubicEaseOut />
+                    </DoubleTransition.Easing>
+                </DoubleTransition>
+            </Transitions>
+        </Setter>
+    </Style>
+
+    <Style Selector="controls|AnimatedHeightBorder:expanded">
+        <Setter Property="Opacity" Value="1" />
+        <Setter Property="IsHitTestVisible" Value="True" />
+    </Style>
+
+    <!-- Uses the same measured-height reveal as mapset difficulty cards. -->
+    <Style Selector="controls|CollapsibleSection">
+        <Setter Property="Margin" Value="8" />
+        <Setter Property="Padding" Value="12" />
+        <Setter Property="Background" Value="{DynamicResource MapWizardSurfaceBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource MapWizardBorderBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="{DynamicResource MapWizardCornerLarge}" />
+        <Setter Property="HorizontalAlignment" Value="Stretch" />
+        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+        <Setter Property="IsExpanded" Value="False" />
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Border Background="{TemplateBinding Background}"
+                        BorderBrush="{TemplateBinding BorderBrush}"
+                        BorderThickness="{TemplateBinding BorderThickness}"
+                        CornerRadius="{TemplateBinding CornerRadius}"
+                        ClipToBounds="True">
+                    <Grid RowDefinitions="Auto,Auto">
+                        <ToggleButton Classes="ToolOptionsHeader"
+                                      IsChecked="{TemplateBinding IsExpanded, Mode=TwoWay}">
+                            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                                <ContentPresenter Content="{TemplateBinding Header}"
+                                                  ContentTemplate="{TemplateBinding HeaderTemplate}"
+                                                  VerticalAlignment="Center" />
+                                <Path Grid.Column="1"
+                                      Classes="ToolOptionsChevron"
+                                      Width="12"
+                                      Height="7"
+                                      Stretch="Uniform"
+                                      Stroke="{DynamicResource MapWizardTextSecondaryBrush}"
+                                      StrokeThickness="1.7"
+                                      StrokeLineCap="Round"
+                                      StrokeJoin="Round"
+                                      Data="M 1,1 L 6,6 L 11,1" />
+                            </Grid>
+                        </ToggleButton>
+
+                        <controls:AnimatedHeightBorder Grid.Row="1"
+                                                       Classes="ToolOptionsContent"
+                                                       IsExpanded="{TemplateBinding IsExpanded}"
+                                                       Padding="{TemplateBinding Padding}">
+                            <ContentPresenter Content="{TemplateBinding Content}"
+                                              ContentTemplate="{TemplateBinding ContentTemplate}"
+                                              HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                              VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}" />
+                        </controls:AnimatedHeightBorder>
+                    </Grid>
+                </Border>
+            </ControlTemplate>
+        </Setter>
+    </Style>
+
+    <Style Selector="ToggleButton.ToolOptionsHeader">
+        <Setter Property="MinHeight" Value="40" />
+        <Setter Property="Padding" Value="12,8" />
+        <Setter Property="HorizontalAlignment" Value="Stretch" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderBrush" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="CornerRadius" Value="{DynamicResource MapWizardCornerLarge}" />
+        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="FontWeight" Value="Normal" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Border Background="{TemplateBinding Background}"
+                        BorderBrush="{TemplateBinding BorderBrush}"
+                        BorderThickness="{TemplateBinding BorderThickness}"
+                        CornerRadius="{TemplateBinding CornerRadius}"
+                        Padding="{TemplateBinding Padding}">
+                    <ContentPresenter Content="{TemplateBinding Content}"
+                                      ContentTemplate="{TemplateBinding ContentTemplate}"
+                                      HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                      VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}" />
+                </Border>
+            </ControlTemplate>
+        </Setter>
+    </Style>
+
+    <Style Selector="ToggleButton.ToolOptionsHeader:pointerover">
+        <Setter Property="Background" Value="{DynamicResource MapWizardControlHoverBrush}" />
+    </Style>
+
+    <Style Selector="ToggleButton.ToolOptionsHeader:checked">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderBrush" Value="Transparent" />
+        <Setter Property="Foreground" Value="{DynamicResource MapWizardTextBrush}" />
+    </Style>
+
+    <Style Selector="ToggleButton.ToolOptionsHeader:checked:pointerover">
+        <Setter Property="Background" Value="{DynamicResource MapWizardControlHoverBrush}" />
+    </Style>
+
+    <Style Selector="ToggleButton.ToolOptionsHeader:pressed">
+        <Setter Property="Background" Value="{DynamicResource MapWizardControlHoverBrush}" />
+        <Setter Property="RenderTransform">
+            <TransformGroup>
+                <TranslateTransform X="0" Y="0" />
+                <ScaleTransform ScaleX="1" ScaleY="1" />
+            </TransformGroup>
+        </Setter>
+    </Style>
+
+    <Style Selector="controls|CollapsibleSection:expanded /template/ ToggleButton.ToolOptionsHeader">
+        <Setter Property="CornerRadius" Value="15,15,0,0" />
+    </Style>
+
+    <Style Selector="controls|AnimatedHeightBorder.ToolOptionsContent">
+        <Setter Property="BorderBrush" Value="{DynamicResource MapWizardBorderBrush}" />
+        <Setter Property="BorderThickness" Value="0,1,0,0" />
+    </Style>
+
+    <Style Selector="Path.ToolOptionsChevron">
+        <Setter Property="RenderTransformOrigin" Value="50%,50%" />
+        <Setter Property="RenderTransform" Value="rotate(0deg)" />
+        <Setter Property="Transitions">
+            <Transitions>
+                <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.2">
+                    <TransformOperationsTransition.Easing>
+                        <CubicEaseOut />
+                    </TransformOperationsTransition.Easing>
+                </TransformOperationsTransition>
+            </Transitions>
+        </Setter>
+    </Style>
+
+    <Style Selector="controls|CollapsibleSection:expanded /template/ Path.ToolOptionsChevron">
+        <Setter Property="RenderTransform" Value="rotate(180deg)" />
+    </Style>
+
+    <Style Selector="Button">
+        <Setter Property="MinHeight" Value="34" />
+        <Setter Property="Padding" Value="12,7" />
+        <Setter Property="CornerRadius" Value="{DynamicResource MapWizardCornerSmall}" />
+        <Setter Property="Foreground" Value="{DynamicResource MapWizardTextBrush}" />
+        <Setter Property="FontWeight" Value="Normal" />
+        <Setter Property="HorizontalContentAlignment" Value="Center" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+    </Style>
+
+    <Style Selector="Button.Basic, Button.Ghost, Button.Void">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderBrush" Value="Transparent" />
+    </Style>
+
+    <!-- Fluent's control theme restyles the template's ContentPresenter on
+         pointerover/pressed, which would override the accent backgrounds set on the button
+         itself. Keep the presenter in sync with the button for every MapWizard button class. -->
+    <Style Selector="Button.Basic /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="{Binding Background, RelativeSource={RelativeSource TemplatedParent}}" />
+        <Setter Property="BorderBrush" Value="{Binding BorderBrush, RelativeSource={RelativeSource TemplatedParent}}" />
+        <Setter Property="Foreground" Value="{Binding Foreground, RelativeSource={RelativeSource TemplatedParent}}" />
+    </Style>
+    <Style Selector="Button.Ghost /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="{Binding Background, RelativeSource={RelativeSource TemplatedParent}}" />
+        <Setter Property="BorderBrush" Value="{Binding BorderBrush, RelativeSource={RelativeSource TemplatedParent}}" />
+        <Setter Property="Foreground" Value="{Binding Foreground, RelativeSource={RelativeSource TemplatedParent}}" />
+    </Style>
+    <Style Selector="Button.Void /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="{Binding Background, RelativeSource={RelativeSource TemplatedParent}}" />
+        <Setter Property="BorderBrush" Value="{Binding BorderBrush, RelativeSource={RelativeSource TemplatedParent}}" />
+        <Setter Property="Foreground" Value="{Binding Foreground, RelativeSource={RelativeSource TemplatedParent}}" />
+    </Style>
+    <Style Selector="Button.Flat /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="{Binding Background, RelativeSource={RelativeSource TemplatedParent}}" />
+        <Setter Property="BorderBrush" Value="{Binding BorderBrush, RelativeSource={RelativeSource TemplatedParent}}" />
+        <Setter Property="Foreground" Value="{Binding Foreground, RelativeSource={RelativeSource TemplatedParent}}" />
+    </Style>
+    <Style Selector="Button.Primary /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="{Binding Background, RelativeSource={RelativeSource TemplatedParent}}" />
+        <Setter Property="BorderBrush" Value="{Binding BorderBrush, RelativeSource={RelativeSource TemplatedParent}}" />
+        <Setter Property="Foreground" Value="{Binding Foreground, RelativeSource={RelativeSource TemplatedParent}}" />
+    </Style>
+    <Style Selector="Button.Outlined /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="{Binding Background, RelativeSource={RelativeSource TemplatedParent}}" />
+        <Setter Property="BorderBrush" Value="{Binding BorderBrush, RelativeSource={RelativeSource TemplatedParent}}" />
+        <Setter Property="Foreground" Value="{Binding Foreground, RelativeSource={RelativeSource TemplatedParent}}" />
+    </Style>
+
+    <Style Selector="Button.Basic:pointerover, Button.Ghost:pointerover, Button.Void:pointerover">
+        <Setter Property="Background" Value="{DynamicResource MapWizardControlHoverBrush}" />
+    </Style>
+
+    <Style Selector="Button.Basic:pressed, Button.Ghost:pressed, Button.Void:pressed">
+        <Setter Property="Background" Value="{DynamicResource MapWizardControlPressedBrush}" />
+    </Style>
+
+    <Style Selector="Button.Flat, Button.Primary">
+        <Setter Property="Background" Value="{DynamicResource MapWizardAccentBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource MapWizardAccentBrush}" />
+        <Setter Property="Foreground" Value="{DynamicResource MapWizardAccentForegroundBrush}" />
+    </Style>
+
+    <Style Selector="Button.Flat:pointerover, Button.Primary:pointerover">
+        <Setter Property="Background" Value="{DynamicResource MapWizardAccentHoverBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource MapWizardAccentHoverBrush}" />
+    </Style>
+
+    <Style Selector="Button.Flat:pressed, Button.Primary:pressed">
+        <Setter Property="Background" Value="{DynamicResource MapWizardAccentPressedBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource MapWizardAccentPressedBrush}" />
+    </Style>
+
+    <Style Selector="Button.Flat TextBlock, Button.Primary TextBlock">
+        <Setter Property="Foreground" Value="{DynamicResource MapWizardAccentForegroundBrush}" />
+    </Style>
+
+    <Style Selector="Button.Flat:disabled TextBlock, Button.Primary:disabled TextBlock">
+        <Setter Property="Foreground" Value="{DynamicResource MapWizardTextDisabledBrush}" />
+    </Style>
+
+    <Style Selector="Button.Flat PathIcon, Button.Primary PathIcon">
+        <Setter Property="Foreground" Value="{DynamicResource MapWizardAccentForegroundBrush}" />
+    </Style>
+
+    <!-- Tooltips are logically parented to their owner, so the accent button rules above would
+         otherwise paint tooltip text with the accent foreground. -->
+    <Style Selector="Button.Flat ToolTip TextBlock, Button.Primary ToolTip TextBlock, Button.Flat ToolTip SelectableTextBlock, Button.Primary ToolTip SelectableTextBlock">
+        <Setter Property="Foreground" Value="{DynamicResource MapWizardTooltipTextBrush}" />
+    </Style>
+
+    <!-- Same for flyout and menu content. -->
+    <Style Selector="Button.Flat FlyoutPresenter TextBlock, Button.Primary FlyoutPresenter TextBlock, Button.Flat FlyoutPresenter SelectableTextBlock, Button.Primary FlyoutPresenter SelectableTextBlock">
+        <Setter Property="Foreground" Value="{DynamicResource MapWizardTextBrush}" />
+    </Style>
+
+    <Style Selector="Button.Flat MenuFlyoutPresenter TextBlock, Button.Primary MenuFlyoutPresenter TextBlock, Button.Flat MenuFlyoutPresenter SelectableTextBlock, Button.Primary MenuFlyoutPresenter SelectableTextBlock">
+        <Setter Property="Foreground" Value="{DynamicResource MapWizardTextBrush}" />
+    </Style>
+
+    <Style Selector="Button.Outlined">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderBrush" Value="{DynamicResource MapWizardControlBorderBrush}" />
+    </Style>
+
+    <Style Selector="Button.Outlined:pointerover">
+        <Setter Property="Background" Value="{DynamicResource MapWizardAccent25Brush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource MapWizardAccentBrush}" />
+    </Style>
+
+    <Style Selector="Button.Basic:disabled /template/ ContentPresenter#PART_ContentPresenter, Button.Ghost:disabled /template/ ContentPresenter#PART_ContentPresenter, Button.Void:disabled /template/ ContentPresenter#PART_ContentPresenter, Button.Outlined:disabled /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Foreground" Value="{DynamicResource MapWizardTextDisabledBrush}" />
+    </Style>
+
+    <Style Selector="Button.Outlined:disabled /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="BorderBrush" Value="{DynamicResource MapWizardControlBorderBrush}" />
+    </Style>
+
+    <Style Selector="Button.Flat:disabled /template/ ContentPresenter#PART_ContentPresenter, Button.Primary:disabled /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource MapWizardControlBackgroundBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource MapWizardControlBorderBrush}" />
+        <Setter Property="Foreground" Value="{DynamicResource MapWizardTextDisabledBrush}" />
+    </Style>
+
+    <Style Selector="Button:disabled /template/ ContentPresenter TextBlock">
+        <Setter Property="Foreground" Value="{DynamicResource MapWizardTextDisabledBrush}" />
+    </Style>
+
+    <Style Selector="Button:disabled /template/ ContentPresenter PathIcon">
+        <Setter Property="Foreground" Value="{DynamicResource MapWizardTextDisabledBrush}" />
+    </Style>
+
+    <Style Selector="Button.Compact">
+        <Setter Property="MinWidth" Value="30" />
+        <Setter Property="MinHeight" Value="30" />
+        <Setter Property="Padding" Value="8,4" />
+    </Style>
+
+    <Style Selector="Button.Large">
+        <Setter Property="MinHeight" Value="42" />
+        <Setter Property="Padding" Value="16,9" />
+    </Style>
+
+    <Style Selector="Button.Rounded">
+        <Setter Property="CornerRadius" Value="999" />
+    </Style>
+
+    <Style Selector="TextBox, NumericUpDown">
+        <Setter Property="Background" Value="{DynamicResource MapWizardControlBackgroundBrush}" />
+        <Setter Property="Foreground" Value="{DynamicResource MapWizardTextBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource MapWizardControlBorderBrush}" />
+        <Setter Property="CornerRadius" Value="{DynamicResource MapWizardCornerSmall}" />
+        <Setter Property="FocusAdorner">
+            <FocusAdornerTemplate>
+                <Border BorderBrush="{DynamicResource MapWizardAccentBrush}"
+                        BorderThickness="2"
+                        CornerRadius="8"
+                        Margin="-2" />
+            </FocusAdornerTemplate>
+        </Setter>
+    </Style>
+
+    <Style Selector="ToggleSwitch">
+        <Setter Property="OnContent" Value="{x:Null}" />
+        <Setter Property="OffContent" Value="{x:Null}" />
+    </Style>
+
+    <Style Selector="controls|NavigationButton">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="MinWidth" Value="0" />
+        <Setter Property="MinHeight" Value="0" />
+        <Setter Property="FocusAdorner" Value="{x:Null}" />
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Border Background="{TemplateBinding Background}"
+                        BorderBrush="{TemplateBinding BorderBrush}"
+                        BorderThickness="{TemplateBinding BorderThickness}"
+                        CornerRadius="{TemplateBinding CornerRadius}">
+                    <ContentPresenter Content="{TemplateBinding Content}"
+                                      ContentTemplate="{TemplateBinding ContentTemplate}"
+                                      Padding="{TemplateBinding Padding}"
+                                      HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                      VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}" />
+                </Border>
+            </ControlTemplate>
+        </Setter>
+    </Style>
+
+    <Style Selector="controls|UnitNumericUpDown">
+        <Setter Property="MinWidth" Value="108" />
+        <Setter Property="MinHeight" Value="36" />
+        <Setter Property="Background" Value="{DynamicResource MapWizardControlBackgroundBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource MapWizardControlBorderBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="{DynamicResource MapWizardCornerSmall}" />
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Border Background="{TemplateBinding Background}"
+                        BorderBrush="{TemplateBinding BorderBrush}"
+                        BorderThickness="{TemplateBinding BorderThickness}"
+                        CornerRadius="{TemplateBinding CornerRadius}">
+                    <Grid ColumnDefinitions="*,Auto,28,28">
+                        <TextBox x:Name="PART_Input"
+                                 Classes="UnitValueEditor"
+                                 HorizontalContentAlignment="Right"
+                                 VerticalContentAlignment="Center" />
+                        <ContentPresenter Grid.Column="1"
+                                          Content="{TemplateBinding Unit}"
+                                          Margin="6,0,8,0"
+                                          VerticalAlignment="Center"
+                                          Foreground="{DynamicResource MapWizardTextSecondaryBrush}" />
+                        <Button x:Name="PART_DecrementButton"
+                                Grid.Column="2"
+                                Classes="NumericStepButton"
+                                Content="−"
+                                ToolTip.Tip="Decrease" />
+                        <Button x:Name="PART_IncrementButton"
+                                Grid.Column="3"
+                                Classes="NumericStepButton"
+                                Content="+"
+                                ToolTip.Tip="Increase" />
+                    </Grid>
+                </Border>
+            </ControlTemplate>
+        </Setter>
+    </Style>
+
+    <Style Selector="controls|UnitNumericUpDown:focus-within">
+        <Setter Property="BorderBrush" Value="{DynamicResource MapWizardAccentBrush}" />
+    </Style>
+
+    <Style Selector="controls|UnitNumericUpDown:pointerover">
+        <Setter Property="Background" Value="{DynamicResource MapWizardControlHoverBrush}" />
+    </Style>
+
+    <Style Selector="controls|UnitNumericUpDown:disabled">
+        <Setter Property="Background" Value="{DynamicResource MapWizardControlBackgroundBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource MapWizardBorderBrush}" />
+    </Style>
+
+    <Style Selector="controls|UnitNumericUpDown:disabled TextBlock">
+        <Setter Property="Foreground" Value="{DynamicResource MapWizardTextDisabledBrush}" />
+    </Style>
+
+    <Style Selector="TextBox.UnitValueEditor">
+        <Setter Property="MinWidth" Value="44" />
+        <Setter Property="MinHeight" Value="34" />
+        <Setter Property="Padding" Value="8,6" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="CornerRadius" Value="0" />
+        <Setter Property="FocusAdorner" Value="{x:Null}" />
+    </Style>
+
+    <!-- The editors inside our composite fields must not draw their own hover/focus chrome:
+         feedback belongs to the whole container. -->
+    <Style Selector="TextBox.FieldEditor /template/ Border#PART_BorderElement, TextBox.UnitValueEditor /template/ Border#PART_BorderElement">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderBrush" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
+    </Style>
+
+    <Style Selector="Button.NumericStepButton">
+        <Setter Property="MinWidth" Value="28" />
+        <Setter Property="MinHeight" Value="34" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderBrush" Value="{DynamicResource MapWizardControlBorderBrush}" />
+        <Setter Property="BorderThickness" Value="1,0,0,0" />
+        <Setter Property="CornerRadius" Value="0" />
+        <Setter Property="FontSize" Value="16" />
+        <Setter Property="FocusAdorner" Value="{x:Null}" />
+    </Style>
+
+    <Style Selector="Button.NumericStepButton:pointerover">
+        <Setter Property="Background" Value="{DynamicResource MapWizardControlHoverBrush}" />
+    </Style>
+
+    <Style Selector="Button.NumericStepButton:pressed">
+        <Setter Property="Background" Value="{DynamicResource MapWizardControlPressedBrush}" />
+    </Style>
+
+    <Style Selector="Button.NumericStepButton:disabled">
+        <Setter Property="Foreground" Value="{DynamicResource MapWizardTextDisabledBrush}" />
+    </Style>
+
+    <Style Selector="Button.NumericStepButton:disabled /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderBrush" Value="{DynamicResource MapWizardBorderBrush}" />
+        <Setter Property="Foreground" Value="{DynamicResource MapWizardTextDisabledBrush}" />
+    </Style>
+
+    <Style Selector="controls|FieldTextBox">
+        <Setter Property="MinHeight" Value="36" />
+        <Setter Property="Background" Value="{DynamicResource MapWizardControlBackgroundBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource MapWizardControlBorderBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="{DynamicResource MapWizardCornerSmall}" />
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Border Background="{TemplateBinding Background}"
+                        BorderBrush="{TemplateBinding BorderBrush}"
+                        BorderThickness="{TemplateBinding BorderThickness}"
+                        CornerRadius="{TemplateBinding CornerRadius}">
+                    <Grid ColumnDefinitions="Auto,*,Auto" VerticalAlignment="Stretch">
+                        <ContentPresenter Margin="10,0,4,0"
+                                          VerticalAlignment="Center"
+                                          Content="{TemplateBinding Prefix}"
+                                          Foreground="{DynamicResource MapWizardTextSecondaryBrush}" />
+                        <TextBox Grid.Column="1"
+                                 Classes="FieldEditor"
+                                 Text="{TemplateBinding Text, Mode=TwoWay}"
+                                 PlaceholderText="{TemplateBinding PlaceholderText}"
+                                 AcceptsReturn="{TemplateBinding AcceptsReturn}"
+                                 TextWrapping="{TemplateBinding TextWrapping}" />
+                        <Button x:Name="PART_ClearButton"
+                                Grid.Column="2"
+                                Classes="Basic Compact"
+                                Margin="2"
+                                MinWidth="28"
+                                Padding="4,0"
+                                Content="×"
+                                ToolTip.Tip="Clear"
+                                IsVisible="{TemplateBinding AddClearButton}" />
+                    </Grid>
+                </Border>
+            </ControlTemplate>
+        </Setter>
+    </Style>
+
+    <Style Selector="controls|FieldTextBox:focus-within">
+        <Setter Property="BorderBrush" Value="{DynamicResource MapWizardAccentBrush}" />
+    </Style>
+
+    <Style Selector="controls|FieldTextBox:pointerover">
+        <Setter Property="Background" Value="{DynamicResource MapWizardControlHoverBrush}" />
+    </Style>
+
+    <Style Selector="controls|FieldTextBox:disabled">
+        <Setter Property="Background" Value="{DynamicResource MapWizardControlBackgroundBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource MapWizardBorderBrush}" />
+    </Style>
+
+    <Style Selector="controls|FieldTextBox:disabled TextBlock">
+        <Setter Property="Foreground" Value="{DynamicResource MapWizardTextDisabledBrush}" />
+    </Style>
+
+    <Style Selector="controls|FieldTextBox:disabled /template/ Border#PART_BorderElement">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
+    </Style>
+
+    <Style Selector="TextBox.FieldEditor">
+        <Setter Property="MinHeight" Value="34" />
+        <Setter Property="Padding" Value="2,7" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="CornerRadius" Value="0" />
+        <Setter Property="FocusAdorner" Value="{x:Null}" />
+    </Style>
+
+    <Style Selector="ListBoxItem:selected">
+        <Setter Property="Background" Value="{DynamicResource MapWizardAccent25Brush}" />
+        <Setter Property="Foreground" Value="{DynamicResource MapWizardTextBrush}" />
+    </Style>
+
+    <Style Selector="Separator">
+        <Setter Property="Background" Value="{DynamicResource MapWizardBorderBrush}" />
+    </Style>
+
+    <Style Selector="FlyoutPresenter">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="Padding" Value="0" />
+    </Style>
+
+    <!-- Shared chrome for every popup surface (flyouts, menus). Use together with layout
+         specific setters such as Width/Padding. -->
+    <Style Selector="Border.PopupSurface">
+        <Setter Property="Background" Value="{DynamicResource MapWizardPopupBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource MapWizardControlBorderBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="12" />
+    </Style>
+
+    <Style Selector="MenuFlyoutPresenter">
+        <Setter Property="Background" Value="{DynamicResource MapWizardPopupBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource MapWizardControlBorderBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="12" />
+    </Style>
+
+    <Style Selector="ToolTip">
+        <Setter Property="Background" Value="{DynamicResource MapWizardTooltipBackgroundBrush}" />
+        <Setter Property="Foreground" Value="{DynamicResource MapWizardTooltipTextBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource MapWizardControlBorderBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="6" />
+        <Setter Property="Padding" Value="8,5" />
+    </Style>
+
+
+    <Style Selector="controls|BusyArea">
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Grid>
+                    <ContentPresenter Content="{TemplateBinding Content}"
+                                      ContentTemplate="{TemplateBinding ContentTemplate}"
+                                      HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                      VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}" />
+                    <Border x:Name="PART_Overlay"
+                            Background="#99000000"
+                            CornerRadius="{DynamicResource MapWizardCornerMedium}"
+                            Opacity="0"
+                            IsHitTestVisible="False">
+                        <Border.Transitions>
+                            <Transitions>
+                                <DoubleTransition Property="Opacity" Duration="0:0:0.18" />
+                            </Transitions>
+                        </Border.Transitions>
+                        <StackPanel HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    Spacing="10">
+                            <controls:BusyIndicator IsRunning="{TemplateBinding IsBusy}" />
+                            <TextBlock Text="{TemplateBinding BusyText}"
+                                       FontWeight="SemiBold"
+                                       TextAlignment="Center" />
+                        </StackPanel>
+                    </Border>
+                </Grid>
+            </ControlTemplate>
+        </Setter>
+    </Style>
+
+    <Style Selector="controls|BusyArea:busy /template/ Border#PART_Overlay">
+        <Setter Property="Opacity" Value="1" />
+        <Setter Property="IsHitTestVisible" Value="True" />
+    </Style>
+
+    <Style Selector="controls|BusyIndicator">
+        <Setter Property="Width" Value="160" />
+        <Setter Property="Height" Value="4" />
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Border x:Name="PART_Track"
+                        Background="{DynamicResource MapWizardControlBackgroundBrush}"
+                        CornerRadius="2"
+                        ClipToBounds="True">
+                    <Panel>
+                        <Border x:Name="PART_Indicator"
+                                Width="48"
+                                Height="4"
+                                HorizontalAlignment="Left"
+                                Background="{DynamicResource MapWizardAccentBrush}"
+                                CornerRadius="2" />
+                    </Panel>
+                </Border>
+            </ControlTemplate>
+        </Setter>
+    </Style>
+
+    <Style Selector="controls|SectionGroup">
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Grid RowDefinitions="Auto,Auto,*">
+                    <ContentPresenter Content="{TemplateBinding Header}"
+                                      ContentTemplate="{TemplateBinding HeaderTemplate}"
+                                      FontWeight="SemiBold"
+                                      Foreground="{DynamicResource MapWizardTextSecondaryBrush}" />
+                    <Separator Grid.Row="1" Margin="0,10" />
+                    <ContentPresenter Grid.Row="2"
+                                      Content="{TemplateBinding Content}"
+                                      ContentTemplate="{TemplateBinding ContentTemplate}" />
+                </Grid>
+            </ControlTemplate>
+        </Setter>
+    </Style>
+</Styles>

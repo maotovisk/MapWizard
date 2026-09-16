@@ -31,7 +31,7 @@
                            Foreground="{DynamicResource MapWizardImportantNoticeAccent}" />
                 <TextBlock Text="{Binding Message, ElementName=Root}"
                            FontSize="13"
-                           Foreground="{DynamicResource SukiText}"
+                           Foreground="{DynamicResource MapWizardTextBrush}"
                            TextWrapping="Wrap" />
             </StackPanel>
         </Grid>

@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MapWizard.CLI", "MapWizard.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MapWizard.Desktop", "MapWizard.Desktop\MapWizard.Desktop.csproj", "{BBCD4A84-1014-4F6C-B213-136106844DBF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MapWizard.Theme", "MapWizard.Theme\MapWizard.Theme.csproj", "{8D4DDB7C-DF2D-4E51-ACD0-408171E73754}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -37,6 +39,10 @@ Global
 		{BBCD4A84-1014-4F6C-B213-136106844DBF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BBCD4A84-1014-4F6C-B213-136106844DBF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BBCD4A84-1014-4F6C-B213-136106844DBF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8D4DDB7C-DF2D-4E51-ACD0-408171E73754}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8D4DDB7C-DF2D-4E51-ACD0-408171E73754}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8D4DDB7C-DF2D-4E51-ACD0-408171E73754}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8D4DDB7C-DF2D-4E51-ACD0-408171E73754}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

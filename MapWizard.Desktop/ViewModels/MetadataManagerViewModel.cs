@@ -20,7 +20,6 @@ using MapWizard.Desktop.Services.MemoryService;
 using MapWizard.Desktop.Services.MetadataService;
 using MapWizard.Desktop.Utils;
 using MapWizard.Tools.MetadataManager;
-using SukiUI.Toasts;
 using Color = System.Drawing.Color;
 
 namespace MapWizard.Desktop.ViewModels;
@@ -33,7 +32,7 @@ public partial class MetadataManagerViewModel(
     ISettingsService settingsService,
     ISongLibraryService songLibraryService,
     IModalService modalService,
-    ISukiToastManager toastManager) : ViewModelBase
+    INotificationService notificationService) : ViewModelBase
 {
     [ObservableProperty] private SelectedMap _originBeatmap = new();
     [ObservableProperty] private bool _sliderTrackOverride;
@@ -119,7 +118,7 @@ public partial class MetadataManagerViewModel(
         catch (Exception ex)
         {
             MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
-            toastManager.ShowToast(NotificationType.Error, "Metadata Manager", ex.Message);
+            notificationService.ShowToast(NotificationType.Error, "Metadata Manager", ex.Message);
         }
     }
 
@@ -128,7 +127,7 @@ public partial class MetadataManagerViewModel(
         var origin = OriginBeatmap.Path;
         if (string.IsNullOrEmpty(origin))
         {
-            toastManager.ShowToast(NotificationType.Error, "Import Error", "Please select an origin beatmap!");
+            notificationService.ShowToast(NotificationType.Error, "Import Error", "Please select an origin beatmap!");
             return;
         }
 
@@ -177,14 +176,14 @@ public partial class MetadataManagerViewModel(
             LoadOriginBeatmapHeader(originMetadata);
             LoadBackgroundImage(origin, originMetadata);
 
-            toastManager.ShowToast(NotificationType.Success, "Import Success", "Successfully imported metadata!");
+            notificationService.ShowToast(NotificationType.Success, "Import Success", "Successfully imported metadata!");
         }
         catch (Exception ex)
         {
             MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
             Console.WriteLine(ex.Message);
             ClearOriginBeatmapHeader();
-            toastManager.ShowToast(NotificationType.Error, "Import Error", "Failed to import metadata!");
+            notificationService.ShowToast(NotificationType.Error, "Import Error", "Failed to import metadata!");
         }
     }
 
@@ -223,7 +222,7 @@ public partial class MetadataManagerViewModel(
 
         if (!BeatmapSelectionUtils.TryAppendDestinationBeatmap(DestinationBeatmaps, currentBeatmap, out var destinationBeatmap))
         {
-            toastManager.ShowToast(NotificationType.Error, "Duplicate Beatmap", "This beatmap is already in the list.");
+            notificationService.ShowToast(NotificationType.Error, "Duplicate Beatmap", "This beatmap is already in the list.");
             return;
         }
 
@@ -237,7 +236,7 @@ public partial class MetadataManagerViewModel(
             osuMemoryReaderService,
             lazerLookupService,
             modalService,
-            (type, title, message) => toastManager.ShowToast(type, title, message),
+            (type, title, message) => notificationService.ShowToast(type, title, message),
             "Memory Error",
             "Failed to get beatmap from memory.",
             "No Beatmap",
@@ -325,7 +324,7 @@ public partial class MetadataManagerViewModel(
             return;
         }
 
-        toastManager.ShowToast(
+        notificationService.ShowToast(
             NotificationType.Warning,
             "Metadata Manager",
             string.IsNullOrWhiteSpace(errorMessage)
@@ -349,7 +348,7 @@ public partial class MetadataManagerViewModel(
         var referencePath = BeatmapPanelViewModelUtils.ResolveMapsetReferenceBeatmapPath(DestinationBeatmaps, OriginBeatmap.Path);
         if (referencePath is null)
         {
-            toastManager.ShowToast(
+            notificationService.ShowToast(
                 NotificationType.Warning,
                 "Metadata Manager",
                 "Select an origin beatmap (or target beatmaps from one mapset) first.");
@@ -364,7 +363,7 @@ public partial class MetadataManagerViewModel(
                 out var updatedDestinationBeatmaps,
                 out var addedCount))
         {
-            toastManager.ShowToast(
+            notificationService.ShowToast(
                 NotificationType.Warning,
                 "Metadata Manager",
                 "No additional mapset difficulties were available to add.");
@@ -373,7 +372,7 @@ public partial class MetadataManagerViewModel(
 
         DestinationBeatmaps = updatedDestinationBeatmaps;
         HasMultiple = BeatmapPanelViewModelUtils.HasMultipleDestinationBeatmaps(DestinationBeatmaps);
-        toastManager.ShowToast(
+        notificationService.ShowToast(
             NotificationType.Success,
             "Metadata Manager",
             $"Added {addedCount} mapset diff(s) to destination.");
@@ -408,7 +407,7 @@ public partial class MetadataManagerViewModel(
         string? preferredMapsetDirectoryPath = null)
         => MapPickerDialogUtils.ShowSongSelectDialogAsync(
             modalService,
-            toastManager,
+            notificationService,
             songLibraryService,
             filesService,
             lazerLookupService,
@@ -518,6 +517,6 @@ public partial class MetadataManagerViewModel(
             }
         }
 
-        toastManager.ShowToast(type, "Metadata Export", message);
+        notificationService.ShowToast(type, "Metadata Export", message);
     }
 }

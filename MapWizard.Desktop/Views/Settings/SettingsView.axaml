@@ -5,16 +5,16 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:vm="clr-namespace:MapWizard.Desktop.ViewModels"
     xmlns:controls="clr-namespace:MapWizard.Desktop.Views.Controls"
+    xmlns:appControls="clr-namespace:MapWizard.Desktop.Controls"
     xmlns:materialIcons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
     xmlns:settingsModels="clr-namespace:MapWizard.Desktop.Models.Settings"
-    xmlns:suki="clr-namespace:SukiUI.Controls;assembly=SukiUI"
-    xmlns:objectModel="clr-namespace:System.Collections.ObjectModel;assembly=System.ObjectModel"
+    xmlns:theme="clr-namespace:MapWizard.Theme.Controls;assembly=MapWizard.Theme"
     x:Class="MapWizard.Desktop.Views.Settings.SettingsView"
     x:DataType="vm:SettingsViewModel"
     d:DesignWidth="800"
     d:DesignHeight="450"
     mc:Ignorable="d"
-    Padding="24">
+    Padding="20">
     <UserControl.Styles>
         <Style Selector="ListBox.palette-list">
             <Setter Property="Background" Value="Transparent" />
@@ -25,30 +25,90 @@
             <Setter Property="Width" Value="224" />
             <Setter Property="Padding" Value="0" />
             <Setter Property="Margin" Value="0,0,10,10" />
-            <Setter Property="Background" Value="{DynamicResource SukiCardBackground}" />
-            <Setter Property="BorderBrush" Value="{DynamicResource SukiControlBorderBrush}" />
+            <Setter Property="Background" Value="{DynamicResource MapWizardCardBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource MapWizardControlBorderBrush}" />
             <Setter Property="BorderThickness" Value="1" />
             <Setter Property="CornerRadius" Value="9" />
             <Setter Property="HorizontalContentAlignment" Value="Stretch" />
             <Setter Property="FocusAdorner" Value="{x:Null}" />
         </Style>
         <Style Selector="ListBox.palette-list ListBoxItem:pointerover">
-            <Setter Property="BorderBrush" Value="{DynamicResource SukiLowText}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource MapWizardTextSecondaryBrush}" />
         </Style>
         <Style Selector="ListBox.palette-list ListBoxItem:selected">
-            <Setter Property="BorderBrush" Value="{DynamicResource ThemeAccentBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource MapWizardAccentBrush}" />
             <Setter Property="BorderThickness" Value="2" />
         </Style>
         <Style Selector="ListBox.palette-list ListBoxItem:focus">
-            <Setter Property="BorderBrush" Value="{DynamicResource ThemeAccentBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource MapWizardAccentBrush}" />
+        </Style>
+        <Style Selector="RadioButton.SettingsNav">
+            <Setter Property="HorizontalAlignment" Value="Stretch" />
+            <Setter Property="HorizontalContentAlignment" Value="Left" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+            <Setter Property="MinHeight" Value="34" />
+            <Setter Property="Padding" Value="9,6" />
+            <Setter Property="Margin" Value="0" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="CornerRadius" Value="6" />
+            <Setter Property="Template">
+                <ControlTemplate>
+                    <Border Background="{TemplateBinding Background}"
+                            CornerRadius="{TemplateBinding CornerRadius}"
+                            Padding="{TemplateBinding Padding}">
+                        <Grid ColumnDefinitions="3,*" ColumnSpacing="8">
+                            <Border x:Name="SelectionMarker"
+                                    Width="3"
+                                    CornerRadius="2"
+                                    Background="{DynamicResource MapWizardAccentBrush}"
+                                    Opacity="0" />
+                            <ContentPresenter Grid.Column="1"
+                                              Content="{TemplateBinding Content}"
+                                              ContentTemplate="{TemplateBinding ContentTemplate}"
+                                              Foreground="{TemplateBinding Foreground}"
+                                              HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                              VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}" />
+                        </Grid>
+                    </Border>
+                </ControlTemplate>
+            </Setter>
+        </Style>
+        <Style Selector="RadioButton.SettingsNav:pointerover">
+            <Setter Property="Background" Value="{DynamicResource MapWizardControlHoverBrush}" />
+        </Style>
+        <Style Selector="RadioButton.SettingsNav:checked">
+            <Setter Property="Background" Value="{DynamicResource MapWizardAccent25Brush}" />
+            <Setter Property="Foreground" Value="{DynamicResource MapWizardAccentBrush}" />
+            <Setter Property="FontWeight" Value="Normal" />
+        </Style>
+        <Style Selector="RadioButton.SettingsNav:checked /template/ Border#SelectionMarker">
+            <Setter Property="Opacity" Value="1" />
         </Style>
     </UserControl.Styles>
 
-    <suki:SettingsLayout>
-        <suki:SettingsLayout.Items>
-            <objectModel:ObservableCollection x:TypeArguments="suki:SettingsLayoutItem">
-                <suki:SettingsLayoutItem Header="General">
-                    <suki:SettingsLayoutItem.Content>
+    <Grid x:Name="SettingsLayoutRoot" SizeChanged="SettingsLayoutRoot_OnSizeChanged">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="170" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <StackPanel x:Name="SettingsCategoryRail" Margin="0,4,16,0" Spacing="3">
+            <TextBlock Text="SETTINGS" FontSize="11" FontWeight="SemiBold"
+                       Foreground="{DynamicResource MapWizardTextSecondaryBrush}"
+                       Margin="9,0,0,6" />
+            <RadioButton x:Name="GeneralNav" Classes="SettingsNav" Content="General" Tag="General" IsChecked="True" Click="CategoryButton_OnClick" />
+            <RadioButton x:Name="AppearanceNav" Classes="SettingsNav" Content="Appearance" Tag="Appearance" Click="CategoryButton_OnClick" />
+            <RadioButton x:Name="AudioNav" Classes="SettingsNav" Content="Audio" Tag="Audio" Click="CategoryButton_OnClick" />
+            <RadioButton x:Name="InformationNav" Classes="SettingsNav" Content="Information" Tag="Information" Click="CategoryButton_OnClick" />
+        </StackPanel>
+
+        <appControls:SmoothScrollViewer x:Name="SettingsScrollViewer"
+                                        Grid.Column="1"
+                                        HorizontalScrollBarVisibility="Disabled"
+                                        ScrollChanged="SettingsScrollViewer_OnScrollChanged">
+            <StackPanel x:Name="SettingsSections" MaxWidth="980" HorizontalAlignment="Stretch">
+                <theme:Surface x:Name="GeneralSection" Margin="0,0,0,16" Padding="20"><theme:SectionGroup Header="General">
                         <StackPanel Spacing="20">
                             <Grid ColumnDefinitions="*,Auto" VerticalAlignment="Center">
                                 <StackPanel Spacing="4">
@@ -99,15 +159,13 @@
                                     Command="{Binding RestartToApplyUpdateCommand}">
                                 <TextBlock Text="{Binding UpdateStreamBadgeText}"
                                            FontSize="12"
-                                           FontWeight="SemiBold"
+                                           FontWeight="Normal"
                                            TextDecorations="Underline" />
                             </Button>
                         </StackPanel>
-                    </suki:SettingsLayoutItem.Content>
-                </suki:SettingsLayoutItem>
+                </theme:SectionGroup></theme:Surface>
 
-                <suki:SettingsLayoutItem Header="Appearance">
-                    <suki:SettingsLayoutItem.Content>
+                <theme:Surface x:Name="AppearanceSection" Margin="0,0,0,16" Padding="20"><theme:SectionGroup Header="Appearance">
                         <StackPanel Spacing="20">
                             <Grid ColumnDefinitions="*,Auto" VerticalAlignment="Center">
                                 <TextBlock Text="Variant" FontWeight="Bold" VerticalAlignment="Center" />
@@ -188,30 +246,14 @@
                                 </ListBox>
                             </StackPanel>
                             <Grid ColumnDefinitions="*,Auto" VerticalAlignment="Center">
-                                <TextBlock Text="Smooth wheel scrolling" FontWeight="Bold" VerticalAlignment="Center" />
+                                <TextBlock Text="Smooth Scrolling" FontWeight="Bold" VerticalAlignment="Center" />
                                 <ToggleSwitch Grid.Column="1"
                                               IsChecked="{Binding IsSmoothWheelScrollingEnabled, Mode=TwoWay}" />
                             </Grid>
                         </StackPanel>
-                    </suki:SettingsLayoutItem.Content>
-                </suki:SettingsLayoutItem>
+                </theme:SectionGroup></theme:Surface>
 
-                <suki:SettingsLayoutItem Header="Experimental">
-                    <suki:SettingsLayoutItem.Content>
-                        <Grid ColumnDefinitions="*,Auto" VerticalAlignment="Center">
-                            <StackPanel Spacing="4">
-                                <TextBlock Text="Enable Hitsound Visualizer" FontWeight="Bold" />
-                                <TextBlock Text="Shows the Hitsound Visualizer tool in the sidebar when enabled."
-                                           TextWrapping="Wrap" />
-                            </StackPanel>
-                            <ToggleSwitch Grid.Column="1"
-                                          IsChecked="{Binding IsHitSoundVisualizerEnabled, Mode=TwoWay}" />
-                        </Grid>
-                    </suki:SettingsLayoutItem.Content>
-                </suki:SettingsLayoutItem>
-
-                <suki:SettingsLayoutItem Header="Audio">
-                    <suki:SettingsLayoutItem.Content>
+                <theme:Surface x:Name="AudioSection" Margin="0,0,0,16" Padding="20"><theme:SectionGroup Header="Audio">
                         <StackPanel Spacing="20">
                             <Grid ColumnDefinitions="*,Auto" VerticalAlignment="Center">
                                 <StackPanel Spacing="4">
@@ -235,7 +277,7 @@
                             <Grid ColumnDefinitions="*,Auto" VerticalAlignment="Center">
                                 <StackPanel Spacing="4">
                                     <TextBlock Text="Song Volume" FontWeight="Bold" />
-                                    <TextBlock Text="Default music volume for editor audio previews (including the Hitsound Visualizer)."
+                                    <TextBlock Text="Default music volume for editor audio previews (including the HitSound Editor)."
                                                TextWrapping="Wrap" />
                                 </StackPanel>
                                 <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
@@ -252,7 +294,7 @@
                             <Grid ColumnDefinitions="*,Auto" VerticalAlignment="Center">
                                 <StackPanel Spacing="4">
                                     <TextBlock Text="Hitsound Volume" FontWeight="Bold" />
-                                    <TextBlock Text="Default hitsound volume for editor audio previews (including the Hitsound Visualizer)."
+                                    <TextBlock Text="Default hitsound volume for editor audio previews (including the HitSound Editor)."
                                                TextWrapping="Wrap" />
                                 </StackPanel>
                                 <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
@@ -266,11 +308,9 @@
                                 </StackPanel>
                             </Grid>
                         </StackPanel>
-                    </suki:SettingsLayoutItem.Content>
-                </suki:SettingsLayoutItem>
+                </theme:SectionGroup></theme:Surface>
 
-                <suki:SettingsLayoutItem Header="Information">
-                    <suki:SettingsLayoutItem.Content>
+                <theme:Surface x:Name="InformationSection" Margin="0,0,0,16" Padding="20"><theme:SectionGroup Header="Information">
                         <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="8" VerticalAlignment="Center">
                             <TextBlock Text="Config Directory:" VerticalAlignment="Center" />
                             <TextBlock Grid.Column="1"
@@ -291,9 +331,8 @@
                                 <materialIcons:MaterialIcon Kind="FolderOpen" Width="18" Height="18" />
                             </Button>
                         </Grid>
-                    </suki:SettingsLayoutItem.Content>
-                </suki:SettingsLayoutItem>
-            </objectModel:ObservableCollection>
-        </suki:SettingsLayout.Items>
-    </suki:SettingsLayout>
+                </theme:SectionGroup></theme:Surface>
+            </StackPanel>
+        </appControls:SmoothScrollViewer>
+    </Grid>
 </UserControl>

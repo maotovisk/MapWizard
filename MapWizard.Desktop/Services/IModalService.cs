@@ -5,13 +5,20 @@ using MapWizard.Desktop.Views.Controls;
 
 namespace MapWizard.Desktop.Services;
 
+public enum ModalPresentation
+{
+    Dialog,
+    MapPickerOverlay
+}
+
 public sealed record ModalRequest(
     object? Content,
     string? Title = null,
     object? FooterContent = null,
     bool ShowCloseButton = true,
     bool CloseOnBackdropClick = true,
-    bool CloseOnEscape = true);
+    bool CloseOnEscape = true,
+    ModalPresentation Presentation = ModalPresentation.Dialog);
 
 public interface IModalService
 {

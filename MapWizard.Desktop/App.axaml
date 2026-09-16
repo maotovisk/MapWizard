@@ -1,181 +1,36 @@
 <Application
     xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:sukiUi="clr-namespace:SukiUI;assembly=SukiUI"
     xmlns:local="clr-namespace:MapWizard.Desktop"
+    xmlns:mapWizardTheme="clr-namespace:MapWizard.Theme;assembly=MapWizard.Theme"
     xmlns:converters="clr-namespace:MapWizard.Desktop.Converters"
     xmlns:materialIcons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
-    xmlns:system="clr-namespace:System;assembly=netstandard"
     x:Class="MapWizard.Desktop.App">
 
     <Application.DataTemplates>
-        <local:ViewLocator/>
+        <local:ViewLocator />
     </Application.DataTemplates>
 
     <Application.Styles>
         <FluentTheme />
         <StyleInclude Source="avares://Avalonia.Controls.ColorPicker/Themes/Fluent/Fluent.xaml" />
-        <sukiUi:SukiTheme Locale="en-US" ThemeColor="Blue" />
+        <mapWizardTheme:MapWizardTheme />
         <materialIcons:MaterialIconStyles />
-        <!-- SukiUI draws the tooltip shadow inside its popup; reserve space for the blur. -->
-        <Style Selector="ToolTip">
-            <Setter Property="Margin" Value="18" />
-        </Style>
+
         <!-- Desktop interaction states should respond immediately. -->
         <Style Selector="Button, ToggleButton, ListBoxItem, ComboBoxItem, MenuItem, TabItem, TreeViewItem">
-            <Setter Property="Transitions">
-                <Transitions />
-            </Setter>
-        </Style>
-        <Style Selector="Button.WindowControlsButton">
-            <Setter Property="Transitions">
-                <Transitions />
-            </Setter>
-        </Style>
-        <Style Selector="Button.Basic:pointerover, Button.Void:pointerover">
-            <Setter Property="RenderTransform" Value="scale(1)" />
-        </Style>
-        <!-- Pastel accents need dark foregrounds for readable contrast. -->
-        <Style Selector="Button.Flat">
-            <Setter Property="Foreground" Value="{DynamicResource MapWizardAccentForeground}" />
-        </Style>
-        <Style Selector="Button.Flat materialIcons|MaterialIcon">
-            <Setter Property="Foreground" Value="{DynamicResource MapWizardAccentForeground}" />
-        </Style>
-        <Style Selector="Button.Outlined:pointerover">
-            <Setter Property="Foreground" Value="{DynamicResource MapWizardAccentForeground}" />
+            <Setter Property="Transitions"><Transitions /></Setter>
         </Style>
     </Application.Styles>
 
     <Application.Resources>
-      <ResourceDictionary>
-        <converters:IndexToTransformConverter x:Key="IndexToTransformConverter"/>
-
-        <ResourceDictionary.ThemeDictionaries>
-            <ResourceDictionary x:Key="Dark">
-                <Color x:Key="SukiBackground">Transparent</Color>
-                <Color x:Key="SukiStrongBackground">#FF0A0A0A</Color>
-                <Color x:Key="SukiLightBackground">Transparent</Color>
-                <Color x:Key="SukiCardBackground">#FF101010</Color>
-                <Color x:Key="SukiPopupBackground">#FF141414</Color>
-                <Color x:Key="SukiGlassCardBackground">#FF121212</Color>
-                <Color x:Key="SukiGlassCardOpaqueBackground">#FF101010</Color>
-                <Color x:Key="SukiControlTouchBackground">#FF1A1A1A</Color>
-                <Color x:Key="SukiDialogBackground">#FF0A0A0A</Color>
-                <Color x:Key="ControlSukiGlassCardBackground">#FF1A1A1A</Color>
-                <Color x:Key="SukiBorderBrush">#FF232323</Color>
-                <Color x:Key="SukiControlBorderBrush">#FF303030</Color>
-                <Color x:Key="SukiMediumBorderBrush">#FF2A2A2A</Color>
-                <Color x:Key="SukiLightBorderBrush">#FF202020</Color>
-                <Color x:Key="SukiMenuBorderBrush">#FF202020</Color>
-                <Color x:Key="GlassBorderBrush">#FF1A1A1A</Color>
-                <Color x:Key="SukiText">#FFEEEEEE</Color>
-                <Color x:Key="SukiLowText">#FFA8A8A8</Color>
-                <Color x:Key="SukiMuteText">#FF808080</Color>
-                <Color x:Key="SukiDisabledText">#FF5A5A5A</Color>
-                <Color x:Key="SukiNeedleBrush">#FFB8DB87</Color>
-                <Color x:Key="MapWizardDiffBackground">#FF1A1A1A</Color>
-                <Color x:Key="MapWizardDiffHoverBackground">#FF262626</Color>
-                <Color x:Key="MapWizardTooltipBackground">#F01A1A1A</Color>
-                <Color x:Key="MapWizardTooltipText">#FFEEEEEE</Color>
-                <Color x:Key="MapWizardPickerSurface">#1F0A0A0A</Color>
-                <Color x:Key="MapWizardPickerDetail">#240A0A0A</Color>
-                <Color x:Key="MapWizardPickerChip">#1F1A1A1A</Color>
-                <Color x:Key="MapWizardPickerChipHover">#33262626</Color>
-                <Color x:Key="MapWizardPickerChipBorder">#33FFFFFF</Color>
-                <Color x:Key="MapWizardPickerChipHoverBorder">#59FFFFFF</Color>
-                <Color x:Key="MapWizardPickerSelectedBackground">#4DB8DB87</Color>
-                <Color x:Key="MapWizardPickerSelectedBorder">#FFB8DB87</Color>
-                <Color x:Key="MapWizardPickerActionHover">#1FB8DB87</Color>
-                <Color x:Key="MapWizardPickerActionPressed">#33B8DB87</Color>
-                <Color x:Key="MapWizardPickerHintBackground">#337FD88F</Color>
-                <Color x:Key="MapWizardPickerHintIcon">#FFC7FFD9</Color>
-                <Color x:Key="MapWizardPickerHintText">#FFEAFBF2</Color>
-                <Color x:Key="MapWizardPickerCheckIcon">#FFBEEFD5</Color>
-                <Color x:Key="MapWizardImportantNoticeBackground">#1FF5A742</Color>
-                <Color x:Key="MapWizardImportantNoticeBorder">#73F5A742</Color>
-                <Color x:Key="MapWizardImportantNoticeAccent">#FFFFBD69</Color>
-                <Color x:Key="ThemeAccentBadgeColor">#30B8DB87</Color>
-                <SolidColorBrush x:Key="ThemeAccentBrush" Color="#B8DB87" />
-                <Color x:Key="ThemeAccentColor">#FFB8DB87</Color>
-                <Color x:Key="ThemeAccentColor2">#FFB8DB87</Color>
-                <Color x:Key="ThemeAccentColor3">#FFB8DB87</Color>
-                <Color x:Key="ThemeAccentColor4">#FF8FAE63</Color>
-                <Color x:Key="HighlightColor">#FFB8DB87</Color>
-                <Color x:Key="HighlightHoverColor">#FFC9E6A1</Color>
-                <Color x:Key="MapWizardAccentForeground">#FF151A0E</Color>
-            </ResourceDictionary>
-            <ResourceDictionary x:Key="Light">
-                <Color x:Key="SukiBackground">Transparent</Color>
-                <Color x:Key="SukiStrongBackground">#FFF7F9FA</Color>
-                <Color x:Key="SukiLightBackground">Transparent</Color>
-                <Color x:Key="SukiCardBackground">#FFFFFFFF</Color>
-                <Color x:Key="SukiPopupBackground">#FFFFFFFF</Color>
-                <Color x:Key="SukiGlassCardBackground">#FFF9FAFB</Color>
-                <Color x:Key="SukiGlassCardOpaqueBackground">#FFFFFFFF</Color>
-                <Color x:Key="SukiControlTouchBackground">#FFF0F3F5</Color>
-                <Color x:Key="SukiDialogBackground">#FFFFFFFF</Color>
-                <Color x:Key="ControlSukiGlassCardBackground">#FFF0F3F5</Color>
-                <Color x:Key="SukiBorderBrush">#FFD4DCE2</Color>
-                <Color x:Key="SukiControlBorderBrush">#FFC5D0D9</Color>
-                <Color x:Key="SukiMediumBorderBrush">#FFD0D9E0</Color>
-                <Color x:Key="SukiLightBorderBrush">#FFE4E9ED</Color>
-                <Color x:Key="SukiMenuBorderBrush">#FFD4DCE2</Color>
-                <Color x:Key="GlassBorderBrush">#FFD4DCE2</Color>
-                <Color x:Key="SukiText">#FF20272D</Color>
-                <Color x:Key="SukiLowText">#FF56636E</Color>
-                <Color x:Key="SukiMuteText">#FF707B84</Color>
-                <Color x:Key="SukiDisabledText">#FF929DA6</Color>
-                <Color x:Key="SukiNeedleBrush">#FF5F7488</Color>
-                <Color x:Key="MapWizardDiffBackground">#FFF7F9FA</Color>
-                <Color x:Key="MapWizardDiffHoverBackground">#FFE9EFF3</Color>
-                <Color x:Key="MapWizardTooltipBackground">#FFFCFDFE</Color>
-                <Color x:Key="MapWizardTooltipText">#FF20272D</Color>
-                <Color x:Key="MapWizardPickerSurface">#FFF1F4F6</Color>
-                <Color x:Key="MapWizardPickerDetail">#FFE9EEF1</Color>
-                <Color x:Key="MapWizardPickerChip">#FFF9FBFC</Color>
-                <Color x:Key="MapWizardPickerChipHover">#FFEBF1F5</Color>
-                <Color x:Key="MapWizardPickerChipBorder">#FFC5D0D9</Color>
-                <Color x:Key="MapWizardPickerChipHoverBorder">#FF9DACB8</Color>
-                <Color x:Key="MapWizardPickerSelectedBackground">#335F7488</Color>
-                <Color x:Key="MapWizardPickerSelectedBorder">#FF5F7488</Color>
-                <Color x:Key="MapWizardPickerActionHover">#1F5F7488</Color>
-                <Color x:Key="MapWizardPickerActionPressed">#335F7488</Color>
-                <Color x:Key="MapWizardPickerHintBackground">#665F7488</Color>
-                <Color x:Key="MapWizardPickerHintIcon">#FFD7E4ED</Color>
-                <Color x:Key="MapWizardPickerHintText">#FFF1F6FA</Color>
-                <Color x:Key="MapWizardPickerCheckIcon">#FFD7E4ED</Color>
-                <Color x:Key="MapWizardImportantNoticeBackground">#26D7831F</Color>
-                <Color x:Key="MapWizardImportantNoticeBorder">#99B86A12</Color>
-                <Color x:Key="MapWizardImportantNoticeAccent">#FF92510B</Color>
-                <Color x:Key="ThemeAccentBadgeColor">#305F7488</Color>
-                <SolidColorBrush x:Key="ThemeAccentBrush" Color="#5F7488" />
-                <Color x:Key="ThemeAccentColor">#FF5F7488</Color>
-                <Color x:Key="ThemeAccentColor2">#FF5F7488</Color>
-                <Color x:Key="ThemeAccentColor3">#FF5F7488</Color>
-                <Color x:Key="ThemeAccentColor4">#FF4B5F70</Color>
-                <Color x:Key="HighlightColor">#FF5F7488</Color>
-                <Color x:Key="HighlightHoverColor">#FF52687C</Color>
-                <Color x:Key="MapWizardAccentForeground">#FFFFFFFF</Color>
-            </ResourceDictionary>
-        </ResourceDictionary.ThemeDictionaries>
-
-        <Color x:Key="SukiSuccessColor">#CC7FD88F</Color>
-        <Color x:Key="SukiSuccessMediumColor">#CC5FAE6E</Color>
-        <Color x:Key="SukiSuccessDarkColor">#CC4A8455</Color>
-        <Color x:Key="SukiInformationColor">#CC56B6C2</Color>
-        <Color x:Key="SukiInformationMediumColor">#CC44929B</Color>
-        <Color x:Key="SukiInformationDarkColor">#CC346E75</Color>
-        <Color x:Key="SukiWarningColor">#CCF5A742</Color>
-        <Color x:Key="SukiWarningMediumColor">#CCC08434</Color>
-        <Color x:Key="SukiWarningDarkColor">#CC926628</Color>
-        <Color x:Key="SukiDangerColor">#CCE06C75</Color>
-        <Color x:Key="SukiDangerMediumColor">#CCB0565D</Color>
-        <Color x:Key="SukiDangerDarkColor">#CC864247</Color>
-
-        <system:Double x:Key="GlassOpacity">0.42</system:Double>
-        <system:Double x:Key="ControlGlassOpacity">0.5</system:Double>
-        <system:Double x:Key="DiscreteControlGlassOpacity">0.34</system:Double>
-      </ResourceDictionary>
+        <ResourceDictionary>
+            <converters:IndexToTransformConverter x:Key="IndexToTransformConverter" />
+            <!-- ThemeService populates these dictionaries from MapWizard.Theme palettes. -->
+            <ResourceDictionary.ThemeDictionaries>
+                <ResourceDictionary x:Key="Dark" />
+                <ResourceDictionary x:Key="Light" />
+            </ResourceDictionary.ThemeDictionaries>
+        </ResourceDictionary>
     </Application.Resources>
 </Application>

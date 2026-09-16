@@ -14,7 +14,6 @@ using MapWizard.Desktop.Extensions;
 using MapWizard.Desktop.Models.Settings;
 using MapWizard.Desktop.Services;
 using MapWizard.Desktop.Services.Playback;
-using SukiUI.Toasts;
 using Velopack;
 
 namespace MapWizard.Desktop.ViewModels;
@@ -26,7 +25,7 @@ public partial class SettingsViewModel(
     ISongLibraryService songLibraryService,
     IUpdateService updateService,
     IAudioPlaybackService audioPlaybackService,
-    ISukiToastManager toastManager) : ViewModelBase
+    INotificationService notificationService) : ViewModelBase
 {
     private bool _isUpdatingFromThemeService;
     private bool _isUpdatingSongsPath;
@@ -57,9 +56,6 @@ public partial class SettingsViewModel(
     private string _songsPathStatusText = "Songs folder not configured.";
 
     [ObservableProperty]
-    private bool _isHitSoundVisualizerEnabled;
-
-    [ObservableProperty]
     private bool _isSmoothWheelScrollingEnabled = true;
 
     [ObservableProperty]
@@ -84,7 +80,7 @@ public partial class SettingsViewModel(
     {
         if (!Directory.Exists(ConfigDirectoryPath))
         {
-            toastManager.ShowToast(NotificationType.Warning, "Settings", "Config directory was not found.");
+            notificationService.ShowToast(NotificationType.Warning, "Settings", "Config directory was not found.");
             return;
         }
 
@@ -99,7 +95,7 @@ public partial class SettingsViewModel(
         catch (Exception ex)
         {
             MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
-            toastManager.ShowToast(NotificationType.Error, "Settings", ex.Message);
+            notificationService.ShowToast(NotificationType.Error, "Settings", ex.Message);
         }
     }
     public UpdateStream[] UpdateStreams { get; } = [UpdateStream.Release, UpdateStream.PreRelease];
@@ -210,16 +206,6 @@ public partial class SettingsViewModel(
         SongsPathStatusText = songLibraryService.IsValidSongsPath(normalized)
             ? "Using configured Songs folder."
             : "Folder not found. Map Picker will use manual picker fallback.";
-    }
-
-    partial void OnIsHitSoundVisualizerEnabledChanged(bool value)
-    {
-        if (_isLoadingMainSettings)
-        {
-            return;
-        }
-
-        SaveHitSoundVisualizerEnabled(value);
     }
 
     partial void OnIsSmoothWheelScrollingEnabledChanged(bool value)
@@ -466,7 +452,6 @@ public partial class SettingsViewModel(
             var settings = settingsService.GetMainSettings();
             IsSmoothWheelScrollingEnabled = settings.EnableSmoothWheelScrolling;
             SmoothScrollViewer.SetGlobalSmoothScrollingEnabled(settings.EnableSmoothWheelScrolling);
-            IsHitSoundVisualizerEnabled = settings.EnableHitSoundVisualizer;
             AudioPreviewSongVolumePercent = Math.Clamp(settings.AudioPreviewSongVolumePercent, 0, 100);
             AudioPreviewHitSoundVolumePercent = Math.Clamp(settings.AudioPreviewHitSoundVolumePercent, 0, 100);
         }
@@ -530,18 +515,6 @@ public partial class SettingsViewModel(
         }
 
         settings.SongsPath = path;
-        settingsService.SaveMainSettings(settings);
-    }
-
-    private void SaveHitSoundVisualizerEnabled(bool enabled)
-    {
-        var settings = settingsService.GetMainSettings();
-        if (settings.EnableHitSoundVisualizer == enabled)
-        {
-            return;
-        }
-
-        settings.EnableHitSoundVisualizer = enabled;
         settingsService.SaveMainSettings(settings);
     }
 

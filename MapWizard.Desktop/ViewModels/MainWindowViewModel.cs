@@ -4,17 +4,15 @@ using Avalonia.Controls.Notifications;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MapWizard.Desktop.Enums;
+using MapWizard.Desktop.Extensions;
 using MapWizard.Desktop.Services;
 using Microsoft.Extensions.DependencyInjection;
-using SukiUI.Dialogs;
-using SukiUI.Toasts;
 
 namespace MapWizard.Desktop.ViewModels
 {
     public partial class MainWindowViewModel : ObservableObject
     {
-        public ISukiToastManager ToastManager { get; }
-        public ISukiDialogManager DialogManager { get; }
+        public INotificationService NotificationService { get; }
 
         private readonly IServiceProvider _services;
         private HitSoundCopierViewModel? _hitSoundCopierViewModel;
@@ -41,9 +39,6 @@ namespace MapWizard.Desktop.ViewModels
         private bool _isHitSoundVisualizerSelected;
 
         [ObservableProperty]
-        private bool _isHitSoundVisualizerEnabled;
-
-        [ObservableProperty]
         private bool _isMetadataManagerSelected;
 
         [ObservableProperty]
@@ -59,13 +54,11 @@ namespace MapWizard.Desktop.ViewModels
             WelcomePageViewModel welcomePageViewModel,
             SettingsViewModel settingsViewModel,
             IUpdateService updateService,
-            ISukiToastManager toastManager,
-            ISukiDialogManager dialogManager,
+            INotificationService notificationService,
             IServiceProvider services)
         {
             _services = services;
-            ToastManager = toastManager;
-            DialogManager = dialogManager;
+            NotificationService = notificationService;
             _welcomePageViewModel = welcomePageViewModel;
             _settingsViewModel = settingsViewModel;
             CurrentPageViewModel = _welcomePageViewModel;
@@ -74,18 +67,18 @@ namespace MapWizard.Desktop.ViewModels
 
             SetPage(NavigationPage.Welcome);
             settingsViewModel.Initialize();
-            UpdateHitSoundVisualizerAvailability(settingsViewModel.IsHitSoundVisualizerEnabled);
-            settingsViewModel.PropertyChanged += OnSettingsViewModelPropertyChanged;
-            _ = welcomePageViewModel.CheckForUpdatesOnStartupAsync();
         }
+
+        /// <summary>
+        /// Called from the window after it has opened, so the modal host is ready.
+        /// </summary>
+        public void RequestStartupUpdateCheck() => _ = _welcomePageViewModel.CheckForUpdatesOnStartupAsync();
 
         public void NavigateToWelcome() => SetPage(NavigationPage.Welcome);
 
         public void NavigateToHitSoundCopier() => SetPage(NavigationPage.HitSoundCopier);
 
-        public void NavigateToHitSoundVisualizer() => SetPage(IsHitSoundVisualizerEnabled
-            ? NavigationPage.HitSoundVisualizer
-            : NavigationPage.Welcome);
+        public void NavigateToHitSoundVisualizer() => SetPage(NavigationPage.HitSoundVisualizer);
 
         public void NavigateToMetadataManager() => SetPage(NavigationPage.MetadataManager);
 
@@ -97,11 +90,6 @@ namespace MapWizard.Desktop.ViewModels
 
         private void SetPage(NavigationPage page)
         {
-            if (page == NavigationPage.HitSoundVisualizer && !IsHitSoundVisualizerEnabled)
-            {
-                page = NavigationPage.Welcome;
-            }
-
             CurrentPageViewModel = page switch
             {
                 NavigationPage.Welcome => _welcomePageViewModel,
@@ -138,9 +126,7 @@ namespace MapWizard.Desktop.ViewModels
         [RelayCommand]
         private void OpenHitSoundVisualizer()
         {
-            SetPage(IsHitSoundVisualizerEnabled
-                ? NavigationPage.HitSoundVisualizer
-                : NavigationPage.Welcome);
+            SetPage(NavigationPage.HitSoundVisualizer);
         }
 
         [RelayCommand]
@@ -183,36 +169,11 @@ namespace MapWizard.Desktop.ViewModels
             }
             else
             {
-                ToastManager.CreateToast()
-                    .OfType(NotificationType.Error)
-                    .WithTitle("Invalid URL")
-                    .WithContent("The URL is not valid.")
-                    .Dismiss().ByClicking()
-                    .Dismiss().After(TimeSpan.FromSeconds(8))
-                    .Queue();
-            }
-        }
-
-        private void OnSettingsViewModelPropertyChanged(object? sender, PropertyChangedEventArgs e)
-        {
-            if (e.PropertyName != nameof(MapWizard.Desktop.ViewModels.SettingsViewModel.IsHitSoundVisualizerEnabled))
-            {
-                return;
-            }
-
-            if (sender is SettingsViewModel settingsViewModel)
-            {
-                UpdateHitSoundVisualizerAvailability(settingsViewModel.IsHitSoundVisualizerEnabled);
-            }
-        }
-
-        private void UpdateHitSoundVisualizerAvailability(bool isEnabled)
-        {
-            IsHitSoundVisualizerEnabled = isEnabled;
-
-            if (!isEnabled && CurrentPageViewModel == _hitSoundVisualizerViewModel)
-            {
-                SetPage(NavigationPage.Welcome);
+                NotificationService.ShowToast(
+                    NotificationType.Error,
+                    "Invalid URL",
+                    "The URL is not valid.",
+                    TimeSpan.FromSeconds(8));
             }
         }
     }
