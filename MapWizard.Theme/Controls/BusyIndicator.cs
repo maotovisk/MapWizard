@@ -25,9 +25,20 @@ public sealed class BusyIndicator : TemplatedControl
     private Control? _indicator;
     private CompositionVisual? _indicatorVisual;
 
+    public static readonly StyledProperty<bool> IsRunningProperty =
+        AvaloniaProperty.Register<BusyIndicator, bool>(nameof(IsRunning));
+
+    public bool IsRunning
+    {
+        get => GetValue(IsRunningProperty);
+        set => SetValue(IsRunningProperty, value);
+    }
+
     public BusyIndicator()
     {
         this.GetPropertyChangedObservable(Visual.IsVisibleProperty)
+            .Subscribe(new AnonymousObserver<AvaloniaPropertyChangedEventArgs>(_ => UpdateAnimationState()));
+        this.GetPropertyChangedObservable(IsRunningProperty)
             .Subscribe(new AnonymousObserver<AvaloniaPropertyChangedEventArgs>(_ => UpdateAnimationState()));
     }
 
@@ -83,7 +94,7 @@ public sealed class BusyIndicator : TemplatedControl
 
     private void UpdateAnimationState()
     {
-        if (!IsEffectivelyVisible || _track is null || _indicator is null)
+        if (!IsEffectivelyVisible || !IsRunning || _track is null || _indicator is null)
         {
             StopAnimation();
             return;

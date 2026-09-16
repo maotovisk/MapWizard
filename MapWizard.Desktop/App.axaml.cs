@@ -2,6 +2,9 @@ using System;
 using System.Diagnostics;
 using System.Linq;
 using Avalonia;
+using Avalonia.Media;
+using Avalonia.Media.Transformation;
+using Avalonia.Controls.Primitives;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Threading;
@@ -39,6 +42,9 @@ public partial class App : Application
     {
         var services = _services ?? throw new InvalidOperationException("Application services were not initialized.");
         var mainWindow = services.GetRequiredService<MainWindow>();
+        // Defer the startup update check until the window is open so that the
+        // modal host is live; otherwise the update modal falls back to a toast.
+        mainWindow.Opened += (_, _) => mainWindow.GetViewModel().RequestStartupUpdateCheck();
 
         switch (ApplicationLifetime)
         {
@@ -52,6 +58,99 @@ public partial class App : Application
 
         base.OnFrameworkInitializationCompleted();
         RunResizeProbe();
+        RunChromeProbe();
+    }
+
+    /// <summary>
+    /// Prints title-bar control geometry for chrome alignment debugging.
+    /// Enable with MAPWIZARD_CHROME_PROBE=1.
+    /// </summary>
+    private static void RunChromeProbe()
+    {
+        if (Environment.GetEnvironmentVariable("MAPWIZARD_CHROME_PROBE") != "1" ||
+            Application.Current?.ApplicationLifetime is not IClassicDesktopStyleApplicationLifetime desktop ||
+            desktop.MainWindow is not Views.MainWindow window)
+        {
+            return;
+        }
+
+        void Dump()
+        {
+            Console.WriteLine("== chrome probe ==");
+            foreach (var scrollBar in window.GetVisualDescendants().OfType<ScrollBar>())
+            {
+                var b = scrollBar.TranslatePoint(new Point(0, 0), window) ?? default;
+                var owner = scrollBar.GetVisualAncestors().OfType<Control>().Take(3)
+                    .Select(c => c.GetType().Name + (c.Classes.Count > 0 ? $"[{string.Join("+", c.Classes)}]" : null));
+                Console.WriteLine(
+                    $"scrollbar {scrollBar.Orientation} pos={b.X:F2},{b.Y:F2} size={scrollBar.Bounds.Width:F2}x{scrollBar.Bounds.Height:F2} chain={string.Join(" -> ", owner)}");
+            }
+
+            Console.WriteLine($"window pos={window.Position.X}x{window.Position.Y} size={window.Bounds.Width:F2}x{window.Bounds.Height:F2}");
+            foreach (var border in window.GetVisualDescendants().OfType<Border>()
+                         .Where(b => b.Classes.Contains("ContentIsland")))
+            {
+                var o = border.TranslatePoint(new Point(0, 0), window) ?? default;
+                Console.WriteLine($"contentIsland pos={o.X:F2},{o.Y:F2} size={border.Bounds.Width:F2}x{border.Bounds.Height:F2} clip={border.ClipToBounds}");
+            }
+
+            foreach (var viewer in window.GetVisualDescendants().OfType<SmoothScrollViewer>())
+            {
+                var o = viewer.TranslatePoint(new Point(0, 0), window) ?? default;
+                Console.WriteLine($"smoothViewer pos={o.X:F2},{o.Y:F2} size={viewer.Bounds.Width:F2}x{viewer.Bounds.Height:F2}");
+            }
+            Console.WriteLine("  scrollbar dump end.");
+            foreach (var button in window.GetVisualDescendants().OfType<Avalonia.Controls.Primitives.TemplatedControl>())
+            {
+                if (!button.Classes.Contains("WindowControlButton") &&
+                    !button.Classes.Contains("TitleBarActionButton"))
+                {
+                    continue;
+                }
+
+                var origin = button.TranslatePoint(new Point(0, 0), window) ?? default;
+                Console.WriteLine(
+                    $"{string.Join("+", button.Classes)} pos={origin.X:F1},{origin.Y:F1} size={button.Bounds.Width:F1}x{button.Bounds.Height:F1}");
+
+                foreach (var child in button.GetVisualDescendants().OfType<Visual>())
+                {
+                    if (child is not Avalonia.Controls.Shapes.Path || child.Bounds.Size.Width == 0)
+                    {
+                        continue;
+                    }
+
+                    var childPos = child.TranslatePoint(new Point(0, 0), button) ?? default;
+                    Console.WriteLine(
+                        $"  path pos={childPos.X:F1},{childPos.Y:F1} size={child.Bounds.Width:F1}x{child.Bounds.Height:F1}");
+                }
+            }
+
+            foreach (var border in window.GetVisualDescendants().OfType<Border>()
+                         .Where(b => b.Classes.Contains("TitleBarIsland")))
+            {
+                var origin = border.TranslatePoint(new Point(0, 0), window) ?? default;
+                Console.WriteLine(
+                    $"island pos={origin.X:F1},{origin.Y:F1} size={border.Bounds.Width:F1}x{border.Bounds.Height:F1}");
+            }
+        }
+
+        window.Opened += (_, _) => DispatcherTimer.RunOnce(() =>
+            {
+                var page = Environment.GetEnvironmentVariable("MAPWIZARD_RESIZE_PROBE_PAGE");
+                if (!string.IsNullOrEmpty(page))
+                {
+                    switch (page.ToLowerInvariant())
+                    {
+                        case "hitsoundcopier": window.NavigateToHitSoundCopier(); break;
+                        case "metadata": window.NavigateToMetadataManager(); break;
+                        case "colourstudio": window.NavigateToComboColourStudio(); break;
+                        case "settings": window.NavigateToSettings(); break;
+                        default: break;
+                    }
+                }
+
+                DispatcherTimer.RunOnce(Dump, TimeSpan.FromMilliseconds(400));
+            }, TimeSpan.FromMilliseconds(600));
     }
 
     private static void RunResizeProbe()

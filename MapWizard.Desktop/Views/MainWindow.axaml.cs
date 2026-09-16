@@ -24,18 +24,24 @@ namespace MapWizard.Desktop.Views
             modalService.RegisterHost(ModalHost);
             NotificationHost.NotificationService = notificationService;
             DataContext = viewModel;
+            ApplyPlatformWindowChrome();
             PropertyChanged += (_, args) =>
             {
                 if (args.Property == WindowStateProperty)
                 {
                     UpdateShellCorners();
+                    UpdateWindowControlGlyphs();
                 }
             };
             UpdateShellCorners();
+            UpdateWindowControlGlyphs();
             AddHandler(KeyDownEvent, OnWindowKeyDownTunnel, RoutingStrategies.Tunnel, handledEventsToo: true);
         }
 
         private MainWindowViewModel ViewModel => (MainWindowViewModel)DataContext!;
+
+        /// <summary>Exposes the view-model to startup plumbing in App.axaml.cs.</summary>
+        internal MainWindowViewModel GetViewModel() => ViewModel;
 
         public void NavigateToStart() => ViewModel.NavigateToWelcome();
 
@@ -45,12 +51,38 @@ namespace MapWizard.Desktop.Views
 
         public void NavigateToComboColourStudio() => ViewModel.NavigateToComboColourStudio();
 
+        public void NavigateToMapCleaner() => ViewModel.NavigateToMapCleaner();
+
         public void NavigateToSettings() => ViewModel.NavigateToSettings();
+
+        /// <summary>
+        /// On macOS the native traffic lights (left-aligned) are shown over the
+        /// extended client area while the custom caption buttons are hidden.
+        /// </summary>
+        private void ApplyPlatformWindowChrome()
+        {
+            if (!MapWizardWindow.HasNativeWindowControls)
+            {
+                return;
+            }
+
+            WindowControlsPanel.IsVisible = false;
+            // Shift the title island right so it clears the traffic lights.
+            TitleIsland.Padding = new Thickness(64, 0);
+        }
 
         private void UpdateShellCorners()
         {
             var square = WindowState is WindowState.Maximized or WindowState.FullScreen;
             WindowShell.CornerRadius = square ? default : new CornerRadius(ShellCornerRadius);
+        }
+
+        private void UpdateWindowControlGlyphs()
+        {
+            var maximized = WindowState is WindowState.Maximized or WindowState.FullScreen;
+            MaximizeGlyph.IsVisible = !maximized;
+            RestoreIcon.IsVisible = maximized;
+            RestoreFront.IsVisible = maximized;
         }
 
         private void MinimizeButton_OnClick(object? sender, RoutedEventArgs e) => MinimizeWindow();

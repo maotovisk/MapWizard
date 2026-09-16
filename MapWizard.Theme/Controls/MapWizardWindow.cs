@@ -13,6 +13,8 @@ namespace MapWizard.Theme.Controls;
 /// Decoration painting is done by the app: a custom titlebar with caption
 /// buttons plus Avalonia's drawn frame (border, shadow, resize grips), so the
 /// look is identical on Linux (Wayland/X11), Windows and macOS.
+/// On macOS the native traffic lights are kept (full decorations) so the
+/// window controls sit at the top-left, as per platform convention.
 /// </summary>
 public class MapWizardWindow : Window
 {
@@ -21,13 +23,18 @@ public class MapWizardWindow : Window
 
     public MapWizardWindow()
     {
-        WindowDecorations = WindowDecorations.BorderOnly;
+        WindowDecorations = OperatingSystem.IsMacOS()
+            ? Avalonia.Controls.WindowDecorations.Full
+            : WindowDecorations.BorderOnly;
         ExtendClientAreaToDecorationsHint = true;
         ExtendClientAreaTitleBarHeightHint = 60;
         TransparencyLevelHint = [WindowTransparencyLevel.Transparent];
         Background = Brushes.Transparent;
         AddHandler(PointerPressedEvent, OnWindowPointerPressed, RoutingStrategies.Tunnel);
     }
+
+    /// <summary>Whether the platform provides native caption buttons (macOS).</summary>
+    public static bool HasNativeWindowControls => OperatingSystem.IsMacOS();
 
     public void MinimizeWindow() => WindowState = WindowState.Minimized;
 

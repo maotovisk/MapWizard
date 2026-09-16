@@ -72,8 +72,12 @@ namespace MapWizard.Desktop.ViewModels
             settingsViewModel.Initialize();
             UpdateHitSoundVisualizerAvailability(settingsViewModel.IsHitSoundVisualizerEnabled);
             settingsViewModel.PropertyChanged += OnSettingsViewModelPropertyChanged;
-            _ = welcomePageViewModel.CheckForUpdatesOnStartupAsync();
         }
+
+        /// <summary>
+        /// Called from the window after it has opened, so the modal host is ready.
+        /// </summary>
+        public void RequestStartupUpdateCheck() => _ = _welcomePageViewModel.CheckForUpdatesOnStartupAsync();
 
         public void NavigateToWelcome() => SetPage(NavigationPage.Welcome);
 

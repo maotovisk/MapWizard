@@ -22,4 +22,10 @@ public sealed class BusyArea : ContentControl
         get => GetValue(BusyTextProperty);
         set => SetValue(BusyTextProperty, value);
     }
+
+    static BusyArea()
+    {
+        IsBusyProperty.Changed.AddClassHandler<BusyArea>(
+            static (control, e) => control.PseudoClasses.Set(":busy", e.NewValue is true));
+    }
 }
