@@ -8,6 +8,7 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Media;
 using Avalonia.Styling;
+using Avalonia.Threading;
 using MapWizard.Desktop.Models.HitSoundVisualizer;
 using BeatmapParser.Enums;
 
@@ -1666,12 +1667,12 @@ public class HitSoundTimelinePlot : Control
     {
         var bank = marker.SampleSet switch
         {
-            SampleSet.Soft => "soft",
-            SampleSet.Drum => "drum",
-            _ => "normal"
+            SampleSet.Soft => "Soft",
+            SampleSet.Drum => "Drum",
+            _ => "Normal"
         };
 
-        return $"{bank}{Math.Max(1, marker.Index)} - {NormalizeDisplayVolumePercent(marker.Volume)}%";
+        return $"{bank} {Math.Max(1, marker.Index)}";
     }
 
     private static int NormalizeDisplayVolumePercent(int volume)
@@ -1683,6 +1684,7 @@ public class HitSoundTimelinePlot : Control
 
         return Math.Clamp(volume, 0, 100);
     }
+
 
     private void HandleRightClick(Point clickPosition, Rect bounds, KeyModifiers keyModifiers)
     {

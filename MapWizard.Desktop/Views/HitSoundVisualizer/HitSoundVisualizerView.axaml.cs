@@ -342,6 +342,7 @@ public partial class HitSoundVisualizerView : UserControl
         {
             _boundViewModel.FocusPlaybackRequested -= OnFocusPlaybackRequested;
             _boundViewModel.PropertyChanged -= OnViewModelPropertyChanged;
+            _boundViewModel.TimelineRowFlashRequested -= OnTimelineRowFlashRequested;
         }
 
         _boundViewModel = vm;
@@ -352,6 +353,71 @@ public partial class HitSoundVisualizerView : UserControl
 
         _boundViewModel.FocusPlaybackRequested += OnFocusPlaybackRequested;
         _boundViewModel.PropertyChanged += OnViewModelPropertyChanged;
+        _boundViewModel.TimelineRowFlashRequested += OnTimelineRowFlashRequested;
+    }
+
+    private void OnTimelineRowFlashRequested(int rowIndex)
+    {
+        // Row layout matches TimelineRowLabels indices directly:
+        // 0 = sample changes, 1 = hitnormal, 2 = whistle, 3 = finish, 4 = clap.
+        var itemsIndex = rowIndex;
+        if (RowLabelsControl is null || itemsIndex < 0)
+        {
+            return;
+        }
+
+        void FlashOnUi()
+        {
+            if (itemsIndex >= RowLabelsControl.ItemCount)
+            {
+                return;
+            }
+
+            var container = RowLabelsControl.ContainerFromIndex(itemsIndex) as Control
+                ?? RowLabelsControl
+                    .GetVisualDescendants()
+                    .OfType<Avalonia.Controls.Presenters.ItemsPresenter>()
+                    .FirstOrDefault()
+                    ?.Panel?.Children
+                    .OfType<Control>()
+                    .Skip(itemsIndex)
+                    .FirstOrDefault();
+            if (container is null)
+            {
+                return;
+            }
+
+            var overlay = container.GetVisualDescendants()
+                .FirstOrDefault(c => c is Avalonia.Controls.Border b && b.Classes.Contains("RowFlashOverlay"))
+                as Avalonia.Controls.Border;
+            if (overlay is null)
+            {
+                return;
+            }
+
+            var visual = Avalonia.Rendering.Composition.ElementComposition.GetElementVisual(overlay);
+            if (visual is null)
+            {
+                return;
+            }
+
+            var animation = visual.Compositor.CreateDoubleKeyFrameAnimation();
+            animation.Target = "Opacity";
+            animation.Duration = TimeSpan.FromMilliseconds(420);
+            animation.InsertKeyFrame(0f, 0d);
+            animation.InsertKeyFrame(0.12f, 0.65d);
+            animation.InsertKeyFrame(1f, 0d);
+            visual.StartAnimation("Opacity", animation);
+        }
+
+        if (Dispatcher.UIThread.CheckAccess())
+        {
+            FlashOnUi();
+        }
+        else
+        {
+            Dispatcher.UIThread.Post(FlashOnUi);
+        }
     }
 
     private void OnViewModelPropertyChanged(object? sender, PropertyChangedEventArgs e)

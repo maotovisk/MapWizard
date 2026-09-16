@@ -1,62 +1,82 @@
-<UserControl
-    xmlns="https://github.com/avaloniaui"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:primitives="clr-namespace:Avalonia.Controls.Primitives;assembly=Avalonia.Controls.ColorPicker"
-    xmlns:local="clr-namespace:MapWizard.Desktop.Views.Controls"
-    xmlns:materialIcons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
-    x:Class="MapWizard.Desktop.Views.Controls.ModernColorPicker"
-    x:Name="Root"
-    MinWidth="150">
+<?xml version="1.0" encoding="UTF-8"?>
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:primitives="clr-namespace:Avalonia.Controls.Primitives;assembly=Avalonia.Controls.ColorPicker"
+             xmlns:local="clr-namespace:MapWizard.Desktop.Views.Controls"
+             xmlns:materialIcons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+             x:Class="MapWizard.Desktop.Views.Controls.ModernColorPicker"
+             x:Name="Root"
+             MinWidth="150">
     <UserControl.Styles>
         <Style Selector="Button.HeaderClose">
-            <Setter Property="Background" Value="Transparent" />
-            <Setter Property="BorderThickness" Value="0" />
-            <Setter Property="Padding" Value="0" />
-            <Setter Property="MinWidth" Value="22" />
-            <Setter Property="MinHeight" Value="22" />
-            <Setter Property="Opacity" Value="0.9" />
+            <Setter Property="Background"
+                    Value="Transparent" />
+            <Setter Property="BorderThickness"
+                    Value="0" />
+            <Setter Property="Padding"
+                    Value="0" />
+            <Setter Property="MinWidth"
+                    Value="22" />
+            <Setter Property="MinHeight"
+                    Value="22" />
+            <Setter Property="Opacity"
+                    Value="0.9" />
         </Style>
-
         <Style Selector="Button.PickerTrigger">
-            <Setter Property="BorderThickness" Value="1" />
-            <Setter Property="BorderBrush" Value="{DynamicResource MapWizardAccentBrush}" />
-            <Setter Property="CornerRadius" Value="10" />
-            <Setter Property="Background" Value="{DynamicResource SystemControlBackgroundChromeMediumLowBrush}" />
-            <Setter Property="Foreground" Value="{DynamicResource MapWizardTextBrush}" />
-            <Setter Property="Padding" Value="10,7" />
-            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+            <Setter Property="BorderThickness"
+                    Value="1" />
+            <Setter Property="BorderBrush"
+                    Value="{DynamicResource MapWizardAccentBrush}" />
+            <Setter Property="CornerRadius"
+                    Value="10" />
+            <Setter Property="Background"
+                    Value="{DynamicResource SystemControlBackgroundChromeMediumLowBrush}" />
+            <Setter Property="Foreground"
+                    Value="{DynamicResource MapWizardTextBrush}" />
+            <Setter Property="Padding"
+                    Value="10,7" />
+            <Setter Property="HorizontalContentAlignment"
+                    Value="Stretch" />
         </Style>
-
         <Style Selector="Button.PickerTrigger:pointerover">
-            <Setter Property="Background" Value="{DynamicResource SystemControlBackgroundAltMediumBrush}" />
+            <Setter Property="Background"
+                    Value="{DynamicResource SystemControlBackgroundAltMediumBrush}" />
         </Style>
-
         <Style Selector="Button.PickerTrigger:pressed">
-            <Setter Property="Background" Value="{DynamicResource SystemControlBackgroundAltHighBrush}" />
+            <Setter Property="Background"
+                    Value="{DynamicResource SystemControlBackgroundAltHighBrush}" />
         </Style>
-
         <Style Selector="Button.SuggestedSwatch">
-            <Setter Property="Width" Value="30" />
-            <Setter Property="Height" Value="30" />
-            <Setter Property="CornerRadius" Value="15" />
-            <Setter Property="BorderThickness" Value="1" />
-            <Setter Property="BorderBrush" Value="{DynamicResource MapWizardTextBrush}" />
-            <Setter Property="Padding" Value="0" />
-            <Setter Property="HorizontalAlignment" Value="Center" />
+            <Setter Property="Width"
+                    Value="30" />
+            <Setter Property="Height"
+                    Value="30" />
+            <Setter Property="CornerRadius"
+                    Value="15" />
+            <Setter Property="BorderThickness"
+                    Value="1" />
+            <Setter Property="BorderBrush"
+                    Value="{DynamicResource MapWizardTextBrush}" />
+            <Setter Property="Padding"
+                    Value="0" />
+            <Setter Property="HorizontalAlignment"
+                    Value="Center" />
         </Style>
-
         <Style Selector="Button.SuggestedSwatch.selected">
-            <Setter Property="BorderThickness" Value="3" />
-            <Setter Property="BorderBrush" Value="{DynamicResource MapWizardAccentBrush}" />
+            <Setter Property="BorderThickness"
+                    Value="3" />
+            <Setter Property="BorderBrush"
+                    Value="{DynamicResource MapWizardAccentBrush}" />
         </Style>
     </UserControl.Styles>
-
     <Grid>
         <Button x:Name="TriggerButton"
                 Classes="Flat Compact PickerTrigger"
                 HorizontalAlignment="Stretch"
                 Click="TriggerButton_OnClick">
-            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="8" VerticalAlignment="Center">
+            <Grid ColumnDefinitions="Auto,*,Auto"
+                  ColumnSpacing="8"
+                  VerticalAlignment="Center">
                 <Border x:Name="CompactPreviewSwatch"
                         Width="18"
                         Height="18"
@@ -75,7 +95,6 @@
                                             Height="16"
                                             Foreground="{DynamicResource MapWizardTextBrush}" />
             </Grid>
-
             <FlyoutBase.AttachedFlyout>
                 <Flyout Placement="BottomEdgeAlignedLeft"
                         ShowMode="Transient">
@@ -83,26 +102,30 @@
                             Width="316"
                             Padding="14">
                         <StackPanel Spacing="12">
-                            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8" VerticalAlignment="Center">
-                                <TextBlock Text="Choose colour"
+                            <Grid ColumnDefinitions="*,Auto"
+                                  ColumnSpacing="8"
+                                  VerticalAlignment="Center">
+                                <TextBlock Text="Pick a colour"
                                            FontWeight="Normal"
                                            FontSize="14"
                                            VerticalAlignment="Center" />
-
                                 <Button Grid.Column="1"
                                         Classes="HeaderClose"
                                         Click="CloseFlyout_OnClick"
                                         ToolTip.Tip="Close">
-                                    <materialIcons:MaterialIcon Kind="Close" Width="16" Height="16" />
+                                    <materialIcons:MaterialIcon Kind="Close"
+                                                                Width="16"
+                                                                Height="16" />
                                 </Button>
                             </Grid>
                             <primitives:ColorSpectrum x:Name="ColourSpectrum"
                                                       Height="200"
                                                       Components="SaturationValue"
                                                       Shape="Box" />
-
                             <StackPanel Spacing="4">
-                                <TextBlock Text="Hue" FontSize="11" Foreground="{DynamicResource MapWizardTextSecondaryBrush}" />
+                                <TextBlock Text="Hue"
+                                           FontSize="11"
+                                           Foreground="{DynamicResource MapWizardTextSecondaryBrush}" />
                                 <primitives:ColorSlider x:Name="HueSlider"
                                                         Height="22"
                                                         ColorModel="Hsva"
@@ -110,37 +133,38 @@
                                                         IsPerceptive="True"
                                                         IsAlphaVisible="False" />
                             </StackPanel>
-
-                            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="8" VerticalAlignment="Center">
+                            <Grid ColumnDefinitions="Auto,*,Auto"
+                                  ColumnSpacing="8"
+                                  VerticalAlignment="Center">
                                 <Border x:Name="PopupPreviewSwatch"
                                         Width="28"
                                         Height="28"
                                         CornerRadius="14"
                                         BorderThickness="1"
                                         BorderBrush="{DynamicResource MapWizardAccentBrush}" />
-
                                 <TextBox x:Name="HexTextBox"
                                          Grid.Column="1"
                                          PlaceholderText="#RRGGBB"
                                          VerticalContentAlignment="Center"
                                          TextChanged="HexTextBox_OnTextChanged"
                                          KeyDown="HexTextBox_OnKeyDown" />
-
                                 <TextBlock Grid.Column="2"
                                            Text="RGB"
                                            FontSize="11"
                                            Foreground="{DynamicResource MapWizardTextSecondaryBrush}"
                                            VerticalAlignment="Center" />
                             </Grid>
-
-                            <StackPanel x:Name="SuggestedColoursSection" Spacing="8" IsVisible="False">
+                            <StackPanel x:Name="SuggestedColoursSection"
+                                        Spacing="8"
+                                        IsVisible="False">
                                 <TextBlock Text="Suggested Colours"
                                            FontSize="12"
                                            FontWeight="SemiBold" />
                                 <ItemsControl x:Name="SuggestedColoursItemsControl">
                                     <ItemsControl.ItemsPanel>
                                         <ItemsPanelTemplate>
-                                            <UniformGrid Columns="8" Rows="1" />
+                                            <UniformGrid Columns="8"
+                                                         Rows="1" />
                                         </ItemsPanelTemplate>
                                     </ItemsControl.ItemsPanel>
                                     <ItemsControl.ItemTemplate>

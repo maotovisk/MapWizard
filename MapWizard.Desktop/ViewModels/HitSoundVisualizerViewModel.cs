@@ -97,7 +97,7 @@ public partial class HitSoundVisualizerViewModel(
     [ObservableProperty] private int _cursorTimeMs;
     [ObservableProperty] private int _selectedPointId = -1;
     [ObservableProperty] private string _selectedSampleSetName = "Normal";
-    [ObservableProperty] private string _selectedHitSoundName = "Hitnormal";
+    [ObservableProperty] private string _selectedHitSoundName = "HitNormal";
     [ObservableProperty] private bool _newPointIsSliderBody;
     [ObservableProperty] private int _contextSamplePointTimeMs;
     [ObservableProperty] private string _contextSampleSetName = "Normal";
@@ -133,21 +133,28 @@ public partial class HitSoundVisualizerViewModel(
 
     [ObservableProperty] private ObservableCollection<HitSoundVisualizerPoint> _points = [];
     [ObservableProperty] private ObservableCollection<HitSoundVisualizerSampleChange> _sampleChanges = [];
-    [ObservableProperty] private ObservableCollection<HitSoundVisualizerSnapTick> _snapTicks = [];
-    [ObservableProperty] private ObservableCollection<string> _timelineRowLabels =
+    [ObservableProperty] private ObservableCollection<TimelineRowLabel> _timelineRowLabels =
     [
-        "Sample changes",
-        "hitnormal",
-        "hitwhistle",
-        "hitfinish",
-        "hitclap"
+        new TimelineRowLabel("Sample changes", MaterialIconKind.Tune),
+        new TimelineRowLabel("HitNormal", MaterialIconKind.MusicNote),
+        new TimelineRowLabel("Whistle", MaterialIconKind.Bullhorn),
+        new TimelineRowLabel("Finish", MaterialIconKind.Star),
+        new TimelineRowLabel("Clap", MaterialIconKind.HandClap)
     ];
 
+    /// <summary>
+    /// Raised when a played point triggers a hitsound row (2 = whistle,
+    /// 3 = finish, 4 = clap) so the UI can flash its header.
+    /// HitNormal (row 1) is intentionally excluded.
+    /// </summary>
+    public event Action<int>? TimelineRowFlashRequested;
+
+    [ObservableProperty] private ObservableCollection<HitSoundVisualizerSnapTick> _snapTicks = [];
     public IReadOnlyList<string> PointSampleSetNames { get; } = ["Auto", "Normal", "Soft", "Drum"];
     public IReadOnlyList<string> SampleSetNames { get; } = ["Normal", "Soft", "Drum"];
     public IReadOnlyList<string> HeaderBankNames { get; } = ["Auto", "Normal", "Soft", "Drum"];
     public IReadOnlyList<string> SelectorBankFilterNames { get; } = ["Any", "Auto", "Normal", "Soft", "Drum"];
-    public IReadOnlyList<string> HitSoundNames { get; } = ["Hitnormal", "Whistle", "Finish", "Clap"];
+    public IReadOnlyList<string> HitSoundNames { get; } = ["HitNormal", "Whistle", "Finish", "Clap"];
     public IReadOnlyList<int> SnapDivisorOptions { get; } = Enumerable.Range(1, 16).ToList();
 
     public double ViewEndMs => Math.Min(TimelineEndMs, ViewStartMs + Math.Max(100, ViewWindowMs));
@@ -183,12 +190,12 @@ public partial class HitSoundVisualizerViewModel(
         HsSelectorIncludeHitNormal || HsSelectorIncludeWhistle || HsSelectorIncludeFinish || HsSelectorIncludeClap;
     public bool IsHitNormalSelected
     {
-        get => string.Equals(SelectedHitSoundName, "Hitnormal", StringComparison.OrdinalIgnoreCase);
+        get => string.Equals(SelectedHitSoundName, "HitNormal", StringComparison.OrdinalIgnoreCase);
         set
         {
             if (value)
             {
-                SelectedHitSoundName = "Hitnormal";
+                SelectedHitSoundName = "HitNormal";
             }
         }
     }
@@ -1159,7 +1166,7 @@ public partial class HitSoundVisualizerViewModel(
                 Id = nextPointId++,
                 TimeMs = Math.Clamp(pastedTime, 0, (int)Math.Ceiling(TimelineEndMs)),
                 SampleSet = ParseSampleSet(item.SampleSet ?? "Normal"),
-                HitSound = ParseHitSound(item.HitSound ?? "Hitnormal"),
+                HitSound = ParseHitSound(item.HitSound ?? "HitNormal"),
                 IsDraggable = false
             };
 
@@ -2965,6 +2972,7 @@ public partial class HitSoundVisualizerViewModel(
         {
             if (TryPlayPointSample(point, playbackSampleChanges))
             {
+                RaiseTimelineRowFlashes(point);
                 return;
             }
 
@@ -2974,6 +2982,27 @@ public partial class HitSoundVisualizerViewModel(
         {
             MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
             // Ignore point playback failures during playback preview.
+        }
+    }
+
+    private void RaiseTimelineRowFlashes(HitSoundVisualizerPoint point)
+    {
+        var flags = (int)point.HitSound;
+        // Row layout: 0 = sample changes, 1 = HitNormal (no flash),
+        // 2 = whistle, 3 = finish, 4 = clap.
+        if ((flags & (int)HitSound.Whistle) != 0)
+        {
+            TimelineRowFlashRequested?.Invoke(2);
+        }
+
+        if ((flags & (int)HitSound.Finish) != 0)
+        {
+            TimelineRowFlashRequested?.Invoke(3);
+        }
+
+        if ((flags & (int)HitSound.Clap) != 0)
+        {
+            TimelineRowFlashRequested?.Invoke(4);
         }
     }
 
@@ -3461,7 +3490,7 @@ public partial class HitSoundVisualizerViewModel(
         HitSound.Whistle => "Whistle",
         HitSound.Finish => "Finish",
         HitSound.Clap => "Clap",
-        _ => "Hitnormal"
+        _ => "HitNormal"
     };
 
     private static int HitSoundSortOrder(HitSound hitSound) => hitSound switch
@@ -3481,3 +3510,9 @@ public partial class HitSoundVisualizerViewModel(
         _ => 9
     };
 }
+
+/// <summary>
+/// Titles timeline rows with a fancy addition name + icon so the row header
+/// can be flashed when its hitsound plays.
+/// </summary>
+public sealed record TimelineRowLabel(string Title, MaterialIconKind Icon);

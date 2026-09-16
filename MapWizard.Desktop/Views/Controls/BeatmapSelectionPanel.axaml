@@ -74,40 +74,8 @@
       <Setter Property="BoxShadow" Value="0 -8 20 0 #66000000" />
     </Style>
 
-    <!-- Difficulty controls sit over artwork, so they use image-safe contrast in both themes. -->
-    <Style Selector="Border.SourceDiffBackdrop TextBlock.FieldLabel">
-      <Setter Property="Foreground" Value="#FFD6DDE2" />
-    </Style>
-
-    <Style Selector="Border.SourceDiffBackdrop ToggleButton.DiffRow">
-      <Setter Property="Background" Value="#B014181B" />
-      <Setter Property="BorderBrush" Value="#66FFFFFF" />
-      <Setter Property="Foreground" Value="#FFF8F9FA" />
-    </Style>
-
-    <Style Selector="Border.SourceDiffBackdrop ToggleButton.DiffRow:pointerover">
-      <Setter Property="Background" Value="#D0222B32" />
-      <Setter Property="BorderBrush" Value="#99FFFFFF" />
-    </Style>
-
-    <Style Selector="Border.SourceDiffBackdrop ToggleButton.DiffRow TextBlock">
-      <Setter Property="Foreground" Value="#FFF8F9FA" />
-    </Style>
-
     <Style Selector="StackPanel.SourceBody.selected">
       <Setter Property="VerticalAlignment" Value="Bottom" />
-    </Style>
-
-    <Style Selector="Border.SourceSelectionPanel.selected TextBlock.PanelTitle">
-      <Setter Property="Foreground" Value="#FFF8F9FA" />
-    </Style>
-
-    <Style Selector="Border.SourceSelectionPanel.selected.withTargets TextBlock.PanelTitle">
-      <Setter Property="Foreground" Value="{DynamicResource MapWizardTextBrush}" />
-    </Style>
-
-    <Style Selector="Border.SourceSelectionPanel.selected TextBlock.FieldLabel">
-      <Setter Property="Foreground" Value="#FFD6DDE2" />
     </Style>
 
     <Style Selector="Border.SourceSelectionPanel.selected Button.SourceActionButton">
@@ -323,6 +291,94 @@
     <Style Selector="ToggleButton.DiffRow TextBlock">
       <Setter Property="Foreground" Value="{DynamicResource MapWizardTextBrush}" />
     </Style>
+
+    <!-- Difficulty selection indicators (class-based so over-artwork rows can
+         restyle them without fighting inline local values). -->
+    <Style Selector="Border.DiffIndicatorRing">
+      <Setter Property="BorderBrush" Value="{DynamicResource MapWizardControlBorderBrush}" />
+    </Style>
+
+    <Style Selector="Border.DiffIndicatorRingSelected">
+      <Setter Property="BorderBrush" Value="{DynamicResource MapWizardAccentBrush}" />
+    </Style>
+
+    <Style Selector="Ellipse.DiffIndicatorDot">
+      <Setter Property="Fill" Value="{DynamicResource MapWizardAccentBrush}" />
+    </Style>
+
+    <Style Selector="Border.DiffIndicatorBox">
+      <Setter Property="BorderBrush" Value="{DynamicResource MapWizardControlBorderBrush}" />
+    </Style>
+
+    <Style Selector="Border.DiffIndicatorBoxSelected">
+      <Setter Property="Background" Value="{DynamicResource MapWizardAccentBrush}" />
+    </Style>
+
+    <Style Selector="materialIcons|MaterialIcon.DiffIndicatorCheck">
+      <Setter Property="Foreground" Value="{DynamicResource MapWizardAccentForegroundBrush}" />
+    </Style>
+
+    <!-- Over-artwork (image-safe) overrides.
+         These MUST be declared after the theme-aware base styles above:
+         Avalonia applies styles in declaration order (there is no selector
+         specificity), so only later rules can override earlier ones. The
+         source artwork/scrim behind these controls is dark in both themes,
+         so they use fixed light-on-dark values. -->
+    <Style Selector="TextBlock.FieldLabel.ArtworkLabel">
+      <Setter Property="Foreground" Value="#FFD6DDE2" />
+    </Style>
+
+    <Style Selector="TextBlock.PanelTitle.overArtwork">
+      <Setter Property="Foreground" Value="#FFF8F9FA" />
+    </Style>
+
+    <Style Selector="ToggleButton.DiffRow.OnArtwork">
+      <Setter Property="Background" Value="#B014181B" />
+      <Setter Property="BorderBrush" Value="#66FFFFFF" />
+      <Setter Property="Foreground" Value="#FFF8F9FA" />
+    </Style>
+
+    <Style Selector="ToggleButton.DiffRow.OnArtwork TextBlock">
+      <Setter Property="Foreground" Value="#FFF8F9FA" />
+    </Style>
+
+    <Style Selector="ToggleButton.DiffRow.OnArtwork:pointerover">
+      <Setter Property="Background" Value="#D0222B32" />
+      <Setter Property="BorderBrush" Value="#99FFFFFF" />
+    </Style>
+
+    <Style Selector="ToggleButton.DiffRow.OnArtwork:checked">
+      <Setter Property="Background" Value="{DynamicResource MapWizardAccentBrush}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource MapWizardAccentBrush}" />
+      <Setter Property="Foreground" Value="{DynamicResource MapWizardAccentForegroundBrush}" />
+    </Style>
+
+    <Style Selector="ToggleButton.DiffRow.OnArtwork:checked TextBlock">
+      <Setter Property="Foreground" Value="{DynamicResource MapWizardAccentForegroundBrush}" />
+    </Style>
+
+    <Style Selector="ToggleButton.DiffRow.OnArtwork:checked:pointerover">
+      <Setter Property="Background" Value="{DynamicResource MapWizardAccentHoverBrush}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource MapWizardAccentHoverBrush}" />
+    </Style>
+
+    <!-- Indicator contrast over artwork: outline stays light, and selection
+         uses the accent foreground so it stays visible on an accent fill. -->
+    <Style Selector="ToggleButton.DiffRow.OnArtwork Border.DiffIndicatorRing">
+      <Setter Property="BorderBrush" Value="#99FFFFFF" />
+    </Style>
+
+    <Style Selector="ToggleButton.DiffRow.OnArtwork Border.DiffIndicatorRingSelected">
+      <Setter Property="BorderBrush" Value="{DynamicResource MapWizardAccentForegroundBrush}" />
+    </Style>
+
+    <Style Selector="ToggleButton.DiffRow.OnArtwork Ellipse.DiffIndicatorDot">
+      <Setter Property="Fill" Value="{DynamicResource MapWizardAccentForegroundBrush}" />
+    </Style>
+
+    <Style Selector="ToggleButton.DiffRow.OnArtwork Border.DiffIndicatorBox">
+      <Setter Property="BorderBrush" Value="#99FFFFFF" />
+    </Style>
   </UserControl.Styles>
 
   <Border Margin="4"
@@ -399,9 +455,11 @@
               <StackPanel Spacing="2">
                 <TextBlock Text="Source"
                            Classes="PanelTitle"
+                           Classes.overArtwork="{Binding ShowSourceOnlyBackdrop, ElementName=Root}"
                            IsVisible="{Binding ShowDestinationSection, ElementName=Root}" />
                 <TextBlock Text="Beatmap"
                            Classes="PanelTitle"
+                           Classes.overArtwork="{Binding ShowSourceOnlyBackdrop, ElementName=Root}"
                            IsVisible="{Binding !ShowDestinationSection, ElementName=Root}" />
                 <TextBlock Text="{Binding SourceSubtitle, ElementName=Root}"
                            Classes="PanelSubtitle"
@@ -498,7 +556,7 @@
                       Classes.withTargets="{Binding ShowDestinationSection, ElementName=Root}"
                       IsVisible="{Binding HasOriginSelection, ElementName=Root}">
               <StackPanel Spacing="4">
-                <TextBlock Text="Difficulties" Classes="FieldLabel" />
+                <TextBlock Text="Difficulties" Classes="FieldLabel ArtworkLabel" />
                 <ItemsControl ItemsSource="{Binding OriginDifficultyCards, ElementName=Root}"
                               HorizontalAlignment="Stretch">
                   <ItemsControl.ItemsPanel>
@@ -512,7 +570,7 @@
                   </ItemsControl.ItemsPanel>
                   <ItemsControl.ItemTemplate>
                     <DataTemplate x:DataType="models:MapsetDifficultyCard">
-                      <ToggleButton Classes="DiffRow"
+                      <ToggleButton Classes="DiffRow OnArtwork"
                                     IsChecked="{Binding IsSelected, Mode=OneWay}"
                                     Command="{ReflectionBinding DataContext.SelectOriginMapCommand, RelativeSource={RelativeSource AncestorType=controls:BeatmapSelectionPanel}}"
                                     CommandParameter="{Binding Path}">
@@ -520,15 +578,15 @@
                               ColumnSpacing="10">
                           <Grid Width="18" Height="18"
                                 VerticalAlignment="Center">
-                            <Border CornerRadius="9"
+                            <Border Classes="DiffIndicatorRing"
+                                    CornerRadius="9"
+                                    BorderThickness="2" />
+                            <Border Classes="DiffIndicatorRingSelected"
+                                    CornerRadius="9"
                                     BorderThickness="2"
-                                    BorderBrush="{DynamicResource MapWizardControlBorderBrush}" />
-                            <Border CornerRadius="9"
-                                    BorderThickness="2"
-                                    BorderBrush="{DynamicResource MapWizardAccentBrush}"
                                     IsVisible="{Binding IsSelected}" />
-                            <Ellipse Width="8" Height="8"
-                                     Fill="{DynamicResource MapWizardAccentBrush}"
+                            <Ellipse Classes="DiffIndicatorDot"
+                                     Width="8" Height="8"
                                      HorizontalAlignment="Center"
                                      VerticalAlignment="Center"
                                      IsVisible="{Binding IsSelected}" />
@@ -643,6 +701,10 @@
                                 IsVisible="{Binding ReferenceBeatmap.HasBackgroundImage}"
                                 IsHitTestVisible="False"
                                 CornerRadius="13" />
+                        <Border Background="#FF14181B"
+                                IsVisible="{Binding !ReferenceBeatmap.HasBackgroundImage}"
+                                IsHitTestVisible="False"
+                                CornerRadius="13" />
                       <StackPanel>
                         <Border Classes="TargetMapsetHeaderClip"
                                 Height="60">
@@ -727,7 +789,7 @@
                             </ItemsControl.ItemsPanel>
                             <ItemsControl.ItemTemplate>
                               <DataTemplate x:DataType="models:MapsetDifficultyCard">
-                                <ToggleButton Classes="DiffRow"
+                                <ToggleButton Classes="DiffRow OnArtwork"
                                               IsChecked="{Binding IsSelected, Mode=OneWay}"
                                               Command="{ReflectionBinding DataContext.ToggleDestinationMapCommand, RelativeSource={RelativeSource AncestorType=controls:BeatmapSelectionPanel}}"
                                               CommandParameter="{Binding Path}">
@@ -735,16 +797,16 @@
                                         ColumnSpacing="10">
                                     <Grid Width="18" Height="18"
                                           VerticalAlignment="Center">
-                                      <Border CornerRadius="5"
-                                              BorderThickness="2"
-                                              BorderBrush="{DynamicResource MapWizardControlBorderBrush}" />
-                                      <Border CornerRadius="5"
-                                              Background="{DynamicResource MapWizardAccentBrush}"
+                                      <Border Classes="DiffIndicatorBox"
+                                              CornerRadius="5"
+                                              BorderThickness="2" />
+                                      <Border Classes="DiffIndicatorBoxSelected"
+                                              CornerRadius="5"
                                               IsVisible="{Binding IsSelected}" />
-                                      <materialIcons:MaterialIcon Kind="Check"
+                                      <materialIcons:MaterialIcon Classes="DiffIndicatorCheck"
+                                                                  Kind="Check"
                                                                   Width="12"
                                                                   Height="12"
-                                                                  Foreground="{DynamicResource MapWizardAccentForegroundBrush}"
                                                                   HorizontalAlignment="Center"
                                                                   VerticalAlignment="Center"
                                                                   IsVisible="{Binding IsSelected}" />

@@ -32,7 +32,7 @@
             <Setter Property="CornerRadius" Value="12" />
         </Style>
         <Style Selector="Border.timeline-flyout-surface">
-            <Setter Property="Padding" Value="12" />
+            <Setter Property="Padding" Value="10,8" />
         </Style>
         <Style Selector="Button.timeline-btn">
             <Setter Property="Background" Value="{DynamicResource SystemControlBackgroundChromeMediumLowBrush}" />
@@ -361,14 +361,13 @@
                                 <Button.Flyout>
                                     <Flyout Placement="BottomEdgeAlignedRight">
                                         <Border Classes="PopupSurface timeline-flyout-surface">
-                                            <StackPanel Width="380" Spacing="10">
-                                                <TextBlock Text="HS Selector" FontWeight="Normal" />
+                                            <StackPanel Width="380" Spacing="8">
                                                 <TextBlock Classes="timeline-muted"
                                                            Text="Select matching hitsound points across the entire timeline."
                                                            TextWrapping="Wrap" />
 
                                                 <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto" ColumnSpacing="8" RowSpacing="8">
-                                                    <TextBlock Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" Text="Hitnormal Bank" />
+                                                    <TextBlock Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" Text="HitNormal Bank" />
                                                     <Button Grid.Row="0" Grid.Column="1" Classes="timeline-select">
                                                         <Grid ColumnDefinitions="*,Auto" ColumnSpacing="6">
                                                             <TextBlock VerticalAlignment="Center" Text="{Binding HsSelectorNormalBankFilterName}" />
@@ -531,14 +530,32 @@
                                         Background="{DynamicResource SystemControlBackgroundChromeMediumLowBrush}"
                                         BorderBrush="{DynamicResource MapWizardBorderBrush}"
                                         BorderThickness="0,0,1,0">
-                                    <ItemsControl ItemsSource="{Binding TimelineRowLabels}">
+                                    <ItemsControl x:Name="RowLabelsControl"
+                                                  ItemsSource="{Binding TimelineRowLabels}">
                                         <ItemsControl.ItemTemplate>
-                                            <DataTemplate>
-                                                <Border Height="34" Padding="10,0" BorderBrush="{DynamicResource MapWizardBorderBrush}" BorderThickness="0,0,0,1">
-                                                    <TextBlock VerticalAlignment="Center"
-                                                               Text="{Binding .}"
-                                                               FontFamily="Consolas"
-                                                               FontSize="12" />
+                                            <DataTemplate x:DataType="viewModels:TimelineRowLabel">
+                                                <Border Height="34" Padding="0"
+                                                        BorderBrush="{DynamicResource MapWizardBorderBrush}"
+                                                        BorderThickness="0,0,0,1">
+                                                    <Panel>
+                                                        <Border Classes="RowFlashOverlay"
+                                                                Background="{DynamicResource MapWizardAccentBrush}"
+                                                                IsHitTestVisible="False"
+                                                                Opacity="0" />
+                                                        <StackPanel Orientation="Horizontal"
+                                                                    Spacing="7"
+                                                                    Margin="10,0"
+                                                                    VerticalAlignment="Center">
+                                                            <materialIcons:MaterialIcon Kind="{Binding Icon}"
+                                                                                        Width="13"
+                                                                                        Height="13"
+                                                                                        VerticalAlignment="Center" />
+                                                            <TextBlock VerticalAlignment="Center"
+                                                                       Text="{Binding Title}"
+                                                                       FontFamily="Consolas"
+                                                                       FontSize="12" />
+                                                        </StackPanel>
+                                                    </Panel>
                                                 </Border>
                                             </DataTemplate>
                                         </ItemsControl.ItemTemplate>

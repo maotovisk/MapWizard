@@ -94,13 +94,18 @@
             <Setter Property="CornerRadius" Value="12" />
             <Setter Property="BoxShadow" Value="0 5 16 0 #26000000" />
         </Style>
+        <Style Selector="Border.ContentIslandShadow">
+            <Setter Property="Background" Value="{DynamicResource MapWizardSurfaceOpaqueBrush}" />
+            <Setter Property="CornerRadius" Value="12" />
+            <Setter Property="BoxShadow" Value="0 5 16 0 #26000000" />
+            <Setter Property="IsHitTestVisible" Value="False" />
+        </Style>
         <Style Selector="Border.ContentIsland">
             <Setter Property="Background" Value="{DynamicResource MapWizardSurfaceOpaqueBrush}" />
             <Setter Property="BorderBrush" Value="{DynamicResource MapWizardBorderBrush}" />
             <Setter Property="BorderThickness" Value="1" />
             <Setter Property="CornerRadius" Value="12" />
             <Setter Property="ClipToBounds" Value="True" />
-            <Setter Property="BoxShadow" Value="0 5 16 0 #26000000" />
         </Style>
         <Style Selector="Button.TitleBarActionButton">
             <Setter Property="Width" Value="42" />
@@ -384,15 +389,20 @@
             </Grid>
         </Border>
 
-        <Border Grid.Column="1"
-                Classes="ContentIsland"
-                Margin="0,0,10,10">
-            <TransitioningContentControl Content="{Binding CurrentPageViewModel}">
-                <TransitioningContentControl.PageTransition>
-                    <transitions:BlurSlideFadeTransition InDuration="0:0:0.3" OutDuration="0:0:0.16" SlideDistance="32" MaxBlurRadius="9" />
-                </TransitioningContentControl.PageTransition>
-            </TransitioningContentControl>
-        </Border>
+        <Panel Grid.Column="1"
+               Margin="0,0,10,10">
+            <!-- Shadow lives on its own layer: the island sets ClipToBounds so
+                 page content cannot spill past its rounded corners, which would
+                 otherwise clip the island's own box shadow away. -->
+            <Border Classes="ContentIslandShadow" />
+            <Border Classes="ContentIsland">
+                <TransitioningContentControl Content="{Binding CurrentPageViewModel}">
+                    <TransitioningContentControl.PageTransition>
+                        <transitions:BlurSlideFadeTransition InDuration="0:0:0.3" OutDuration="0:0:0.16" SlideDistance="32" MaxBlurRadius="9" />
+                    </TransitioningContentControl.PageTransition>
+                </TransitioningContentControl>
+            </Border>
+        </Panel>
         </Grid>
         </Grid>
         </Panel>
