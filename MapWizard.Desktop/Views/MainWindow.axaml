@@ -62,12 +62,12 @@
             <Setter Property="Opacity" Value="0.18" />
         </Style>
         <Style Selector="Button.WindowControlButton">
-            <Setter Property="MinWidth" Value="42" />
+            <Setter Property="MinWidth" Value="38" />
             <Setter Property="MinHeight" Value="34" />
             <Setter Property="Padding" Value="0" />
             <Setter Property="Background" Value="Transparent" />
             <Setter Property="BorderThickness" Value="0" />
-            <Setter Property="CornerRadius" Value="5" />
+            <Setter Property="CornerRadius" Value="8" />
         </Style>
         <Style Selector="Button.WindowControlButton:pointerover">
             <Setter Property="Background" Value="{DynamicResource MapWizardControlHoverBrush}" />
@@ -75,6 +75,40 @@
         <Style Selector="Button.WindowControlButton.Close:pointerover">
             <Setter Property="Background" Value="#C42B1C" />
             <Setter Property="Foreground" Value="White" />
+        </Style>
+        <Style Selector="Border.TitleBarIsland">
+            <Setter Property="Height" Value="42" />
+            <Setter Property="Background" Value="{DynamicResource MapWizardSurfaceOpaqueBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource MapWizardBorderBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="12" />
+            <Setter Property="BoxShadow" Value="0 5 16 0 #26000000" />
+        </Style>
+        <Style Selector="Border.NavigationIsland">
+            <Setter Property="Width" Value="96" />
+            <Setter Property="Padding" Value="4,10" />
+            <Setter Property="HorizontalAlignment" Value="Left" />
+            <Setter Property="Background" Value="{DynamicResource MapWizardSurfaceOpaqueBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource MapWizardBorderBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="12" />
+            <Setter Property="BoxShadow" Value="0 5 16 0 #26000000" />
+        </Style>
+        <Style Selector="Button.TitleBarActionButton">
+            <Setter Property="Width" Value="42" />
+            <Setter Property="Height" Value="42" />
+            <Setter Property="MinWidth" Value="42" />
+            <Setter Property="MinHeight" Value="42" />
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="CornerRadius" Value="12" />
+        </Style>
+        <Style Selector="Button.TitleBarActionButton:pointerover">
+            <Setter Property="Background" Value="{DynamicResource MapWizardControlHoverBrush}" />
+        </Style>
+        <Style Selector="Button.TitleBarActionButton:pressed">
+            <Setter Property="Background" Value="{DynamicResource MapWizardControlPressedBrush}" />
         </Style>
     </theme:MapWizardWindow.Styles>
 
@@ -113,39 +147,47 @@
                 ClipToBounds="True">
         <Panel>
         <Border Classes="WindowBackdrop" />
-        <Grid RowDefinitions="42,*">
-            <Border Grid.Row="0"
-                    Classes="WindowTitleBar"
-                    Background="{DynamicResource MapWizardSurfaceOpaqueBrush}"
-                    BorderBrush="{DynamicResource MapWizardBorderBrush}"
-                    BorderThickness="0,0,0,1">
-                <Grid ColumnDefinitions="Auto,*,Auto,Auto">
+        <Grid RowDefinitions="60,*">
+            <!-- Window chrome is grouped into functional islands instead of a
+                 full-width title bar. The transparent center remains draggable. -->
+            <Grid Grid.Row="0"
+                  Classes="WindowTitleBar"
+                  Background="Transparent">
+              <Grid Margin="10,8,10,10"
+                    ColumnDefinitions="Auto,*,Auto,Auto"
+                    ColumnSpacing="8">
+                <Border Classes="TitleBarIsland"
+                        Padding="12,0">
                     <StackPanel Orientation="Horizontal"
                                 Spacing="9"
-                                Margin="12,0"
                                 VerticalAlignment="Center"
                                 IsHitTestVisible="False">
                         <Image Source="/Assets/app-icon.png"
-                               Width="24"
-                               Height="24"
+                               Width="23"
+                               Height="23"
                                Stretch="Uniform"
                                RenderOptions.BitmapInterpolationMode="HighQuality" />
                         <TextBlock Text="MapWizard"
+                                   FontSize="13"
                                    FontWeight="SemiBold"
                                    VerticalAlignment="Center" />
                     </StackPanel>
+                </Border>
 
-                    <Button Grid.Column="2"
-                            Classes="Basic Compact"
-                            Margin="0,4"
+                <Border Grid.Column="2"
+                        Classes="TitleBarIsland">
+                    <Button Classes="TitleBarActionButton"
                             Command="{Binding OpenGithubCommand}"
                             ToolTip.Tip="View on GitHub">
                         <materialIcons:MaterialIcon Kind="Github" Width="18" Height="18" />
                     </Button>
-                    <StackPanel Grid.Column="3"
-                                Orientation="Horizontal"
-                                Spacing="2"
-                                Margin="0,4,10,4"
+                </Border>
+
+                <Border Grid.Column="3"
+                        Classes="TitleBarIsland"
+                        Padding="3,3">
+                    <StackPanel Orientation="Horizontal"
+                                Spacing="1"
                                 VerticalAlignment="Center">
                         <Button Classes="WindowControlButton"
                                 Click="MinimizeButton_OnClick"
@@ -163,17 +205,16 @@
                             <materialIcons:MaterialIcon Kind="WindowClose" Width="17" Height="17" />
                         </Button>
                     </StackPanel>
-                </Grid>
-            </Border>
+                </Border>
+              </Grid>
+            </Grid>
 
         <Grid x:Name="AppContentLayer"
               Grid.Row="1"
-              ColumnDefinitions="96,*">
+              ColumnDefinitions="116,*">
         <Border Grid.Column="0"
-                Padding="4,10"
-                Background="{DynamicResource MapWizardSurfaceOpaqueBrush}"
-                BorderBrush="{DynamicResource MapWizardBorderBrush}"
-                BorderThickness="0,0,1,0">
+                Classes="NavigationIsland"
+                Margin="10,0,0,10">
             <Grid RowDefinitions="Auto,*,Auto">
                 <StackPanel Grid.Row="0" Spacing="8" HorizontalAlignment="Center">
                     <theme:NavigationButton Classes="NavButton"
