@@ -14,7 +14,7 @@
 #   --version <tag>    Install a specific release tag (e.g. v2.7.2 or 3.0.0-rc2).
 #   --dir <path>       Linux only: where to place the AppImage (default: ~/.local/bin).
 #   --portable         macOS only: unzip to ~/Applications instead of using the pkg.
-#   --no-desktop       Linux only: skip the desktop launcher.
+#   --no-desktop       Linux only: skip the desktop entry and icon.
 #   -h, --help         Show this help.
 #
 set -euo pipefail
@@ -22,6 +22,7 @@ set -euo pipefail
 REPO="maotovisk/MapWizard"
 API="https://api.github.com/repos/${REPO}"
 PAGE="https://github.com/${REPO}/releases"
+RAW="https://raw.githubusercontent.com/${REPO}"
 
 CHANNEL="stable"
 VERSION=""
@@ -48,7 +49,7 @@ Options:
   --version <tag>    Install a specific release tag (e.g. v2.7.2 or 3.0.0-rc2).
   --dir <path>       Linux only: where to place the AppImage (default: ~/.local/bin).
   --portable         macOS only: unzip to ~/Applications instead of using the pkg.
-  --no-desktop       Linux only: skip the desktop launcher.
+  --no-desktop       Linux only: skip the desktop entry and icon.
   -h, --help         Show this help.
 EOF
 }
@@ -147,6 +148,46 @@ fallback_url() {
     fi
 }
 
+# Releases don't ship a standalone icon asset, so pull one straight from the
+# source tree at the exact release tag (falling back to the default branch if the
+# tag is unknown). Prefers the 256px variant; the 1024px master works everywhere
+# and is scaled by the launcher. Returns non-zero if nothing could be fetched.
+fetch_icon() {
+    local out="$1" ref name url
+    for ref in "$TAG" HEAD; do
+        if [[ -n "$ref" && "$ref" != "latest" ]]; then
+            for name in app-icon-256.png app-icon.png; do
+                url="${RAW}/${ref}/MapWizard.Desktop/Assets/${name}"
+                if curl -fsSL -o "$out" "$url" 2>/dev/null && [[ -s "$out" ]]; then
+                    return 0
+                fi
+            done
+        fi
+    done
+    rm -f "$out"
+    return 1
+}
+
+# Picks the hicolor theme directory matching a PNG's real width, so the icon
+# isn't filed under a size it doesn't have. Falls back to 256x256 if the width
+# can't be read (the header is 4 big-endian bytes at offset 16).
+png_icon_size() {
+    local width
+    width="$(od -An -tu4 -N4 -j16 --endian=big "$1" 2>/dev/null | tr -d '[:space:]')"
+    case "$width" in
+        "" | *[!0-9]*) printf '256x256' ;;
+        *)
+            if ((width >= 512)); then printf '512x512'
+            elif ((width >= 256)); then printf '256x256'
+            elif ((width >= 128)); then printf '128x128'
+            elif ((width >= 64)); then printf '64x64'
+            elif ((width >= 48)); then printf '48x48'
+            else printf '256x256'
+            fi
+            ;;
+    esac
+}
+
 fetch_release || true
 
 if [[ -z "$release_json" && "$CHANNEL" == "prerelease" ]]; then
@@ -183,15 +224,24 @@ if [[ "$OS" == "Linux" ]]; then
     if [[ "$NO_DESKTOP" -eq 0 ]]; then
         data_dir="${XDG_DATA_HOME:-$HOME/.local/share}"
         applications_dir="$data_dir/applications"
-        icons_dir="$data_dir/icons/hicolor/256x256/apps"
+        hicolor_dir="$data_dir/icons/hicolor"
         mkdir -p "$applications_dir"
 
         icon_line=""
-        if (cd "$tmpdir" && "$dest" --appimage-extract '.DirIcon' >/dev/null 2>&1) &&
-            [[ -f "$tmpdir/squashfs-root/.DirIcon" ]]; then
+        icon_tmp="$tmpdir/mapwizard-icon.png"
+        if fetch_icon "$icon_tmp"; then
+            icons_dir="$hicolor_dir/$(png_icon_size "$icon_tmp")/apps"
             mkdir -p "$icons_dir"
-            if cp "$tmpdir/squashfs-root/.DirIcon" "$icons_dir/mapwizard.png" 2>/dev/null; then
-                icon_line="Icon=mapwizard"
+            mv -f "$icon_tmp" "$icons_dir/mapwizard.png"
+            icon_line="Icon=mapwizard"
+        else
+            # Last resort: extract the icon bundled inside the AppImage.
+            icons_dir="$hicolor_dir/256x256/apps"
+            if (cd "$tmpdir" && "$dest" --appimage-extract '.DirIcon' >/dev/null 2>&1) &&
+                [[ -f "$tmpdir/squashfs-root/.DirIcon" ]]; then
+                mkdir -p "$icons_dir"
+                cp "$tmpdir/squashfs-root/.DirIcon" "$icons_dir/mapwizard.png" 2>/dev/null &&
+                    icon_line="Icon=mapwizard"
             fi
         fi
 
@@ -199,10 +249,15 @@ if [[ "$OS" == "Linux" ]]; then
             printf '[Desktop Entry]\n'
             printf 'Type=Application\n'
             printf 'Name=MapWizard\n'
-            printf 'Comment=osu! beatmap utility suite\n'
-            printf 'Exec=%s %%U\n' "$dest"
+            printf 'GenericName=osu! beatmap tool\n'
+            printf 'Comment=Copy hit sounds, manage metadata, edit combo colours and clean up osu! beatmaps\n'
+            printf 'Exec="%s" %%U\n' "$dest"
+            printf 'TryExec="%s"\n' "$dest"
             printf 'Terminal=false\n'
             printf 'Categories=Utility;\n'
+            printf 'Keywords=osu;beatmap;hitsound;metadata;combo colour;cleaner;\n'
+            printf 'StartupNotify=true\n'
+            printf 'StartupWMClass=MapWizard.Desktop\n'
             if [[ -n "$icon_line" ]]; then
                 printf '%s\n' "$icon_line"
             fi
@@ -210,11 +265,14 @@ if [[ "$OS" == "Linux" ]]; then
 
         command -v update-desktop-database >/dev/null 2>&1 &&
             update-desktop-database "$applications_dir" >/dev/null 2>&1 || true
+        command -v gtk-update-icon-cache >/dev/null 2>&1 &&
+            gtk-update-icon-cache -q -t -f "$hicolor_dir" >/dev/null 2>&1 || true
 
         case ":${PATH}:" in
             *":${dest_dir}:"*) ;;
             *) warn "${dest_dir} is not on your PATH; run MapWizard with ${dest}" ;;
         esac
+        log "Desktop entry and icon installed; launch MapWizard from your applications menu."
     fi
 
     log ""
