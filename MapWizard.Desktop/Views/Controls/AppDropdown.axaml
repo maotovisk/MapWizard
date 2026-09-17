@@ -1,7 +1,6 @@
 <UserControl
     xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:materialIcons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
     xmlns:appControls="clr-namespace:MapWizard.Desktop.Controls"
     x:Class="MapWizard.Desktop.Views.Controls.AppDropdown"
     x:Name="Root">
@@ -72,9 +71,8 @@
             <TextBlock VerticalAlignment="Center"
                        Text="{Binding SelectedText, ElementName=Root}"
                        TextTrimming="CharacterEllipsis" />
-            <materialIcons:MaterialIcon Grid.Column="1"
-                                        Width="16"
-                                        Height="16"
+            <LucideIcon Grid.Column="1"
+                                        Size="16"
                                         Kind="ChevronDown" />
         </Grid>
 

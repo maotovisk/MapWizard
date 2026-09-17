@@ -5,7 +5,6 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:vm="clr-namespace:MapWizard.Desktop.ViewModels"
     xmlns:dialogs="clr-namespace:MapWizard.Desktop.Views.Dialogs"
-    xmlns:materialIcons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
     xmlns:theme="clr-namespace:MapWizard.Theme.Controls;assembly=MapWizard.Theme"
     x:Class="MapWizard.Desktop.Views.Dialogs.SongMapsetCard"
     x:DataType="vm:SongMapsetCardViewModel"
@@ -28,13 +27,13 @@
         <Style Selector="Border.CardRoot TextBlock">
             <Setter Property="Foreground" Value="{DynamicResource MapWizardTextBrush}" />
         </Style>
-        <Style Selector="Border.CardRoot materialIcons|MaterialIcon">
+        <Style Selector="Border.CardRoot LucideIcon">
             <Setter Property="Foreground" Value="{DynamicResource MapWizardTextBrush}" />
         </Style>
         <Style Selector="Grid.MapsetHeader TextBlock">
             <Setter Property="Foreground" Value="#EEEEEE" />
         </Style>
-        <Style Selector="Grid.MapsetHeader materialIcons|MaterialIcon">
+        <Style Selector="Grid.MapsetHeader LucideIcon">
             <Setter Property="Foreground" Value="#D8D8D8" />
         </Style>
 
@@ -88,7 +87,7 @@
             <Setter Property="CornerRadius" Value="15,15,4,4" />
         </Style>
 
-        <Style Selector="materialIcons|MaterialIcon.ExpansionChevron">
+        <Style Selector="LucideIcon.ExpansionChevron">
             <Setter Property="Kind" Value="ChevronDown" />
             <Setter Property="RenderTransform" Value="rotate(0deg)" />
             <Setter Property="Transitions">
@@ -102,7 +101,7 @@
                 </Transitions>
             </Setter>
         </Style>
-        <Style Selector="materialIcons|MaterialIcon.ExpansionChevron.expanded">
+        <Style Selector="LucideIcon.ExpansionChevron.expanded">
             <Setter Property="RenderTransform" Value="rotate(-180deg)" />
         </Style>
 
@@ -242,9 +241,8 @@
                         <Border Classes="HintPill"
                                 IsVisible="{Binding IsMountedInLazer}">
                             <StackPanel Orientation="Horizontal" Spacing="5">
-                                <materialIcons:MaterialIcon Kind="Pin"
-                                                            Width="11"
-                                                            Height="11"
+                                <LucideIcon Kind="Pin"
+                                                            Size="11"
                                                             Foreground="{DynamicResource MapWizardPickerHintIcon}" />
                                 <TextBlock Text="Mounted in osu!lazer"
                                            FontSize="11"
@@ -256,9 +254,8 @@
                         <Border Classes="HintPill"
                                 IsVisible="{Binding IsPreferredMapset}">
                             <StackPanel Orientation="Horizontal" Spacing="5">
-                                <materialIcons:MaterialIcon Kind="Pin"
-                                                            Width="11"
-                                                            Height="11"
+                                <LucideIcon Kind="Pin"
+                                                            Size="11"
                                                             Foreground="{DynamicResource MapWizardPickerHintIcon}" />
                                 <TextBlock Text="Currently Selected"
                                            FontSize="11"
@@ -274,15 +271,13 @@
                                 <TextBlock Text="{Binding DifficultyCountLabel}"
                                            FontSize="12"
                                             FontWeight="SemiBold" />
-                                <materialIcons:MaterialIcon Kind="CheckCircle"
-                                                            Width="12"
-                                                            Height="12"
+                                <LucideIcon Kind="CircleCheck"
+                                                            Size="12"
                                                             Foreground="{DynamicResource MapWizardPickerCheckIcon}"
                                                             IsVisible="{Binding AllDifficultiesSelected}" />
-                                <materialIcons:MaterialIcon Classes="ExpansionChevron"
+                                <LucideIcon Classes="ExpansionChevron"
                                                             Classes.expanded="{Binding IsExpanded}"
-                                                            Width="15"
-                                                            Height="15" />
+                                                            Size="15" />
                             </StackPanel>
                         </Border>
                     </StackPanel>
@@ -312,7 +307,7 @@
                                 CommandParameter="{Binding}"
                                 ToolTip.Tip="Select or clear all difficulties in this mapset">
                             <StackPanel Orientation="Horizontal" Spacing="6">
-                                <materialIcons:MaterialIcon Kind="CheckAll" Width="14" Height="14" />
+                                <LucideIcon Kind="CheckCheck" Size="14" />
                                 <TextBlock Text="{Binding SelectAllButtonLabel}" />
                             </StackPanel>
                         </Button>
@@ -331,9 +326,8 @@
                                           Command="{ReflectionBinding DataContext.SelectDifficultyCommand, RelativeSource={RelativeSource AncestorType=dialogs:SongSelectDialog}}"
                                           CommandParameter="{Binding}">
                                 <StackPanel Orientation="Horizontal" Spacing="7">
-                                    <materialIcons:MaterialIcon Kind="CheckCircle"
-                                                                Width="14"
-                                                                Height="14"
+                                    <LucideIcon Kind="CircleCheck"
+                                                                Size="14"
                                                                 IsVisible="{Binding IsSelected}" />
                                     <TextBlock Text="{Binding Name}"
                                                TextTrimming="CharacterEllipsis"

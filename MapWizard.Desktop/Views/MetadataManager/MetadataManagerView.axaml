@@ -7,7 +7,6 @@
   xmlns:local="clr-namespace:MapWizard.Desktop.Converters"
   xmlns:controls="clr-namespace:MapWizard.Desktop.Views.Controls"
   xmlns:appControls="clr-namespace:MapWizard.Desktop.Controls"
-  xmlns:materialIcons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
   xmlns:theme="clr-namespace:MapWizard.Theme.Controls;assembly=MapWizard.Theme"
   xmlns:models="using:MapWizard.Desktop.Models"
   mc:Ignorable="d"
@@ -38,7 +37,7 @@
         Command="{Binding ApplyMetadataCommand}"
         ToolTip.Tip="Export metadata to selected beatmaps">
         <StackPanel Orientation="Horizontal" Spacing="8">
-          <materialIcons:MaterialIcon Kind="ContentSave" Width="24" Height="24" />
+          <LucideIcon Kind="Save" Size="24" />
           <TextBlock
             VerticalAlignment="Center"
             FontWeight="Normal"
@@ -55,9 +54,7 @@
 
         <controls:BeatmapSelectionPanel
           OriginMap="{Binding OriginBeatmap}"
-          DestinationMaps="{Binding DestinationBeatmaps}"
-          SourceSubtitle="Select the beatmap to import metadata from."
-          TargetSubtitle="Select the beatmaps to export the metadata to." />
+          DestinationMaps="{Binding DestinationBeatmaps}" />
         
         <!-- METADATA -->
         <Grid ColumnDefinitions="*,*" Margin="0,8,0,0">
@@ -185,7 +182,7 @@
                                   Command="{ReflectionBinding DataContext.RemoveColourCommand, ElementName=Root}"
                                   CommandParameter="{Binding}" 
                                   ToolTip.Tip="Remove this colour">
-                            <materialIcons:MaterialIcon Kind="Close" Width="24" Height="24" />
+                            <LucideIcon Kind="X" Size="24" />
                           </Button>
                         </StackPanel>
                       </Grid>
@@ -193,7 +190,7 @@
                   </ItemsControl.ItemTemplate>
                 </ItemsControl>
                 <Button Classes="Basic" Command="{Binding AddColourCommand}" ToolTip.Tip="Add a new combo colour">
-                  <materialIcons:MaterialIcon Kind="Add" Width="24" Height="24" />
+                  <LucideIcon Kind="Plus" Size="24" />
                 </Button>
               </StackPanel>
             </StackPanel>

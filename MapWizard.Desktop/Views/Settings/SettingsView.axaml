@@ -6,7 +6,6 @@
     xmlns:vm="clr-namespace:MapWizard.Desktop.ViewModels"
     xmlns:controls="clr-namespace:MapWizard.Desktop.Views.Controls"
     xmlns:appControls="clr-namespace:MapWizard.Desktop.Controls"
-    xmlns:materialIcons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
     xmlns:settingsModels="clr-namespace:MapWizard.Desktop.Models.Settings"
     xmlns:theme="clr-namespace:MapWizard.Theme.Controls;assembly=MapWizard.Theme"
     x:Class="MapWizard.Desktop.Views.Settings.SettingsView"
@@ -101,14 +100,19 @@
             <RadioButton x:Name="AppearanceNav" Classes="SettingsNav" Content="Appearance" Tag="Appearance" Click="CategoryButton_OnClick" />
             <RadioButton x:Name="AudioNav" Classes="SettingsNav" Content="Audio" Tag="Audio" Click="CategoryButton_OnClick" />
             <RadioButton x:Name="InformationNav" Classes="SettingsNav" Content="Information" Tag="Information" Click="CategoryButton_OnClick" />
+            <RadioButton x:Name="SupportNav" Classes="SettingsNav" Content="Support" Tag="Support" Click="CategoryButton_OnClick" />
         </StackPanel>
 
         <appControls:SmoothScrollViewer x:Name="SettingsScrollViewer"
                                         Grid.Column="1"
                                         HorizontalScrollBarVisibility="Disabled"
                                         ScrollChanged="SettingsScrollViewer_OnScrollChanged">
-            <StackPanel x:Name="SettingsSections" MaxWidth="980" HorizontalAlignment="Stretch">
-                <theme:Surface x:Name="GeneralSection" Margin="0,0,0,16" Padding="20"><theme:SectionGroup Header="General">
+            <theme:Surface x:Name="SettingsCard"
+                           MaxWidth="980"
+                           HorizontalAlignment="Stretch"
+                           VerticalAlignment="Top">
+                <StackPanel x:Name="SettingsSections" Spacing="28">
+                    <theme:SectionGroup x:Name="GeneralSection" Header="General">
                         <StackPanel Spacing="20">
                             <Grid ColumnDefinitions="*,Auto" VerticalAlignment="Center">
                                 <StackPanel Spacing="4">
@@ -152,20 +156,10 @@
                                     <TextBlock Text="Auto Detect" />
                                 </Button>
                             </Grid>
-
-                            <Button Classes="Flat Compact"
-                                    HorizontalAlignment="Left"
-                                    IsEnabled="{Binding CanRestartToApplyUpdate}"
-                                    Command="{Binding RestartToApplyUpdateCommand}">
-                                <TextBlock Text="{Binding UpdateStreamBadgeText}"
-                                           FontSize="12"
-                                           FontWeight="Normal"
-                                           TextDecorations="Underline" />
-                            </Button>
                         </StackPanel>
-                </theme:SectionGroup></theme:Surface>
+                    </theme:SectionGroup>
 
-                <theme:Surface x:Name="AppearanceSection" Margin="0,0,0,16" Padding="20"><theme:SectionGroup Header="Appearance">
+                    <theme:SectionGroup x:Name="AppearanceSection" Header="Appearance">
                         <StackPanel Spacing="20">
                             <Grid ColumnDefinitions="*,Auto" VerticalAlignment="Center">
                                 <TextBlock Text="Variant" FontWeight="Bold" VerticalAlignment="Center" />
@@ -251,9 +245,9 @@
                                               IsChecked="{Binding IsSmoothWheelScrollingEnabled, Mode=TwoWay}" />
                             </Grid>
                         </StackPanel>
-                </theme:SectionGroup></theme:Surface>
+                    </theme:SectionGroup>
 
-                <theme:Surface x:Name="AudioSection" Margin="0,0,0,16" Padding="20"><theme:SectionGroup Header="Audio">
+                    <theme:SectionGroup x:Name="AudioSection" Header="Audio">
                         <StackPanel Spacing="20">
                             <Grid ColumnDefinitions="*,Auto" VerticalAlignment="Center">
                                 <StackPanel Spacing="4">
@@ -308,9 +302,9 @@
                                 </StackPanel>
                             </Grid>
                         </StackPanel>
-                </theme:SectionGroup></theme:Surface>
+                    </theme:SectionGroup>
 
-                <theme:Surface x:Name="InformationSection" Margin="0,0,0,16" Padding="20"><theme:SectionGroup Header="Information">
+                    <theme:SectionGroup x:Name="InformationSection" Header="Information">
                         <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="8" VerticalAlignment="Center">
                             <TextBlock Text="Config Directory:" VerticalAlignment="Center" />
                             <TextBlock Grid.Column="1"
@@ -328,11 +322,65 @@
                                     Command="{Binding OpenConfigDirectoryCommand}"
                                     ToolTip.Tip="Open config directory"
                                     AutomationProperties.Name="Open config directory">
-                                <materialIcons:MaterialIcon Kind="FolderOpen" Width="18" Height="18" />
+                                <LucideIcon Kind="FolderOpen" Size="18" />
                             </Button>
                         </Grid>
-                </theme:SectionGroup></theme:Surface>
-            </StackPanel>
+                    </theme:SectionGroup>
+
+                    <theme:SectionGroup x:Name="SupportSection" Header="Support">
+                        <StackPanel Spacing="16">
+                            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12" VerticalAlignment="Center">
+                                <LucideIcon Kind="Info" Size="20" VerticalAlignment="Center" />
+                                <StackPanel Grid.Column="1" Spacing="2">
+                                    <TextBlock Text="{Binding VersionLabel}" FontWeight="Bold" />
+                                    <TextBlock Text="The MapWizard build currently running."
+                                               FontSize="12"
+                                               Opacity="0.82" />
+                                </StackPanel>
+                                <Button Grid.Column="2"
+                                        Classes="Basic Compact"
+                                        Padding="0"
+                                        VerticalAlignment="Center"
+                                        IsEnabled="{Binding CanRestartToApplyUpdate}"
+                                        Command="{Binding RestartToApplyUpdateCommand}">
+                                    <TextBlock Text="{Binding UpdateStreamBadgeText}"
+                                               FontSize="12"
+                                               FontWeight="Normal" />
+                                </Button>
+                            </Grid>
+
+                            <TextBlock TextWrapping="Wrap"
+                                       Text="Need a hand or found a bug? Join the Discord for quick questions, or open an issue on GitHub. When reporting a problem, include your version, operating system, and the steps that reproduce it." />
+
+                            <WrapPanel>
+                                <Button Classes="Basic" Margin="0,0,8,8" Command="{Binding OpenDiscordCommand}">
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <Viewbox Width="16" Height="16" VerticalAlignment="Center">
+                                            <Canvas Width="24" Height="24">
+                                                <Path Fill="{DynamicResource MapWizardTextBrush}"
+                                                      Data="{StaticResource BrandDiscord}" />
+                                            </Canvas>
+                                        </Viewbox>
+                                        <TextBlock Text="Join the Discord" VerticalAlignment="Center" />
+                                    </StackPanel>
+                                </Button>
+                                <Button Classes="Basic" Margin="0,0,8,8" Command="{Binding OpenIssuesCommand}">
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <LucideIcon Kind="Bug" Size="16" VerticalAlignment="Center" />
+                                        <TextBlock Text="Report an issue" VerticalAlignment="Center" />
+                                    </StackPanel>
+                                </Button>
+                                <Button Classes="Basic" Margin="0,0,8,8" Command="{Binding OpenDocumentationCommand}">
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <LucideIcon Kind="BookOpen" Size="16" VerticalAlignment="Center" />
+                                        <TextBlock Text="Documentation" VerticalAlignment="Center" />
+                                    </StackPanel>
+                                </Button>
+                            </WrapPanel>
+                        </StackPanel>
+                    </theme:SectionGroup>
+                </StackPanel>
+            </theme:Surface>
         </appControls:SmoothScrollViewer>
     </Grid>
 </UserControl>

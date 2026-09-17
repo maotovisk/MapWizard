@@ -6,7 +6,6 @@
   xmlns:controls="clr-namespace:MapWizard.Desktop.Views.Controls"
   xmlns:appControls="clr-namespace:MapWizard.Desktop.Controls"
   xmlns:models="using:MapWizard.Desktop.Models"
-  xmlns:materialIcons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
   xmlns:theme="clr-namespace:MapWizard.Theme.Controls;assembly=MapWizard.Theme"
   mc:Ignorable="d"
   d:DesignWidth="760"
@@ -25,6 +24,21 @@
       <Setter Property="VerticalAlignment" Value="Stretch" />
     </Style>
 
+    <Style Selector="Border.CombinedSelectionPanel">
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="BorderThickness" Value="0" />
+      <Setter Property="Padding" Value="0" />
+      <Setter Property="HorizontalAlignment" Value="Stretch" />
+    </Style>
+
+    <Style Selector="Border.CombinedSelectionPanel.withTargets">
+      <Setter Property="CornerRadius" Value="16" />
+      <Setter Property="Background" Value="{DynamicResource MapWizardSurfaceBrush}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource MapWizardBorderBrush}" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="Padding" Value="16" />
+    </Style>
+
     <Style Selector="Border.SourceSelectionPanel">
       <Setter Property="Padding" Value="0" />
       <Setter Property="ClipToBounds" Value="True" />
@@ -33,8 +47,18 @@
 
     <Style Selector="Border.SourceSelectionPanel.withTargets">
       <Setter Property="VerticalAlignment" Value="Stretch" />
-      <Setter Property="Padding" Value="16" />
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="BorderThickness" Value="0" />
+      <Setter Property="CornerRadius" Value="0" />
+      <Setter Property="Padding" Value="0" />
       <Setter Property="ClipToBounds" Value="False" />
+    </Style>
+
+    <Style Selector="Border.TargetsSelectionPanel">
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="BorderThickness" Value="0" />
+      <Setter Property="CornerRadius" Value="0" />
+      <Setter Property="Padding" Value="0" />
     </Style>
 
     <Style Selector="Grid.SourcePanelContent">
@@ -98,10 +122,9 @@
 
     <Style Selector="Button.MemoryActionButton">
       <Setter Property="Background" Value="{DynamicResource MapWizardControlBackgroundBrush}" />
-      <Setter Property="BorderBrush" Value="{DynamicResource MapWizardControlBorderBrush}" />
-      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="BorderBrush" Value="Transparent" />
+      <Setter Property="BorderThickness" Value="0" />
       <Setter Property="CornerRadius" Value="8" />
-      <Setter Property="Padding" Value="10,7" />
       <Setter Property="FontSize" Value="13" />
       <Setter Property="FontWeight" Value="Normal" />
       <Setter Property="Foreground" Value="{DynamicResource MapWizardTextBrush}" />
@@ -109,19 +132,39 @@
 
     <Style Selector="Button.MemoryActionButton:pointerover">
       <Setter Property="Background" Value="{DynamicResource MapWizardAccent25Brush}" />
-      <Setter Property="BorderBrush" Value="{DynamicResource MapWizardAccentBrush}" />
+      <Setter Property="BorderBrush" Value="Transparent" />
       <Setter Property="Foreground" Value="{DynamicResource MapWizardTextBrush}" />
+    </Style>
+
+    <Style Selector="Button.MapSourceActionButton">
+      <Setter Property="MinWidth" Value="108" />
+      <Setter Property="Height" Value="34" />
+      <Setter Property="Padding" Value="10,5" />
+    </Style>
+
+    <Style Selector="theme|BusyIndicator.AsyncActionIndicator">
+      <Setter Property="Width" Value="16" />
+      <Setter Property="Height" Value="3" />
+      <Setter Property="IsVisible" Value="False" />
+    </Style>
+
+    <Style Selector="theme|BusyIndicator.AsyncActionIndicator /template/ Border#PART_Indicator">
+      <Setter Property="Width" Value="7" />
+      <Setter Property="Height" Value="3" />
+    </Style>
+
+    <Style Selector="Grid.AsyncActionActivity.busy LucideIcon">
+      <Setter Property="IsVisible" Value="False" />
+    </Style>
+
+    <Style Selector="Grid.AsyncActionActivity.busy theme|BusyIndicator.AsyncActionIndicator">
+      <Setter Property="IsVisible" Value="True" />
     </Style>
 
     <Style Selector="TextBlock.PanelTitle">
       <Setter Property="FontSize" Value="20" />
       <Setter Property="FontWeight" Value="Bold" />
       <Setter Property="Foreground" Value="{DynamicResource MapWizardTextBrush}" />
-    </Style>
-
-    <Style Selector="TextBlock.PanelSubtitle">
-      <Setter Property="FontSize" Value="12.5" />
-      <Setter Property="Foreground" Value="{DynamicResource MapWizardTextSecondaryBrush}" />
     </Style>
 
     <Style Selector="TextBlock.FieldLabel">
@@ -207,7 +250,7 @@
       <Setter Property="Background" Value="#4DE06C75" />
     </Style>
 
-    <Style Selector="Button.TargetRemoveButton materialIcons|MaterialIcon">
+    <Style Selector="Button.TargetRemoveButton LucideIcon">
       <Setter Property="Foreground" Value="#E06C75" />
     </Style>
 
@@ -229,13 +272,12 @@
       <Setter Property="Background" Value="#44FFFFFF" />
     </Style>
 
-    <Style Selector="materialIcons|MaterialIcon.MapsetChevron">
+    <Style Selector="LucideIcon.MapsetChevron">
       <Setter Property="Kind" Value="ChevronRight" />
-      <Setter Property="Width" Value="18" />
-      <Setter Property="Height" Value="18" />
+      <Setter Property="Size" Value="18" />
     </Style>
 
-    <Style Selector="materialIcons|MaterialIcon.MapsetChevron.expanded">
+    <Style Selector="LucideIcon.MapsetChevron.expanded">
       <Setter Property="Kind" Value="ChevronDown" />
     </Style>
 
@@ -314,7 +356,7 @@
       <Setter Property="Background" Value="{DynamicResource MapWizardAccentBrush}" />
     </Style>
 
-    <Style Selector="materialIcons|MaterialIcon.DiffIndicatorCheck">
+    <Style Selector="LucideIcon.DiffIndicatorCheck">
       <Setter Property="Foreground" Value="{DynamicResource MapWizardAccentForegroundBrush}" />
     </Style>
 
@@ -400,7 +442,7 @@
                   IsEnabled="{Binding CanClearSelection, ElementName=Root}"
                   ToolTip.Tip="Clear the current source and targets">
             <StackPanel Orientation="Horizontal" Spacing="5">
-              <materialIcons:MaterialIcon Kind="CloseCircleOutline" Width="18" Height="18" />
+              <LucideIcon Kind="CircleX" Size="18" />
               <TextBlock Text="Clear Selection" VerticalAlignment="Center" />
             </StackPanel>
           </Button>
@@ -410,7 +452,7 @@
                   IsEnabled="{Binding HasOriginSelection, ElementName=Root}"
                   ToolTip.Tip="Open the folder of the selected source beatmap">
             <StackPanel Orientation="Horizontal" Spacing="5">
-              <materialIcons:MaterialIcon Kind="FolderOpen" Width="18" Height="18" />
+              <LucideIcon Kind="FolderOpen" Size="18" />
               <TextBlock Text="Open Source Folder" VerticalAlignment="Center" />
             </StackPanel>
           </Button>
@@ -418,8 +460,9 @@
       </Grid>
 
       <!-- Source / Targets -->
-      <Grid ColumnDefinitions="*,Auto,*"
-            ColumnSpacing="12">
+      <Border Classes="CombinedSelectionPanel"
+              Classes.withTargets="{Binding ShowDestinationSection, ElementName=Root}">
+      <Grid ColumnDefinitions="*,48,*">
 
         <!-- SOURCE -->
         <Border Grid.Column="0"
@@ -461,29 +504,41 @@
                            Classes="PanelTitle"
                            Classes.overArtwork="{Binding ShowSourceOnlyBackdrop, ElementName=Root}"
                            IsVisible="{Binding !ShowDestinationSection, ElementName=Root}" />
-                <TextBlock Text="{Binding SourceSubtitle, ElementName=Root}"
-                           Classes="PanelSubtitle"
-                           IsVisible="{Binding ShowSourceSubtitle, ElementName=Root}"
-                           TextWrapping="Wrap" />
               </StackPanel>
 
               <StackPanel Grid.Column="1"
                           Orientation="Horizontal"
                           Spacing="8"
                           VerticalAlignment="Center">
-                <Button Classes="Compact MemoryActionButton"
+                <Button Classes="Compact MemoryActionButton MapSourceActionButton"
                         Command="{ReflectionBinding SetOriginFromMemoryCommand}"
                         ToolTip.Tip="{Binding OriginMemoryToolTip, ElementName=Root}">
                   <StackPanel Orientation="Horizontal" Spacing="5">
-                    <materialIcons:MaterialIcon Kind="Import" Width="16" Height="16" />
+                    <Grid Width="16"
+                          Height="16"
+                          Classes="AsyncActionActivity"
+                          Classes.busy="{ReflectionBinding SetOriginFromMemoryCommand.IsRunning}">
+                      <LucideIcon Kind="Import" Size="16" />
+                      <theme:BusyIndicator Classes="AsyncActionIndicator"
+                                           IsRunning="{ReflectionBinding SetOriginFromMemoryCommand.IsRunning}"
+                                           VerticalAlignment="Center" />
+                    </Grid>
                     <TextBlock Text="From osu!" VerticalAlignment="Center" />
                   </StackPanel>
                 </Button>
-                <Button Classes="Flat Compact"
+                <Button Classes="Flat Compact MapSourceActionButton"
                         Command="{ReflectionBinding PickOriginFileCommand}"
                         ToolTip.Tip="Open the Map Picker">
                   <StackPanel Orientation="Horizontal" Spacing="5">
-                    <materialIcons:MaterialIcon Kind="FileSearchOutline" Width="16" Height="16" />
+                    <Grid Width="16"
+                          Height="16"
+                          Classes="AsyncActionActivity"
+                          Classes.busy="{ReflectionBinding PickOriginFileCommand.IsRunning}">
+                      <LucideIcon Kind="FileSearch" Size="16" />
+                      <theme:BusyIndicator Classes="AsyncActionIndicator"
+                                           IsRunning="{ReflectionBinding PickOriginFileCommand.IsRunning}"
+                                           VerticalAlignment="Center" />
+                    </Grid>
                     <TextBlock Text="Map Picker" VerticalAlignment="Center" />
                   </StackPanel>
                 </Button>
@@ -493,7 +548,7 @@
                         IsVisible="{Binding !ShowDestinationSection, ElementName=Root}"
                         ToolTip.Tip="Clear the selected beatmap">
                   <StackPanel Orientation="Horizontal" Spacing="5">
-                    <materialIcons:MaterialIcon Kind="CloseCircleOutline" Width="16" Height="16" />
+                    <LucideIcon Kind="CircleX" Size="16" />
                     <TextBlock Text="Clear" VerticalAlignment="Center" />
                   </StackPanel>
                 </Button>
@@ -503,7 +558,7 @@
                         IsVisible="{Binding !ShowDestinationSection, ElementName=Root}"
                         ToolTip.Tip="Open the selected beatmap's folder">
                   <StackPanel Orientation="Horizontal" Spacing="5">
-                    <materialIcons:MaterialIcon Kind="FolderOpen" Width="16" Height="16" />
+                    <LucideIcon Kind="FolderOpen" Size="16" />
                     <TextBlock Text="Folder" VerticalAlignment="Center" />
                   </StackPanel>
                 </Button>
@@ -610,9 +665,8 @@
                 <StackPanel HorizontalAlignment="Center"
                             VerticalAlignment="Center"
                             Spacing="6">
-                  <materialIcons:MaterialIcon Kind="MusicNoteOutline"
-                                              Width="34"
-                                              Height="34"
+                  <LucideIcon Kind="Music"
+                                              Size="34"
                                               Opacity="0.5"
                                               HorizontalAlignment="Center" />
                   <TextBlock Text="No source selected"
@@ -636,27 +690,35 @@
           </Grid>
         </Border>
 
-        <!-- Arrow -->
-        <materialIcons:MaterialIcon Grid.Column="1"
-                                    Kind="ArrowRight"
-                                    Width="22"
-                                    Height="22"
-                                    VerticalAlignment="Center"
-                                    Foreground="{DynamicResource MapWizardAccentBrush}"
-                                    IsVisible="{Binding ShowDestinationSection, ElementName=Root}" />
+        <!-- Workflow divider -->
+        <Grid Grid.Column="1"
+              IsVisible="{Binding ShowDestinationSection, ElementName=Root}">
+          <Border Width="1"
+                  Margin="0,4"
+                  HorizontalAlignment="Center"
+                  Background="{DynamicResource MapWizardBorderBrush}" />
+          <Border Width="32"
+                  Height="36"
+                  HorizontalAlignment="Center"
+                  VerticalAlignment="Center"
+                  Background="{DynamicResource MapWizardSurfaceBrush}">
+            <LucideIcon Kind="ArrowRight"
+                                        Size="22"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        Foreground="{DynamicResource MapWizardAccentBrush}" />
+          </Border>
+        </Grid>
 
         <!-- TARGETS -->
         <Border Grid.Column="2"
-                Classes="SelectionPanel"
+                Classes="SelectionPanel TargetsSelectionPanel"
                 VerticalAlignment="Stretch"
                 IsVisible="{Binding ShowDestinationSection, ElementName=Root}">
           <Grid RowDefinitions="Auto,*" RowSpacing="14">
             <Grid Grid.Row="0" ColumnDefinitions="*,Auto">
               <StackPanel Spacing="2">
                 <TextBlock Text="Targets" Classes="PanelTitle" />
-                <TextBlock Text="{Binding TargetSubtitle, ElementName=Root}"
-                           Classes="PanelSubtitle"
-                           TextWrapping="Wrap" />
               </StackPanel>
 
               <StackPanel Grid.Column="1"
@@ -664,19 +726,35 @@
                           Spacing="8"
                           VerticalAlignment="Center"
                           IsVisible="{Binding !HasVisibleDestinationCards, ElementName=Root}">
-                <Button Classes="Compact MemoryActionButton"
+                <Button Classes="Compact MemoryActionButton MapSourceActionButton"
                         Command="{ReflectionBinding AddDestinationFromMemoryCommand}"
                         ToolTip.Tip="{Binding DestinationMemoryToolTip, ElementName=Root}">
                   <StackPanel Orientation="Horizontal" Spacing="5">
-                    <materialIcons:MaterialIcon Kind="Import" Width="16" Height="16" />
+                    <Grid Width="16"
+                          Height="16"
+                          Classes="AsyncActionActivity"
+                          Classes.busy="{ReflectionBinding AddDestinationFromMemoryCommand.IsRunning}">
+                      <LucideIcon Kind="Import" Size="16" />
+                      <theme:BusyIndicator Classes="AsyncActionIndicator"
+                                           IsRunning="{ReflectionBinding AddDestinationFromMemoryCommand.IsRunning}"
+                                           VerticalAlignment="Center" />
+                    </Grid>
                     <TextBlock Text="From osu!" VerticalAlignment="Center" />
                   </StackPanel>
                 </Button>
-                <Button Classes="Flat Compact"
+                <Button Classes="Flat Compact MapSourceActionButton"
                         Command="{ReflectionBinding PickDestinationFileCommand}"
                         ToolTip.Tip="Open the Map Picker">
                   <StackPanel Orientation="Horizontal" Spacing="5">
-                    <materialIcons:MaterialIcon Kind="FileSearchOutline" Width="16" Height="16" />
+                    <Grid Width="16"
+                          Height="16"
+                          Classes="AsyncActionActivity"
+                          Classes.busy="{ReflectionBinding PickDestinationFileCommand.IsRunning}">
+                      <LucideIcon Kind="FileSearch" Size="16" />
+                      <theme:BusyIndicator Classes="AsyncActionIndicator"
+                                           IsRunning="{ReflectionBinding PickDestinationFileCommand.IsRunning}"
+                                           VerticalAlignment="Center" />
+                    </Grid>
                     <TextBlock Text="Map Picker" VerticalAlignment="Center" />
                   </StackPanel>
                 </Button>
@@ -716,7 +794,7 @@
                                       Click="DestinationMapsetExpandButton_OnClick"
                                       ToolTip.Tip="Show or hide this mapset's difficulties" />
 
-                              <materialIcons:MaterialIcon Classes="MapsetChevron"
+                              <LucideIcon Classes="MapsetChevron"
                                                           Classes.expanded="{Binding IsExpanded}"
                                                           Foreground="#EEEEEE"
                                                           Margin="6"
@@ -769,7 +847,7 @@
                                       Click="DestinationMapsetRemoveButton_OnClick"
                                       IsVisible="{Binding !IsSuggested}"
                                       ToolTip.Tip="Remove this mapset from targets">
-                                <materialIcons:MaterialIcon Kind="Close" Width="16" Height="16" />
+                                <LucideIcon Kind="X" Size="16" />
                               </Button>
                           </Grid>
                         </Border>
@@ -803,10 +881,9 @@
                                       <Border Classes="DiffIndicatorBoxSelected"
                                               CornerRadius="5"
                                               IsVisible="{Binding IsSelected}" />
-                                      <materialIcons:MaterialIcon Classes="DiffIndicatorCheck"
+                                      <LucideIcon Classes="DiffIndicatorCheck"
                                                                   Kind="Check"
-                                                                  Width="12"
-                                                                  Height="12"
+                                                                  Size="12"
                                                                   HorizontalAlignment="Center"
                                                                   VerticalAlignment="Center"
                                                                   IsVisible="{Binding IsSelected}" />
@@ -835,9 +912,8 @@
                 <StackPanel HorizontalAlignment="Center"
                             VerticalAlignment="Center"
                             Spacing="6">
-                  <materialIcons:MaterialIcon Kind="FormatListChecks"
-                                              Width="34"
-                                              Height="34"
+                  <LucideIcon Kind="ListChecks"
+                                              Size="34"
                                               Opacity="0.5"
                                               HorizontalAlignment="Center" />
                   <TextBlock Text="No targets selected"
@@ -862,27 +938,43 @@
                           Command="{ReflectionBinding PickDestinationFileCommand}"
                           ToolTip.Tip="Add a beatmap to the targets">
                     <StackPanel Orientation="Horizontal" Spacing="5">
-                      <materialIcons:MaterialIcon Kind="Plus" Width="16" Height="16" />
+                      <LucideIcon Kind="Plus" Size="16" />
                       <TextBlock Text="Add map" VerticalAlignment="Center" />
                     </StackPanel>
                   </Button>
 
                   <Button Grid.Column="2"
-                          Classes="Compact MemoryActionButton"
+                          Classes="Compact MemoryActionButton MapSourceActionButton"
                           Command="{ReflectionBinding AddDestinationFromMemoryCommand}"
                           ToolTip.Tip="{Binding DestinationMemoryToolTip, ElementName=Root}">
                     <StackPanel Orientation="Horizontal" Spacing="5">
-                      <materialIcons:MaterialIcon Kind="Import" Width="16" Height="16" />
+                      <Grid Width="16"
+                            Height="16"
+                            Classes="AsyncActionActivity"
+                            Classes.busy="{ReflectionBinding AddDestinationFromMemoryCommand.IsRunning}">
+                        <LucideIcon Kind="Import" Size="16" />
+                        <theme:BusyIndicator Classes="AsyncActionIndicator"
+                                             IsRunning="{ReflectionBinding AddDestinationFromMemoryCommand.IsRunning}"
+                                             VerticalAlignment="Center" />
+                      </Grid>
                       <TextBlock Text="From osu!" VerticalAlignment="Center" />
                     </StackPanel>
                   </Button>
 
                   <Button Grid.Column="3"
-                          Classes="Flat Compact"
+                          Classes="Flat Compact MapSourceActionButton"
                           Command="{ReflectionBinding PickDestinationFileCommand}"
                           ToolTip.Tip="Open the Map Picker">
                     <StackPanel Orientation="Horizontal" Spacing="5">
-                      <materialIcons:MaterialIcon Kind="FileSearchOutline" Width="16" Height="16" />
+                      <Grid Width="16"
+                            Height="16"
+                            Classes="AsyncActionActivity"
+                            Classes.busy="{ReflectionBinding PickDestinationFileCommand.IsRunning}">
+                        <LucideIcon Kind="FileSearch" Size="16" />
+                        <theme:BusyIndicator Classes="AsyncActionIndicator"
+                                             IsRunning="{ReflectionBinding PickDestinationFileCommand.IsRunning}"
+                                             VerticalAlignment="Center" />
+                      </Grid>
                       <TextBlock Text="Map Picker" VerticalAlignment="Center" />
                     </StackPanel>
                   </Button>
@@ -892,6 +984,7 @@
           </Grid>
         </Border>
       </Grid>
+      </Border>
     </StackPanel>
   </Border>
 </UserControl>

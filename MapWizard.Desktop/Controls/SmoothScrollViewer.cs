@@ -22,6 +22,8 @@ namespace MapWizard.Desktop.Controls;
 public class SmoothScrollViewer : ScrollViewer
 {
     private const double ScrollEpsilon = 1d;
+    private static readonly TimeSpan AnimationDetachDelay =
+        Scrollable.DefaultDuration + TimeSpan.FromMilliseconds(80);
 
     private static bool _isGlobalSmoothScrollingEnabled = true;
     private static event EventHandler? GlobalSmoothScrollingChanged;
@@ -50,11 +52,12 @@ public class SmoothScrollViewer : ScrollViewer
     private bool _isWheelAnimationActive;
     private PointerWheelEventArgs? _pendingWheelEvent;
     private bool _isWheelDispatching;
+    private readonly WheelInputClassifier _wheelInputClassifier = new();
 
     public SmoothScrollViewer()
     {
         ScrollChanged += OnScrollChanged;
-        _wheelAnimationTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(380) };
+        _wheelAnimationTimer = new DispatcherTimer { Interval = AnimationDetachDelay };
         _wheelAnimationTimer.Tick += (_, _) => DetachSmoothScrolling();
         AddHandler(PointerWheelChangedEvent, OnPointerWheelStart, RoutingStrategies.Tunnel, handledEventsToo: true);
         AddHandler(PointerWheelChangedEvent, OnPointerWheelAfter, RoutingStrategies.Bubble, handledEventsToo: true);
@@ -162,6 +165,7 @@ public class SmoothScrollViewer : ScrollViewer
         _presenter = null;
         _horizontalScrollBar = null;
         _verticalScrollBar = null;
+        _wheelInputClassifier.Reset();
     }
 
     protected override void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e)
@@ -210,7 +214,10 @@ public class SmoothScrollViewer : ScrollViewer
 
     private void OnScrollChanged(object? sender, ScrollChangedEventArgs e)
     {
-        UpdateFade();
+        if (IsScrollFadeEnabled)
+        {
+            UpdateFade();
+        }
     }
 
     private void OnPointerWheelStart(object? sender, PointerWheelEventArgs e)
@@ -220,9 +227,10 @@ public class SmoothScrollViewer : ScrollViewer
             return;
         }
 
-        // Avalonia reports physical wheel detents as whole deltas. Fractional
-        // deltas come from precision devices and must track the finger directly.
-        if (!IsWholeDetent(e.Delta.X) || !IsWholeDetent(e.Delta.Y))
+        // Precision devices must remain coupled to the finger. Avalonia does not
+        // expose a touchpad flag, so the classifier uses fractional deltas and
+        // event cadence, retaining the result for the rest of the input burst.
+        if (_wheelInputClassifier.IsPrecisionInput(e.Delta.X, e.Delta.Y))
         {
             DetachSmoothScrolling();
             return;
@@ -258,9 +266,11 @@ public class SmoothScrollViewer : ScrollViewer
         _isWheelDispatching = false;
     }
 
-    private void OnPointerPressed(object? sender, PointerPressedEventArgs e) => DetachSmoothScrolling();
-
-    private static bool IsWholeDetent(double value) => Math.Abs(value - Math.Round(value)) < 0.001d;
+    private void OnPointerPressed(object? sender, PointerPressedEventArgs e)
+    {
+        _wheelInputClassifier.Reset();
+        DetachSmoothScrolling();
+    }
 
     private void ResolveContentVisual()
     {

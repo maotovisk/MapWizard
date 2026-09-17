@@ -3,7 +3,6 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:materialIcons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
     xmlns:theme="clr-namespace:MapWizard.Theme.Controls;assembly=MapWizard.Theme"
     xmlns:controls="clr-namespace:MapWizard.Desktop.Views.Controls"
     xmlns:appControls="clr-namespace:MapWizard.Desktop.Controls"
@@ -29,7 +28,7 @@
             Command="{Binding CopyHitSoundsCommand}"
             ToolTip.Tip="Copy the hitsounds">
             <StackPanel Orientation="Horizontal" Spacing="8">
-                <materialIcons:MaterialIcon Kind="ContentSave" Width="24" Height="24" />
+                <LucideIcon Kind="Save" Size="24" />
                 <TextBlock
                     VerticalAlignment="Center"
                     FontWeight="Normal"
@@ -45,8 +44,6 @@
                 <controls:BeatmapSelectionPanel
                     OriginMap="{Binding OriginBeatmap}"
                     DestinationMaps="{Binding DestinationBeatmaps}"
-                    SourceSubtitle="Select one difficulty to copy hitsounds from."
-                    TargetSubtitle="Select one or more target difficulties to copy to."
                     OriginMemoryToolTip="Get the current beatmap selected in the osu! client."
                     DestinationMemoryToolTip="Add the current beatmap selected in the osu! client." />
 

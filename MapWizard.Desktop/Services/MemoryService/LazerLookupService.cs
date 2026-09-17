@@ -12,22 +12,22 @@ namespace MapWizard.Desktop.Services.MemoryService;
 /// Finds beatmaps exposed by osu!lazer's "Edit externally" operation.
 /// </summary>
 /// <remarks>
-/// lazer mounts a beatmap set at <c>Path.GetTempPath()/&lt;beatmap-set SHA-256&gt;</c> and removes
-/// it after the user finishes external editing. Reading and writing that mount lets lazer remain
+/// osu!lazer mounts a beatmap set at <c>Path.GetTempPath()/&lt;beatmap-set SHA-256&gt;</c> and removes
+/// it after the user finishes external editing. Reading and writing that mount lets osu!lazer remain
 /// the sole owner of its Realm database and content-addressed file store.
 /// </remarks>
 public sealed class LazerLookupService : ILazerLookupService
 {
     private static readonly string[] lazerProcessNames = ["osu!", "osu", "osu.Desktop"];
 
-    public Result<IReadOnlyList<string>> GetMountedBeatmapPaths()
+    public Result<LazerSessionState> GetSessionState()
     {
         try
         {
             var processStartUtc = GetRunningLazerStartTimeUtc();
             if (processStartUtc is null)
             {
-                return Success([]);
+                return Success(isRunning: false, []);
             }
 
             var mountedSet = Directory.EnumerateDirectories(Path.GetTempPath(), "*", SearchOption.TopDirectoryOnly)
@@ -37,14 +37,14 @@ public sealed class LazerLookupService : ILazerLookupService
                 .OrderByDescending(candidate => candidate!.LastWriteUtc)
                 .FirstOrDefault();
 
-            return Success(mountedSet?.BeatmapPaths ?? []);
+            return Success(isRunning: true, mountedSet?.BeatmapPaths ?? []);
         }
         catch (Exception ex)
         {
             MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
-            return new Result<IReadOnlyList<string>>
+            return new Result<LazerSessionState>
             {
-                Value = [],
+                Value = new LazerSessionState(false, []),
                 Status = ResultStatus.Error,
                 ErrorMessage = $"Unable to inspect osu!lazer's external-edit folder. {ex.Message}"
             };
@@ -153,9 +153,11 @@ public sealed class LazerLookupService : ILazerLookupService
         return true;
     }
 
-    private static Result<IReadOnlyList<string>> Success(IReadOnlyList<string> paths) => new()
+    private static Result<LazerSessionState> Success(
+        bool isRunning,
+        IReadOnlyList<string> paths) => new()
     {
-        Value = paths,
+        Value = new LazerSessionState(isRunning, paths),
         Status = ResultStatus.Success
     };
 

@@ -57,16 +57,74 @@ jobs:
           date_stamp="$(date -u +%Y%m%d)"
           default_tag_name="pre-${date_stamp}"
 
-          latest_stable_tag="$(git tag -l 'v[0-9]*.[0-9]*.[0-9]*' --sort=-v:refname | head -n 1)"
-          if [[ -z "${latest_stable_tag}" ]]; then
-            base_version="0.1.0"
-          else
-            base_version="${latest_stable_tag#v}"
+          # Every tag that carries a semver version: stable vX.Y.Z and plain
+          # semver pre-releases such as 3.0.0-rc2. Tags like pre-YYYYMMDD do not
+          # encode a version and are intentionally ignored (their versions never
+          # exceed the stable-based auto line).
+          all_versions="$(
+            git tag -l \
+              | sed -E 's/^v//' \
+              | grep -E '^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$' \
+              | sort -u || true
+          )"
+
+          latest_stable_base="$(
+            printf '%s\n' "${all_versions}" \
+              | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' \
+              | sort -V | tail -n 1 || true
+          )"
+
+          latest_prerelease_base="$(
+            printf '%s\n' "${all_versions}" \
+              | grep -E '^[0-9]+\.[0-9]+\.[0-9]+-' \
+              | sed -E 's/-.*$//' \
+              | sort -V | tail -n 1 || true
+          )"
+
+          # An unreleased line is "in progress" when its base is newer than the
+          # latest stable, e.g. 3.0.0-rc2 while the latest stable is v2.7.2.
+          active_line=""
+          if [[ -n "${latest_prerelease_base}" ]]; then
+            newest_base="$(printf '%s\n%s\n' "${latest_stable_base:-0.0.0}" "${latest_prerelease_base}" | sort -V | tail -n 1)"
+            if [[ "${newest_base}" == "${latest_prerelease_base}" && "${latest_prerelease_base}" != "${latest_stable_base}" ]]; then
+              active_line="${latest_prerelease_base}"
+            fi
           fi
 
-          IFS='.' read -r major minor patch <<< "${base_version}"
-          next_patch=$((patch + 1))
-          default_next_version="${major}.${minor}.${next_patch}-pre.${date_stamp}"
+          if [[ -n "${active_line}" ]]; then
+            # Continue the in-progress line with a date-stamped release candidate.
+            # The date keeps it ordering above the previous candidate
+            # (3.0.0-rc3.20260917 > 3.0.0-rc2) while still allowing only one
+            # pre-release per day; the tag always equals the version so the next
+            # run can detect it again.
+            escaped_line="${active_line//./\\.}"
+            highest_pre="$(printf '%s\n' "${all_versions}" | grep -E "^${escaped_line}-" | sort -V | tail -n 1)"
+            suffix="${highest_pre#${active_line}-}"
+            rc_number=""
+
+            if [[ "${suffix}" =~ ^rc([0-9]+)$ ]]; then
+              # Manually cut candidate (e.g. rc2) -> start the next one (rc3).
+              rc_number=$(( BASH_REMATCH[1] + 1 ))
+            elif [[ "${suffix}" =~ ^rc([0-9]+)\. ]]; then
+              # Date-stamped candidate (e.g. rc3.20260917) -> keep the same
+              # candidate number and just refresh the date.
+              rc_number="${BASH_REMATCH[1]}"
+            else
+              highest_rc="$(printf '%s\n' "${all_versions}" | grep -Eo "^${escaped_line}-rc[0-9]+" | grep -Eo '[0-9]+$' | sort -n | tail -n 1 || true)"
+              rc_number=$(( ${highest_rc:-0} + 1 ))
+            fi
+
+            default_next_version="${active_line}-rc${rc_number}.${date_stamp}"
+            default_tag_name="${default_next_version}"
+          else
+            if [[ -z "${latest_stable_base}" ]]; then
+              latest_stable_base="0.1.0"
+            fi
+
+            IFS='.' read -r major minor patch <<< "${latest_stable_base}"
+            next_patch=$((patch + 1))
+            default_next_version="${major}.${minor}.${next_patch}-pre.${date_stamp}"
+          fi
 
           tag_name="${default_tag_name}"
           next_version="${default_next_version}"

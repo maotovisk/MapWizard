@@ -3,7 +3,6 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:primitives="clr-namespace:Avalonia.Controls.Primitives;assembly=Avalonia.Controls.ColorPicker"
              xmlns:local="clr-namespace:MapWizard.Desktop.Views.Controls"
-             xmlns:materialIcons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
              x:Class="MapWizard.Desktop.Views.Controls.ModernColorPicker"
              x:Name="Root"
              MinWidth="150">
@@ -89,10 +88,9 @@
                            Foreground="{DynamicResource MapWizardTextBrush}"
                            VerticalAlignment="Center"
                            Text="#FFFFFF" />
-                <materialIcons:MaterialIcon Grid.Column="2"
+                <LucideIcon Grid.Column="2"
                                             Kind="ChevronDown"
-                                            Width="16"
-                                            Height="16"
+                                            Size="16"
                                             Foreground="{DynamicResource MapWizardTextBrush}" />
             </Grid>
             <FlyoutBase.AttachedFlyout>
@@ -113,9 +111,8 @@
                                         Classes="HeaderClose"
                                         Click="CloseFlyout_OnClick"
                                         ToolTip.Tip="Close">
-                                    <materialIcons:MaterialIcon Kind="Close"
-                                                                Width="16"
-                                                                Height="16" />
+                                    <LucideIcon Kind="X"
+                                                                Size="16" />
                                 </Button>
                             </Grid>
                             <primitives:ColorSpectrum x:Name="ColourSpectrum"

@@ -47,6 +47,8 @@ namespace MapWizard.Desktop.Views
 
         public void NavigateToHitSoundCopier() => ViewModel.NavigateToHitSoundCopier();
 
+        public void NavigateToHitSoundVisualizer() => ViewModel.NavigateToHitSoundVisualizer();
+
         public void NavigateToMetadataManager() => ViewModel.NavigateToMetadataManager();
 
         public void NavigateToComboColourStudio() => ViewModel.NavigateToComboColourStudio();
@@ -73,8 +75,16 @@ namespace MapWizard.Desktop.Views
 
         private void UpdateShellCorners()
         {
+            if (OperatingSystem.IsWindows())
+            {
+                WindowShell.CornerRadius = default;
+                WindowShell.ClipToBounds = false;
+                return;
+            }
+
             var square = WindowState is WindowState.Maximized or WindowState.FullScreen;
-            WindowShell.CornerRadius = square ? default : new CornerRadius(ShellCornerRadius);
+            WindowShell.CornerRadius = square ? default : new CornerRadius(12d);
+            WindowShell.ClipToBounds = true;
         }
 
         private void UpdateWindowControlGlyphs()

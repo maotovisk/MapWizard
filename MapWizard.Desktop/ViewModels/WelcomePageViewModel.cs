@@ -1,10 +1,14 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Controls.Notifications;
 using Avalonia.Layout;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Lucide.Avalonia;
 using MapWizard.Desktop.Extensions;
+using MapWizard.Desktop.Models;
 using MapWizard.Desktop.Services;
 using MapWizard.Desktop.Views.Dialogs;
 using MapWizard.Tools.HelperExtensions;
@@ -15,9 +19,68 @@ namespace MapWizard.Desktop.ViewModels;
 public partial class WelcomePageViewModel(
     INotificationService notificationService,
     IModalService modalService,
-    IUpdateService updateService) : ViewModelBase
+    IUpdateService updateService,
+    ISettingsService settingsService,
+    ISongLibraryService songLibraryService) : ViewModelBase
 {
     public string Message { get; set; } = "Welcome to MapWizard, select a tool to get started!";
+
+    /// <summary>Tools shown in the Start list.</summary>
+    public IReadOnlyList<QuickStartTool> Tools { get; } =
+    [
+        new("copier", "Hitsound Copier", "Copy hitsounds between difficulties.", LucideIconKind.Copy),
+        new("metadata", "Metadata Manager", "Edit and sync metadata across a mapset.", LucideIconKind.Files),
+        new("hitsound-editor", "HitSound Editor", "Inspect and tweak hitsounds on a timeline.", LucideIconKind.ChartLine),
+        new("combo-colour", "Combo Colour Studio", "Design and apply combo colour patterns.", LucideIconKind.Palette),
+        new("map-cleaner", "Map Cleaner", "Resnap objects and remove unused timing points.", LucideIconKind.BrushCleaning),
+    ];
+
+    [ObservableProperty]
+    private bool _isSongsFolderConfigured;
+
+    [ObservableProperty]
+    private string _songsFolderStatusText = "osu! Songs folder not set.";
+
+    public void RefreshSongsFolderStatus()
+    {
+        var songsPath = settingsService.GetMainSettings().SongsPath;
+        IsSongsFolderConfigured = songLibraryService.IsValidSongsPath(songsPath);
+        SongsFolderStatusText = IsSongsFolderConfigured
+            ? $"Songs folder: {songsPath}"
+            : "osu! Songs folder not set.";
+    }
+
+    [RelayCommand]
+    private async Task CheckForUpdates()
+    {
+        await CheckForUpdatesCoreAsync(showNotInstalledMessage: true);
+    }
+
+    [RelayCommand]
+    private void OpenDiscord()
+    {
+        OpenExternalLink(AppLinks.Discord, "Discord");
+    }
+
+    [RelayCommand]
+    private void OpenDocumentation()
+    {
+        OpenExternalLink(AppLinks.Documentation, "Documentation");
+    }
+
+    [RelayCommand]
+    private void OpenGithub()
+    {
+        OpenExternalLink(AppLinks.Repository, "GitHub");
+    }
+
+    private void OpenExternalLink(string url, string title)
+    {
+        if (!AppLinks.TryOpen(url))
+        {
+            notificationService.ShowToast(NotificationType.Error, title, "The link could not be opened.");
+        }
+    }
 
     private bool _startupCheckDone;
 
@@ -102,7 +165,28 @@ public partial class WelcomePageViewModel(
         laterButton.Click += async (_, _) => await modalService.CloseAsync(null);
         footerPanel.Children.Add(laterButton);
 
-        var updateButton = new Button { Content = "Update" };
+        var updateButton = new Button
+        {
+            Content = new StackPanel
+            {
+                Orientation = Orientation.Horizontal,
+                Spacing = 8,
+                Children =
+                {
+                    new LucideIcon
+                    {
+                        Kind = LucideIconKind.Download,
+                        Size = 16,
+                        VerticalAlignment = VerticalAlignment.Center
+                    },
+                    new TextBlock
+                    {
+                        Text = "Update",
+                        VerticalAlignment = VerticalAlignment.Center
+                    }
+                }
+            }
+        };
         updateButton.Classes.Add("Flat");
         updateButton.Classes.Add("Compact");
         updateButton.Click += async (_, _) => await modalService.CloseAsync("Update");

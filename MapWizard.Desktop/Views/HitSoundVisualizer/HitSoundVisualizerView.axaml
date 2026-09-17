@@ -3,7 +3,6 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:materialIcons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
     xmlns:theme="clr-namespace:MapWizard.Theme.Controls;assembly=MapWizard.Theme"
     xmlns:controls="clr-namespace:MapWizard.Desktop.Views.Controls"
     xmlns:appControls="clr-namespace:MapWizard.Desktop.Controls"
@@ -197,7 +196,7 @@
                     Margin="0,0,8,0"
                     ToolTip.Tip="Export hitsound timeline">
                 <StackPanel Orientation="Horizontal" Spacing="6">
-                    <materialIcons:MaterialIcon Kind="ContentSave" Width="24" Height="24" />
+                    <LucideIcon Kind="Save" Size="24" />
                     <TextBlock VerticalAlignment="Center"
                                FontWeight="Normal"
                                FontSize="16"
@@ -214,14 +213,14 @@
                                 <Button Classes="timeline-btn"
                                         Command="{Binding ExportApplyToTargetDiffCommand}">
                                     <StackPanel Orientation="Horizontal" Spacing="6">
-                                        <materialIcons:MaterialIcon Kind="FileReplaceOutline" Width="16" Height="16" />
+                                        <LucideIcon Kind="Replace" Size="16" />
                                         <TextBlock VerticalAlignment="Center" Text="Apply To Target Diff" />
                                     </StackPanel>
                                 </Button>
                                 <Button Classes="timeline-btn"
                                         Command="{Binding ExportHitsoundDiffCommand}">
                                     <StackPanel Orientation="Horizontal" Spacing="6">
-                                        <materialIcons:MaterialIcon Kind="MusicCircleOutline" Width="16" Height="16" />
+                                        <LucideIcon Kind="Disc3" Size="16" />
                                         <TextBlock VerticalAlignment="Center" Text="Export Circle-only Hitsound Diff" />
                                     </StackPanel>
                                 </Button>
@@ -240,7 +239,6 @@
                     OriginMap="{Binding OriginBeatmap}"
                     DestinationMaps="{Binding DestinationBeatmaps}"
                     ShowDestinationSelection="False"
-                    SourceSubtitle="Select the beatmap you want to visualize hitsounds from."
                     OriginMemoryToolTip="Get the current beatmap selected in the osu! client." />
 
                 <theme:BusyArea IsBusy="{Binding IsPreparingPlayback}"
@@ -250,7 +248,7 @@
                         <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
                             <TextBlock Text="Timeline Player" VerticalAlignment="Center" FontWeight="SemiBold" />
                             <Button Grid.Column="1" Classes="timeline-btn" ToolTip.Tip="Hitsound Editor">
-                                <materialIcons:MaterialIcon Kind="Pencil" Width="16" Height="16" />
+                                <LucideIcon Kind="Pencil" Size="16" />
                                 <Button.Flyout>
                                     <Flyout Placement="BottomEdgeAlignedRight">
                                         <Border Classes="PopupSurface timeline-flyout-surface">
@@ -265,7 +263,7 @@
                                                     <Button Grid.Row="0" Grid.Column="1" Classes="timeline-select">
                                                         <Grid ColumnDefinitions="*,Auto" ColumnSpacing="6">
                                                             <TextBlock VerticalAlignment="Center" Text="{Binding SelectedSampleSetName}" />
-                                                            <materialIcons:MaterialIcon Grid.Column="1" Kind="ChevronDown" Width="16" Height="16" />
+                                                            <LucideIcon Grid.Column="1" Kind="ChevronDown" Size="16" />
                                                         </Grid>
                                                         <Button.Flyout>
                                                             <Flyout Placement="BottomEdgeAlignedLeft">
@@ -290,18 +288,18 @@
                                                         <Grid ColumnDefinitions="*,*,*,*" ColumnSpacing="4">
                                                             <ToggleButton Grid.Column="0" Classes="timeline-seg-btn" IsChecked="{Binding IsHitNormalSelected}">
                                                                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="6">
-                                                                    <materialIcons:MaterialIcon Kind="MusicNote" Width="14" Height="14" />
+                                                                    <LucideIcon Kind="Music" Size="14" />
                                                                     <TextBlock Text="Normal" />
                                                                 </StackPanel>
                                                             </ToggleButton>
                                                             <ToggleButton Grid.Column="1" Classes="timeline-seg-btn" IsChecked="{Binding IsHitWhistleSelected}" ToolTip.Tip="Whistle">
-                                                                <materialIcons:MaterialIcon Kind="Bullhorn" Width="14" Height="14" HorizontalAlignment="Center" />
+                                                                <LucideIcon Kind="Megaphone" Size="14" HorizontalAlignment="Center" />
                                                             </ToggleButton>
                                                             <ToggleButton Grid.Column="2" Classes="timeline-seg-btn" IsChecked="{Binding IsHitFinishSelected}" ToolTip.Tip="Finish">
-                                                                <materialIcons:MaterialIcon Kind="Star" Width="14" Height="14" HorizontalAlignment="Center" />
+                                                                <LucideIcon Kind="Star" Size="14" HorizontalAlignment="Center" />
                                                             </ToggleButton>
                                                             <ToggleButton Grid.Column="3" Classes="timeline-seg-btn" IsChecked="{Binding IsHitClapSelected}" ToolTip.Tip="Clap">
-                                                                <materialIcons:MaterialIcon Kind="HandClap" Width="14" Height="14" HorizontalAlignment="Center" />
+                                                                <LucideIcon Kind="Hand" Size="14" HorizontalAlignment="Center" />
                                                             </ToggleButton>
                                                         </Grid>
                                                     </Border>
@@ -313,7 +311,7 @@
                                                             IsEnabled="{Binding HasSelectedPoint}"
                                                             Margin="0,0,8,8">
                                                         <StackPanel Orientation="Horizontal" Spacing="6">
-                                                            <materialIcons:MaterialIcon Kind="ContentCopy" Width="16" Height="16" />
+                                                            <LucideIcon Kind="Copy" Size="16" />
                                                             <TextBlock VerticalAlignment="Center" Text="Copy Selected" />
                                                         </StackPanel>
                                                     </Button>
@@ -322,7 +320,7 @@
                                                             IsEnabled="{Binding HasSelectedPoint}"
                                                             Margin="0,0,8,8">
                                                         <StackPanel Orientation="Horizontal" Spacing="6">
-                                                            <materialIcons:MaterialIcon Kind="ContentSaveEdit" Width="16" Height="16" />
+                                                            <LucideIcon Kind="FilePen" Size="16" />
                                                             <TextBlock VerticalAlignment="Center" Text="Apply To Selection" />
                                                         </StackPanel>
                                                     </Button>
@@ -331,7 +329,7 @@
                                                             IsEnabled="{Binding HasSelectedPoint}"
                                                             Margin="0,0,8,8">
                                                         <StackPanel Orientation="Horizontal" Spacing="6">
-                                                            <materialIcons:MaterialIcon Kind="Play" Width="16" Height="16" />
+                                                            <LucideIcon Kind="Play" Size="16" />
                                                             <TextBlock VerticalAlignment="Center" Text="Play Selected" />
                                                         </StackPanel>
                                                     </Button>
@@ -340,7 +338,7 @@
                                                             IsEnabled="{Binding HasSelectedPoint}"
                                                             Margin="0,0,8,8">
                                                         <StackPanel Orientation="Horizontal" Spacing="6">
-                                                            <materialIcons:MaterialIcon Kind="Delete" Width="16" Height="16" />
+                                                            <LucideIcon Kind="Trash" Size="16" />
                                                             <TextBlock VerticalAlignment="Center" Text="Remove Selected" />
                                                         </StackPanel>
                                                     </Button>
@@ -358,26 +356,26 @@
                                           Classes="timeline-toolbar-toggle"
                                           IsChecked="{Binding FollowPlaybackCursor}"
                                           ToolTip.Tip="Follow playback cursor">
-                                <materialIcons:MaterialIcon Kind="CrosshairsGps" Width="16" Height="16" />
+                                <LucideIcon Kind="Crosshair" Size="16" />
                             </ToggleButton>
                             <Button Grid.Row="0"
                                     Grid.Column="1"
                                     Classes="timeline-btn"
                                     Command="{Binding ZoomToSelectionCommand}"
                                     ToolTip.Tip="Zoom In">
-                                <materialIcons:MaterialIcon Kind="MagnifyPlus" Width="16" Height="16" />
+                                <LucideIcon Kind="ZoomIn" Size="16" />
                             </Button>
                             <Button Grid.Row="0"
                                     Grid.Column="2"
                                     Classes="timeline-btn"
                                     Command="{Binding ZoomOutCommand}"
                                     ToolTip.Tip="Zoom Out">
-                                <materialIcons:MaterialIcon Kind="MagnifyMinus" Width="16" Height="16" />
+                                <LucideIcon Kind="ZoomOut" Size="16" />
                             </Button>
 
                             <Button Grid.Row="0" Grid.Column="4" Classes="timeline-select" ToolTip.Tip="HS Selector">
                                 <Grid ColumnDefinitions="Auto,*" ColumnSpacing="6" MinWidth="110">
-                                    <materialIcons:MaterialIcon Kind="FilterVariant" Width="16" Height="16" />
+                                    <LucideIcon Kind="ListFilter" Size="16" />
                                     <TextBlock Grid.Column="1" VerticalAlignment="Center" Text="HS Selector" />
                                 </Grid>
                                 <Button.Flyout>
@@ -393,7 +391,7 @@
                                                     <Button Grid.Row="0" Grid.Column="1" Classes="timeline-select">
                                                         <Grid ColumnDefinitions="*,Auto" ColumnSpacing="6">
                                                             <TextBlock VerticalAlignment="Center" Text="{Binding HsSelectorNormalBankFilterName}" />
-                                                            <materialIcons:MaterialIcon Grid.Column="1" Kind="ChevronDown" Width="16" Height="16" />
+                                                            <LucideIcon Grid.Column="1" Kind="ChevronDown" Size="16" />
                                                         </Grid>
                                                         <Button.Flyout>
                                                             <Flyout Placement="BottomEdgeAlignedLeft">
@@ -411,7 +409,7 @@
                                                     <Button Grid.Row="1" Grid.Column="1" Classes="timeline-select">
                                                         <Grid ColumnDefinitions="*,Auto" ColumnSpacing="6">
                                                             <TextBlock VerticalAlignment="Center" Text="{Binding HsSelectorAdditionBankFilterName}" />
-                                                            <materialIcons:MaterialIcon Grid.Column="1" Kind="ChevronDown" Width="16" Height="16" />
+                                                            <LucideIcon Grid.Column="1" Kind="ChevronDown" Size="16" />
                                                         </Grid>
                                                         <Button.Flyout>
                                                             <Flyout Placement="BottomEdgeAlignedLeft">
@@ -436,18 +434,18 @@
                                                         <Grid ColumnDefinitions="*,*,*,*" ColumnSpacing="4">
                                                             <ToggleButton Grid.Column="0" Classes="timeline-seg-btn" IsChecked="{Binding HsSelectorIncludeHitNormal}">
                                                                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="6">
-                                                                    <materialIcons:MaterialIcon Kind="MusicNote" Width="14" Height="14" />
+                                                                    <LucideIcon Kind="Music" Size="14" />
                                                                     <TextBlock Text="Normal" />
                                                                 </StackPanel>
                                                             </ToggleButton>
                                                             <ToggleButton Grid.Column="1" Classes="timeline-seg-btn" IsChecked="{Binding HsSelectorIncludeWhistle}" ToolTip.Tip="Whistle">
-                                                                <materialIcons:MaterialIcon Kind="Bullhorn" Width="14" Height="14" HorizontalAlignment="Center" />
+                                                                <LucideIcon Kind="Megaphone" Size="14" HorizontalAlignment="Center" />
                                                             </ToggleButton>
                                                             <ToggleButton Grid.Column="2" Classes="timeline-seg-btn" IsChecked="{Binding HsSelectorIncludeFinish}" ToolTip.Tip="Finish">
-                                                                <materialIcons:MaterialIcon Kind="Star" Width="14" Height="14" HorizontalAlignment="Center" />
+                                                                <LucideIcon Kind="Star" Size="14" HorizontalAlignment="Center" />
                                                             </ToggleButton>
                                                             <ToggleButton Grid.Column="3" Classes="timeline-seg-btn" IsChecked="{Binding HsSelectorIncludeClap}" ToolTip.Tip="Clap">
-                                                                <materialIcons:MaterialIcon Kind="HandClap" Width="14" Height="14" HorizontalAlignment="Center" />
+                                                                <LucideIcon Kind="Hand" Size="14" HorizontalAlignment="Center" />
                                                             </ToggleButton>
                                                         </Grid>
                                                     </Border>
@@ -457,7 +455,7 @@
                                                         Command="{Binding SelectHitsoundsByFilterCommand}"
                                                         IsEnabled="{Binding HasAnyHsSelectorAudioTypeEnabled}">
                                                     <StackPanel Orientation="Horizontal" Spacing="6">
-                                                        <materialIcons:MaterialIcon Kind="Check" Width="16" Height="16" />
+                                                        <LucideIcon Kind="Check" Size="16" />
                                                         <TextBlock VerticalAlignment="Center" Text="Select" />
                                                     </StackPanel>
                                                 </Button>
@@ -478,7 +476,7 @@
                                     IsEnabled="{Binding CanEditHeaderBanks}">
                                 <Grid ColumnDefinitions="*,Auto" ColumnSpacing="6" MinWidth="108">
                                     <TextBlock VerticalAlignment="Center" Text="{Binding HeaderNormalBankName}" />
-                                    <materialIcons:MaterialIcon Grid.Column="1" Kind="ChevronDown" Width="16" Height="16" />
+                                    <LucideIcon Grid.Column="1" Kind="ChevronDown" Size="16" />
                                 </Grid>
                                 <Button.Flyout>
                                     <Flyout Placement="BottomEdgeAlignedLeft">
@@ -503,7 +501,7 @@
                                     IsEnabled="{Binding CanEditHeaderBanks}">
                                 <Grid ColumnDefinitions="*,Auto" ColumnSpacing="6" MinWidth="108">
                                     <TextBlock VerticalAlignment="Center" Text="{Binding HeaderAdditionBankName}" />
-                                    <materialIcons:MaterialIcon Grid.Column="1" Kind="ChevronDown" Width="16" Height="16" />
+                                    <LucideIcon Grid.Column="1" Kind="ChevronDown" Size="16" />
                                 </Grid>
                                 <Button.Flyout>
                                     <Flyout Placement="BottomEdgeAlignedLeft">
@@ -521,7 +519,7 @@
                             <Button Grid.Row="0" Grid.Column="10" Classes="timeline-btn">
                                 <StackPanel Orientation="Horizontal" Spacing="6">
                                     <TextBlock VerticalAlignment="Center" Text="{Binding SelectedSnapDivisorText}" />
-                                    <materialIcons:MaterialIcon Kind="ChevronDown" Width="16" Height="16" />
+                                    <LucideIcon Kind="ChevronDown" Size="16" />
                                 </StackPanel>
                                 <Button.Flyout>
                                     <Flyout Placement="BottomEdgeAlignedLeft">
@@ -568,9 +566,8 @@
                                                                     Spacing="7"
                                                                     Margin="10,0"
                                                                     VerticalAlignment="Center">
-                                                            <materialIcons:MaterialIcon Kind="{Binding Icon}"
-                                                                                        Width="13"
-                                                                                        Height="13"
+                                                            <LucideIcon Kind="{Binding Icon}"
+                                                                                        Size="13"
                                                                                         VerticalAlignment="Center" />
                                                             <TextBlock VerticalAlignment="Center"
                                                                        Text="{Binding Title}"
@@ -625,7 +622,7 @@
                                                             <Button Grid.Row="0" Grid.Column="1" Classes="timeline-select">
                                                                 <Grid ColumnDefinitions="*,Auto" ColumnSpacing="6">
                                                                     <TextBlock VerticalAlignment="Center" Text="{Binding SelectedSampleSetName}" />
-                                                                    <materialIcons:MaterialIcon Grid.Column="1" Kind="ChevronDown" Width="16" Height="16" />
+                                                                    <LucideIcon Grid.Column="1" Kind="ChevronDown" Size="16" />
                                                                 </Grid>
                                                                 <Button.Flyout>
                                                                     <Flyout Placement="BottomEdgeAlignedLeft">
@@ -650,18 +647,18 @@
                                                                 <Grid ColumnDefinitions="*,*,*,*" ColumnSpacing="4">
                                                                     <ToggleButton Grid.Column="0" Classes="timeline-seg-btn" IsChecked="{Binding IsHitNormalSelected}">
                                                                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="6">
-                                                                            <materialIcons:MaterialIcon Kind="MusicNote" Width="14" Height="14" />
+                                                                            <LucideIcon Kind="Music" Size="14" />
                                                                             <TextBlock Text="Normal" />
                                                                         </StackPanel>
                                                                     </ToggleButton>
                                                                     <ToggleButton Grid.Column="1" Classes="timeline-seg-btn" IsChecked="{Binding IsHitWhistleSelected}" ToolTip.Tip="Whistle">
-                                                                        <materialIcons:MaterialIcon Kind="Bullhorn" Width="14" Height="14" HorizontalAlignment="Center" />
+                                                                        <LucideIcon Kind="Megaphone" Size="14" HorizontalAlignment="Center" />
                                                                     </ToggleButton>
                                                                     <ToggleButton Grid.Column="2" Classes="timeline-seg-btn" IsChecked="{Binding IsHitFinishSelected}" ToolTip.Tip="Finish">
-                                                                        <materialIcons:MaterialIcon Kind="Star" Width="14" Height="14" HorizontalAlignment="Center" />
+                                                                        <LucideIcon Kind="Star" Size="14" HorizontalAlignment="Center" />
                                                                     </ToggleButton>
                                                                     <ToggleButton Grid.Column="3" Classes="timeline-seg-btn" IsChecked="{Binding IsHitClapSelected}" ToolTip.Tip="Clap">
-                                                                        <materialIcons:MaterialIcon Kind="HandClap" Width="14" Height="14" HorizontalAlignment="Center" />
+                                                                        <LucideIcon Kind="Hand" Size="14" HorizontalAlignment="Center" />
                                                                     </ToggleButton>
                                                                 </Grid>
                                                             </Border>
@@ -673,7 +670,7 @@
                                                                     IsEnabled="{Binding HasSelectedPoint}"
                                                                     Margin="0,0,8,8">
                                                                 <StackPanel Orientation="Horizontal" Spacing="6">
-                                                                    <materialIcons:MaterialIcon Kind="ContentCopy" Width="16" Height="16" />
+                                                                    <LucideIcon Kind="Copy" Size="16" />
                                                                     <TextBlock VerticalAlignment="Center" Text="Copy Selected" />
                                                                 </StackPanel>
                                                             </Button>
@@ -682,7 +679,7 @@
                                                                     IsEnabled="{Binding HasSelectedPoint}"
                                                                     Margin="0,0,8,8">
                                                                 <StackPanel Orientation="Horizontal" Spacing="6">
-                                                                    <materialIcons:MaterialIcon Kind="ContentSaveEdit" Width="16" Height="16" />
+                                                                    <LucideIcon Kind="FilePen" Size="16" />
                                                                     <TextBlock VerticalAlignment="Center" Text="Apply To Selection" />
                                                                 </StackPanel>
                                                             </Button>
@@ -691,7 +688,7 @@
                                                                     IsEnabled="{Binding HasSelectedPoint}"
                                                                     Margin="0,0,8,8">
                                                                 <StackPanel Orientation="Horizontal" Spacing="6">
-                                                                    <materialIcons:MaterialIcon Kind="Play" Width="16" Height="16" />
+                                                                    <LucideIcon Kind="Play" Size="16" />
                                                                     <TextBlock VerticalAlignment="Center" Text="Play Selected" />
                                                                 </StackPanel>
                                                             </Button>
@@ -700,7 +697,7 @@
                                                                     IsEnabled="{Binding HasSelectedPoint}"
                                                                     Margin="0,0,8,8">
                                                                 <StackPanel Orientation="Horizontal" Spacing="6">
-                                                                    <materialIcons:MaterialIcon Kind="Delete" Width="16" Height="16" />
+                                                                    <LucideIcon Kind="Trash" Size="16" />
                                                                     <TextBlock VerticalAlignment="Center" Text="Remove Selected" />
                                                                 </StackPanel>
                                                             </Button>
@@ -718,7 +715,7 @@
                                                             <Button Grid.Row="0" Grid.Column="1" Classes="timeline-select">
                                                                 <Grid ColumnDefinitions="*,Auto" ColumnSpacing="6">
                                                                     <TextBlock VerticalAlignment="Center" Text="{Binding ContextSampleSetName}" />
-                                                                    <materialIcons:MaterialIcon Grid.Column="1" Kind="ChevronDown" Width="16" Height="16" />
+                                                                    <LucideIcon Grid.Column="1" Kind="ChevronDown" Size="16" />
                                                                 </Grid>
                                                                 <Button.Flyout>
                                                                     <Flyout Placement="BottomEdgeAlignedLeft">
@@ -756,13 +753,13 @@
                                                             <Button Classes="timeline-btn"
                                                                     Command="{Binding ApplyContextSamplePointCommand}"
                                                                     ToolTip.Tip="Save Sample Point">
-                                                                <materialIcons:MaterialIcon Kind="ContentSave" Width="16" Height="16" />
+                                                                <LucideIcon Kind="Save" Size="16" />
                                                             </Button>
                                                             <Button Classes="timeline-btn"
                                                                     Command="{Binding RemoveContextSamplePointCommand}"
                                                                     IsEnabled="{Binding ContextSamplePointExists}"
                                                                     ToolTip.Tip="Delete Sample Point">
-                                                                <materialIcons:MaterialIcon Kind="Delete" Width="16" Height="16" />
+                                                                <LucideIcon Kind="Trash" Size="16" />
                                                             </Button>
                                                         </StackPanel>
                                                     </StackPanel>
@@ -803,19 +800,19 @@
                         <Button Classes="timeline-transport-btn"
                                 Command="{Binding TogglePlaybackCommand}"
                                 ToolTip.Tip="{Binding PlaybackButtonText}">
-                            <materialIcons:MaterialIcon Kind="{Binding PlaybackButtonIconKind}" Width="16" Height="16" />
+                            <LucideIcon Kind="{Binding PlaybackButtonIconKind}" Size="16" />
                         </Button>
                         <Button Classes="timeline-transport-btn"
                                 Command="{Binding StopPlaybackSessionCommand}"
                                 ToolTip.Tip="Stop">
-                            <materialIcons:MaterialIcon Kind="Stop" Width="16" Height="16" />
+                            <LucideIcon Kind="Square" Size="16" />
                         </Button>
 
                         <Button Classes="timeline-mute-btn"
                                 Command="{Binding ToggleSongMuteCommand}"
                                 PointerWheelChanged="SongVolumeButton_OnPointerWheelChanged"
                                 ToolTip.Tip="{Binding SongVolumeText, StringFormat=Song volume: {0} | Scroll: +/-1% | Click: mute/unmute}">
-                            <materialIcons:MaterialIcon Kind="{Binding SongVolumeIconKind}" Width="16" Height="16" />
+                            <LucideIcon Kind="{Binding SongVolumeIconKind}" Size="16" />
                             <Button.ContextFlyout>
                                 <Flyout Placement="TopEdgeAlignedLeft">
                                     <Border Classes="PopupSurface timeline-flyout-surface">
@@ -824,7 +821,7 @@
                                                     Command="{Binding ToggleSongMuteCommand}"
                                                     PointerWheelChanged="SongVolumeButton_OnPointerWheelChanged">
                                                 <StackPanel Orientation="Horizontal" Spacing="6">
-                                                    <materialIcons:MaterialIcon Kind="{Binding SongVolumeIconKind}" Width="14" Height="14" />
+                                                    <LucideIcon Kind="{Binding SongVolumeIconKind}" Size="14" />
                                                     <TextBlock VerticalAlignment="Center" Text="Song" />
                                                 </StackPanel>
                                             </Button>
@@ -848,7 +845,7 @@
                                 Command="{Binding ToggleHitSoundMuteCommand}"
                                 PointerWheelChanged="EffectsVolumeButton_OnPointerWheelChanged"
                                 ToolTip.Tip="{Binding HitSoundVolumeText, StringFormat=Effects volume: {0} | Scroll: +/-1% | Click: mute/unmute}">
-                            <materialIcons:MaterialIcon Kind="{Binding EffectsVolumeIconKind}" Width="16" Height="16" />
+                            <LucideIcon Kind="{Binding EffectsVolumeIconKind}" Size="16" />
                             <Button.ContextFlyout>
                                 <Flyout Placement="TopEdgeAlignedLeft">
                                     <Border Classes="PopupSurface timeline-flyout-surface">
@@ -857,7 +854,7 @@
                                                     Command="{Binding ToggleHitSoundMuteCommand}"
                                                     PointerWheelChanged="EffectsVolumeButton_OnPointerWheelChanged">
                                                 <StackPanel Orientation="Horizontal" Spacing="6">
-                                                    <materialIcons:MaterialIcon Kind="{Binding EffectsVolumeIconKind}" Width="14" Height="14" />
+                                                    <LucideIcon Kind="{Binding EffectsVolumeIconKind}" Size="14" />
                                                     <TextBlock VerticalAlignment="Center" Text="Effects" />
                                                 </StackPanel>
                                             </Button>

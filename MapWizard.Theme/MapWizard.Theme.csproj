@@ -8,5 +8,6 @@
 
   <ItemGroup>
     <PackageReference Include="Avalonia" Version="12.1.2" />
+    <PackageReference Include="Avalonia.Fonts.Inter" Version="12.1.2" />
   </ItemGroup>
 </Project>

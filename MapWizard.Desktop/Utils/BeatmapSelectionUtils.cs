@@ -30,20 +30,42 @@ public static class BeatmapSelectionUtils
         string emptyMemoryMessage,
         CancellationToken cancellationToken = default)
     {
-        var lazerResult = lazerLookupService.GetMountedBeatmapPaths();
-        var stableResult = osuMemoryReaderService.GetBeatmapPath();
+        // Both probes enumerate processes and perform filesystem, IPC, or native-memory work.
+        // Keep them off Avalonia's dispatcher; everything after this await intentionally resumes
+        // on the UI thread because it may open a modal or show a notification.
+        var (lazerResult, stableResult) = await Task.Run(
+            () => (
+                lazerLookupService.GetSessionState(),
+                osuMemoryReaderService.GetBeatmapPath()),
+            cancellationToken);
+        cancellationToken.ThrowIfCancellationRequested();
 
-        if (lazerResult.Status == ResultStatus.Success && lazerResult.Value is { Count: > 0 } mountedBeatmaps)
+        var stableBeatmapPath = stableResult.Status == ResultStatus.Success &&
+                                !string.IsNullOrWhiteSpace(stableResult.Value)
+            ? stableResult.Value
+            : null;
+
+        if (lazerResult.Status == ResultStatus.Success &&
+            lazerResult.Value?.MountedBeatmapPaths is { Count: > 0 } mountedBeatmaps)
         {
-            var stableBeatmapPath = stableResult.Status == ResultStatus.Success &&
-                                    !string.IsNullOrWhiteSpace(stableResult.Value)
-                ? stableResult.Value
-                : null;
-
             return await ShowBeatmapSourcePickerAsync(
                 modalService,
                 mountedBeatmaps,
                 stableBeatmapPath,
+                showToast,
+                cancellationToken);
+        }
+
+        if (stableBeatmapPath is not null)
+        {
+            return stableBeatmapPath;
+        }
+
+        if (lazerResult.Status == ResultStatus.Success && lazerResult.Value?.IsRunning == true)
+        {
+            return await GuideLazerMountAsync(
+                lazerLookupService,
+                modalService,
                 showToast,
                 cancellationToken);
         }
@@ -57,6 +79,118 @@ public static class BeatmapSelectionUtils
                 : defaultMemoryErrorMessage,
             emptyMemoryTitle,
             emptyMemoryMessage);
+    }
+
+    private static async Task<string?> GuideLazerMountAsync(
+        ILazerLookupService lazerLookupService,
+        IModalService modalService,
+        Action<NotificationType, string, string> showToast,
+        CancellationToken cancellationToken)
+    {
+        var content = new StackPanel
+        {
+            Width = 520,
+            Spacing = 12,
+            Children =
+            {
+                new TextBlock
+                {
+                    Text = "You currently have osu!lazer open, but MapWizard could not find a mounted beatmap folder.",
+                    TextWrapping = Avalonia.Media.TextWrapping.Wrap
+                },
+                CreateInstructionStep("1", "Open the beatmap in osu!lazer's editor."),
+                CreateInstructionStep("2", "Open the File menu and choose “Edit externally”."),
+                CreateInstructionStep("3", "Keep the external-edit screen open, then return to MapWizard."),
+                new ImportantNotice
+                {
+                    Message = "Keep the external-edit screen open until MapWizard has finished."
+                }
+            }
+        };
+
+        bool shouldRetry;
+        try
+        {
+            shouldRetry = await modalService.ShowConfirmationAsync(
+                "Mount a beatmap from osu!lazer",
+                content,
+                "I mounted the folder",
+                "Cancel",
+                cancellationToken);
+        }
+        catch (InvalidOperationException)
+        {
+            showToast(
+                NotificationType.Warning,
+                "osu!lazer",
+                "Could not show mounting instructions because another dialog is already open.");
+            return null;
+        }
+
+        if (!shouldRetry || cancellationToken.IsCancellationRequested)
+        {
+            return null;
+        }
+
+        var refreshedResult = await Task.Run(
+            lazerLookupService.GetSessionState,
+            cancellationToken);
+        cancellationToken.ThrowIfCancellationRequested();
+
+        if (refreshedResult.Status == ResultStatus.Error)
+        {
+            showToast(
+                NotificationType.Error,
+                "osu!lazer",
+                refreshedResult.ErrorMessage ?? "Unable to inspect osu!lazer's mounted beatmap folder.");
+            return null;
+        }
+
+        if (refreshedResult.Value?.MountedBeatmapPaths is not { Count: > 0 } mountedBeatmaps)
+        {
+            showToast(
+                NotificationType.Warning,
+                "No mounted beatmap found",
+                "Keep osu!lazer's external-edit screen open, then try From osu! again.");
+            return null;
+        }
+
+        return await ShowBeatmapSourcePickerAsync(
+            modalService,
+            mountedBeatmaps,
+            stableBeatmapPath: null,
+            showToast,
+            cancellationToken);
+    }
+
+    private static Grid CreateInstructionStep(string number, string instruction)
+    {
+        var numberLabel = new TextBlock
+        {
+            Text = number,
+            Width = 24,
+            Height = 24,
+            FontWeight = Avalonia.Media.FontWeight.Bold,
+            TextAlignment = Avalonia.Media.TextAlignment.Center,
+            VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center
+        };
+
+        var instructionLabel = new TextBlock
+        {
+            Text = instruction,
+            TextWrapping = Avalonia.Media.TextWrapping.Wrap,
+            VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center
+        };
+
+        var step = new Grid
+        {
+            ColumnDefinitions = new ColumnDefinitions("Auto,*"),
+            ColumnSpacing = 10
+        };
+        step.Children.Add(numberLabel);
+        Grid.SetColumn(instructionLabel, 1);
+        step.Children.Add(instructionLabel);
+        return step;
     }
 
     public static string? TryGetBeatmapFromMemory(
@@ -117,7 +251,7 @@ public static class BeatmapSelectionUtils
 
         content.Children.Add(new ImportantNotice
         {
-            Message = "Keep lazer's external-edit screen open until MapWizard has finished."
+            Message = "Keep osu!lazer's external-edit screen open until MapWizard has finished."
         });
 
         var sourceCards = new StackPanel { Spacing = 12 };
@@ -169,7 +303,7 @@ public static class BeatmapSelectionUtils
         try
         {
             return await modalService.ShowAsync(
-                new ModalRequest(content, "Select lazer difficulty"),
+                new ModalRequest(content, "Select osu!lazer difficulty"),
                 cancellationToken) as string;
         }
         catch (InvalidOperationException)

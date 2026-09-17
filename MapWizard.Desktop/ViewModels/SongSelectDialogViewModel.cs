@@ -581,14 +581,18 @@ public partial class SongSelectDialogViewModel(
     {
         try
         {
-            var mountedBeatmaps = lazerLookupService.GetMountedBeatmapPaths();
-            if (mountedBeatmaps.Status != ResultStatus.Success || mountedBeatmaps.Value is not { Count: > 0 })
+            var mountedBeatmaps = await Task.Run(
+                lazerLookupService.GetSessionState,
+                cancellationToken);
+            cancellationToken.ThrowIfCancellationRequested();
+            if (mountedBeatmaps.Status != ResultStatus.Success ||
+                mountedBeatmaps.Value?.MountedBeatmapPaths is not { Count: > 0 } mountedPaths)
             {
                 MountedLazerMapset = null;
                 return;
             }
 
-            var mountedDirectory = Path.GetDirectoryName(mountedBeatmaps.Value[0]);
+            var mountedDirectory = Path.GetDirectoryName(mountedPaths[0]);
             if (string.IsNullOrWhiteSpace(mountedDirectory) || !Directory.Exists(mountedDirectory))
             {
                 MountedLazerMapset = null;

@@ -28,7 +28,14 @@ public static class MapPickerDialogUtils
         CancellationToken token,
         string? preferredMapsetDirectoryPath = null)
     {
-        var songsPath = SongsPathResolver.ResolveSongsPath(settingsService, songLibraryService);
+        // Auto-detection can enumerate processes and probe several filesystem locations.
+        // Resolve it away from Avalonia's dispatcher, then create the dialog controls on
+        // the captured UI context after the await.
+        var songsPath = await Task.Run(
+            () => SongsPathResolver.ResolveSongsPath(settingsService, songLibraryService),
+            token);
+        token.ThrowIfCancellationRequested();
+
         var songSelectViewModel = new SongSelectDialogViewModel(
             songLibraryService,
             filesService,

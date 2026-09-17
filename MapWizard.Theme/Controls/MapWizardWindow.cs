@@ -1,5 +1,5 @@
 using System;
-using System.Linq;
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
@@ -10,17 +10,13 @@ namespace MapWizard.Theme.Controls;
 
 /// <summary>
 /// MapWizard's client-side-decorated application window.
-/// Decoration painting is done by the app: a custom titlebar with caption
-/// buttons plus Avalonia's drawn frame (border, shadow, resize grips), so the
-/// look is identical on Linux (Wayland/X11), Windows and macOS.
+/// The app provides the titlebar controls. Windows owns its outer shape and
+/// corners; Linux keeps the app-drawn shell because compositor behavior varies.
 /// On macOS the native traffic lights are kept (full decorations) so the
 /// window controls sit at the top-left, as per platform convention.
 /// </summary>
 public class MapWizardWindow : Window
 {
-    /// <summary>The corner radius applied to the window shell in its normal state.</summary>
-    public const double ShellCornerRadius = 12;
-
     public MapWizardWindow()
     {
         WindowDecorations = OperatingSystem.IsMacOS()
@@ -28,8 +24,16 @@ public class MapWizardWindow : Window
             : WindowDecorations.BorderOnly;
         ExtendClientAreaToDecorationsHint = true;
         ExtendClientAreaTitleBarHeightHint = 60;
-        TransparencyLevelHint = [WindowTransparencyLevel.Transparent];
-        Background = Brushes.Transparent;
+        if (OperatingSystem.IsWindows())
+        {
+            Classes.Add("Windows");
+            TransparencyLevelHint = [WindowTransparencyLevel.None];
+        }
+        else
+        {
+            TransparencyLevelHint = [WindowTransparencyLevel.Transparent];
+            Background = Brushes.Transparent;
+        }
         AddHandler(PointerPressedEvent, OnWindowPointerPressed, RoutingStrategies.Tunnel);
     }
 
@@ -64,11 +68,24 @@ public class MapWizardWindow : Window
             return;
         }
 
-        var ancestors = source.GetVisualAncestors().OfType<Control>().ToArray();
-        var isTitleBar = source.Classes.Contains("WindowTitleBar") ||
-                         ancestors.Any(x => x.Classes.Contains("WindowTitleBar"));
-        var isButton = source is Button || ancestors.Any(x => x is Button);
-        if (!isTitleBar || isButton)
+        var isTitleBar = false;
+        Visual? current = source;
+        while (current is not null)
+        {
+            if (current is Button)
+            {
+                return;
+            }
+
+            if (current is Control control && control.Classes.Contains("WindowTitleBar"))
+            {
+                isTitleBar = true;
+            }
+
+            current = current.GetVisualParent();
+        }
+
+        if (!isTitleBar)
         {
             return;
         }
