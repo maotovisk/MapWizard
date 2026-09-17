@@ -1,10 +1,10 @@
 using System;
-using System.Linq;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
+using Avalonia.Threading;
 using Avalonia.VisualTree;
 using MapWizard.Desktop.ViewModels;
 
@@ -13,6 +13,10 @@ namespace MapWizard.Desktop.Views.Dialogs;
 public partial class SongSelectDialog : UserControl
 {
     private const double CenterScrollEdgeThreshold = 56d;
+    private static readonly TimeSpan ScrollWorkInterval = TimeSpan.FromMilliseconds(50);
+    private readonly DispatcherTimer _scrollWorkTimer;
+    private ScrollViewer? _pendingScrollViewer;
+    private bool _hasPendingScrollWork;
 
     /// <summary>Raised when the header close (X) button is clicked.</summary>
     public event EventHandler? PickerCloseRequested;
@@ -24,6 +28,8 @@ public partial class SongSelectDialog : UserControl
 
     public SongSelectDialog()
     {
+        _scrollWorkTimer = new DispatcherTimer { Interval = ScrollWorkInterval };
+        _scrollWorkTimer.Tick += OnScrollWorkTimerTick;
         InitializeComponent();
         AddHandler(
             InputElement.PointerPressedEvent,
@@ -34,7 +40,47 @@ public partial class SongSelectDialog : UserControl
 
     private void MapsetScrollViewer_OnScrollChanged(object? sender, ScrollChangedEventArgs e)
     {
-        if (sender is not ScrollViewer scrollViewer || DataContext is not SongSelectDialogViewModel viewModel)
+        if (sender is not ScrollViewer scrollViewer)
+        {
+            return;
+        }
+
+        _pendingScrollViewer = scrollViewer;
+        _hasPendingScrollWork = true;
+
+        // Run the first update immediately, then cap the geometry scan at 20 Hz
+        // while precision scrolling is producing a high-frequency event stream.
+        if (!_scrollWorkTimer.IsEnabled)
+        {
+            ProcessPendingScrollWork();
+            _scrollWorkTimer.Start();
+        }
+    }
+
+    protected override void OnDetachedFromVisualTree(VisualTreeAttachmentEventArgs e)
+    {
+        _scrollWorkTimer.Stop();
+        _pendingScrollViewer = null;
+        _hasPendingScrollWork = false;
+        base.OnDetachedFromVisualTree(e);
+    }
+
+    private void OnScrollWorkTimerTick(object? sender, EventArgs e)
+    {
+        if (!_hasPendingScrollWork)
+        {
+            _scrollWorkTimer.Stop();
+            return;
+        }
+
+        ProcessPendingScrollWork();
+    }
+
+    private void ProcessPendingScrollWork()
+    {
+        _hasPendingScrollWork = false;
+        if (_pendingScrollViewer is not { } scrollViewer ||
+            DataContext is not SongSelectDialogViewModel viewModel)
         {
             return;
         }
@@ -71,7 +117,7 @@ public partial class SongSelectDialog : UserControl
         int? firstVisibleIndex = null;
         int? lastVisibleIndex = null;
 
-        foreach (var container in MapsetItemsControl.GetRealizedContainers().ToArray())
+        foreach (var container in MapsetItemsControl.GetRealizedContainers())
         {
             if (!container.IsVisible || container.Bounds.Height <= 0d)
             {

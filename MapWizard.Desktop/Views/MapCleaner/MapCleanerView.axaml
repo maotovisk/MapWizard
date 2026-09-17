@@ -85,7 +85,6 @@
                     SectionTitle="Beatmap Selection"
                     OriginMap="{Binding OriginBeatmap}"
                     DestinationMaps="{Binding DestinationBeatmaps}"
-                    SourceSubtitle="Select the beatmap you want to clean."
                     ShowDestinationSelection="False"
                     OriginPathChangedCommand="{Binding ReanalyzeOriginAfterPathChangeCommand}" />
 

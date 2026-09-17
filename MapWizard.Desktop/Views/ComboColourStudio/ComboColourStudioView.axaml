@@ -141,8 +141,6 @@
                 <controls:BeatmapSelectionPanel
                     OriginMap="{Binding OriginBeatmap}"
                     DestinationMaps="{Binding DestinationBeatmaps}"
-                    SourceSubtitle="Select the beatmap to load combo colours from."
-                    TargetSubtitle="Select the beatmaps to export the colour hax to."
                     OriginMemoryToolTip="Use currently selected osu! beatmap"
                     DestinationMemoryToolTip="Add currently selected osu! beatmap" />
 

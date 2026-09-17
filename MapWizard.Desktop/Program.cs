@@ -30,8 +30,11 @@ internal static class Program
     private static AppBuilder BuildAvaloniaApp(bool forceSoftwareRendering)
     {
         var app = AppBuilder.Configure<App>()
-            .UsePlatformDetect()
-            .LogToTrace();
+            .UsePlatformDetect();
+
+#if DEBUG
+        app = app.LogToTrace();
+#endif
 
         if (OperatingSystem.IsLinux())
         {

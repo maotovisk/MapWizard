@@ -25,6 +25,21 @@
       <Setter Property="VerticalAlignment" Value="Stretch" />
     </Style>
 
+    <Style Selector="Border.CombinedSelectionPanel">
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="BorderThickness" Value="0" />
+      <Setter Property="Padding" Value="0" />
+      <Setter Property="HorizontalAlignment" Value="Stretch" />
+    </Style>
+
+    <Style Selector="Border.CombinedSelectionPanel.withTargets">
+      <Setter Property="CornerRadius" Value="16" />
+      <Setter Property="Background" Value="{DynamicResource MapWizardSurfaceBrush}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource MapWizardBorderBrush}" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="Padding" Value="16" />
+    </Style>
+
     <Style Selector="Border.SourceSelectionPanel">
       <Setter Property="Padding" Value="0" />
       <Setter Property="ClipToBounds" Value="True" />
@@ -33,8 +48,18 @@
 
     <Style Selector="Border.SourceSelectionPanel.withTargets">
       <Setter Property="VerticalAlignment" Value="Stretch" />
-      <Setter Property="Padding" Value="16" />
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="BorderThickness" Value="0" />
+      <Setter Property="CornerRadius" Value="0" />
+      <Setter Property="Padding" Value="0" />
       <Setter Property="ClipToBounds" Value="False" />
+    </Style>
+
+    <Style Selector="Border.TargetsSelectionPanel">
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="BorderThickness" Value="0" />
+      <Setter Property="CornerRadius" Value="0" />
+      <Setter Property="Padding" Value="0" />
     </Style>
 
     <Style Selector="Grid.SourcePanelContent">
@@ -98,10 +123,9 @@
 
     <Style Selector="Button.MemoryActionButton">
       <Setter Property="Background" Value="{DynamicResource MapWizardControlBackgroundBrush}" />
-      <Setter Property="BorderBrush" Value="{DynamicResource MapWizardControlBorderBrush}" />
-      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="BorderBrush" Value="Transparent" />
+      <Setter Property="BorderThickness" Value="0" />
       <Setter Property="CornerRadius" Value="8" />
-      <Setter Property="Padding" Value="10,7" />
       <Setter Property="FontSize" Value="13" />
       <Setter Property="FontWeight" Value="Normal" />
       <Setter Property="Foreground" Value="{DynamicResource MapWizardTextBrush}" />
@@ -109,19 +133,20 @@
 
     <Style Selector="Button.MemoryActionButton:pointerover">
       <Setter Property="Background" Value="{DynamicResource MapWizardAccent25Brush}" />
-      <Setter Property="BorderBrush" Value="{DynamicResource MapWizardAccentBrush}" />
+      <Setter Property="BorderBrush" Value="Transparent" />
       <Setter Property="Foreground" Value="{DynamicResource MapWizardTextBrush}" />
+    </Style>
+
+    <Style Selector="Button.MapSourceActionButton">
+      <Setter Property="MinWidth" Value="108" />
+      <Setter Property="Height" Value="34" />
+      <Setter Property="Padding" Value="10,5" />
     </Style>
 
     <Style Selector="TextBlock.PanelTitle">
       <Setter Property="FontSize" Value="20" />
       <Setter Property="FontWeight" Value="Bold" />
       <Setter Property="Foreground" Value="{DynamicResource MapWizardTextBrush}" />
-    </Style>
-
-    <Style Selector="TextBlock.PanelSubtitle">
-      <Setter Property="FontSize" Value="12.5" />
-      <Setter Property="Foreground" Value="{DynamicResource MapWizardTextSecondaryBrush}" />
     </Style>
 
     <Style Selector="TextBlock.FieldLabel">
@@ -418,8 +443,9 @@
       </Grid>
 
       <!-- Source / Targets -->
-      <Grid ColumnDefinitions="*,Auto,*"
-            ColumnSpacing="12">
+      <Border Classes="CombinedSelectionPanel"
+              Classes.withTargets="{Binding ShowDestinationSection, ElementName=Root}">
+      <Grid ColumnDefinitions="*,48,*">
 
         <!-- SOURCE -->
         <Border Grid.Column="0"
@@ -461,17 +487,13 @@
                            Classes="PanelTitle"
                            Classes.overArtwork="{Binding ShowSourceOnlyBackdrop, ElementName=Root}"
                            IsVisible="{Binding !ShowDestinationSection, ElementName=Root}" />
-                <TextBlock Text="{Binding SourceSubtitle, ElementName=Root}"
-                           Classes="PanelSubtitle"
-                           IsVisible="{Binding ShowSourceSubtitle, ElementName=Root}"
-                           TextWrapping="Wrap" />
               </StackPanel>
 
               <StackPanel Grid.Column="1"
                           Orientation="Horizontal"
                           Spacing="8"
                           VerticalAlignment="Center">
-                <Button Classes="Compact MemoryActionButton"
+                <Button Classes="Compact MemoryActionButton MapSourceActionButton"
                         Command="{ReflectionBinding SetOriginFromMemoryCommand}"
                         ToolTip.Tip="{Binding OriginMemoryToolTip, ElementName=Root}">
                   <StackPanel Orientation="Horizontal" Spacing="5">
@@ -479,7 +501,7 @@
                     <TextBlock Text="From osu!" VerticalAlignment="Center" />
                   </StackPanel>
                 </Button>
-                <Button Classes="Flat Compact"
+                <Button Classes="Flat Compact MapSourceActionButton"
                         Command="{ReflectionBinding PickOriginFileCommand}"
                         ToolTip.Tip="Open the Map Picker">
                   <StackPanel Orientation="Horizontal" Spacing="5">
@@ -636,27 +658,36 @@
           </Grid>
         </Border>
 
-        <!-- Arrow -->
-        <materialIcons:MaterialIcon Grid.Column="1"
-                                    Kind="ArrowRight"
-                                    Width="22"
-                                    Height="22"
-                                    VerticalAlignment="Center"
-                                    Foreground="{DynamicResource MapWizardAccentBrush}"
-                                    IsVisible="{Binding ShowDestinationSection, ElementName=Root}" />
+        <!-- Workflow divider -->
+        <Grid Grid.Column="1"
+              IsVisible="{Binding ShowDestinationSection, ElementName=Root}">
+          <Border Width="1"
+                  Margin="0,4"
+                  HorizontalAlignment="Center"
+                  Background="{DynamicResource MapWizardBorderBrush}" />
+          <Border Width="32"
+                  Height="36"
+                  HorizontalAlignment="Center"
+                  VerticalAlignment="Center"
+                  Background="{DynamicResource MapWizardSurfaceBrush}">
+            <materialIcons:MaterialIcon Kind="ArrowRight"
+                                        Width="22"
+                                        Height="22"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        Foreground="{DynamicResource MapWizardAccentBrush}" />
+          </Border>
+        </Grid>
 
         <!-- TARGETS -->
         <Border Grid.Column="2"
-                Classes="SelectionPanel"
+                Classes="SelectionPanel TargetsSelectionPanel"
                 VerticalAlignment="Stretch"
                 IsVisible="{Binding ShowDestinationSection, ElementName=Root}">
           <Grid RowDefinitions="Auto,*" RowSpacing="14">
             <Grid Grid.Row="0" ColumnDefinitions="*,Auto">
               <StackPanel Spacing="2">
                 <TextBlock Text="Targets" Classes="PanelTitle" />
-                <TextBlock Text="{Binding TargetSubtitle, ElementName=Root}"
-                           Classes="PanelSubtitle"
-                           TextWrapping="Wrap" />
               </StackPanel>
 
               <StackPanel Grid.Column="1"
@@ -664,7 +695,7 @@
                           Spacing="8"
                           VerticalAlignment="Center"
                           IsVisible="{Binding !HasVisibleDestinationCards, ElementName=Root}">
-                <Button Classes="Compact MemoryActionButton"
+                <Button Classes="Compact MemoryActionButton MapSourceActionButton"
                         Command="{ReflectionBinding AddDestinationFromMemoryCommand}"
                         ToolTip.Tip="{Binding DestinationMemoryToolTip, ElementName=Root}">
                   <StackPanel Orientation="Horizontal" Spacing="5">
@@ -672,7 +703,7 @@
                     <TextBlock Text="From osu!" VerticalAlignment="Center" />
                   </StackPanel>
                 </Button>
-                <Button Classes="Flat Compact"
+                <Button Classes="Flat Compact MapSourceActionButton"
                         Command="{ReflectionBinding PickDestinationFileCommand}"
                         ToolTip.Tip="Open the Map Picker">
                   <StackPanel Orientation="Horizontal" Spacing="5">
@@ -868,7 +899,7 @@
                   </Button>
 
                   <Button Grid.Column="2"
-                          Classes="Compact MemoryActionButton"
+                          Classes="Compact MemoryActionButton MapSourceActionButton"
                           Command="{ReflectionBinding AddDestinationFromMemoryCommand}"
                           ToolTip.Tip="{Binding DestinationMemoryToolTip, ElementName=Root}">
                     <StackPanel Orientation="Horizontal" Spacing="5">
@@ -878,7 +909,7 @@
                   </Button>
 
                   <Button Grid.Column="3"
-                          Classes="Flat Compact"
+                          Classes="Flat Compact MapSourceActionButton"
                           Command="{ReflectionBinding PickDestinationFileCommand}"
                           ToolTip.Tip="Open the Map Picker">
                     <StackPanel Orientation="Horizontal" Spacing="5">
@@ -892,6 +923,7 @@
           </Grid>
         </Border>
       </Grid>
+      </Border>
     </StackPanel>
   </Border>
 </UserControl>

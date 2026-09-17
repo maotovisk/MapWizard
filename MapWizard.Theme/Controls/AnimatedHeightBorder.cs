@@ -22,6 +22,7 @@ public sealed class AnimatedHeightBorder : Border
     private Size _lastMeasuredContentSize;
     private DateTime _animationEndsAt;
     private bool _isAttached;
+    private bool _isTrackingLayout;
 
     public AnimatedHeightBorder()
     {
@@ -31,7 +32,6 @@ public sealed class AnimatedHeightBorder : Border
         };
         _settledMeasureTimer.Tick += OnSettledMeasureTimerTick;
         SizeChanged += OnSizeChanged;
-        LayoutUpdated += OnLayoutUpdated;
     }
 
     protected override Type StyleKeyOverride => typeof(AnimatedHeightBorder);
@@ -46,6 +46,7 @@ public sealed class AnimatedHeightBorder : Border
     {
         base.OnAttachedToVisualTree(e);
         _isAttached = true;
+        UpdateLayoutTracking();
         ScheduleHeightUpdate();
         RestartSettledMeasureTimer();
     }
@@ -53,6 +54,7 @@ public sealed class AnimatedHeightBorder : Border
     protected override void OnDetachedFromVisualTree(VisualTreeAttachmentEventArgs e)
     {
         _isAttached = false;
+        UpdateLayoutTracking();
         _settledMeasureTimer.Stop();
         base.OnDetachedFromVisualTree(e);
     }
@@ -64,6 +66,7 @@ public sealed class AnimatedHeightBorder : Border
         if (change.Property == IsExpandedProperty)
         {
             PseudoClasses.Set(":expanded", IsExpanded);
+            UpdateLayoutTracking();
             ScheduleHeightUpdate();
             RestartSettledMeasureTimer();
         }
@@ -78,7 +81,7 @@ public sealed class AnimatedHeightBorder : Border
     {
         // Height changes continuously during the transition. Only a width change
         // can alter wrapping and therefore the measured expansion target.
-        if (Math.Abs(e.NewSize.Width - e.PreviousSize.Width) <= 0.5d)
+        if (!IsExpanded || Math.Abs(e.NewSize.Width - e.PreviousSize.Width) <= 0.5d)
         {
             return;
         }
@@ -100,6 +103,26 @@ public sealed class AnimatedHeightBorder : Border
         {
             ScheduleHeightUpdate();
         }
+    }
+
+    private void UpdateLayoutTracking()
+    {
+        var shouldTrack = _isAttached && IsExpanded;
+        if (shouldTrack == _isTrackingLayout)
+        {
+            return;
+        }
+
+        if (shouldTrack)
+        {
+            LayoutUpdated += OnLayoutUpdated;
+        }
+        else
+        {
+            LayoutUpdated -= OnLayoutUpdated;
+        }
+
+        _isTrackingLayout = shouldTrack;
     }
 
     private void OnSettledMeasureTimerTick(object? sender, EventArgs e)

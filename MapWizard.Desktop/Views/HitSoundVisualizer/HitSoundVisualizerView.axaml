@@ -240,7 +240,6 @@
                     OriginMap="{Binding OriginBeatmap}"
                     DestinationMaps="{Binding DestinationBeatmaps}"
                     ShowDestinationSelection="False"
-                    SourceSubtitle="Select the beatmap you want to visualize hitsounds from."
                     OriginMemoryToolTip="Get the current beatmap selected in the osu! client." />
 
                 <theme:BusyArea IsBusy="{Binding IsPreparingPlayback}"

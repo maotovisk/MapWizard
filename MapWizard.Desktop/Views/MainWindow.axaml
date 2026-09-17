@@ -151,8 +151,8 @@
 
     <VisualLayerManager>
         <Panel>
-        <!-- Rounded, self-drawn window shell: dark base + backdrop, clipped to
-             the shell shape so the drawn frame's shadow shows around it. -->
+        <!-- Linux keeps the app-drawn shell; MainWindow removes this radius on
+             Windows so the OS compositor owns the outer corners. -->
         <Border x:Name="WindowShell"
                 Classes="WindowShell"
                 Background="{DynamicResource MapWizardWindowBackgroundBrush}"

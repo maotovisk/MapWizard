@@ -59,21 +59,8 @@ public partial class BeatmapSelectionPanel : UserControl
     public static readonly StyledProperty<string> OriginEmptyPromptProperty =
         AvaloniaProperty.Register<BeatmapSelectionPanel, string>(nameof(OriginEmptyPrompt), "Select an origin beatmap");
 
-    public static readonly StyledProperty<string> SourceSubtitleProperty =
-        AvaloniaProperty.Register<BeatmapSelectionPanel, string>(
-            nameof(SourceSubtitle),
-            "Select the difficulty you want to use.");
-
-    public static readonly StyledProperty<string> TargetSubtitleProperty =
-        AvaloniaProperty.Register<BeatmapSelectionPanel, string>(
-            nameof(TargetSubtitle),
-            "Select the difficulties you want to copy to.");
-
     public static readonly StyledProperty<bool> CanClearSelectionProperty =
         AvaloniaProperty.Register<BeatmapSelectionPanel, bool>(nameof(CanClearSelection));
-
-    public static readonly StyledProperty<bool> ShowSourceSubtitleProperty =
-        AvaloniaProperty.Register<BeatmapSelectionPanel, bool>(nameof(ShowSourceSubtitle));
 
     public static readonly StyledProperty<bool> ShowSourceOnlyBackdropProperty =
         AvaloniaProperty.Register<BeatmapSelectionPanel, bool>(nameof(ShowSourceOnlyBackdrop));
@@ -259,28 +246,10 @@ public partial class BeatmapSelectionPanel : UserControl
         private set => SetValue(OriginEmptyPromptProperty, value);
     }
 
-    public string SourceSubtitle
-    {
-        get => GetValue(SourceSubtitleProperty);
-        set => SetValue(SourceSubtitleProperty, value);
-    }
-
-    public string TargetSubtitle
-    {
-        get => GetValue(TargetSubtitleProperty);
-        set => SetValue(TargetSubtitleProperty, value);
-    }
-
     public bool CanClearSelection
     {
         get => GetValue(CanClearSelectionProperty);
         private set => SetValue(CanClearSelectionProperty, value);
-    }
-
-    public bool ShowSourceSubtitle
-    {
-        get => GetValue(ShowSourceSubtitleProperty);
-        private set => SetValue(ShowSourceSubtitleProperty, value);
     }
 
     public bool ShowSourceOnlyBackdrop
@@ -667,7 +636,6 @@ public partial class BeatmapSelectionPanel : UserControl
     {
         ShowDestinationSection = ShowDestinationSelection;
         SourceColumnSpan = ShowDestinationSection ? 1 : 3;
-        ShowSourceSubtitle = ShowDestinationSection || !HasOriginSelection;
         ShowSourceOnlyBackdrop = HasOriginSelection && !ShowDestinationSection;
         ShowSourceMapCardBackdrop = HasOriginSelection && ShowDestinationSection;
     }

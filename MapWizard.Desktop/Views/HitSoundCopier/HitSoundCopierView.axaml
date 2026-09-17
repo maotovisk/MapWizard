@@ -45,8 +45,6 @@
                 <controls:BeatmapSelectionPanel
                     OriginMap="{Binding OriginBeatmap}"
                     DestinationMaps="{Binding DestinationBeatmaps}"
-                    SourceSubtitle="Select one difficulty to copy hitsounds from."
-                    TargetSubtitle="Select one or more target difficulties to copy to."
                     OriginMemoryToolTip="Get the current beatmap selected in the osu! client."
                     DestinationMemoryToolTip="Add the current beatmap selected in the osu! client." />
 

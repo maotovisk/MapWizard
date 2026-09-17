@@ -124,6 +124,16 @@
         <Setter Property="FontSize" Value="14" />
     </Style>
 
+    <!-- Linux keeps MapWizard's app-drawn shell. On Windows the app frame is
+         square and the OS compositor applies the platform's native corners. -->
+    <Style Selector="chrome|WindowDrawnDecorations /template/ Border#PART_WindowBorder">
+        <Setter Property="CornerRadius" Value="13" />
+    </Style>
+    <Style Selector="chrome|WindowDrawnDecorations:maximized /template/ Border#PART_WindowBorder,
+                     Window.Windows chrome|WindowDrawnDecorations /template/ Border#PART_WindowBorder">
+        <Setter Property="CornerRadius" Value="0" />
+    </Style>
+
     <Style Selector="Border.WindowBackdrop">
         <Setter Property="IsHitTestVisible" Value="False" />
         <Setter Property="Background">
@@ -132,14 +142,6 @@
                 <GradientStop Color="Transparent" Offset="1" />
             </RadialGradientBrush>
         </Setter>
-    </Style>
-
-    <!-- Rounded drawn window frame matching the app's window shell. -->
-    <Style Selector="chrome|WindowDrawnDecorations /template/ Border#PART_WindowBorder">
-        <Setter Property="CornerRadius" Value="13" />
-    </Style>
-    <Style Selector="chrome|WindowDrawnDecorations:maximized /template/ Border#PART_WindowBorder">
-        <Setter Property="CornerRadius" Value="0" />
     </Style>
 
     <!-- Keep scrollbars inset from host edges (islands/dialog borders). -->

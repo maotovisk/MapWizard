@@ -72,14 +72,16 @@ public sealed class BlurSlideFadeTransition : IPageTransition
     private async Task AnimateOutAsync(Visual from, double direction, CancellationToken cancellationToken)
     {
         var blur = new BlurEffect { Radius = 0d };
+        var translation = new TranslateTransform();
         from.Effect = blur;
+        from.RenderTransform = translation;
 
         const int steps = 10;
         for (var i = 1; i <= steps; i++)
         {
             var t = SmoothStep((double)i / steps);
             from.Opacity = 1d - t;
-            from.RenderTransform = new TranslateTransform(-direction * SlideDistance * t, 0d);
+            translation.X = -direction * SlideDistance * t;
             blur.Radius = MaxBlurRadius * t;
             await Task.Delay(OutDuration / steps, cancellationToken);
         }
@@ -88,9 +90,10 @@ public sealed class BlurSlideFadeTransition : IPageTransition
     private async Task AnimateInAsync(Visual to, double direction, CancellationToken cancellationToken)
     {
         var blur = new BlurEffect { Radius = MaxBlurRadius };
+        var translation = new TranslateTransform(direction * SlideDistance, 0d);
         to.Effect = blur;
         to.Opacity = 0d;
-        to.RenderTransform = new TranslateTransform(direction * SlideDistance, 0d);
+        to.RenderTransform = translation;
         to.IsVisible = true;
 
         const int steps = 14;
@@ -98,7 +101,7 @@ public sealed class BlurSlideFadeTransition : IPageTransition
         {
             var t = SmoothStep((double)i / steps);
             to.Opacity = t;
-            to.RenderTransform = new TranslateTransform(direction * SlideDistance * (1d - t), 0d);
+            translation.X = direction * SlideDistance * (1d - t);
             blur.Radius = MaxBlurRadius * (1d - t);
             await Task.Delay(InDuration / steps, cancellationToken);
         }

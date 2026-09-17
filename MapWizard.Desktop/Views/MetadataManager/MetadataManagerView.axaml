@@ -55,9 +55,7 @@
 
         <controls:BeatmapSelectionPanel
           OriginMap="{Binding OriginBeatmap}"
-          DestinationMaps="{Binding DestinationBeatmaps}"
-          SourceSubtitle="Select the beatmap to import metadata from."
-          TargetSubtitle="Select the beatmaps to export the metadata to." />
+          DestinationMaps="{Binding DestinationBeatmaps}" />
         
         <!-- METADATA -->
         <Grid ColumnDefinitions="*,*" Margin="0,8,0,0">
