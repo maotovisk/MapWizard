@@ -19,7 +19,7 @@ public partial class ModalHost : UserControl
     private const double OverlayRightInset = 14d;
     private const double OverlayMinimumWidth = 460d;
     private const double OverlayMaximumWidth = 620d;
-    private const double OverlayBackgroundBlurRadius = 10d;
+    private const double BackgroundBlurRadius = 10d;
     private int _transitionVersion;
     private Visual? _blurredTarget;
     private IEffect? _previousBackgroundEffect;
@@ -126,19 +126,12 @@ public partial class ModalHost : UserControl
         DialogCard.RenderTransform = GetClosedTransform();
         IsVisible = true;
         IsOpen = true;
-        var animateBackgroundBlur = Presentation == ModalPresentation.MapPickerOverlay;
-        if (animateBackgroundBlur)
-        {
-            PrepareBackgroundBlur();
-        }
-
-        var blurAnimation = animateBackgroundBlur
-            ? AnimateBackgroundBlurAsync(
-                OverlayBackgroundBlurRadius,
-                TimeSpan.FromMilliseconds(260),
-                version,
-                cancellationToken)
-            : Task.CompletedTask;
+        PrepareBackgroundBlur();
+        var blurAnimation = AnimateBackgroundBlurAsync(
+            BackgroundBlurRadius,
+            TimeSpan.FromMilliseconds(260),
+            version,
+            cancellationToken);
 
         try
         {

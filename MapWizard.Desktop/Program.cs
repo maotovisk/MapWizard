@@ -21,7 +21,7 @@ internal static class Program
 
         VelopackApp.Build()
             .Run();
-        
+
         BuildAvaloniaApp(forceSoftwareRendering)
             .StartWithClassicDesktopLifetime(args);
     }
@@ -38,8 +38,10 @@ internal static class Program
 
         if (OperatingSystem.IsLinux())
         {
+            // For now, avalonia does not automatically choose Wayland in `UsePlatformDetect`,
+            // so we need to manually check for it. SEE: https://github.com/AvaloniaUI/Avalonia/pull/21448
             if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("WAYLAND_DISPLAY")))
-                app.UseWayland();
+                app.UseWaylandWithFallback();
             else
                 app.With(new X11PlatformOptions()
                 {
@@ -56,5 +58,5 @@ internal static class Program
 
         return app;
     }
-    
+
 }

@@ -143,6 +143,25 @@
       <Setter Property="Padding" Value="10,5" />
     </Style>
 
+    <Style Selector="theme|BusyIndicator.AsyncActionIndicator">
+      <Setter Property="Width" Value="16" />
+      <Setter Property="Height" Value="3" />
+      <Setter Property="IsVisible" Value="False" />
+    </Style>
+
+    <Style Selector="theme|BusyIndicator.AsyncActionIndicator /template/ Border#PART_Indicator">
+      <Setter Property="Width" Value="7" />
+      <Setter Property="Height" Value="3" />
+    </Style>
+
+    <Style Selector="Grid.AsyncActionActivity.busy materialIcons|MaterialIcon">
+      <Setter Property="IsVisible" Value="False" />
+    </Style>
+
+    <Style Selector="Grid.AsyncActionActivity.busy theme|BusyIndicator.AsyncActionIndicator">
+      <Setter Property="IsVisible" Value="True" />
+    </Style>
+
     <Style Selector="TextBlock.PanelTitle">
       <Setter Property="FontSize" Value="20" />
       <Setter Property="FontWeight" Value="Bold" />
@@ -497,7 +516,15 @@
                         Command="{ReflectionBinding SetOriginFromMemoryCommand}"
                         ToolTip.Tip="{Binding OriginMemoryToolTip, ElementName=Root}">
                   <StackPanel Orientation="Horizontal" Spacing="5">
-                    <materialIcons:MaterialIcon Kind="Import" Width="16" Height="16" />
+                    <Grid Width="16"
+                          Height="16"
+                          Classes="AsyncActionActivity"
+                          Classes.busy="{ReflectionBinding SetOriginFromMemoryCommand.IsRunning}">
+                      <materialIcons:MaterialIcon Kind="Import" Width="16" Height="16" />
+                      <theme:BusyIndicator Classes="AsyncActionIndicator"
+                                           IsRunning="{ReflectionBinding SetOriginFromMemoryCommand.IsRunning}"
+                                           VerticalAlignment="Center" />
+                    </Grid>
                     <TextBlock Text="From osu!" VerticalAlignment="Center" />
                   </StackPanel>
                 </Button>
@@ -505,7 +532,15 @@
                         Command="{ReflectionBinding PickOriginFileCommand}"
                         ToolTip.Tip="Open the Map Picker">
                   <StackPanel Orientation="Horizontal" Spacing="5">
-                    <materialIcons:MaterialIcon Kind="FileSearchOutline" Width="16" Height="16" />
+                    <Grid Width="16"
+                          Height="16"
+                          Classes="AsyncActionActivity"
+                          Classes.busy="{ReflectionBinding PickOriginFileCommand.IsRunning}">
+                      <materialIcons:MaterialIcon Kind="FileSearchOutline" Width="16" Height="16" />
+                      <theme:BusyIndicator Classes="AsyncActionIndicator"
+                                           IsRunning="{ReflectionBinding PickOriginFileCommand.IsRunning}"
+                                           VerticalAlignment="Center" />
+                    </Grid>
                     <TextBlock Text="Map Picker" VerticalAlignment="Center" />
                   </StackPanel>
                 </Button>
@@ -699,7 +734,15 @@
                         Command="{ReflectionBinding AddDestinationFromMemoryCommand}"
                         ToolTip.Tip="{Binding DestinationMemoryToolTip, ElementName=Root}">
                   <StackPanel Orientation="Horizontal" Spacing="5">
-                    <materialIcons:MaterialIcon Kind="Import" Width="16" Height="16" />
+                    <Grid Width="16"
+                          Height="16"
+                          Classes="AsyncActionActivity"
+                          Classes.busy="{ReflectionBinding AddDestinationFromMemoryCommand.IsRunning}">
+                      <materialIcons:MaterialIcon Kind="Import" Width="16" Height="16" />
+                      <theme:BusyIndicator Classes="AsyncActionIndicator"
+                                           IsRunning="{ReflectionBinding AddDestinationFromMemoryCommand.IsRunning}"
+                                           VerticalAlignment="Center" />
+                    </Grid>
                     <TextBlock Text="From osu!" VerticalAlignment="Center" />
                   </StackPanel>
                 </Button>
@@ -707,7 +750,15 @@
                         Command="{ReflectionBinding PickDestinationFileCommand}"
                         ToolTip.Tip="Open the Map Picker">
                   <StackPanel Orientation="Horizontal" Spacing="5">
-                    <materialIcons:MaterialIcon Kind="FileSearchOutline" Width="16" Height="16" />
+                    <Grid Width="16"
+                          Height="16"
+                          Classes="AsyncActionActivity"
+                          Classes.busy="{ReflectionBinding PickDestinationFileCommand.IsRunning}">
+                      <materialIcons:MaterialIcon Kind="FileSearchOutline" Width="16" Height="16" />
+                      <theme:BusyIndicator Classes="AsyncActionIndicator"
+                                           IsRunning="{ReflectionBinding PickDestinationFileCommand.IsRunning}"
+                                           VerticalAlignment="Center" />
+                    </Grid>
                     <TextBlock Text="Map Picker" VerticalAlignment="Center" />
                   </StackPanel>
                 </Button>
@@ -903,7 +954,15 @@
                           Command="{ReflectionBinding AddDestinationFromMemoryCommand}"
                           ToolTip.Tip="{Binding DestinationMemoryToolTip, ElementName=Root}">
                     <StackPanel Orientation="Horizontal" Spacing="5">
-                      <materialIcons:MaterialIcon Kind="Import" Width="16" Height="16" />
+                      <Grid Width="16"
+                            Height="16"
+                            Classes="AsyncActionActivity"
+                            Classes.busy="{ReflectionBinding AddDestinationFromMemoryCommand.IsRunning}">
+                        <materialIcons:MaterialIcon Kind="Import" Width="16" Height="16" />
+                        <theme:BusyIndicator Classes="AsyncActionIndicator"
+                                             IsRunning="{ReflectionBinding AddDestinationFromMemoryCommand.IsRunning}"
+                                             VerticalAlignment="Center" />
+                      </Grid>
                       <TextBlock Text="From osu!" VerticalAlignment="Center" />
                     </StackPanel>
                   </Button>
@@ -913,7 +972,15 @@
                           Command="{ReflectionBinding PickDestinationFileCommand}"
                           ToolTip.Tip="Open the Map Picker">
                     <StackPanel Orientation="Horizontal" Spacing="5">
-                      <materialIcons:MaterialIcon Kind="FileSearchOutline" Width="16" Height="16" />
+                      <Grid Width="16"
+                            Height="16"
+                            Classes="AsyncActionActivity"
+                            Classes.busy="{ReflectionBinding PickDestinationFileCommand.IsRunning}">
+                        <materialIcons:MaterialIcon Kind="FileSearchOutline" Width="16" Height="16" />
+                        <theme:BusyIndicator Classes="AsyncActionIndicator"
+                                             IsRunning="{ReflectionBinding PickDestinationFileCommand.IsRunning}"
+                                             VerticalAlignment="Center" />
+                      </Grid>
                       <TextBlock Text="Map Picker" VerticalAlignment="Center" />
                     </StackPanel>
                   </Button>

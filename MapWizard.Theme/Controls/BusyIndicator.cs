@@ -24,6 +24,7 @@ public sealed class BusyIndicator : TemplatedControl
     private Control? _track;
     private Control? _indicator;
     private CompositionVisual? _indicatorVisual;
+    private List<IDisposable>? _geometrySubscriptions;
 
     public static readonly StyledProperty<bool> IsRunningProperty =
         AvaloniaProperty.Register<BusyIndicator, bool>(nameof(IsRunning));
@@ -56,6 +57,7 @@ public sealed class BusyIndicator : TemplatedControl
 
         _track = e.NameScope.Find<Control>("PART_Track");
         _indicator = e.NameScope.Find<Control>("PART_Indicator");
+        TrackGeometry();
         UpdateAnimationState();
     }
 
@@ -69,6 +71,8 @@ public sealed class BusyIndicator : TemplatedControl
     protected override void OnDetachedFromVisualTree(VisualTreeAttachmentEventArgs e)
     {
         StopAnimation();
+        _geometrySubscriptions?.ForEach(subscription => subscription.Dispose());
+        _geometrySubscriptions = null;
         _track = null;
         _indicator = null;
         TrackAncestors(null);
@@ -76,6 +80,26 @@ public sealed class BusyIndicator : TemplatedControl
     }
 
     private List<IDisposable>? _ancestorSubscriptions;
+
+    private void TrackGeometry()
+    {
+        _geometrySubscriptions?.ForEach(subscription => subscription.Dispose());
+        _geometrySubscriptions = [];
+
+        if (_track is not null)
+        {
+            _geometrySubscriptions.Add(_track
+                .GetPropertyChangedObservable(Visual.BoundsProperty)
+                .Subscribe(new AnonymousObserver<AvaloniaPropertyChangedEventArgs>(_ => UpdateAnimationState())));
+        }
+
+        if (_indicator is not null)
+        {
+            _geometrySubscriptions.Add(_indicator
+                .GetPropertyChangedObservable(Visual.BoundsProperty)
+                .Subscribe(new AnonymousObserver<AvaloniaPropertyChangedEventArgs>(_ => UpdateAnimationState())));
+        }
+    }
 
     private void TrackAncestors(Visual? root)
     {
