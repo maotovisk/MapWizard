@@ -13,6 +13,7 @@ using MapWizard.Desktop.Controls;
 using Avalonia.Markup.Xaml;
 using MapWizard.Desktop.DependencyInjection;
 using MapWizard.Desktop.Services;
+using MapWizard.Desktop.Utils;
 using MapWizard.Desktop.Views;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -38,6 +39,8 @@ public partial class App : Application
 
     public override void OnFrameworkInitializationCompleted()
     {
+        WaylandDispatcherTimerWorkaround.ApplyIfNeeded();
+
         var services = _services ?? throw new InvalidOperationException("Application services were not initialized.");
         var mainWindow = services.GetRequiredService<MainWindow>();
         mainWindow.Opened += (_, _) => mainWindow.GetViewModel().RequestStartupUpdateCheck();

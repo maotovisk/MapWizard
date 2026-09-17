@@ -14,6 +14,7 @@ public class UpdateService(ISettingsService settingsService) : IUpdateService
     private const string LocalDevVersionLabel = "MapWizard-localdev";
     private const string SimulatedVersion = "999.0.0";
     private const string SimulatedVersionLabel = "999.0.0-simulated";
+    private static readonly TimeSpan SimulatedCheckDelay = TimeSpan.FromSeconds(5);
 
     public static readonly bool IsTestFlowEnabled =
         Environment.GetEnvironmentVariable("MAPWIZARD_UPDATE_FLOW_TESTING") == "1";
@@ -61,7 +62,7 @@ public class UpdateService(ISettingsService settingsService) : IUpdateService
     {
         if (IsTestFlowEnabled)
         {
-            return Task.FromResult<UpdateInfo?>(BuildSimulatedUpdateInfo());
+            return CheckForSimulatedUpdateAsync();
         }
 
         var updateManager = CreateUpdateManager();
@@ -71,6 +72,14 @@ public class UpdateService(ISettingsService settingsService) : IUpdateService
         }
 
         return updateManager.CheckForUpdatesAsync();
+    }
+
+    private static async Task<UpdateInfo?> CheckForSimulatedUpdateAsync()
+    {
+        // Keep the busy indicator visible long enough to inspect animation cadence
+        // while the native Wayland dispatcher is otherwise idle.
+        await Task.Delay(SimulatedCheckDelay).ConfigureAwait(true);
+        return BuildSimulatedUpdateInfo();
     }
 
     public async Task DownloadUpdatesAsync(
