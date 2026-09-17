@@ -16,7 +16,6 @@
         <StyleInclude Source="avares://Avalonia.Controls.ColorPicker/Themes/Fluent/Fluent.xaml" />
         <mapWizardTheme:MapWizardTheme />
         <materialIcons:MaterialIconStyles />
-
         <!-- Desktop interaction states should respond immediately. -->
         <Style Selector="Button, ToggleButton, ListBoxItem, ComboBoxItem, MenuItem, TabItem, TreeViewItem">
             <Setter Property="Transitions"><Transitions /></Setter>

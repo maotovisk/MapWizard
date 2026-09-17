@@ -30,8 +30,8 @@ internal static class Program
     private static AppBuilder BuildAvaloniaApp(bool forceSoftwareRendering)
     {
         var app = AppBuilder.Configure<App>()
-            .UsePlatformDetect();
-
+            .UsePlatformDetect()
+            .WithInterFont();
 #if DEBUG
         app = app.LogToTrace();
 #endif
@@ -55,7 +55,6 @@ internal static class Program
                         ]
                 });
         }
-
         return app;
     }
 

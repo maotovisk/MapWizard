@@ -113,7 +113,7 @@
             <CornerRadius x:Key="MapWizardCornerLarge">15</CornerRadius>
             <system:TimeSpan x:Key="MapWizardMotionFast">0:0:0.12</system:TimeSpan>
             <system:TimeSpan x:Key="MapWizardMotionNormal">0:0:0.2</system:TimeSpan>
-            <FontFamily x:Key="MapWizardFontFamily">Quicksand, Noto Sans, Noto Sans CJK SC, Segoe UI, Arial</FontFamily>
+            <FontFamily x:Key="MapWizardFontFamily">$Default, fonts:Inter#Inter, Noto Sans, Noto Sans CJK SC, Segoe UI, Arial</FontFamily>
         </ResourceDictionary>
     </Styles.Resources>
 
