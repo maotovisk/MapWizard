@@ -1,6 +1,7 @@
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.VisualTree;
+using MapWizard.Desktop.Models;
 using MapWizard.Desktop.ViewModels;
 
 namespace MapWizard.Desktop.Views.WelcomePage;
@@ -19,29 +20,32 @@ public partial class WelcomePageView : UserControl
         };
     }
 
-    private void OpenHitSoundCopier_OnClick(object? sender, RoutedEventArgs e)
+    private void OpenTool_OnClick(object? sender, RoutedEventArgs e)
     {
-        this.FindAncestorOfType<MainWindow>()?.NavigateToHitSoundCopier();
-    }
+        if (sender is not Button { DataContext: QuickStartTool tool })
+        {
+            return;
+        }
 
-    private void OpenMetadataManager_OnClick(object? sender, RoutedEventArgs e)
-    {
-        this.FindAncestorOfType<MainWindow>()?.NavigateToMetadataManager();
-    }
-
-    private void OpenHitSoundVisualizer_OnClick(object? sender, RoutedEventArgs e)
-    {
-        this.FindAncestorOfType<MainWindow>()?.NavigateToHitSoundVisualizer();
-    }
-
-    private void OpenComboColourStudio_OnClick(object? sender, RoutedEventArgs e)
-    {
-        this.FindAncestorOfType<MainWindow>()?.NavigateToComboColourStudio();
-    }
-
-    private void OpenMapCleaner_OnClick(object? sender, RoutedEventArgs e)
-    {
-        this.FindAncestorOfType<MainWindow>()?.NavigateToMapCleaner();
+        var mainWindow = this.FindAncestorOfType<MainWindow>();
+        switch (tool.Key)
+        {
+            case "copier":
+                mainWindow?.NavigateToHitSoundCopier();
+                break;
+            case "metadata":
+                mainWindow?.NavigateToMetadataManager();
+                break;
+            case "hitsound-editor":
+                mainWindow?.NavigateToHitSoundVisualizer();
+                break;
+            case "combo-colour":
+                mainWindow?.NavigateToComboColourStudio();
+                break;
+            case "map-cleaner":
+                mainWindow?.NavigateToMapCleaner();
+                break;
+        }
     }
 
     private void OpenSettings_OnClick(object? sender, RoutedEventArgs e)

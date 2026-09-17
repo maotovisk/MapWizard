@@ -4,223 +4,248 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:vm="clr-namespace:MapWizard.Desktop.ViewModels"
+    xmlns:models="clr-namespace:MapWizard.Desktop.Models"
     xmlns:controls="clr-namespace:MapWizard.Desktop.Views.Controls"
     xmlns:appControls="clr-namespace:MapWizard.Desktop.Controls"
-    xmlns:theme="clr-namespace:MapWizard.Theme.Controls;assembly=MapWizard.Theme"
     mc:Ignorable="d"
-    d:DesignWidth="800"
-    d:DesignHeight="450"
+    d:DesignWidth="900"
+    d:DesignHeight="600"
     x:Class="MapWizard.Desktop.Views.WelcomePage.WelcomePageView"
     x:DataType="vm:WelcomePageViewModel"
-    Padding="24">
+    Padding="28">
     <UserControl.Styles>
-        <Style Selector="Button.ToolCard">
-            <Setter Property="Width" Value="244" />
-            <Setter Property="Padding" Value="18" />
-            <Setter Property="Background" Value="{DynamicResource MapWizardCardBrush}" />
-            <Setter Property="BorderBrush" Value="{DynamicResource MapWizardControlBorderBrush}" />
-            <Setter Property="BorderThickness" Value="1" />
-            <Setter Property="CornerRadius" Value="16" />
+        <Style Selector="TextBlock.section-label">
+            <Setter Property="FontSize" Value="11" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="LetterSpacing" Value="0.6" />
+            <Setter Property="Foreground" Value="{DynamicResource MapWizardTextSecondaryBrush}" />
+            <Setter Property="Margin" Value="4,0,0,8" />
+        </Style>
+
+        <!-- List row: no borders, soft rounded hover. Hover feedback is instant
+             (no transitions) so the list feels responsive. -->
+        <Style Selector="Button.list-row">
+            <Setter Property="Padding" Value="12" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="CornerRadius" Value="12" />
             <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-            <Setter Property="VerticalContentAlignment" Value="Top" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
             <Setter Property="FocusAdorner" Value="{x:Null}" />
         </Style>
-        <Style Selector="Button.ToolCard /template/ ContentPresenter#PART_ContentPresenter">
+        <Style Selector="Button.list-row /template/ ContentPresenter#PART_ContentPresenter">
             <Setter Property="Background" Value="{Binding Background, RelativeSource={RelativeSource TemplatedParent}}" />
-            <Setter Property="BorderBrush" Value="{Binding BorderBrush, RelativeSource={RelativeSource TemplatedParent}}" />
         </Style>
-        <Style Selector="Button.ToolCard:pointerover">
+        <Style Selector="Button.list-row:pointerover">
             <Setter Property="Background" Value="{DynamicResource MapWizardControlHoverBrush}" />
-            <Setter Property="BorderBrush" Value="{DynamicResource MapWizardAccentBrush}" />
         </Style>
-        <Style Selector="Button.ToolCard:pressed">
-            <Setter Property="Background" Value="{DynamicResource MapWizardControlPressedBrush}" />
+
+        <Style Selector="Border.row-icon-plate">
+            <Setter Property="CornerRadius" Value="10" />
+            <Setter Property="Background" Value="{DynamicResource MapWizardAccentBrush}" />
+            <Setter Property="Opacity" Value="0.16" />
         </Style>
-        <Style Selector="Border.StatusPill">
-            <Setter Property="Background" Value="{DynamicResource MapWizardCardBrush}" />
-            <Setter Property="BorderBrush" Value="{DynamicResource MapWizardControlBorderBrush}" />
-            <Setter Property="BorderThickness" Value="1" />
-            <Setter Property="CornerRadius" Value="14" />
-            <Setter Property="Padding" Value="10,5" />
+        <Style Selector="Button.list-row:pointerover Border.row-icon-plate">
+            <Setter Property="Opacity" Value="0.34" />
+        </Style>
+
+        <!-- Chevron only shows while the row is hovered. -->
+        <Style Selector="Border.row-chevron">
+            <Setter Property="Opacity" Value="0" />
+        </Style>
+        <Style Selector="Button.list-row:pointerover Border.row-chevron">
+            <Setter Property="Opacity" Value="0.9" />
         </Style>
     </UserControl.Styles>
 
-    <Grid RowDefinitions="Auto,*,Auto" RowSpacing="18">
-        <StackPanel Grid.Row="0" HorizontalAlignment="Center" Spacing="12">
-            <StackPanel Spacing="6">
-                <TextBlock Text="Welcome to MapWizard" FontSize="30" FontWeight="Bold" HorizontalAlignment="Center" />
-                <TextBlock Text="Your osu! beatmap toolkit. Pick a tool to get started."
-                           HorizontalAlignment="Center"
-                           Foreground="{DynamicResource MapWizardTextSecondaryBrush}" />
-            </StackPanel>
-
-            <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center">
-                <Border Classes="StatusPill">
-                    <StackPanel Orientation="Horizontal" Spacing="6">
-                        <LucideIcon Kind="Info" Size="14" VerticalAlignment="Center" />
-                        <TextBlock Text="{Binding VersionLabel}" FontSize="12" VerticalAlignment="Center" />
-                    </StackPanel>
-                </Border>
-                <Button Classes="Basic Compact" Command="{Binding CheckForUpdatesCommand}">
-                    <StackPanel Orientation="Horizontal" Spacing="6">
-                        <LucideIcon Kind="RefreshCw" Size="14" VerticalAlignment="Center" />
-                        <TextBlock Text="Check for updates" FontSize="12" VerticalAlignment="Center" />
-                    </StackPanel>
-                </Button>
-                <Button x:Name="SetSongsFolderButton"
-                        Classes="Basic Compact"
-                        Click="OpenSettings_OnClick"
-                        IsVisible="{Binding !IsSongsFolderConfigured}"
-                        ToolTip.Tip="{Binding SongsFolderStatusText}">
-                    <StackPanel Orientation="Horizontal" Spacing="6">
-                        <LucideIcon Kind="FolderOpen" Size="14" VerticalAlignment="Center" />
-                        <TextBlock Text="Set osu! Songs folder" FontSize="12" VerticalAlignment="Center" />
-                    </StackPanel>
-                </Button>
-            </StackPanel>
+    <Grid RowDefinitions="Auto,*" RowSpacing="18">
+        <StackPanel Grid.Row="0"
+                    Spacing="12"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center">
+            <Image Source="/Assets/app-icon-256.png"
+                   Width="80"
+                   Height="80"
+                   HorizontalAlignment="Center"
+                   Stretch="Uniform"
+                   RenderOptions.BitmapInterpolationMode="HighQuality" />
+            <TextBlock Text="Welcome to MapWizard"
+                       FontSize="26"
+                       FontWeight="Bold"
+                       HorizontalAlignment="Center" />
         </StackPanel>
 
-        <appControls:SmoothScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Disabled">
-            <controls:CenteredWrapPanel HorizontalAlignment="Stretch" VerticalAlignment="Center" ItemSpacing="10">
-                <Button Classes="ToolCard" Margin="10" Click="OpenHitSoundCopier_OnClick" ToolTip.Tip="Copy hitsounds between difficulties">
-                    <StackPanel Spacing="12">
-                        <Grid Width="52" Height="52" HorizontalAlignment="Left">
-                            <Border CornerRadius="26" Background="{DynamicResource MapWizardAccentBrush}" Opacity="0.18" />
-                            <LucideIcon Kind="Copy" Size="26" HorizontalAlignment="Center" VerticalAlignment="Center"
-                                        Foreground="{DynamicResource MapWizardTextBrush}" />
-                        </Grid>
-                        <TextBlock Text="Hitsound Copier" FontWeight="Bold" FontSize="16" />
-                        <TextBlock Text="Copy hitsounds from one difficulty to the others."
-                                   TextWrapping="Wrap"
-                                   FontSize="12"
-                                   MinHeight="32"
-                                   Foreground="{DynamicResource MapWizardTextSecondaryBrush}" />
-                        <StackPanel Orientation="Horizontal" Spacing="6">
-                            <TextBlock Text="Open" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center"
-                                       Foreground="{DynamicResource MapWizardAccentBrush}" />
-                            <LucideIcon Kind="ArrowRight" Size="14" VerticalAlignment="Center"
-                                        Foreground="{DynamicResource MapWizardAccentBrush}" />
-                        </StackPanel>
-                    </StackPanel>
-                </Button>
+        <appControls:SmoothScrollViewer Grid.Row="1"
+                                        HorizontalScrollBarVisibility="Disabled"
+                                        VerticalContentAlignment="Center">
+            <Grid ColumnDefinitions="2*,*"
+                  ColumnSpacing="32"
+                  MaxWidth="1080"
+                  HorizontalAlignment="Stretch"
+                  VerticalAlignment="Center">
+                <!-- Left column: tools -->
+                <StackPanel Grid.Column="0">
+                    <TextBlock Classes="section-label" Text="TOOLS" />
+                    <ItemsControl ItemsSource="{Binding Tools}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="models:QuickStartTool">
+                                <Button Classes="list-row" HorizontalAlignment="Stretch"
+                                        Click="OpenTool_OnClick" ToolTip.Tip="{Binding Description}">
+                                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="14">
+                                        <Grid Width="38" Height="38">
+                                            <Border Classes="row-icon-plate" />
+                                            <LucideIcon Kind="{Binding Icon}" Size="19"
+                                                        HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                        Foreground="{DynamicResource MapWizardTextBrush}" />
+                                        </Grid>
+                                        <StackPanel Grid.Column="1" Spacing="2" VerticalAlignment="Center">
+                                            <TextBlock Text="{Binding Name}" FontWeight="SemiBold" />
+                                            <TextBlock Text="{Binding Description}"
+                                                       FontSize="12"
+                                                       Foreground="{DynamicResource MapWizardTextSecondaryBrush}" />
+                                        </StackPanel>
+                                        <Border Grid.Column="2" Classes="row-chevron" VerticalAlignment="Center">
+                                            <LucideIcon Kind="ChevronRight" Size="16"
+                                                        Foreground="{DynamicResource MapWizardTextSecondaryBrush}" />
+                                        </Border>
+                                    </Grid>
+                                </Button>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
 
-                <Button Classes="ToolCard" Margin="10" Click="OpenMetadataManager_OnClick" ToolTip.Tip="Edit and sync metadata">
-                    <StackPanel Spacing="12">
-                        <Grid Width="52" Height="52" HorizontalAlignment="Left">
-                            <Border CornerRadius="26" Background="{DynamicResource MapWizardAccentBrush}" Opacity="0.18" />
-                            <LucideIcon Kind="Files" Size="26" HorizontalAlignment="Center" VerticalAlignment="Center"
-                                        Foreground="{DynamicResource MapWizardTextBrush}" />
-                        </Grid>
-                        <TextBlock Text="Metadata Manager" FontWeight="Bold" FontSize="16" />
-                        <TextBlock Text="Edit and sync metadata across a mapset."
-                                   TextWrapping="Wrap"
-                                   FontSize="12"
-                                   MinHeight="32"
-                                   Foreground="{DynamicResource MapWizardTextSecondaryBrush}" />
-                        <StackPanel Orientation="Horizontal" Spacing="6">
-                            <TextBlock Text="Open" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center"
-                                       Foreground="{DynamicResource MapWizardAccentBrush}" />
-                            <LucideIcon Kind="ArrowRight" Size="14" VerticalAlignment="Center"
-                                        Foreground="{DynamicResource MapWizardAccentBrush}" />
+                <!-- Right column: quick actions and support -->
+                <StackPanel Grid.Column="1" Spacing="24">
+                    <StackPanel>
+                        <TextBlock Classes="section-label" Text="QUICK ACTIONS" />
+                        <StackPanel>
+                            <Button Classes="list-row" HorizontalAlignment="Stretch"
+                                    Click="OpenSettings_OnClick"
+                                    IsVisible="{Binding !IsSongsFolderConfigured}"
+                                    ToolTip.Tip="{Binding SongsFolderStatusText}">
+                                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="14">
+                                    <Grid Width="38" Height="38">
+                                        <Border Classes="row-icon-plate" />
+                                        <LucideIcon Kind="FolderOpen" Size="19" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                    Foreground="{DynamicResource MapWizardTextBrush}" />
+                                    </Grid>
+                                    <StackPanel Grid.Column="1" Spacing="2" VerticalAlignment="Center">
+                                        <TextBlock Text="Set osu! Songs folder" FontWeight="SemiBold" />
+                                        <TextBlock Text="Point Map Picker at your osu! library."
+                                                   FontSize="12"
+                                                   Foreground="{DynamicResource MapWizardTextSecondaryBrush}" />
+                                    </StackPanel>
+                                    <Border Grid.Column="2" Classes="row-chevron" VerticalAlignment="Center">
+                                        <LucideIcon Kind="ChevronRight" Size="16"
+                                                    Foreground="{DynamicResource MapWizardTextSecondaryBrush}" />
+                                    </Border>
+                                </Grid>
+                            </Button>
+                            <Button Classes="list-row" HorizontalAlignment="Stretch"
+                                    Click="OpenSettings_OnClick" ToolTip.Tip="Open settings">
+                                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="14">
+                                    <Grid Width="38" Height="38">
+                                        <Border Classes="row-icon-plate" />
+                                        <LucideIcon Kind="Settings" Size="19" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                    Foreground="{DynamicResource MapWizardTextBrush}" />
+                                    </Grid>
+                                    <StackPanel Grid.Column="1" Spacing="2" VerticalAlignment="Center">
+                                        <TextBlock Text="Open settings" FontWeight="SemiBold" />
+                                        <TextBlock Text="Theme, audio, updates, and paths."
+                                                   FontSize="12"
+                                                   Foreground="{DynamicResource MapWizardTextSecondaryBrush}" />
+                                    </StackPanel>
+                                    <Border Grid.Column="2" Classes="row-chevron" VerticalAlignment="Center">
+                                        <LucideIcon Kind="ChevronRight" Size="16"
+                                                    Foreground="{DynamicResource MapWizardTextSecondaryBrush}" />
+                                    </Border>
+                                </Grid>
+                            </Button>
+                            <Button Classes="list-row" HorizontalAlignment="Stretch"
+                                    Command="{Binding CheckForUpdatesCommand}" ToolTip.Tip="Check for updates">
+                                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="14">
+                                    <Grid Width="38" Height="38">
+                                        <Border Classes="row-icon-plate" />
+                                        <LucideIcon Kind="RefreshCw" Size="19" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                    Foreground="{DynamicResource MapWizardTextBrush}" />
+                                    </Grid>
+                                    <StackPanel Grid.Column="1" Spacing="2" VerticalAlignment="Center">
+                                        <TextBlock Text="Check for updates" FontWeight="SemiBold" />
+                                        <TextBlock Text="See if a newer MapWizard is available."
+                                                   FontSize="12"
+                                                   Foreground="{DynamicResource MapWizardTextSecondaryBrush}" />
+                                    </StackPanel>
+                                    <Border Grid.Column="2" Classes="row-chevron" VerticalAlignment="Center">
+                                        <LucideIcon Kind="ChevronRight" Size="16"
+                                                    Foreground="{DynamicResource MapWizardTextSecondaryBrush}" />
+                                    </Border>
+                                </Grid>
+                            </Button>
                         </StackPanel>
                     </StackPanel>
-                </Button>
 
-                <Button Classes="ToolCard" Margin="10" Click="OpenHitSoundVisualizer_OnClick" ToolTip.Tip="Inspect hitsounds on a timeline">
-                    <StackPanel Spacing="12">
-                        <Grid Width="52" Height="52" HorizontalAlignment="Left">
-                            <Border CornerRadius="26" Background="{DynamicResource MapWizardAccentBrush}" Opacity="0.18" />
-                            <LucideIcon Kind="ChartLine" Size="26" HorizontalAlignment="Center" VerticalAlignment="Center"
-                                        Foreground="{DynamicResource MapWizardTextBrush}" />
-                        </Grid>
-                        <TextBlock Text="HitSound Editor" FontWeight="Bold" FontSize="16" />
-                        <TextBlock Text="Inspect and tweak hitsounds on a timeline."
-                                   TextWrapping="Wrap"
-                                   FontSize="12"
-                                   MinHeight="32"
-                                   Foreground="{DynamicResource MapWizardTextSecondaryBrush}" />
-                        <StackPanel Orientation="Horizontal" Spacing="6">
-                            <TextBlock Text="Open" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center"
-                                       Foreground="{DynamicResource MapWizardAccentBrush}" />
-                            <LucideIcon Kind="ArrowRight" Size="14" VerticalAlignment="Center"
-                                        Foreground="{DynamicResource MapWizardAccentBrush}" />
+                    <StackPanel>
+                        <TextBlock Classes="section-label" Text="SUPPORT" />
+                        <StackPanel>
+                            <Button Classes="list-row" HorizontalAlignment="Stretch"
+                                    Command="{Binding OpenDiscordCommand}">
+                                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="14">
+                                    <Grid Width="38" Height="38">
+                                        <Border Classes="row-icon-plate" />
+                                        <Viewbox Width="19" Height="19" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                            <Canvas Width="24" Height="24">
+                                                <Path Fill="{DynamicResource MapWizardTextBrush}" Data="{StaticResource BrandDiscord}" />
+                                            </Canvas>
+                                        </Viewbox>
+                                    </Grid>
+                                    <TextBlock Grid.Column="1" Text="Join the Discord"
+                                               VerticalAlignment="Center" FontWeight="SemiBold" />
+                                    <Border Grid.Column="2" Classes="row-chevron" VerticalAlignment="Center">
+                                        <LucideIcon Kind="ChevronRight" Size="16"
+                                                    Foreground="{DynamicResource MapWizardTextSecondaryBrush}" />
+                                    </Border>
+                                </Grid>
+                            </Button>
+                            <Button Classes="list-row" HorizontalAlignment="Stretch"
+                                    Command="{Binding OpenDocumentationCommand}">
+                                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="14">
+                                    <Grid Width="38" Height="38">
+                                        <Border Classes="row-icon-plate" />
+                                        <LucideIcon Kind="BookOpen" Size="19" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                    Foreground="{DynamicResource MapWizardTextBrush}" />
+                                    </Grid>
+                                    <TextBlock Grid.Column="1" Text="Documentation"
+                                               VerticalAlignment="Center" FontWeight="SemiBold" />
+                                    <Border Grid.Column="2" Classes="row-chevron" VerticalAlignment="Center">
+                                        <LucideIcon Kind="ChevronRight" Size="16"
+                                                    Foreground="{DynamicResource MapWizardTextSecondaryBrush}" />
+                                    </Border>
+                                </Grid>
+                            </Button>
+                            <Button Classes="list-row" HorizontalAlignment="Stretch"
+                                    Command="{Binding OpenGithubCommand}">
+                                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="14">
+                                    <Grid Width="38" Height="38">
+                                        <Border Classes="row-icon-plate" />
+                                        <Viewbox Width="19" Height="19" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                            <Canvas Width="24" Height="24">
+                                                <Path Fill="{DynamicResource MapWizardTextBrush}" Data="{StaticResource BrandGithub}" />
+                                            </Canvas>
+                                        </Viewbox>
+                                    </Grid>
+                                    <TextBlock Grid.Column="1" Text="GitHub"
+                                               VerticalAlignment="Center" FontWeight="SemiBold" />
+                                    <Border Grid.Column="2" Classes="row-chevron" VerticalAlignment="Center">
+                                        <LucideIcon Kind="ChevronRight" Size="16"
+                                                    Foreground="{DynamicResource MapWizardTextSecondaryBrush}" />
+                                    </Border>
+                                </Grid>
+                            </Button>
                         </StackPanel>
                     </StackPanel>
-                </Button>
-
-                <Button Classes="ToolCard" Margin="10" Click="OpenComboColourStudio_OnClick" ToolTip.Tip="Design combo colour patterns">
-                    <StackPanel Spacing="12">
-                        <Grid Width="52" Height="52" HorizontalAlignment="Left">
-                            <Border CornerRadius="26" Background="{DynamicResource MapWizardAccentBrush}" Opacity="0.18" />
-                            <LucideIcon Kind="Palette" Size="26" HorizontalAlignment="Center" VerticalAlignment="Center"
-                                        Foreground="{DynamicResource MapWizardTextBrush}" />
-                        </Grid>
-                        <TextBlock Text="Combo Colour Studio" FontWeight="Bold" FontSize="16" />
-                        <TextBlock Text="Design and apply combo colour patterns."
-                                   TextWrapping="Wrap"
-                                   FontSize="12"
-                                   MinHeight="32"
-                                   Foreground="{DynamicResource MapWizardTextSecondaryBrush}" />
-                        <StackPanel Orientation="Horizontal" Spacing="6">
-                            <TextBlock Text="Open" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center"
-                                       Foreground="{DynamicResource MapWizardAccentBrush}" />
-                            <LucideIcon Kind="ArrowRight" Size="14" VerticalAlignment="Center"
-                                        Foreground="{DynamicResource MapWizardAccentBrush}" />
-                        </StackPanel>
-                    </StackPanel>
-                </Button>
-
-                <Button Classes="ToolCard" Margin="10" Click="OpenMapCleaner_OnClick" ToolTip.Tip="Clean up beatmap files">
-                    <StackPanel Spacing="12">
-                        <Grid Width="52" Height="52" HorizontalAlignment="Left">
-                            <Border CornerRadius="26" Background="{DynamicResource MapWizardAccentBrush}" Opacity="0.18" />
-                            <LucideIcon Kind="BrushCleaning" Size="26" HorizontalAlignment="Center" VerticalAlignment="Center"
-                                        Foreground="{DynamicResource MapWizardTextBrush}" />
-                        </Grid>
-                        <TextBlock Text="Map Cleaner" FontWeight="Bold" FontSize="16" />
-                        <TextBlock Text="Resnap objects and remove unused timing points."
-                                   TextWrapping="Wrap"
-                                   FontSize="12"
-                                   MinHeight="32"
-                                   Foreground="{DynamicResource MapWizardTextSecondaryBrush}" />
-                        <StackPanel Orientation="Horizontal" Spacing="6">
-                            <TextBlock Text="Open" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center"
-                                       Foreground="{DynamicResource MapWizardAccentBrush}" />
-                            <LucideIcon Kind="ArrowRight" Size="14" VerticalAlignment="Center"
-                                        Foreground="{DynamicResource MapWizardAccentBrush}" />
-                        </StackPanel>
-                    </StackPanel>
-                </Button>
-            </controls:CenteredWrapPanel>
+                </StackPanel>
+            </Grid>
         </appControls:SmoothScrollViewer>
-
-        <StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center">
-            <Button Classes="Basic Compact" Command="{Binding OpenDiscordCommand}">
-                <StackPanel Orientation="Horizontal" Spacing="8">
-                    <Viewbox Width="15" Height="15" VerticalAlignment="Center">
-                        <Canvas Width="24" Height="24">
-                            <Path Fill="{DynamicResource MapWizardTextBrush}" Data="{StaticResource BrandDiscord}" />
-                        </Canvas>
-                    </Viewbox>
-                    <TextBlock Text="Discord" FontSize="12" VerticalAlignment="Center" />
-                </StackPanel>
-            </Button>
-            <Button Classes="Basic Compact" Command="{Binding OpenDocumentationCommand}">
-                <StackPanel Orientation="Horizontal" Spacing="8">
-                    <LucideIcon Kind="BookOpen" Size="15" VerticalAlignment="Center" />
-                    <TextBlock Text="Documentation" FontSize="12" VerticalAlignment="Center" />
-                </StackPanel>
-            </Button>
-            <Button Classes="Basic Compact" Command="{Binding OpenGithubCommand}">
-                <StackPanel Orientation="Horizontal" Spacing="8">
-                    <Viewbox Width="15" Height="15" VerticalAlignment="Center">
-                        <Canvas Width="24" Height="24">
-                            <Path Fill="{DynamicResource MapWizardTextBrush}" Data="{StaticResource BrandGithub}" />
-                        </Canvas>
-                    </Viewbox>
-                    <TextBlock Text="GitHub" FontSize="12" VerticalAlignment="Center" />
-                </StackPanel>
-            </Button>
-        </StackPanel>
     </Grid>
 </UserControl>

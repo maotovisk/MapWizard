@@ -26,6 +26,11 @@ ICO_SIZES = (16, 20, 24, 28, 32, 40, 48, 64, 96, 128, 256)
 ICNS_SIZES = (32, 64, 128, 256, 512, 1024)
 MASTER_SIZE = 1024
 
+# Small in-app logos. Rendering these from the vector (rather than letting the
+# UI downscale the 1024px master at runtime) avoids the hard aliasing that a
+# large single-pass reduction produces on the thin strokes.
+UI_SIZES = (64, 256)
+
 
 def supersample_factor(size: int) -> int:
     """More samples at small sizes, where aliasing is most visible."""
@@ -63,6 +68,9 @@ def main() -> None:
     frames = {size: render(size) for size in sorted(set(ICO_SIZES) | set(ICNS_SIZES) | {MASTER_SIZE})}
 
     frames[MASTER_SIZE].save(ASSETS / "app-icon.png", format="PNG")
+
+    for size in UI_SIZES:
+        render(size).save(ASSETS / f"app-icon-{size}.png", format="PNG")
 
     ico_base = frames[256]
     ico_base.save(

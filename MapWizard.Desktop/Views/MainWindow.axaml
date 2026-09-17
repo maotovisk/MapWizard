@@ -93,16 +93,43 @@
             <Setter Property="CornerRadius" Value="12" />
             <Setter Property="BoxShadow" Value="0 5 16 0 #26000000" />
         </Style>
-        <Style Selector="Border.ContentIslandShadow">
-            <Setter Property="Background" Value="{DynamicResource MapWizardSurfaceOpaqueBrush}" />
-            <Setter Property="CornerRadius" Value="12" />
-            <Setter Property="BoxShadow" Value="0 5 16 0 #26000000" />
-            <Setter Property="IsHitTestVisible" Value="False" />
-        </Style>
-        <Style Selector="Border.ContentIsland">
+        <!-- Card chrome for tool/settings pages. It sits behind the page content
+             and simply fades/scales in and out as the Start page is left/entered. -->
+        <Style Selector="Border.ContentIslandCard">
             <Setter Property="Background" Value="{DynamicResource MapWizardSurfaceOpaqueBrush}" />
             <Setter Property="BorderBrush" Value="{DynamicResource MapWizardBorderBrush}" />
             <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="12" />
+            <Setter Property="BoxShadow" Value="0 5 16 0 #26000000" />
+            <Setter Property="Opacity" Value="1" />
+            <Setter Property="IsHitTestVisible" Value="False" />
+            <Setter Property="RenderTransformOrigin" Value="50%,50%" />
+            <Setter Property="RenderTransform" Value="scale(1)" />
+            <Setter Property="Transitions">
+                <Transitions>
+                    <DoubleTransition Property="Opacity" Duration="0:0:0.22">
+                        <DoubleTransition.Easing>
+                            <CubicEaseOut />
+                        </DoubleTransition.Easing>
+                    </DoubleTransition>
+                    <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.22">
+                        <TransformOperationsTransition.Easing>
+                            <CubicEaseOut />
+                        </TransformOperationsTransition.Easing>
+                    </TransformOperationsTransition>
+                </Transitions>
+            </Setter>
+        </Style>
+        <Style Selector="Border.ContentIslandCard.no-card">
+            <Setter Property="Opacity" Value="0" />
+            <Setter Property="RenderTransform" Value="scale(0.97)" />
+        </Style>
+        <!-- Transparent host for the page content. It keeps the rounded clip so
+             content cannot spill past the card corners, while the card chrome
+             above it can fade and scale on its own. -->
+        <Style Selector="Border.ContentIsland">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
             <Setter Property="CornerRadius" Value="12" />
             <Setter Property="ClipToBounds" Value="True" />
         </Style>
@@ -389,10 +416,11 @@
 
         <Panel Grid.Column="1"
                Margin="0,0,10,10">
-            <!-- Shadow lives on its own layer: the island sets ClipToBounds so
-                 page content cannot spill past its rounded corners, which would
-                 otherwise clip the island's own box shadow away. -->
-            <Border Classes="ContentIslandShadow" />
+            <!-- Card chrome layer. A separate sibling from the content host so it
+                 can fade/scale without dragging the page content with it, and so
+                 its box shadow is not clipped by the content's rounded clip. -->
+            <Border Classes="ContentIslandCard"
+                    Classes.no-card="{Binding IsWelcomeSelected}" />
             <Border Classes="ContentIsland">
                 <TransitioningContentControl Content="{Binding CurrentPageViewModel}">
                     <TransitioningContentControl.PageTransition>
@@ -428,7 +456,7 @@
                                 Spacing="9"
                                 VerticalAlignment="Center"
                                 IsHitTestVisible="False">
-                        <Image Source="/Assets/app-icon.png"
+                        <Image Source="/Assets/app-icon-64.png"
                                Width="23"
                                Height="23"
                                Stretch="Uniform"

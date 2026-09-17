@@ -40,6 +40,8 @@
     <None Include="Assets\Skins\Legacy\**\*" CopyToOutputDirectory="PreserveNewest" />
     <AvaloniaResource Include="Assets\app-icon.ico" />
     <AvaloniaResource Include="Assets\app-icon.png" />
+    <AvaloniaResource Include="Assets\app-icon-64.png" />
+    <AvaloniaResource Include="Assets\app-icon-256.png" />
     <AvaloniaResource Include="Assets\mapwizard.svg" />
   </ItemGroup>
 

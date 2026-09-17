@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Controls.Notifications;
@@ -24,7 +25,15 @@ public partial class WelcomePageViewModel(
 {
     public string Message { get; set; } = "Welcome to MapWizard, select a tool to get started!";
 
-    public string VersionLabel { get; } = updateService.VersionLabel;
+    /// <summary>Tools shown in the Start list.</summary>
+    public IReadOnlyList<QuickStartTool> Tools { get; } =
+    [
+        new("copier", "Hitsound Copier", "Copy hitsounds between difficulties.", LucideIconKind.Copy),
+        new("metadata", "Metadata Manager", "Edit and sync metadata across a mapset.", LucideIconKind.Files),
+        new("hitsound-editor", "HitSound Editor", "Inspect and tweak hitsounds on a timeline.", LucideIconKind.ChartLine),
+        new("combo-colour", "Combo Colour Studio", "Design and apply combo colour patterns.", LucideIconKind.Palette),
+        new("map-cleaner", "Map Cleaner", "Resnap objects and remove unused timing points.", LucideIconKind.BrushCleaning),
+    ];
 
     [ObservableProperty]
     private bool _isSongsFolderConfigured;

@@ -107,8 +107,12 @@
                                         Grid.Column="1"
                                         HorizontalScrollBarVisibility="Disabled"
                                         ScrollChanged="SettingsScrollViewer_OnScrollChanged">
-            <StackPanel x:Name="SettingsSections" MaxWidth="980" HorizontalAlignment="Stretch">
-                <theme:Surface x:Name="GeneralSection" Margin="0,0,0,16" Padding="20"><theme:SectionGroup Header="General">
+            <theme:Surface x:Name="SettingsCard"
+                           MaxWidth="980"
+                           HorizontalAlignment="Stretch"
+                           VerticalAlignment="Top">
+                <StackPanel x:Name="SettingsSections" Spacing="28">
+                    <theme:SectionGroup x:Name="GeneralSection" Header="General">
                         <StackPanel Spacing="20">
                             <Grid ColumnDefinitions="*,Auto" VerticalAlignment="Center">
                                 <StackPanel Spacing="4">
@@ -153,9 +157,9 @@
                                 </Button>
                             </Grid>
                         </StackPanel>
-                </theme:SectionGroup></theme:Surface>
+                    </theme:SectionGroup>
 
-                <theme:Surface x:Name="AppearanceSection" Margin="0,0,0,16" Padding="20"><theme:SectionGroup Header="Appearance">
+                    <theme:SectionGroup x:Name="AppearanceSection" Header="Appearance">
                         <StackPanel Spacing="20">
                             <Grid ColumnDefinitions="*,Auto" VerticalAlignment="Center">
                                 <TextBlock Text="Variant" FontWeight="Bold" VerticalAlignment="Center" />
@@ -241,9 +245,9 @@
                                               IsChecked="{Binding IsSmoothWheelScrollingEnabled, Mode=TwoWay}" />
                             </Grid>
                         </StackPanel>
-                </theme:SectionGroup></theme:Surface>
+                    </theme:SectionGroup>
 
-                <theme:Surface x:Name="AudioSection" Margin="0,0,0,16" Padding="20"><theme:SectionGroup Header="Audio">
+                    <theme:SectionGroup x:Name="AudioSection" Header="Audio">
                         <StackPanel Spacing="20">
                             <Grid ColumnDefinitions="*,Auto" VerticalAlignment="Center">
                                 <StackPanel Spacing="4">
@@ -298,9 +302,9 @@
                                 </StackPanel>
                             </Grid>
                         </StackPanel>
-                </theme:SectionGroup></theme:Surface>
+                    </theme:SectionGroup>
 
-                <theme:Surface x:Name="InformationSection" Margin="0,0,0,16" Padding="20"><theme:SectionGroup Header="Information">
+                    <theme:SectionGroup x:Name="InformationSection" Header="Information">
                         <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="8" VerticalAlignment="Center">
                             <TextBlock Text="Config Directory:" VerticalAlignment="Center" />
                             <TextBlock Grid.Column="1"
@@ -321,9 +325,9 @@
                                 <LucideIcon Kind="FolderOpen" Size="18" />
                             </Button>
                         </Grid>
-                </theme:SectionGroup></theme:Surface>
+                    </theme:SectionGroup>
 
-                <theme:Surface x:Name="SupportSection" Margin="0,0,0,16" Padding="20"><theme:SectionGroup Header="Support">
+                    <theme:SectionGroup x:Name="SupportSection" Header="Support">
                         <StackPanel Spacing="16">
                             <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12" VerticalAlignment="Center">
                                 <LucideIcon Kind="Info" Size="20" VerticalAlignment="Center" />
@@ -374,8 +378,9 @@
                                 </Button>
                             </WrapPanel>
                         </StackPanel>
-                </theme:SectionGroup></theme:Surface>
-            </StackPanel>
+                    </theme:SectionGroup>
+                </StackPanel>
+            </theme:Surface>
         </appControls:SmoothScrollViewer>
     </Grid>
 </UserControl>
