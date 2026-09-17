@@ -1,25 +1,28 @@
 # MapWizard
 
-Cross-platform osu! beatmap utility suite built with C#/.NET 10 and Avalonia.
+osu! beatmap toolset for Windows, Linux, and macOS, built with C#/.NET 10 and Avalonia.
 
 [![GitHub release](https://img.shields.io/github/v/release/maotovisk/MapWizard?style=flat-square)](https://github.com/maotovisk/MapWizard/releases)
 ![Platforms](https://img.shields.io/badge/platforms-Windows%20%7C%20Linux%20%7C%20macOS-blue?style=flat-square)
 ![Framework](https://img.shields.io/badge/.NET-10.0-blueviolet?style=flat-square)
 [![Repo](https://img.shields.io/badge/GitHub-maotovisk%2FMapWizard-black?style=flat-square)](https://github.com/maotovisk/MapWizard)
+[![Discord](https://img.shields.io/badge/Discord-join-5865F2?style=flat-square&logo=discord&logoColor=white)](https://mapwizard.maot.dev/discord)
 
-## Current Features
+## Current Tools
 
 - HitSound Copier
 - Metadata Manager
 - Combo Colour Studio
 - Map Picker
-- Theme/settings management
-- Update stream + updater integration
+- HitSound Editor (beta)
+- Map Cleaner
 
 ## Projects
 
-- `MapWizard.Desktop`: Avalonia desktop app.
+- `MapWizard.Desktop`: Avalonia desktop app (main application).
+- `MapWizard.Theme`: Custom Avalonia theme for the app.
 - `MapWizard.Tools`: core tooling logic.
+- `MapWizard.CLI`: soon-to-be command-line interface for the app.
 - `MapWizard.Tests`: test suite.
 
 ## Requirements
@@ -43,7 +46,7 @@ Optional software rendering fallback:
 dotnet run --project MapWizard.Desktop -- --software-rendering
 ```
 
-Or:
+Or set the environment variable:
 
 ```bash
 MAPWIZARD_FORCE_SOFTWARE_RENDERING=1 dotnet run --project MapWizard.Desktop
@@ -83,7 +86,7 @@ Combo Colour Studio local projects:
 - macOS: `~/Library/Application Support/MapWizard/ComboColourStudio/projects.json`
 - Linux: `$XDG_DATA_HOME/MapWizard/ComboColourStudio/projects.json` (fallback: `~/.local/share/MapWizard/ComboColourStudio/projects.json`)
 
-## Credits
+## Credits and Special Thanks
 
 - [OliBomby's Mapping Tools](https://github.com/olibomby/mapping_tools) for inspiration.
 - The original [Map Wizard](https://github.com/maotovisk/map-wizard) (Tauri/Svelte implementation).
@@ -94,4 +97,5 @@ Combo Colour Studio local projects:
 
 ## Contributing
 
-Issues and pull requests are welcome.
+Issues and pull requests are welcome. For questions, help, and updates, join the
+[Discord](https://mapwizard.maot.dev/discord).
