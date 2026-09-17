@@ -62,7 +62,8 @@ public partial class SettingsView : UserControl
             (GeneralSection, GeneralNav),
             (AppearanceSection, AppearanceNav),
             (AudioSection, AudioNav),
-            (InformationSection, InformationNav)
+            (InformationSection, InformationNav),
+            (SupportSection, SupportNav)
         };
 
         var selected = sections[0].Button;
@@ -86,6 +87,7 @@ public partial class SettingsView : UserControl
         "Appearance" => AppearanceSection,
         "Audio" => AudioSection,
         "Information" => InformationSection,
+        "Support" => SupportSection,
         _ => GeneralSection
     };
 }

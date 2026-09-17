@@ -1,7 +1,6 @@
 <UserControl
     xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:materialIcons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
     xmlns:models="clr-namespace:MapWizard.Desktop.Models"
     x:Class="MapWizard.Desktop.Views.Controls.ComboColourDropdown"
     x:Name="Root"
@@ -107,7 +106,7 @@
                                             Classes="HeaderClose"
                                             Click="CloseFlyout_OnClick"
                                             ToolTip.Tip="Close">
-                                        <materialIcons:MaterialIcon Kind="Close" Width="16" Height="16" />
+                                        <LucideIcon Kind="X" Size="16" />
                                     </Button>
                                 </Grid>
 
@@ -161,7 +160,7 @@
                     Command="{Binding RemoveTokenCommand, ElementName=Root}"
                     CommandParameter="{Binding RemoveTokenCommandParameter, ElementName=Root}"
                     ToolTip.Tip="Remove this combo from sequence">
-                <materialIcons:MaterialIcon Kind="Close" Width="12" Height="12"
+                <LucideIcon Kind="X" Size="12"
                                             Foreground="{DynamicResource MapWizardTextSecondaryBrush}" />
             </Button>
         </Grid>

@@ -11,6 +11,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MapWizard.Desktop.Controls;
 using MapWizard.Desktop.Extensions;
+using MapWizard.Desktop.Models;
 using MapWizard.Desktop.Models.Settings;
 using MapWizard.Desktop.Services;
 using MapWizard.Desktop.Services.Playback;
@@ -74,6 +75,36 @@ public partial class SettingsViewModel(
     private string _audioOutputDeviceStatusText = "Using system default output device.";
 
     public string ConfigDirectoryPath { get; } = settingsService.ConfigDirectoryPath;
+
+    public string VersionLabel { get; } = updateService.VersionLabel;
+
+    [RelayCommand]
+    private void OpenDiscord()
+    {
+        OpenExternalLink(AppLinks.Discord, "Discord");
+    }
+
+    [RelayCommand]
+    private void OpenIssues()
+    {
+        OpenExternalLink(AppLinks.Issues, "GitHub");
+    }
+
+    [RelayCommand]
+    private void OpenDocumentation()
+    {
+        OpenExternalLink(AppLinks.Documentation, "Documentation");
+    }
+
+    private void OpenExternalLink(string url, string title)
+    {
+        if (AppLinks.TryOpen(url))
+        {
+            return;
+        }
+
+        notificationService.ShowToast(NotificationType.Error, title, "The link could not be opened.");
+    }
 
     [RelayCommand]
     private void OpenConfigDirectory()

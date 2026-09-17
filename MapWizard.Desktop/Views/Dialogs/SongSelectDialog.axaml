@@ -7,7 +7,6 @@
     xmlns:dialogs="clr-namespace:MapWizard.Desktop.Views.Dialogs"
     xmlns:theme="clr-namespace:MapWizard.Theme.Controls;assembly=MapWizard.Theme"
     xmlns:appControls="clr-namespace:MapWizard.Desktop.Controls"
-    xmlns:materialIcons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
     mc:Ignorable="d"
     d:DesignWidth="920"
     d:DesignHeight="660"
@@ -75,7 +74,7 @@
                         MinHeight="38"
                         Padding="8"
                         ToolTip.Tip="Reload song folders and refresh results">
-                    <materialIcons:MaterialIcon Kind="Refresh" Width="18" Height="18" />
+                    <LucideIcon Kind="RefreshCw" Size="18" />
                 </Button>
 
                 <Button Grid.Column="2"
@@ -85,7 +84,7 @@
                         MinHeight="38"
                         Padding="8"
                         ToolTip.Tip="Open native file picker fallback">
-                    <materialIcons:MaterialIcon Kind="FolderOpen" Width="18" Height="18" />
+                    <LucideIcon Kind="FolderOpen" Size="18" />
                 </Button>
 
                 <Button Grid.Column="3"
@@ -95,7 +94,7 @@
                         MinHeight="38"
                         Padding="8"
                         ToolTip.Tip="Close">
-                    <materialIcons:MaterialIcon Kind="Close" Width="18" Height="18" />
+                    <LucideIcon Kind="X" Size="18" />
                 </Button>
             </Grid>
 

@@ -1,7 +1,6 @@
 <UserControl
     xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:materialIcons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
     x:Class="MapWizard.Desktop.Views.Controls.ColourPointModeDropdown"
     x:Name="Root"
     MinWidth="102">
@@ -42,7 +41,7 @@
                        Foreground="{DynamicResource MapWizardTextBrush}"
                        VerticalAlignment="Center"
                        Text="{Binding SelectedModeLabel, ElementName=Root}" />
-            <materialIcons:MaterialIcon Grid.Column="1" Kind="ChevronDown" Width="14" Height="14"
+            <LucideIcon Grid.Column="1" Kind="ChevronDown" Size="14"
                                         Foreground="{DynamicResource MapWizardTextSecondaryBrush}" />
         </Grid>
 
@@ -63,7 +62,7 @@
                                     Classes="HeaderClose"
                                     Click="CloseFlyout_OnClick"
                                     ToolTip.Tip="Close">
-                                <materialIcons:MaterialIcon Kind="Close" Width="16" Height="16" />
+                                <LucideIcon Kind="X" Size="16" />
                             </Button>
                         </Grid>
 

@@ -4,7 +4,6 @@
     xmlns:vm="using:MapWizard.Desktop.ViewModels"
     xmlns:views="clr-namespace:MapWizard.Desktop.Views"
     xmlns:theme="clr-namespace:MapWizard.Theme.Controls;assembly=MapWizard.Theme"
-    xmlns:materialIcons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
     xmlns:welcomePage="clr-namespace:MapWizard.Desktop.Views.WelcomePage"
     xmlns:hitSoundVisualizer="clr-namespace:MapWizard.Desktop.Views.HitSoundVisualizer"
     xmlns:metadataManager="clr-namespace:MapWizard.Desktop.Views.MetadataManager"
@@ -187,7 +186,7 @@
                                         Background="{DynamicResource MapWizardAccentBrush}"
                                         Opacity="0.20"
                                         IsVisible="{Binding IsWelcomeSelected}" />
-                                <materialIcons:MaterialIcon Kind="Home"
+                                <LucideIcon Kind="House" Size="18"
                                                             Foreground="{DynamicResource MapWizardTextBrush}"
                                                             HorizontalAlignment="Center"
                                                             VerticalAlignment="Center" />
@@ -216,7 +215,7 @@
                                         Background="{DynamicResource MapWizardAccentBrush}"
                                         Opacity="0.20"
                                         IsVisible="{Binding IsHitSoundCopierSelected}" />
-                                <materialIcons:MaterialIcon Kind="ContentCopy"
+                                <LucideIcon Kind="Copy" Size="18"
                                                             Foreground="{DynamicResource MapWizardTextBrush}"
                                                             HorizontalAlignment="Center"
                                                             VerticalAlignment="Center" />
@@ -245,7 +244,7 @@
                                         Background="{DynamicResource MapWizardAccentBrush}"
                                         Opacity="0.20"
                                         IsVisible="{Binding IsMetadataManagerSelected}" />
-                                <materialIcons:MaterialIcon Kind="FileDocumentMultiple"
+                                <LucideIcon Kind="Files" Size="18"
                                                             Foreground="{DynamicResource MapWizardTextBrush}"
                                                             HorizontalAlignment="Center"
                                                             VerticalAlignment="Center" />
@@ -274,7 +273,7 @@
                                         Background="{DynamicResource MapWizardAccentBrush}"
                                         Opacity="0.20"
                                         IsVisible="{Binding IsHitSoundVisualizerSelected}" />
-                                <materialIcons:MaterialIcon Kind="ChartTimelineVariant"
+                                <LucideIcon Kind="ChartLine" Size="18"
                                                             Foreground="{DynamicResource MapWizardTextBrush}"
                                                             HorizontalAlignment="Center"
                                                             VerticalAlignment="Center" />
@@ -303,7 +302,7 @@
                                         Background="{DynamicResource MapWizardAccentBrush}"
                                         Opacity="0.20"
                                         IsVisible="{Binding IsComboColourStudioSelected}" />
-                                <materialIcons:MaterialIcon Kind="Palette"
+                                <LucideIcon Kind="Palette" Size="18"
                                                             Foreground="{DynamicResource MapWizardTextBrush}"
                                                             HorizontalAlignment="Center"
                                                             VerticalAlignment="Center" />
@@ -332,7 +331,7 @@
                                         Background="{DynamicResource MapWizardAccentBrush}"
                                         Opacity="0.20"
                                         IsVisible="{Binding IsMapCleanerSelected}" />
-                                <materialIcons:MaterialIcon Kind="Broom"
+                                <LucideIcon Kind="BrushCleaning" Size="18"
                                                             Foreground="{DynamicResource MapWizardTextBrush}"
                                                             HorizontalAlignment="Center"
                                                             VerticalAlignment="Center" />
@@ -363,7 +362,7 @@
                                         Background="{DynamicResource MapWizardAccentBrush}"
                                         Opacity="0.20"
                                         IsVisible="{Binding IsSettingsSelected}" />
-                                <materialIcons:MaterialIcon Kind="Cog"
+                                <LucideIcon Kind="Settings" Size="18"
                                                             Foreground="{DynamicResource MapWizardTextBrush}"
                                                             HorizontalAlignment="Center"
                                                             VerticalAlignment="Center" />
@@ -443,13 +442,33 @@
 
                 <Border Grid.Column="2"
                         Classes="TitleBarIsland">
-                    <Button Classes="TitleBarActionButton"
-                            Command="{Binding OpenGithubCommand}"
-                            ToolTip.Tip="View on GitHub">
-                        <materialIcons:MaterialIcon Kind="Github" Width="18" Height="18"
-                                                    HorizontalAlignment="Center"
-                                                    VerticalAlignment="Center" />
-                    </Button>
+                    <StackPanel Orientation="Horizontal"
+                                VerticalAlignment="Center">
+                        <Button Classes="TitleBarActionButton"
+                                Command="{Binding OpenGithubCommand}"
+                                ToolTip.Tip="View on GitHub">
+                            <Viewbox Width="18" Height="18"
+                                     HorizontalAlignment="Center"
+                                     VerticalAlignment="Center">
+                                <Canvas Width="24" Height="24">
+                                    <Path Fill="{DynamicResource MapWizardTextBrush}"
+                                          Data="{StaticResource BrandGithub}" />
+                                </Canvas>
+                            </Viewbox>
+                        </Button>
+                        <Button Classes="TitleBarActionButton"
+                                Command="{Binding OpenDiscordCommand}"
+                                ToolTip.Tip="Join the Discord">
+                            <Viewbox Width="18" Height="18"
+                                     HorizontalAlignment="Center"
+                                     VerticalAlignment="Center">
+                                <Canvas Width="24" Height="24">
+                                    <Path Fill="{DynamicResource MapWizardTextBrush}"
+                                          Data="{StaticResource BrandDiscord}" />
+                                </Canvas>
+                            </Viewbox>
+                        </Button>
+                    </StackPanel>
                 </Border>
 
                 <Border Grid.Column="3"

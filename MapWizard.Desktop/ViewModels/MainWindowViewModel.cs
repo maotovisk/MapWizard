@@ -5,6 +5,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MapWizard.Desktop.Enums;
 using MapWizard.Desktop.Extensions;
+using MapWizard.Desktop.Models;
 using MapWizard.Desktop.Services;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -156,25 +157,27 @@ namespace MapWizard.Desktop.ViewModels
         [RelayCommand]
         private void OpenGithub()
         {
-            var githubUrl = "https://github.com/maotovisk/MapWizard";
-            var uri = new Uri(githubUrl);
+            OpenExternalLink(AppLinks.Repository, "GitHub");
+        }
 
-            if (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps)
+        [RelayCommand]
+        private void OpenDiscord()
+        {
+            OpenExternalLink(AppLinks.Discord, "Discord");
+        }
+
+        private void OpenExternalLink(string url, string title)
+        {
+            if (AppLinks.TryOpen(url))
             {
-                System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
-                {
-                    FileName = uri.ToString(),
-                    UseShellExecute = true
-                });
+                return;
             }
-            else
-            {
-                NotificationService.ShowToast(
-                    NotificationType.Error,
-                    "Invalid URL",
-                    "The URL is not valid.",
-                    TimeSpan.FromSeconds(8));
-            }
+
+            NotificationService.ShowToast(
+                NotificationType.Error,
+                title,
+                "The link could not be opened.",
+                TimeSpan.FromSeconds(8));
         }
     }
 }

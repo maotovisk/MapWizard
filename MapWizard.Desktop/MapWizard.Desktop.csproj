@@ -21,7 +21,7 @@
     <PackageReference Include="ManagedBass" Version="4.0.2" />
     <PackageReference Include="MapWizard.BeatmapParser" Version="1.0.6" />
     <PackageReference Include="Markdown.Avalonia.Tight" Version="12.0.0-a3" />
-    <PackageReference Include="Material.Icons.Avalonia" Version="3.0.2" />
+    <PackageReference Include="Lucide.Avalonia" Version="0.2.22" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.12" />
     <PackageReference Include="OsuMemoryDataProvider" Version="0.12.2" />
     <PackageReference Include="OsuWineMemReader" Version="1.0.1" />

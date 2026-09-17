@@ -4,7 +4,6 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:controls="clr-namespace:MapWizard.Desktop.Views.Controls"
-    xmlns:materialIcons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
     x:Class="MapWizard.Desktop.Views.Controls.ImportantNotice"
     x:DataType="controls:ImportantNotice"
     x:Name="Root"
@@ -18,9 +17,8 @@
             CornerRadius="10"
             Padding="12,10">
         <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
-            <materialIcons:MaterialIcon Kind="AlertCircleOutline"
-                                        Width="20"
-                                        Height="20"
+            <LucideIcon Kind="CircleAlert"
+                                        Size="20"
                                         Margin="0,1,0,0"
                                         Foreground="{DynamicResource MapWizardImportantNoticeAccent}" />
 

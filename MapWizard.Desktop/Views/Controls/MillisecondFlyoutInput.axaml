@@ -1,7 +1,6 @@
 <UserControl
     xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:materialIcons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
     x:Class="MapWizard.Desktop.Views.Controls.MillisecondFlyoutInput"
     x:Name="Root"
     MinWidth="126">
@@ -33,14 +32,14 @@
             HorizontalAlignment="Stretch"
             Click="TriggerButton_OnClick">
         <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="6" VerticalAlignment="Center">
-            <materialIcons:MaterialIcon Kind="TimerOutline" Width="14" Height="14"
+            <LucideIcon Kind="Timer" Size="14"
                                         Foreground="{DynamicResource MapWizardTextSecondaryBrush}" />
             <TextBlock Grid.Column="1"
                        FontWeight="Normal"
                        Foreground="{DynamicResource MapWizardTextBrush}"
                        VerticalAlignment="Center"
                        Text="{Binding DisplayValue, ElementName=Root}" />
-            <materialIcons:MaterialIcon Grid.Column="2" Kind="ChevronDown" Width="14" Height="14"
+            <LucideIcon Grid.Column="2" Kind="ChevronDown" Size="14"
                                         Foreground="{DynamicResource MapWizardTextSecondaryBrush}" />
         </Grid>
 
@@ -62,7 +61,7 @@
                                     Classes="HeaderClose"
                                     Click="CloseFlyout_OnClick"
                                     ToolTip.Tip="Close">
-                                <materialIcons:MaterialIcon Kind="Close" Width="16" Height="16" />
+                                <LucideIcon Kind="X" Size="16" />
                             </Button>
                         </Grid>
 
@@ -80,7 +79,7 @@
                                     Classes="Basic Compact"
                                     Click="ApplyButton_OnClick"
                                     ToolTip.Tip="Apply time">
-                                <materialIcons:MaterialIcon Kind="Check" Width="16" Height="16" />
+                                <LucideIcon Kind="Check" Size="16" />
                             </Button>
                         </Grid>
                     </StackPanel>

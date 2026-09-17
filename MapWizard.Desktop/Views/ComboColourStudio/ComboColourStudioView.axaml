@@ -6,7 +6,6 @@
     xmlns:local="clr-namespace:MapWizard.Desktop.Converters"
     xmlns:controls="clr-namespace:MapWizard.Desktop.Views.Controls"
     xmlns:appControls="clr-namespace:MapWizard.Desktop.Controls"
-    xmlns:materialIcons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
     xmlns:theme="clr-namespace:MapWizard.Theme.Controls;assembly=MapWizard.Theme"
     xmlns:models="using:MapWizard.Desktop.Models"
     xmlns:vm="clr-namespace:MapWizard.Desktop.ViewModels"
@@ -76,27 +75,24 @@
                         BorderBrush="{DynamicResource MapWizardAccentBrush}"
                         BorderThickness="1">
                     <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
-                        <materialIcons:MaterialIcon Kind="CheckCircle"
-                                                    Width="14"
-                                                    Height="14"
+                        <LucideIcon Kind="CircleCheck"
+                                                    Size="14"
                                                     Foreground="#64D58A"
                                                     IsVisible="{Binding IsProjectSavedIndicatorVisible}" />
                         <TextBlock Text="Saved"
                                    FontSize="12"
                                    IsVisible="{Binding IsProjectSavedIndicatorVisible}" />
 
-                        <materialIcons:MaterialIcon Kind="CircleEditOutline"
-                                                    Width="14"
-                                                    Height="14"
+                        <LucideIcon Kind="SquarePen"
+                                                    Size="14"
                                                     Foreground="#E8C57A"
                                                     IsVisible="{Binding IsProjectUnsavedIndicatorVisible}" />
                         <TextBlock Text="Unsaved changes"
                                    FontSize="12"
                                    IsVisible="{Binding IsProjectUnsavedIndicatorVisible}" />
 
-                        <materialIcons:MaterialIcon Kind="CircleOutline"
-                                                    Width="14"
-                                                    Height="14"
+                        <LucideIcon Kind="Circle"
+                                                    Size="14"
                                                     Foreground="{DynamicResource MapWizardTextSecondaryBrush}"
                                                     IsVisible="{Binding IsProjectNotSavedIndicatorVisible}" />
                         <TextBlock Text="Not saved"
@@ -112,7 +108,7 @@
                         IsEnabled="{Binding CanSaveProject}"
                         ToolTip.Tip="Save local combo project (Ctrl+S)">
                     <StackPanel Orientation="Horizontal" Spacing="8">
-                        <materialIcons:MaterialIcon Kind="ContentSaveOutline" Width="24" Height="24" />
+                        <LucideIcon Kind="Save" Size="24" />
                         <TextBlock VerticalAlignment="Center"
                                    FontWeight="Normal"
                                    FontSize="16"
@@ -124,7 +120,7 @@
                         Command="{Binding ExportColourHaxCommand}"
                         ToolTip.Tip="Export colour hax to target beatmaps">
                     <StackPanel Orientation="Horizontal" Spacing="8">
-                        <materialIcons:MaterialIcon Kind="ContentSave" Width="24" Height="24" />
+                        <LucideIcon Kind="Save" Size="24" />
                         <TextBlock VerticalAlignment="Center"
                                    FontWeight="Normal"
                                    FontSize="16"
@@ -164,7 +160,7 @@
                                                     Command="{ReflectionBinding DataContext.RemoveColourCommand, ElementName=Root}"
                                                     CommandParameter="{Binding}"
                                                     ToolTip.Tip="Remove this combo colour">
-                                                <materialIcons:MaterialIcon Kind="Close" Width="20" Height="20" />
+                                                <LucideIcon Kind="X" Size="20" />
                                             </Button>
                                         </StackPanel>
                                     </Grid>
@@ -174,7 +170,7 @@
 
                         <Grid ColumnDefinitions="Auto,Auto,Auto,*,Auto,Auto" ColumnSpacing="8">
                             <Button Classes="Basic" Command="{Binding AddColourCommand}" ToolTip.Tip="Add new combo colour">
-                                <materialIcons:MaterialIcon Kind="Add" Width="24" Height="24" />
+                                <LucideIcon Kind="Plus" Size="24" />
                             </Button>
 
                             <TextBlock Grid.Column="1" Text="Palette size" VerticalAlignment="Center" />
@@ -189,7 +185,7 @@
                                     Command="{Binding GenerateColoursFromBackgroundCommand}"
                                     ToolTip.Tip="Generate combo colours from beatmap background">
                                 <StackPanel Orientation="Horizontal" Spacing="4">
-                                    <materialIcons:MaterialIcon Kind="ImageFilterCenterFocusStrong" Width="18" Height="18" />
+                                    <LucideIcon Kind="Focus" Size="18" />
                                     <TextBlock Text="From BG" VerticalAlignment="Center" />
                                 </StackPanel>
                             </Button>
@@ -200,7 +196,7 @@
                                     Command="{Binding PickImageAndGenerateColoursCommand}"
                                     ToolTip.Tip="Generate combo colours from selected image">
                                 <StackPanel Orientation="Horizontal" Spacing="4">
-                                    <materialIcons:MaterialIcon Kind="FolderImage" Width="18" Height="18" />
+                                    <LucideIcon Kind="Image" Size="18" />
                                     <TextBlock Text="From Image" VerticalAlignment="Center" />
                                 </StackPanel>
                             </Button>
@@ -218,7 +214,7 @@
                                     Command="{Binding ImportColourHaxFromOriginCommand}"
                                     ToolTip.Tip="Import colour hax from selected source beatmap">
                                 <StackPanel Orientation="Horizontal" Spacing="4">
-                                    <materialIcons:MaterialIcon Kind="Import" Width="18" Height="18" />
+                                    <LucideIcon Kind="Import" Size="18" />
                                     <TextBlock Text="Import ColourHax" VerticalAlignment="Center" />
                                 </StackPanel>
                             </Button>
@@ -279,21 +275,21 @@
                                                         Command="{ReflectionBinding DataContext.AddColourToPointCommand, ElementName=Root}"
                                                         CommandParameter="{Binding}"
                                                         ToolTip.Tip="Add combo colour to this point sequence">
-                                                    <materialIcons:MaterialIcon Kind="Add" Width="16" Height="16" />
+                                                    <LucideIcon Kind="Plus" Size="16" />
                                                 </Button>
 
                                                 <Button Classes="Basic"
                                                         Command="{ReflectionBinding DataContext.AddColourPointFromSequenceCommand, ElementName=Root}"
                                                         CommandParameter="{Binding}"
                                                         ToolTip.Tip="Create a new colour point from this sequence">
-                                                    <materialIcons:MaterialIcon Kind="ContentCopy" Width="16" Height="16" />
+                                                    <LucideIcon Kind="Copy" Size="16" />
                                                 </Button>
 
                                                 <Button Classes="Basic"
                                                         Command="{ReflectionBinding DataContext.RemoveColourPointCommand, ElementName=Root}"
                                                         CommandParameter="{Binding}"
                                                         ToolTip.Tip="Remove this colour point">
-                                                    <materialIcons:MaterialIcon Kind="Delete" Width="18" Height="18" />
+                                                    <LucideIcon Kind="Trash" Size="18" />
                                                 </Button>
                                             </StackPanel>
                                         </Grid>
@@ -307,7 +303,7 @@
                                 Command="{Binding AddColourPointCommand}"
                                 ToolTip.Tip="Add colour point">
                             <StackPanel Orientation="Horizontal" Spacing="4">
-                                <materialIcons:MaterialIcon Kind="Add" Width="18" Height="18" />
+                                <LucideIcon Kind="Plus" Size="18" />
                                 <TextBlock Text="Add Point" VerticalAlignment="Center" />
                             </StackPanel>
                         </Button>

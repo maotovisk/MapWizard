@@ -13,7 +13,7 @@ using Avalonia.Threading;
 using BeatmapParser.Enums;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Material.Icons;
+using Lucide.Avalonia;
 using MapWizard.Desktop.Extensions;
 using MapWizard.Desktop.Models;
 using MapWizard.Desktop.Models.HitSoundVisualizer;
@@ -135,11 +135,11 @@ public partial class HitSoundVisualizerViewModel(
     [ObservableProperty] private ObservableCollection<HitSoundVisualizerSampleChange> _sampleChanges = [];
     [ObservableProperty] private ObservableCollection<TimelineRowLabel> _timelineRowLabels =
     [
-        new TimelineRowLabel("Sample changes", MaterialIconKind.Tune),
-        new TimelineRowLabel("HitNormal", MaterialIconKind.MusicNote),
-        new TimelineRowLabel("Whistle", MaterialIconKind.Bullhorn),
-        new TimelineRowLabel("Finish", MaterialIconKind.Star),
-        new TimelineRowLabel("Clap", MaterialIconKind.HandClap)
+        new TimelineRowLabel("Sample changes", LucideIconKind.SlidersHorizontal),
+        new TimelineRowLabel("HitNormal", LucideIconKind.Music),
+        new TimelineRowLabel("Whistle", LucideIconKind.Megaphone),
+        new TimelineRowLabel("Finish", LucideIconKind.Star),
+        new TimelineRowLabel("Clap", LucideIconKind.Hand)
     ];
 
     /// <summary>
@@ -164,9 +164,9 @@ public partial class HitSoundVisualizerViewModel(
     public string CursorTimeText => FormatTimeLabel(CursorTimeMs);
     public string TimelineEndText => FormatTimeLabel((int)Math.Round(TimelineEndMs));
     public string PlaybackButtonText => IsPlaybackRunning ? "Pause" : (IsPlaybackPaused ? "Resume" : "Play");
-    public MaterialIconKind PlaybackButtonIconKind => IsPlaybackRunning
-        ? MaterialIconKind.Pause
-        : MaterialIconKind.Play;
+    public LucideIconKind PlaybackButtonIconKind => IsPlaybackRunning
+        ? LucideIconKind.Pause
+        : LucideIconKind.Play;
     public string AudioSourceStatus => !HasLoadedSongAudio || string.IsNullOrWhiteSpace(_loadedAudioFilePath)
         ? "Song audio unavailable (playback disabled)."
         : $"Song: {Path.GetFileName(_loadedAudioFilePath)}";
@@ -178,8 +178,8 @@ public partial class HitSoundVisualizerViewModel(
         : $"Legacy fallback skin: {Path.GetFileName(_legacySkinDirectoryPath)}";
     public string SongVolumeText => $"{Math.Clamp(SongVolumePercent, 0, 100)}%";
     public string HitSoundVolumeText => $"{Math.Clamp(HitSoundVolumePercent, 0, 100)}%";
-    public MaterialIconKind SongVolumeIconKind => SongVolumePercent <= 0 ? MaterialIconKind.MusicNoteOff : MaterialIconKind.MusicNote;
-    public MaterialIconKind EffectsVolumeIconKind => HitSoundVolumePercent <= 0 ? MaterialIconKind.VolumeOff : MaterialIconKind.VolumeHigh;
+    public LucideIconKind SongVolumeIconKind => SongVolumePercent <= 0 ? LucideIconKind.VolumeX : LucideIconKind.Music;
+    public LucideIconKind EffectsVolumeIconKind => HitSoundVolumePercent <= 0 ? LucideIconKind.VolumeOff : LucideIconKind.Volume2;
     public string SelectedSnapDivisorText => $"1/{SelectedSnapDivisorDenominator}";
     public string ContextSamplePointTimeText => FormatTimeLabel(ContextSamplePointTimeMs);
     public bool ShowSamplePointContextPopup => IsSampleRowContextActive;
@@ -3515,4 +3515,4 @@ public partial class HitSoundVisualizerViewModel(
 /// Titles timeline rows with a fancy addition name + icon so the row header
 /// can be flashed when its hitsound plays.
 /// </summary>
-public sealed record TimelineRowLabel(string Title, MaterialIconKind Icon);
+public sealed record TimelineRowLabel(string Title, LucideIconKind Icon);

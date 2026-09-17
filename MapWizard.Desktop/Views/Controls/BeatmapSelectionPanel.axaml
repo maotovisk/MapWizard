@@ -6,7 +6,6 @@
   xmlns:controls="clr-namespace:MapWizard.Desktop.Views.Controls"
   xmlns:appControls="clr-namespace:MapWizard.Desktop.Controls"
   xmlns:models="using:MapWizard.Desktop.Models"
-  xmlns:materialIcons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
   xmlns:theme="clr-namespace:MapWizard.Theme.Controls;assembly=MapWizard.Theme"
   mc:Ignorable="d"
   d:DesignWidth="760"
@@ -154,7 +153,7 @@
       <Setter Property="Height" Value="3" />
     </Style>
 
-    <Style Selector="Grid.AsyncActionActivity.busy materialIcons|MaterialIcon">
+    <Style Selector="Grid.AsyncActionActivity.busy LucideIcon">
       <Setter Property="IsVisible" Value="False" />
     </Style>
 
@@ -251,7 +250,7 @@
       <Setter Property="Background" Value="#4DE06C75" />
     </Style>
 
-    <Style Selector="Button.TargetRemoveButton materialIcons|MaterialIcon">
+    <Style Selector="Button.TargetRemoveButton LucideIcon">
       <Setter Property="Foreground" Value="#E06C75" />
     </Style>
 
@@ -273,13 +272,12 @@
       <Setter Property="Background" Value="#44FFFFFF" />
     </Style>
 
-    <Style Selector="materialIcons|MaterialIcon.MapsetChevron">
+    <Style Selector="LucideIcon.MapsetChevron">
       <Setter Property="Kind" Value="ChevronRight" />
-      <Setter Property="Width" Value="18" />
-      <Setter Property="Height" Value="18" />
+      <Setter Property="Size" Value="18" />
     </Style>
 
-    <Style Selector="materialIcons|MaterialIcon.MapsetChevron.expanded">
+    <Style Selector="LucideIcon.MapsetChevron.expanded">
       <Setter Property="Kind" Value="ChevronDown" />
     </Style>
 
@@ -358,7 +356,7 @@
       <Setter Property="Background" Value="{DynamicResource MapWizardAccentBrush}" />
     </Style>
 
-    <Style Selector="materialIcons|MaterialIcon.DiffIndicatorCheck">
+    <Style Selector="LucideIcon.DiffIndicatorCheck">
       <Setter Property="Foreground" Value="{DynamicResource MapWizardAccentForegroundBrush}" />
     </Style>
 
@@ -444,7 +442,7 @@
                   IsEnabled="{Binding CanClearSelection, ElementName=Root}"
                   ToolTip.Tip="Clear the current source and targets">
             <StackPanel Orientation="Horizontal" Spacing="5">
-              <materialIcons:MaterialIcon Kind="CloseCircleOutline" Width="18" Height="18" />
+              <LucideIcon Kind="CircleX" Size="18" />
               <TextBlock Text="Clear Selection" VerticalAlignment="Center" />
             </StackPanel>
           </Button>
@@ -454,7 +452,7 @@
                   IsEnabled="{Binding HasOriginSelection, ElementName=Root}"
                   ToolTip.Tip="Open the folder of the selected source beatmap">
             <StackPanel Orientation="Horizontal" Spacing="5">
-              <materialIcons:MaterialIcon Kind="FolderOpen" Width="18" Height="18" />
+              <LucideIcon Kind="FolderOpen" Size="18" />
               <TextBlock Text="Open Source Folder" VerticalAlignment="Center" />
             </StackPanel>
           </Button>
@@ -520,7 +518,7 @@
                           Height="16"
                           Classes="AsyncActionActivity"
                           Classes.busy="{ReflectionBinding SetOriginFromMemoryCommand.IsRunning}">
-                      <materialIcons:MaterialIcon Kind="Import" Width="16" Height="16" />
+                      <LucideIcon Kind="Import" Size="16" />
                       <theme:BusyIndicator Classes="AsyncActionIndicator"
                                            IsRunning="{ReflectionBinding SetOriginFromMemoryCommand.IsRunning}"
                                            VerticalAlignment="Center" />
@@ -536,7 +534,7 @@
                           Height="16"
                           Classes="AsyncActionActivity"
                           Classes.busy="{ReflectionBinding PickOriginFileCommand.IsRunning}">
-                      <materialIcons:MaterialIcon Kind="FileSearchOutline" Width="16" Height="16" />
+                      <LucideIcon Kind="FileSearch" Size="16" />
                       <theme:BusyIndicator Classes="AsyncActionIndicator"
                                            IsRunning="{ReflectionBinding PickOriginFileCommand.IsRunning}"
                                            VerticalAlignment="Center" />
@@ -550,7 +548,7 @@
                         IsVisible="{Binding !ShowDestinationSection, ElementName=Root}"
                         ToolTip.Tip="Clear the selected beatmap">
                   <StackPanel Orientation="Horizontal" Spacing="5">
-                    <materialIcons:MaterialIcon Kind="CloseCircleOutline" Width="16" Height="16" />
+                    <LucideIcon Kind="CircleX" Size="16" />
                     <TextBlock Text="Clear" VerticalAlignment="Center" />
                   </StackPanel>
                 </Button>
@@ -560,7 +558,7 @@
                         IsVisible="{Binding !ShowDestinationSection, ElementName=Root}"
                         ToolTip.Tip="Open the selected beatmap's folder">
                   <StackPanel Orientation="Horizontal" Spacing="5">
-                    <materialIcons:MaterialIcon Kind="FolderOpen" Width="16" Height="16" />
+                    <LucideIcon Kind="FolderOpen" Size="16" />
                     <TextBlock Text="Folder" VerticalAlignment="Center" />
                   </StackPanel>
                 </Button>
@@ -667,9 +665,8 @@
                 <StackPanel HorizontalAlignment="Center"
                             VerticalAlignment="Center"
                             Spacing="6">
-                  <materialIcons:MaterialIcon Kind="MusicNoteOutline"
-                                              Width="34"
-                                              Height="34"
+                  <LucideIcon Kind="Music"
+                                              Size="34"
                                               Opacity="0.5"
                                               HorizontalAlignment="Center" />
                   <TextBlock Text="No source selected"
@@ -705,9 +702,8 @@
                   HorizontalAlignment="Center"
                   VerticalAlignment="Center"
                   Background="{DynamicResource MapWizardSurfaceBrush}">
-            <materialIcons:MaterialIcon Kind="ArrowRight"
-                                        Width="22"
-                                        Height="22"
+            <LucideIcon Kind="ArrowRight"
+                                        Size="22"
                                         HorizontalAlignment="Center"
                                         VerticalAlignment="Center"
                                         Foreground="{DynamicResource MapWizardAccentBrush}" />
@@ -738,7 +734,7 @@
                           Height="16"
                           Classes="AsyncActionActivity"
                           Classes.busy="{ReflectionBinding AddDestinationFromMemoryCommand.IsRunning}">
-                      <materialIcons:MaterialIcon Kind="Import" Width="16" Height="16" />
+                      <LucideIcon Kind="Import" Size="16" />
                       <theme:BusyIndicator Classes="AsyncActionIndicator"
                                            IsRunning="{ReflectionBinding AddDestinationFromMemoryCommand.IsRunning}"
                                            VerticalAlignment="Center" />
@@ -754,7 +750,7 @@
                           Height="16"
                           Classes="AsyncActionActivity"
                           Classes.busy="{ReflectionBinding PickDestinationFileCommand.IsRunning}">
-                      <materialIcons:MaterialIcon Kind="FileSearchOutline" Width="16" Height="16" />
+                      <LucideIcon Kind="FileSearch" Size="16" />
                       <theme:BusyIndicator Classes="AsyncActionIndicator"
                                            IsRunning="{ReflectionBinding PickDestinationFileCommand.IsRunning}"
                                            VerticalAlignment="Center" />
@@ -798,7 +794,7 @@
                                       Click="DestinationMapsetExpandButton_OnClick"
                                       ToolTip.Tip="Show or hide this mapset's difficulties" />
 
-                              <materialIcons:MaterialIcon Classes="MapsetChevron"
+                              <LucideIcon Classes="MapsetChevron"
                                                           Classes.expanded="{Binding IsExpanded}"
                                                           Foreground="#EEEEEE"
                                                           Margin="6"
@@ -851,7 +847,7 @@
                                       Click="DestinationMapsetRemoveButton_OnClick"
                                       IsVisible="{Binding !IsSuggested}"
                                       ToolTip.Tip="Remove this mapset from targets">
-                                <materialIcons:MaterialIcon Kind="Close" Width="16" Height="16" />
+                                <LucideIcon Kind="X" Size="16" />
                               </Button>
                           </Grid>
                         </Border>
@@ -885,10 +881,9 @@
                                       <Border Classes="DiffIndicatorBoxSelected"
                                               CornerRadius="5"
                                               IsVisible="{Binding IsSelected}" />
-                                      <materialIcons:MaterialIcon Classes="DiffIndicatorCheck"
+                                      <LucideIcon Classes="DiffIndicatorCheck"
                                                                   Kind="Check"
-                                                                  Width="12"
-                                                                  Height="12"
+                                                                  Size="12"
                                                                   HorizontalAlignment="Center"
                                                                   VerticalAlignment="Center"
                                                                   IsVisible="{Binding IsSelected}" />
@@ -917,9 +912,8 @@
                 <StackPanel HorizontalAlignment="Center"
                             VerticalAlignment="Center"
                             Spacing="6">
-                  <materialIcons:MaterialIcon Kind="FormatListChecks"
-                                              Width="34"
-                                              Height="34"
+                  <LucideIcon Kind="ListChecks"
+                                              Size="34"
                                               Opacity="0.5"
                                               HorizontalAlignment="Center" />
                   <TextBlock Text="No targets selected"
@@ -944,7 +938,7 @@
                           Command="{ReflectionBinding PickDestinationFileCommand}"
                           ToolTip.Tip="Add a beatmap to the targets">
                     <StackPanel Orientation="Horizontal" Spacing="5">
-                      <materialIcons:MaterialIcon Kind="Plus" Width="16" Height="16" />
+                      <LucideIcon Kind="Plus" Size="16" />
                       <TextBlock Text="Add map" VerticalAlignment="Center" />
                     </StackPanel>
                   </Button>
@@ -958,7 +952,7 @@
                             Height="16"
                             Classes="AsyncActionActivity"
                             Classes.busy="{ReflectionBinding AddDestinationFromMemoryCommand.IsRunning}">
-                        <materialIcons:MaterialIcon Kind="Import" Width="16" Height="16" />
+                        <LucideIcon Kind="Import" Size="16" />
                         <theme:BusyIndicator Classes="AsyncActionIndicator"
                                              IsRunning="{ReflectionBinding AddDestinationFromMemoryCommand.IsRunning}"
                                              VerticalAlignment="Center" />
@@ -976,7 +970,7 @@
                             Height="16"
                             Classes="AsyncActionActivity"
                             Classes.busy="{ReflectionBinding PickDestinationFileCommand.IsRunning}">
-                        <materialIcons:MaterialIcon Kind="FileSearchOutline" Width="16" Height="16" />
+                        <LucideIcon Kind="FileSearch" Size="16" />
                         <theme:BusyIndicator Classes="AsyncActionIndicator"
                                              IsRunning="{ReflectionBinding PickDestinationFileCommand.IsRunning}"
                                              VerticalAlignment="Center" />

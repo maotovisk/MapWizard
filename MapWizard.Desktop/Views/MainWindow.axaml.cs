@@ -47,6 +47,8 @@ namespace MapWizard.Desktop.Views
 
         public void NavigateToHitSoundCopier() => ViewModel.NavigateToHitSoundCopier();
 
+        public void NavigateToHitSoundVisualizer() => ViewModel.NavigateToHitSoundVisualizer();
+
         public void NavigateToMetadataManager() => ViewModel.NavigateToMetadataManager();
 
         public void NavigateToComboColourStudio() => ViewModel.NavigateToComboColourStudio();

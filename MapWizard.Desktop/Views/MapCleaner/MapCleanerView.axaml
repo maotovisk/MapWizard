@@ -3,7 +3,6 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:materialIcons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
     xmlns:theme="clr-namespace:MapWizard.Theme.Controls;assembly=MapWizard.Theme"
     xmlns:controls="clr-namespace:MapWizard.Desktop.Views.Controls"
     xmlns:appControls="clr-namespace:MapWizard.Desktop.Controls"
@@ -24,7 +23,7 @@
         <Style Selector="Border.SnapChip TextBlock">
             <Setter Property="Foreground" Value="{DynamicResource SystemControlForegroundBaseHighBrush}" />
         </Style>
-        <Style Selector="Border.SnapChip materialIcons|MaterialIcon">
+        <Style Selector="Border.SnapChip LucideIcon">
             <Setter Property="Foreground" Value="{DynamicResource SystemControlForegroundBaseHighBrush}" />
         </Style>
         <Style Selector="Button.SnapChipClose">
@@ -67,7 +66,7 @@
                     Command="{Binding CleanMapsCommand}"
                     ToolTip.Tip="Apply map cleaner actions">
                 <StackPanel Orientation="Horizontal" Spacing="8">
-                    <materialIcons:MaterialIcon Kind="ContentSave" Width="24" Height="24" />
+                    <LucideIcon Kind="Save" Size="24" />
                     <TextBlock
                         VerticalAlignment="Center"
                         FontWeight="Normal"
@@ -109,7 +108,7 @@
                                                         Command="{ReflectionBinding DataContext.RemoveSnapCommand, ElementName=Root}"
                                                         CommandParameter="{Binding}"
                                                         ToolTip.Tip="Remove snap">
-                                                    <materialIcons:MaterialIcon Kind="Close" Width="14" Height="14" />
+                                                    <LucideIcon Kind="X" Size="14" />
                                                 </Button>
                                             </StackPanel>
                                         </Border>

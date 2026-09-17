@@ -8,6 +8,23 @@ osu! beatmap toolset for Windows, Linux, and macOS, built with C#/.NET 10 and Av
 [![Repo](https://img.shields.io/badge/GitHub-maotovisk%2FMapWizard-black?style=flat-square)](https://github.com/maotovisk/MapWizard)
 [![Discord](https://img.shields.io/badge/Discord-join-5865F2?style=flat-square&logo=discord&logoColor=white)](https://mapwizard.maot.dev/discord)
 
+## Install
+
+### Linux and macOS:
+
+You can install MapWizard by running the following command:
+
+```bash
+curl -fsSL https://mapwizard.maot.dev/install | bash
+```
+
+or grab the [latest release](https://github.com/maotovisk/MapWizard/releases/latest) manually.
+
+### Windows
+
+You can install MapWizard by downloading and running the `.exe` installer from the
+[latest release](https://github.com/maotovisk/MapWizard/releases/latest).
+
 ## Current Tools
 
 - HitSound Copier
