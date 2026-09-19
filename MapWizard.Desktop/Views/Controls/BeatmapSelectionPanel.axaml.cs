@@ -7,8 +7,10 @@ using System.Linq;
 using System.Windows.Input;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Media;
+using Avalonia.VisualTree;
 using MapWizard.Desktop.Models;
 using MapWizard.Desktop.Utils;
 
@@ -990,9 +992,10 @@ public partial class BeatmapSelectionPanel : UserControl
         e.Handled = true;
     }
 
-    private void DestinationMapsetExpandButton_OnClick(object? sender, RoutedEventArgs e)
+    private void DestinationMapsetHeader_OnTapped(object? sender, TappedEventArgs e)
     {
-        if (sender is not Control { DataContext: DestinationMapsetCard mapsetCard })
+        if (sender is not Control { DataContext: DestinationMapsetCard mapsetCard } header ||
+            IsWithinHeaderAction(e.Source as Visual, header))
         {
             return;
         }
@@ -1000,6 +1003,22 @@ public partial class BeatmapSelectionPanel : UserControl
         mapsetCard.IsExpanded = !mapsetCard.IsExpanded;
         _destinationMapsetExpansionStates[mapsetCard.MapsetDirectoryPath] = mapsetCard.IsExpanded;
         e.Handled = true;
+    }
+
+    private static bool IsWithinHeaderAction(Visual? source, Visual header)
+    {
+        var current = source;
+        while (current is not null && !ReferenceEquals(current, header))
+        {
+            if (current is Button)
+            {
+                return true;
+            }
+
+            current = current.GetVisualParent();
+        }
+
+        return false;
     }
 
     private void DestinationMapsetSelectAllButton_OnClick(object? sender, RoutedEventArgs e)

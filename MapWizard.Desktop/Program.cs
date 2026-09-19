@@ -55,6 +55,7 @@ internal static class Program
                         ]
                 });
         }
+        
         return app;
     }
 
