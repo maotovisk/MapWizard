@@ -2,11 +2,14 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Avalonia;
+using Avalonia.Animation;
+using Avalonia.Animation.Easings;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Media;
 using Avalonia.Media.Transformation;
+using Avalonia.Styling;
 using MapWizard.Desktop.Services;
 
 namespace MapWizard.Desktop.Views.Controls;
@@ -23,7 +26,10 @@ public partial class ModalHost : UserControl
     private int _transitionVersion;
     private Visual? _blurredTarget;
     private IEffect? _previousBackgroundEffect;
-    private BlurEffect? _backgroundBlurEffect;
+    private Visual? _backgroundCacheTarget;
+    private CacheMode? _previousBackgroundCacheMode;
+    private CancellationTokenSource? _backgroundBlurAnimationCancellation;
+    private double _backgroundBlurRadius;
 
     public static readonly StyledProperty<bool> IsOpenProperty =
         AvaloniaProperty.Register<ModalHost, bool>(nameof(IsOpen));
@@ -288,7 +294,7 @@ public partial class ModalHost : UserControl
             return;
         }
 
-        if (ReferenceEquals(target, _blurredTarget) && _backgroundBlurEffect is not null)
+        if (ReferenceEquals(target, _blurredTarget))
         {
             return;
         }
@@ -296,8 +302,19 @@ public partial class ModalHost : UserControl
         ClearBackgroundBlur();
         _blurredTarget = target;
         _previousBackgroundEffect = target.Effect;
-        _backgroundBlurEffect = new BlurEffect { Radius = 0d };
-        target.Effect = _backgroundBlurEffect;
+        _backgroundBlurRadius = 0d;
+
+        // Cache the shell's content below the effect-bearing border. Caching
+        // the border itself would also cache the animated effect, making the
+        // transition appear to jump directly to its final frame.
+        if (target is Decorator { Child: { } child })
+        {
+            _backgroundCacheTarget = child;
+            _previousBackgroundCacheMode = child.CacheMode;
+            child.CacheMode ??= new BitmapCache();
+        }
+
+        target.Effect = new BlurEffect { Radius = 0d };
     }
 
     private async Task AnimateBackgroundBlurAsync(
@@ -306,47 +323,108 @@ public partial class ModalHost : UserControl
         int version,
         CancellationToken cancellationToken)
     {
-        var blur = _backgroundBlurEffect;
-        if (blur is null)
+        var target = _blurredTarget;
+        if (target is null)
         {
             return;
         }
 
-        var startRadius = blur.Radius;
-        const int steps = 16;
-        var stepDuration = TimeSpan.FromTicks(duration.Ticks / steps);
+        // Reading before cancellation captures the currently animated effect,
+        // allowing a close that interrupts an open to reverse without a jump.
+        var startRadius = target.Effect is IBlurEffect blur
+            ? blur.Radius
+            : _backgroundBlurRadius;
+
+        _backgroundBlurAnimationCancellation?.Cancel();
+        var animationCancellation = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+        _backgroundBlurAnimationCancellation = animationCancellation;
+
+        // Keep the destination as the base value. When RunAsync removes its
+        // animation value, the rendered effect therefore remains at the end.
+        target.Effect = new BlurEffect { Radius = targetRadius };
 
         try
         {
-            for (var step = 1; step <= steps; step++)
-            {
-                await Task.Delay(stepDuration, cancellationToken);
-                if (version != _transitionVersion || !ReferenceEquals(blur, _backgroundBlurEffect))
-                {
-                    return;
-                }
+            await CreateBackgroundBlurAnimation(startRadius, targetRadius, duration)
+                .RunAsync(target, animationCancellation.Token);
 
-                var progress = (double)step / steps;
-                var easedProgress = progress * progress * (3d - (2d * progress));
-                blur.Radius = startRadius + ((targetRadius - startRadius) * easedProgress);
+            if (version == _transitionVersion && ReferenceEquals(target, _blurredTarget))
+            {
+                _backgroundBlurRadius = targetRadius;
+                target.Effect = new BlurEffect { Radius = targetRadius };
             }
         }
         catch (OperationCanceledException)
         {
-            // A close or a replacement transition continues from the current radius.
+            // A replacement transition continues from the animated radius.
         }
+        finally
+        {
+            if (ReferenceEquals(_backgroundBlurAnimationCancellation, animationCancellation))
+            {
+                _backgroundBlurAnimationCancellation = null;
+            }
+
+            animationCancellation.Dispose();
+        }
+    }
+
+    private static Animation CreateBackgroundBlurAnimation(
+        double startRadius,
+        double endRadius,
+        TimeSpan duration)
+    {
+        return new Animation
+        {
+            Duration = duration,
+            Easing = new CubicEaseInOut(),
+            FillMode = FillMode.Forward,
+            Children =
+            {
+                new KeyFrame
+                {
+                    Cue = new Cue(0d),
+                    Setters =
+                    {
+                        new Setter(
+                            Visual.EffectProperty,
+                            new BlurEffect { Radius = startRadius }),
+                    },
+                },
+                new KeyFrame
+                {
+                    Cue = new Cue(1d),
+                    Setters =
+                    {
+                        new Setter(
+                            Visual.EffectProperty,
+                            new BlurEffect { Radius = endRadius }),
+                    },
+                },
+            },
+        };
     }
 
     private void ClearBackgroundBlur()
     {
+        _backgroundBlurAnimationCancellation?.Cancel();
+        _backgroundBlurAnimationCancellation = null;
+
         if (_blurredTarget is not null)
         {
             _blurredTarget.Effect = _previousBackgroundEffect;
         }
 
+        if (_backgroundCacheTarget is not null)
+        {
+            _backgroundCacheTarget.CacheMode = _previousBackgroundCacheMode;
+        }
+
         _blurredTarget = null;
         _previousBackgroundEffect = null;
-        _backgroundBlurEffect = null;
+        _backgroundCacheTarget = null;
+        _previousBackgroundCacheMode = null;
+        _backgroundBlurRadius = 0d;
     }
 
     private void BackdropBorder_OnPointerPressed(object? sender, PointerPressedEventArgs e)

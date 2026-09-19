@@ -226,16 +226,6 @@
       <Setter Property="HorizontalAlignment" Value="Stretch" />
     </Style>
 
-    <Style Selector="Button.TargetHeaderButton">
-      <Setter Property="Background" Value="Transparent" />
-      <Setter Property="BorderBrush" Value="Transparent" />
-      <Setter Property="BorderThickness" Value="0" />
-      <Setter Property="Padding" Value="0" />
-      <Setter Property="MinWidth" Value="0" />
-      <Setter Property="MinHeight" Value="0" />
-      <Setter Property="Cursor" Value="Hand" />
-    </Style>
-
     <Style Selector="Button.TargetRemoveButton">
       <Setter Property="Background" Value="#33E06C75" />
       <Setter Property="BorderBrush" Value="Transparent" />
@@ -273,12 +263,23 @@
     </Style>
 
     <Style Selector="LucideIcon.MapsetChevron">
-      <Setter Property="Kind" Value="ChevronRight" />
+      <Setter Property="Kind" Value="ChevronDown" />
       <Setter Property="Size" Value="18" />
+      <Setter Property="RenderTransform" Value="rotate(-90deg)" />
+      <Setter Property="Transitions">
+        <Transitions>
+          <TransformOperationsTransition Property="RenderTransform"
+                                         Duration="0:0:0.25">
+            <TransformOperationsTransition.Easing>
+              <CubicEaseOut />
+            </TransformOperationsTransition.Easing>
+          </TransformOperationsTransition>
+        </Transitions>
+      </Setter>
     </Style>
 
     <Style Selector="LucideIcon.MapsetChevron.expanded">
-      <Setter Property="Kind" Value="ChevronDown" />
+      <Setter Property="RenderTransform" Value="rotate(0deg)" />
     </Style>
 
     <Style Selector="theme|AnimatedHeightBorder.TargetDiffs">
@@ -785,15 +786,12 @@
                                 CornerRadius="13" />
                       <StackPanel>
                         <Border Classes="TargetMapsetHeaderClip"
-                                Height="60">
+                                Height="60"
+                                Cursor="Hand"
+                                Tapped="DestinationMapsetHeader_OnTapped">
                           <Grid Margin="4,6,8,6"
                                   ColumnDefinitions="Auto,*,Auto,Auto,Auto"
                                   ColumnSpacing="6">
-                              <Button Grid.ColumnSpan="5"
-                                      Classes="TargetHeaderButton"
-                                      Click="DestinationMapsetExpandButton_OnClick"
-                                      ToolTip.Tip="Show or hide this mapset's difficulties" />
-
                               <LucideIcon Classes="MapsetChevron"
                                                           Classes.expanded="{Binding IsExpanded}"
                                                           Foreground="#EEEEEE"

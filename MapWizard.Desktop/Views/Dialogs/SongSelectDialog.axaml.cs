@@ -6,6 +6,7 @@ using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
+using MapWizard.Desktop.Controls;
 using MapWizard.Desktop.ViewModels;
 
 namespace MapWizard.Desktop.Views.Dialogs;
@@ -207,7 +208,7 @@ public partial class SongSelectDialog : UserControl
         return null;
     }
 
-    private static bool CenterContainerIfNearViewportEdge(ScrollViewer scrollViewer, Control container)
+    private static bool CenterContainerIfNearViewportEdge(SmoothScrollViewer scrollViewer, Control container)
     {
         if (container.Bounds.Height <= 0d || scrollViewer.Viewport.Height <= 0d)
         {
@@ -237,7 +238,7 @@ public partial class SongSelectDialog : UserControl
         var maxOffsetY = Math.Max(0d, scrollViewer.Extent.Height - viewportHeight);
         desiredOffsetY = Math.Clamp(desiredOffsetY, 0d, maxOffsetY);
 
-        scrollViewer.Offset = new Vector(scrollViewer.Offset.X, desiredOffsetY);
+        scrollViewer.ScrollTo(new Vector(scrollViewer.Offset.X, desiredOffsetY));
         return true;
     }
 
