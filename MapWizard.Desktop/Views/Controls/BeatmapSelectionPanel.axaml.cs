@@ -846,10 +846,9 @@ public partial class BeatmapSelectionPanel : UserControl
 
     private void RebuildVisibleDestinationMaps()
     {
-        VisibleDestinationMapsets.Clear();
-
         if (DestinationMaps is null)
         {
+            VisibleDestinationMapsets.Clear();
             HasVisibleDestinationCards = false;
             return;
         }
@@ -867,6 +866,7 @@ public partial class BeatmapSelectionPanel : UserControl
             .OrderBy(group => group.First().DisplayTitle, System.StringComparer.OrdinalIgnoreCase);
 
         var visibleMapsetKeys = new HashSet<string>(System.StringComparer.OrdinalIgnoreCase);
+        var desiredCards = new List<DestinationMapsetCard>();
 
         foreach (var group in groupedByMapset)
         {
@@ -874,27 +874,20 @@ public partial class BeatmapSelectionPanel : UserControl
 
             visibleMapsetKeys.Add(mapsetKey);
 
-            var referenceMap = group.First();
-            var mapsetDifficultyPaths = GetMapsetDifficultyPaths(referenceMap.Path, group.Select(map => map.Path));
-            var difficulties = mapsetDifficultyPaths
-                .Select(path => new MapsetDifficultyCard(path)
-                {
-                    IsSelected = selectedPaths.Contains(path)
-                })
-                .ToList();
-
-            var card = new DestinationMapsetCard(
+            desiredCards.Add(ResolveDestinationMapsetCard(
                 mapsetKey,
-                referenceMap,
-                difficulties)
-            {
-                IsExpanded = !_destinationMapsetExpansionStates.TryGetValue(mapsetKey, out var isExpanded) || isExpanded
-            };
-
-            VisibleDestinationMapsets.Add(card);
+                group.First(),
+                group.Select(map => map.Path),
+                selectedPaths));
         }
 
-        MaybeAddSuggestedSourceMapset(visibleMapsetKeys);
+        var suggestedCard = ResolveSuggestedSourceMapsetCard(visibleMapsetKeys, selectedPaths);
+        if (suggestedCard is not null)
+        {
+            desiredCards.Insert(0, suggestedCard);
+        }
+
+        SyncVisibleDestinationMapsets(desiredCards);
 
         var staleExpansionKeys = _destinationMapsetExpansionStates.Keys
             .Where(key => !visibleMapsetKeys.Contains(key))
@@ -907,36 +900,166 @@ public partial class BeatmapSelectionPanel : UserControl
         HasVisibleDestinationCards = VisibleDestinationMapsets.Count > 0;
     }
 
-    private void MaybeAddSuggestedSourceMapset(HashSet<string> visibleMapsetKeys)
+    /// <summary>
+    /// Returns an existing card for the mapset (updating it in place) or creates
+    /// a new one. Reusing cards keeps their bound containers alive so toggling a
+    /// difficulty never replays the expand animation.
+    /// </summary>
+    private DestinationMapsetCard ResolveDestinationMapsetCard(
+        string mapsetKey,
+        SelectedMap referenceMap,
+        IEnumerable<string> mapPaths,
+        HashSet<string> selectedPaths,
+        bool isSuggested = false)
+    {
+        var difficultyPaths = GetMapsetDifficultyPaths(referenceMap.Path, mapPaths);
+
+        var card = VisibleDestinationMapsets.FirstOrDefault(existing =>
+            string.Equals(existing.MapsetDirectoryPath, mapsetKey, System.StringComparison.OrdinalIgnoreCase));
+
+        if (card is null)
+        {
+            return new DestinationMapsetCard(
+                mapsetKey,
+                referenceMap,
+                difficultyPaths.Select(path => new MapsetDifficultyCard(path)
+                {
+                    IsSelected = selectedPaths.Contains(path)
+                }),
+                isSuggested)
+            {
+                IsExpanded = !_destinationMapsetExpansionStates.TryGetValue(mapsetKey, out var isExpanded) || isExpanded
+            };
+        }
+
+        SyncDestinationMapsetDifficulties(card, difficultyPaths, selectedPaths);
+        card.IsSuggested = isSuggested;
+        return card;
+    }
+
+    private DestinationMapsetCard? ResolveSuggestedSourceMapsetCard(
+        HashSet<string> visibleMapsetKeys,
+        HashSet<string> selectedPaths)
     {
         if (OriginMap is null || !OriginMap.HasPath)
         {
-            return;
+            return null;
         }
 
         var originMapsetKey = GetDestinationMapsetKey(OriginMap.Path);
         if (visibleMapsetKeys.Contains(originMapsetKey))
         {
-            return;
+            return null;
         }
 
-        var suggestedPaths = GetMapsetDifficultyPaths(OriginMap.Path, []).ToList();
+        var suggestedPaths = GetMapsetDifficultyPaths(OriginMap.Path, []);
         if (suggestedPaths.Count == 0)
         {
-            return;
+            return null;
         }
 
-        var suggestions = suggestedPaths
-            .Select(path => new MapsetDifficultyCard(path) { IsSelected = false })
+        var card = ResolveDestinationMapsetCard(
+            originMapsetKey,
+            OriginMap,
+            [],
+            selectedPaths,
+            isSuggested: true);
+
+        visibleMapsetKeys.Add(originMapsetKey);
+        return card;
+    }
+
+    /// <summary>
+    /// Aligns <see cref="DestinationMapsetCard.Difficulties"/> with the desired
+    /// paths, reusing difficulty cards so their rows keep their containers.
+    /// </summary>
+    private static void SyncDestinationMapsetDifficulties(
+        DestinationMapsetCard card,
+        IReadOnlyList<string> difficultyPaths,
+        HashSet<string> selectedPaths)
+    {
+        var existingByPath = new Dictionary<string, MapsetDifficultyCard>(System.StringComparer.OrdinalIgnoreCase);
+        foreach (var difficulty in card.Difficulties)
+        {
+            existingByPath.TryAdd(difficulty.Path, difficulty);
+        }
+
+        var desiredDifficulties = difficultyPaths
+            .Select(path => existingByPath.TryGetValue(path, out var existing)
+                ? existing
+                : new MapsetDifficultyCard(path))
             .ToList();
 
-        var card = new DestinationMapsetCard(originMapsetKey, OriginMap, suggestions, isSuggested: true)
-        {
-            IsExpanded = !_destinationMapsetExpansionStates.TryGetValue(originMapsetKey, out var isExpanded) || isExpanded
-        };
+        var desiredSet = new HashSet<MapsetDifficultyCard>(desiredDifficulties);
 
-        VisibleDestinationMapsets.Insert(0, card);
-        visibleMapsetKeys.Add(originMapsetKey);
+        foreach (var difficulty in desiredDifficulties)
+        {
+            difficulty.IsSelected = selectedPaths.Contains(difficulty.Path);
+        }
+
+        for (var i = card.Difficulties.Count - 1; i >= 0; i--)
+        {
+            if (!desiredSet.Contains(card.Difficulties[i]))
+            {
+                card.Difficulties.RemoveAt(i);
+            }
+        }
+
+        for (var i = 0; i < desiredDifficulties.Count; i++)
+        {
+            if (i < card.Difficulties.Count && ReferenceEquals(card.Difficulties[i], desiredDifficulties[i]))
+            {
+                continue;
+            }
+
+            var currentIndex = card.Difficulties.IndexOf(desiredDifficulties[i]);
+            if (currentIndex >= 0)
+            {
+                card.Difficulties.Move(currentIndex, i);
+            }
+            else
+            {
+                card.Difficulties.Insert(i, desiredDifficulties[i]);
+            }
+        }
+
+        card.RefreshDifficultySelectionState();
+    }
+
+    /// <summary>
+    /// Applies the desired card list to the observable collection with minimal
+    /// add/move/remove operations so bound containers are preserved.
+    /// </summary>
+    private void SyncVisibleDestinationMapsets(List<DestinationMapsetCard> desiredCards)
+    {
+        var desiredSet = new HashSet<DestinationMapsetCard>(desiredCards);
+
+        for (var i = VisibleDestinationMapsets.Count - 1; i >= 0; i--)
+        {
+            if (!desiredSet.Contains(VisibleDestinationMapsets[i]))
+            {
+                VisibleDestinationMapsets.RemoveAt(i);
+            }
+        }
+
+        for (var i = 0; i < desiredCards.Count; i++)
+        {
+            var card = desiredCards[i];
+            if (i < VisibleDestinationMapsets.Count && ReferenceEquals(VisibleDestinationMapsets[i], card))
+            {
+                continue;
+            }
+
+            var currentIndex = VisibleDestinationMapsets.IndexOf(card);
+            if (currentIndex >= 0)
+            {
+                VisibleDestinationMapsets.Move(currentIndex, i);
+            }
+            else
+            {
+                VisibleDestinationMapsets.Insert(i, card);
+            }
+        }
     }
 
     private static string GetDestinationMapsetKey(string beatmapPath)

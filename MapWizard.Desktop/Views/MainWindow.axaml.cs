@@ -43,6 +43,13 @@ namespace MapWizard.Desktop.Views
         /// <summary>Exposes the view-model to startup plumbing in App.axaml.cs.</summary>
         internal MainWindowViewModel GetViewModel() => ViewModel;
 
+        /// <summary>
+        /// Panel hosting the page content: used as the opacity-0 warm-up host
+        /// during page preloading, so warm pages measure with the exact live
+        /// constraints they will get on the first navigation.
+        /// </summary>
+        internal Panel GetPreloadWarmupHost() => ContentIslandHost;
+
         public void NavigateToStart() => ViewModel.NavigateToWelcome();
 
         public void NavigateToHitSoundCopier() => ViewModel.NavigateToHitSoundCopier();

@@ -7,6 +7,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Controls.Templates;
+using Avalonia.Threading;
 using Avalonia.VisualTree;
 using MapWizard.Desktop.ViewModels;
 using MapWizard.Desktop.Views;
@@ -62,15 +63,51 @@ public class ViewLocator : IDataTemplate
     /// <summary>
     /// Builds (or returns the cached) view for a page view model without attaching
     /// it to the visual tree, so the first navigation to that page is instant.
+    /// When <paramref name="warmupHost"/> is given, the view is additionally
+    /// attached to that panel (inside the live window) at opacity 0 for one
+    /// dispatcher turn: control themes/styles resolve against the real style
+    /// host and the first measure/arrange/render happen off-screen, so the
+    /// first navigation only pays a cheap re-layout instead of a UI freeze
+    /// that starves the page transition.
     /// </summary>
-    public static void Preload(ViewModelBase viewModel)
+    public static Control? Preload(ViewModelBase viewModel, Panel? warmupHost = null)
     {
-        if (ViewCache.ContainsKey(viewModel.GetType()))
+        var view = GetOrCreate(viewModel);
+
+        if (warmupHost is not null &&
+            view.Parent is null &&
+            view.GetVisualParent() is null)
         {
-            return;
+            WarmUpView(view, warmupHost);
         }
 
-        GetOrCreate(viewModel);
+        return view;
+    }
+
+    /// <summary>
+    /// Briefly hosts a pre-built view inside the live window at opacity 0 so it
+    /// completes its first style application, measure/arrange, and frame while
+    /// invisible. The Background-priority detach runs after the queued layout
+    /// (Layout priority) and render (Render priority) work for that pass.
+    /// </summary>
+    private static void WarmUpView(Control view, Panel warmupHost)
+    {
+        var wrapper = new Border
+        {
+            Opacity = 0,
+            IsHitTestVisible = false,
+            ClipToBounds = true,
+        };
+        wrapper.Child = view;
+        warmupHost.Children.Insert(0, wrapper);
+
+        Dispatcher.UIThread.Post(
+            () =>
+            {
+                wrapper.Child = null;
+                warmupHost.Children.Remove(wrapper);
+            },
+            DispatcherPriority.Background);
     }
 
     public static Window? FindWindowByViewModel(INotifyPropertyChanged viewModel) =>

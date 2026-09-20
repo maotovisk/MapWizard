@@ -46,7 +46,7 @@ public partial class App : Application
         mainWindow.Opened += (_, _) =>
         {
             mainWindow.GetViewModel().RequestStartupUpdateCheck();
-            mainWindow.GetViewModel().PreloadPages();
+            mainWindow.GetViewModel().PreloadPages(mainWindow.GetPreloadWarmupHost());
         };
 
         switch (ApplicationLifetime)

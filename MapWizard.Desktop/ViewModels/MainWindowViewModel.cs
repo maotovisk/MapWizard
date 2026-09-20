@@ -87,8 +87,12 @@ namespace MapWizard.Desktop.ViewModels
         /// during the 300ms entrance animation starves the compositor and makes
         /// the first paint look sluggish. One page is built per idle dispatcher
         /// turn to keep later interaction responsive.
+        /// When <paramref name="warmupHost"/> (a panel inside the window) is
+        /// given, each built page is also briefly attached at opacity 0 so its
+        /// first style/measure/arrange/render work happens off-screen instead
+        /// of blocking the transition the first time it is opened.
         /// </summary>
-        public void PreloadPages()
+        public void PreloadPages(Avalonia.Controls.Panel? warmupHost = null)
         {
             if (_pagesPreloaded)
             {
@@ -96,10 +100,10 @@ namespace MapWizard.Desktop.ViewModels
             }
 
             _pagesPreloaded = true;
-            _ = PreloadPagesAfterFirstRenderAsync();
+            _ = PreloadPagesAfterFirstRenderAsync(warmupHost);
         }
 
-        private async Task PreloadPagesAfterFirstRenderAsync()
+        private async Task PreloadPagesAfterFirstRenderAsync(Avalonia.Controls.Panel? warmupHost)
         {
             try
             {
@@ -117,11 +121,11 @@ namespace MapWizard.Desktop.ViewModels
             // from stealing frames from input, render, or later transitions.
             // If the user already navigated, ViewLocator hits the cache and skips.
             Dispatcher.UIThread.Post(
-                () => PreloadNextPage(new Queue<ViewModelBase>(GetPageViewModels())),
+                () => PreloadNextPage(new Queue<ViewModelBase>(GetPageViewModels()), warmupHost),
                 DispatcherPriority.SystemIdle);
         }
 
-        private void PreloadNextPage(Queue<ViewModelBase> pendingPages)
+        private void PreloadNextPage(Queue<ViewModelBase> pendingPages, Avalonia.Controls.Panel? warmupHost)
         {
             if (pendingPages.Count == 0)
             {
@@ -130,14 +134,16 @@ namespace MapWizard.Desktop.ViewModels
 
             try
             {
-                ViewLocator.Preload(pendingPages.Dequeue());
+                ViewLocator.Preload(pendingPages.Dequeue(), warmupHost);
             }
             catch (Exception ex)
             {
                 MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
             }
 
-            Dispatcher.UIThread.Post(() => PreloadNextPage(pendingPages), DispatcherPriority.SystemIdle);
+            Dispatcher.UIThread.Post(
+                () => PreloadNextPage(pendingPages, warmupHost),
+                DispatcherPriority.SystemIdle);
         }
 
         private IEnumerable<ViewModelBase> GetPageViewModels()

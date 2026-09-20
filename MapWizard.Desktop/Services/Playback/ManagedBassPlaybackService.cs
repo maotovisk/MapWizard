@@ -24,6 +24,9 @@ public sealed class ManagedBassPlaybackService : IAudioPlaybackService, IDisposa
         new(StringComparer.OrdinalIgnoreCase);
 
     // Prevent the delegate from being garbage-collected while BASS holds a reference to it.
+    // This static root is the delegate handed to native BASS_ChannelSetSync, which matters
+    // because ManagedBass only roots sync callbacks when dynamic code is supported
+    // (see ChannelReferences.Add) - under NativeAOT that is false.
     private static readonly SyncProcedure HitsoundStreamEndSync = OnHitsoundStreamEnd;
 
     private static void OnHitsoundStreamEnd(int handle, int channel, int data, IntPtr user)
@@ -298,7 +301,16 @@ public sealed class ManagedBassPlaybackService : IAudioPlaybackService, IDisposa
 
             // Register a sync to automatically free the stream channel when playback ends,
             // preventing handle leaks since stream channels are not auto-freed.
-            Bass.ChannelSetSync(channelHandle, SyncFlags.End | SyncFlags.Onetime, 0,
+            //
+            // NOTE: SyncFlags.Onetime must NOT be used here. ManagedBass.ChannelSetSync wraps the
+            // procedure in a fresh delegate when Onetime is set, and roots that wrapper only when
+            // RuntimeFeature.IsDynamicCodeSupported is true - which is false under NativeAOT.
+            // The wrapper then has no managed root, so the GC can collect it while BASS still
+            // holds its native function pointer, and the audio thread segfaults when the sync
+            // fires (reproduced with NativeAOT builds). Without Onetime, ManagedBass passes the
+            // statically-rooted delegate straight through. End syncs fire once per channel
+            // lifetime anyway, and freeing the channel in the callback tears down its syncs.
+            Bass.ChannelSetSync(channelHandle, SyncFlags.End, 0,
                 HitsoundStreamEndSync);
 
             if (!Bass.ChannelPlay(channelHandle, true))

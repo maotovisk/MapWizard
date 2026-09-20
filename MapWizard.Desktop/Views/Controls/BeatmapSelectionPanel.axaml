@@ -226,8 +226,10 @@
       <Setter Property="HorizontalAlignment" Value="Stretch" />
     </Style>
 
+    <!-- Over-artwork header actions: keep enough scrim alpha that the
+         label/icon stay readable on light artwork. -->
     <Style Selector="Button.TargetRemoveButton">
-      <Setter Property="Background" Value="#33E06C75" />
+      <Setter Property="Background" Value="#66000000" />
       <Setter Property="BorderBrush" Value="Transparent" />
       <Setter Property="BorderThickness" Value="0" />
       <Setter Property="CornerRadius" Value="8" />
@@ -237,16 +239,20 @@
     </Style>
 
     <Style Selector="Button.TargetRemoveButton:pointerover">
-      <Setter Property="Background" Value="#4DE06C75" />
+      <Setter Property="Background" Value="#CCE06C75" />
     </Style>
 
     <Style Selector="Button.TargetRemoveButton LucideIcon">
       <Setter Property="Foreground" Value="#E06C75" />
     </Style>
 
+    <Style Selector="Button.TargetRemoveButton:pointerover LucideIcon">
+      <Setter Property="Foreground" Value="#FFF8F9FA" />
+    </Style>
+
     <Style Selector="Button.TargetSelectAllButton">
-      <Setter Property="Background" Value="#33000000" />
-      <Setter Property="BorderBrush" Value="#66FFFFFF" />
+      <Setter Property="Background" Value="#66000000" />
+      <Setter Property="BorderBrush" Value="#80FFFFFF" />
       <Setter Property="BorderThickness" Value="1" />
       <Setter Property="CornerRadius" Value="8" />
       <Setter Property="Padding" Value="8,4" />
@@ -259,7 +265,8 @@
     </Style>
 
     <Style Selector="Button.TargetSelectAllButton:pointerover">
-      <Setter Property="Background" Value="#44FFFFFF" />
+      <Setter Property="Background" Value="#99222B32" />
+      <Setter Property="BorderBrush" Value="#99FFFFFF" />
     </Style>
 
     <Style Selector="LucideIcon.MapsetChevron">

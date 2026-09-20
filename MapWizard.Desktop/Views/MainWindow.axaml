@@ -41,11 +41,8 @@
             <Setter Property="Background" Value="{DynamicResource MapWizardAccentBrush}" />
             <Setter Property="Opacity" Value="0" />
             <Setter Property="CornerRadius" Value="15" />
-            <Setter Property="Transitions">
-                <Transitions>
-                    <DoubleTransition Property="Opacity" Duration="0:0:0.12" />
-                </Transitions>
-            </Setter>
+            <!-- Hover feedback is instant (no transitions) so the nav feels responsive. -->
+            <Setter Property="Transitions"><Transitions /></Setter>
         </Style>
         <Style Selector="theme|NavigationButton.NavButton:pointerover Border.NavIconHoverLayer">
             <Setter Property="Opacity" Value="0.14" />
@@ -384,7 +381,8 @@
         </Border>
 
         <Panel Grid.Column="1"
-               Margin="0,0,10,10">
+               Margin="0,0,10,10"
+               x:Name="ContentIslandHost">
             <!-- Card chrome layer. A separate sibling from the content host so it
                  can fade/scale without dragging the page content with it, and so
                  its box shadow is not clipped by the content's rounded clip. -->
