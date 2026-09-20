@@ -2,19 +2,15 @@ using MapWizard.Tools.HelperExtensions;
 
 namespace MapWizard.Tests.HelperExtensions;
 
+[Collection("DataDirectoryTests")]
 public class BeatmapBackupHelperTests
 {
     [Fact]
     public void CreateBackupCopy_RepeatedCallsForSameFile_ProducesUniqueBackups()
     {
-        if (OperatingSystem.IsMacOS())
-        {
-            return;
-        }
-
         var sandboxRoot = CreateSandbox();
-        var previousXdgDataHome = Environment.GetEnvironmentVariable("XDG_DATA_HOME");
-        Environment.SetEnvironmentVariable("XDG_DATA_HOME", sandboxRoot);
+        var previousDataHome = Environment.GetEnvironmentVariable(MapWizardPathResolver.DataDirectoryOverrideVariable);
+        Environment.SetEnvironmentVariable(MapWizardPathResolver.DataDirectoryOverrideVariable, sandboxRoot);
 
         try
         {
@@ -34,7 +30,7 @@ public class BeatmapBackupHelperTests
         }
         finally
         {
-            Environment.SetEnvironmentVariable("XDG_DATA_HOME", previousXdgDataHome);
+            Environment.SetEnvironmentVariable(MapWizardPathResolver.DataDirectoryOverrideVariable, previousDataHome);
             Directory.Delete(sandboxRoot, recursive: true);
         }
     }

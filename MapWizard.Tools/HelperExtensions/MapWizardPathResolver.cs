@@ -5,8 +5,22 @@ public static class MapWizardPathResolver
     private const string AppDirectoryName = "MapWizard";
     private const string BackupDirectoryName = "Backup";
 
+    /// <summary>
+    /// Optional override for the base data-home directory (the directory that
+    /// contains the "MapWizard" data folder). Honored on every platform so
+    /// tests can redirect data writes into a sandbox; falls back to the
+    /// platform defaults when unset.
+    /// </summary>
+    public const string DataDirectoryOverrideVariable = "MAPWIZARD_DATA_HOME";
+
     public static string ResolveDataDirectoryPath()
     {
+        var overrideBase = Environment.GetEnvironmentVariable(DataDirectoryOverrideVariable);
+        if (!string.IsNullOrWhiteSpace(overrideBase))
+        {
+            return Path.Combine(overrideBase, AppDirectoryName);
+        }
+
         if (OperatingSystem.IsWindows())
         {
             var appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);

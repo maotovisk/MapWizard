@@ -7,6 +7,12 @@ using MapWizard.Tools.MapCleaner.Snapping;
 
 namespace MapWizard.Tests.MapCleaner;
 
+/// <summary>
+/// These tests mutate the process-wide MAPWIZARD_DATA_HOME variable, so they
+/// share one xUnit collection to keep them from running in parallel with the
+/// other tests that redirect the data directory.
+/// </summary>
+[Collection("DataDirectoryTests")]
 public class MapCleanerTests
 {
     [Fact]
@@ -457,14 +463,9 @@ public class MapCleanerTests
     [Fact]
     public void CleanBeatmapTargets_ValidFile_WritesCleanedBeatmapCreatesBackupAndAggregatesCounts()
     {
-        if (OperatingSystem.IsMacOS())
-        {
-            return;
-        }
-
         var sandboxRoot = CreateSandbox("mapwizard-mapcleaner-targets");
-        var previousXdgDataHome = Environment.GetEnvironmentVariable("XDG_DATA_HOME");
-        Environment.SetEnvironmentVariable("XDG_DATA_HOME", sandboxRoot);
+        var previousDataHome = Environment.GetEnvironmentVariable(MapWizard.Tools.HelperExtensions.MapWizardPathResolver.DataDirectoryOverrideVariable);
+        Environment.SetEnvironmentVariable(MapWizard.Tools.HelperExtensions.MapWizardPathResolver.DataDirectoryOverrideVariable, sandboxRoot);
 
         try
         {
@@ -496,7 +497,7 @@ public class MapCleanerTests
         }
         finally
         {
-            Environment.SetEnvironmentVariable("XDG_DATA_HOME", previousXdgDataHome);
+            Environment.SetEnvironmentVariable(MapWizard.Tools.HelperExtensions.MapWizardPathResolver.DataDirectoryOverrideVariable, previousDataHome);
             Directory.Delete(sandboxRoot, recursive: true);
         }
     }

@@ -4,19 +4,15 @@ using MapWizard.Tools.HitSounds.Copier;
 
 namespace MapWizard.Tests.HitSoundCopier;
 
+[Collection("DataDirectoryTests")]
 public class HitSoundSampleSynchronizationTests
 {
     [Fact]
     public void CopyAcrossMapsets_WithConflictingIndexedSample_CreatesNewIndexAndCopiesSamples()
     {
-        if (OperatingSystem.IsMacOS())
-        {
-            return;
-        }
-
         var sandboxRoot = CreateSandbox();
-        var previousXdgDataHome = Environment.GetEnvironmentVariable("XDG_DATA_HOME");
-        Environment.SetEnvironmentVariable("XDG_DATA_HOME", sandboxRoot);
+        var previousDataHome = Environment.GetEnvironmentVariable(MapWizard.Tools.HelperExtensions.MapWizardPathResolver.DataDirectoryOverrideVariable);
+        Environment.SetEnvironmentVariable(MapWizard.Tools.HelperExtensions.MapWizardPathResolver.DataDirectoryOverrideVariable, sandboxRoot);
 
         try
         {
@@ -56,7 +52,7 @@ public class HitSoundSampleSynchronizationTests
         }
         finally
         {
-            Environment.SetEnvironmentVariable("XDG_DATA_HOME", previousXdgDataHome);
+            Environment.SetEnvironmentVariable(MapWizard.Tools.HelperExtensions.MapWizardPathResolver.DataDirectoryOverrideVariable, previousDataHome);
             Directory.Delete(sandboxRoot, recursive: true);
         }
     }
@@ -64,14 +60,9 @@ public class HitSoundSampleSynchronizationTests
     [Fact]
     public void CopyAcrossMapsets_WithMatchingIndexedSamples_ReusesExistingFilesWithoutRemap()
     {
-        if (OperatingSystem.IsMacOS())
-        {
-            return;
-        }
-
         var sandboxRoot = CreateSandbox();
-        var previousXdgDataHome = Environment.GetEnvironmentVariable("XDG_DATA_HOME");
-        Environment.SetEnvironmentVariable("XDG_DATA_HOME", sandboxRoot);
+        var previousDataHome = Environment.GetEnvironmentVariable(MapWizard.Tools.HelperExtensions.MapWizardPathResolver.DataDirectoryOverrideVariable);
+        Environment.SetEnvironmentVariable(MapWizard.Tools.HelperExtensions.MapWizardPathResolver.DataDirectoryOverrideVariable, sandboxRoot);
 
         try
         {
@@ -104,7 +95,7 @@ public class HitSoundSampleSynchronizationTests
         }
         finally
         {
-            Environment.SetEnvironmentVariable("XDG_DATA_HOME", previousXdgDataHome);
+            Environment.SetEnvironmentVariable(MapWizard.Tools.HelperExtensions.MapWizardPathResolver.DataDirectoryOverrideVariable, previousDataHome);
             Directory.Delete(sandboxRoot, recursive: true);
         }
     }
