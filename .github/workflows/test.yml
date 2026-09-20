@@ -27,6 +27,9 @@ jobs:
 
   aot:
     name: NativeAOT Publish (${{ matrix.name }})
+    # Publish checks only run on merge to main, not on PRs.
+    # PRs only run the Linux test job above.
+    if: github.event_name == 'push'
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false

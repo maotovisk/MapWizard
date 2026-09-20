@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Threading.Tasks;
 using Avalonia.Controls.Notifications;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -79,9 +80,13 @@ namespace MapWizard.Desktop.ViewModels
         public void RequestStartupUpdateCheck() => _ = _welcomePageViewModel.CheckForUpdatesOnStartupAsync();
 
         /// <summary>
-        /// Builds every page view during idle dispatcher time after startup, so the
-        /// first navigation to each page does not pay the XAML/control construction
-        /// cost. One page is built per dispatcher turn to keep the UI responsive.
+        /// Builds every page view after startup, so the first navigation to
+        /// each page does not pay the XAML/control construction cost. Startup
+        /// is deferred past the entrance transition and first frames: building
+        /// heavy pages (notably the 900-line HitSound Editor) on the UI thread
+        /// during the 300ms entrance animation starves the compositor and makes
+        /// the first paint look sluggish. One page is built per idle dispatcher
+        /// turn to keep later interaction responsive.
         /// </summary>
         public void PreloadPages()
         {
@@ -91,7 +96,29 @@ namespace MapWizard.Desktop.ViewModels
             }
 
             _pagesPreloaded = true;
-            PreloadNextPage(new Queue<ViewModelBase>(GetPageViewModels()));
+            _ = PreloadPagesAfterFirstRenderAsync();
+        }
+
+        private async Task PreloadPagesAfterFirstRenderAsync()
+        {
+            try
+            {
+                // Entrance transition is 300ms; leave headroom for first render,
+                // update-check toast, and compositor warm-up before spending UI
+                // thread time on speculative XAML inflation.
+                await Task.Delay(TimeSpan.FromMilliseconds(800));
+            }
+            catch
+            {
+                return;
+            }
+
+            // View construction must run on the UI thread; SystemIdle keeps it
+            // from stealing frames from input, render, or later transitions.
+            // If the user already navigated, ViewLocator hits the cache and skips.
+            Dispatcher.UIThread.Post(
+                () => PreloadNextPage(new Queue<ViewModelBase>(GetPageViewModels())),
+                DispatcherPriority.SystemIdle);
         }
 
         private void PreloadNextPage(Queue<ViewModelBase> pendingPages)
@@ -110,12 +137,13 @@ namespace MapWizard.Desktop.ViewModels
                 MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
             }
 
-            Dispatcher.UIThread.Post(() => PreloadNextPage(pendingPages), DispatcherPriority.Background);
+            Dispatcher.UIThread.Post(() => PreloadNextPage(pendingPages), DispatcherPriority.SystemIdle);
         }
 
         private IEnumerable<ViewModelBase> GetPageViewModels()
         {
-            yield return _welcomePageViewModel;
+            // Welcome is already visible and cached; rebuilding it during the
+            // entrance transition would only add UI-thread contention.
             yield return _hitSoundCopierViewModel ??= _services.GetRequiredService<HitSoundCopierViewModel>();
             yield return _hitSoundVisualizerViewModel ??= _services.GetRequiredService<HitSoundVisualizerViewModel>();
             yield return _metadataManagerViewModel ??= _services.GetRequiredService<MetadataManagerViewModel>();

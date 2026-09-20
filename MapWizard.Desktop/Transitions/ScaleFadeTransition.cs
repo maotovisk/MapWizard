@@ -28,6 +28,20 @@ public sealed class ScaleFadeTransition : IPageTransition
 
     public async Task Start(Visual? from, Visual? to, bool forward, CancellationToken cancellationToken)
     {
+        // First page load has no outgoing page. Showing the content
+        // immediately avoids a 300ms fade/scale that delays first paint
+        // and competes with startup work (window show, preload, toasts).
+        if (from is null)
+        {
+            if (to is not null)
+            {
+                ResetVisualState(to);
+                to.IsVisible = true;
+            }
+
+            return;
+        }
+
         // TransitioningContentControl can start a replacement transition before
         // the canceled transition has restored its compositor state.
         await _transitionGate.WaitAsync(cancellationToken);
