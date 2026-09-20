@@ -24,3 +24,39 @@ jobs:
 
       - name: Run tests
         run: dotnet test MapWizard.Tests/MapWizard.Tests.csproj --no-restore --verbosity normal
+
+  aot:
+    name: NativeAOT Publish (${{ matrix.name }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            name: Linux
+            rid: linux-x64
+          - os: windows-latest
+            name: Windows
+            rid: win-x64
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Install NativeAOT prerequisites (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang zlib1g-dev
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      # MapWizard.Desktop.csproj sets PublishAot=true, so this catches AOT/trim
+      # regressions before they reach a release build.
+      - name: Publish with NativeAOT
+        run: dotnet publish MapWizard.Desktop/MapWizard.Desktop.csproj -c Release -r ${{ matrix.rid }} -o "${{ runner.temp }}/mapwizard-aot"
