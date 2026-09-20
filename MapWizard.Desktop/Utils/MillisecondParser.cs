@@ -4,11 +4,10 @@ using System.Text.RegularExpressions;
 
 namespace MapWizard.Desktop.Utils;
 
-public static class MillisecondParser
+public static partial class MillisecondParser
 {
-    private static readonly Regex OsuTimestampRegex = new(
-        @"(?<min>\d{1,4}):(?<sec>\d{1,2}):(?<ms>\d{1,3})",
-        RegexOptions.Compiled);
+    [GeneratedRegex(@"(?<min>\d{1,4}):(?<sec>\d{1,2}):(?<ms>\d{1,3})")]
+    private static partial Regex OsuTimestampRegex();
 
     public static bool TryParseMillisecondInput(string? input, out double value)
     {
@@ -36,7 +35,7 @@ public static class MillisecondParser
     private static bool TryParseOsuTimestamp(string input, out double value)
     {
         value = 0;
-        var match = OsuTimestampRegex.Match(input);
+        var match = OsuTimestampRegex().Match(input);
         if (!match.Success)
         {
             return false;

@@ -18,4 +18,13 @@ public partial class DestinationMapsetCard(
     public SelectedMap ReferenceBeatmap { get; } = referenceBeatmap;
     public ObservableCollection<MapsetDifficultyCard> Difficulties { get; } = new(difficulties);
     public bool HasUnselectedDifficulties => Difficulties.Any(difficulty => !difficulty.IsSelected);
+
+    /// <summary>
+    /// Re-raises derived state after <see cref="Difficulties"/> entries were
+    /// updated in place, so bindings like the select-all button stay current.
+    /// </summary>
+    public void RefreshDifficultySelectionState()
+    {
+        OnPropertyChanged(nameof(HasUnselectedDifficulties));
+    }
 }

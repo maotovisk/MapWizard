@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Controls.Notifications;
@@ -460,11 +461,6 @@ public partial class HitSoundVisualizerViewModel(
     private Task PickDestinationFile(CancellationToken _)
     {
         return Task.CompletedTask;
-    }
-
-    [RelayCommand]
-    private void AddDestinationFromMemory()
-    {
     }
 
     [RelayCommand]
@@ -1117,7 +1113,7 @@ public partial class HitSoundVisualizerViewModel(
             }).ToList()
         };
 
-        payload = JsonSerializer.Serialize(clipboard);
+        payload = JsonSerializer.Serialize(clipboard, PointClipboardJsonContext.Default.PointClipboardPayload);
         return true;
     }
 
@@ -1138,7 +1134,7 @@ public partial class HitSoundVisualizerViewModel(
         PointClipboardPayload? payload;
         try
         {
-            payload = JsonSerializer.Deserialize<PointClipboardPayload>(clipboardText);
+            payload = JsonSerializer.Deserialize(clipboardText, PointClipboardJsonContext.Default.PointClipboardPayload);
         }
         catch (Exception ex)
         {
@@ -3439,6 +3435,9 @@ public partial class HitSoundVisualizerViewModel(
         public string? SampleSet { get; set; }
         public string? HitSound { get; set; }
     }
+
+    [JsonSerializable(typeof(PointClipboardPayload))]
+    private sealed partial class PointClipboardJsonContext : JsonSerializerContext;
 
     private static bool IsAutoSampleSetDisplay(string value)
     {

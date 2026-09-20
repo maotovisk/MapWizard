@@ -537,7 +537,10 @@ public partial class SongSelectDialogViewModel(
 
                     mapsetViewModel = new SongMapsetCardViewModel(
                         mapset,
-                        IsPreferredMapsetDirectory(directoryEntry.DirectoryPath));
+                        IsPreferredMapsetDirectory(directoryEntry.DirectoryPath))
+                    {
+                        Owner = this
+                    };
                     _mapsetViewModelCache[directoryEntry.DirectoryPath] = mapsetViewModel;
                 }
                 else
@@ -615,7 +618,10 @@ public partial class SongSelectDialogViewModel(
             var mountedViewModel = new SongMapsetCardViewModel(
                 mapset,
                 isPreferredMapset: false,
-                isMountedInLazer: true);
+                isMountedInLazer: true)
+            {
+                Owner = this
+            };
             mountedViewModel.SetBackgroundActive(true);
             _mapsetViewModelCache[normalizedDirectory] = mountedViewModel;
             MountedLazerMapset = mountedViewModel;
@@ -898,7 +904,10 @@ public partial class SongMapsetCardViewModel : ObservableObject, IDisposable
         IsMountedInLazer = isMountedInLazer;
         Difficulties = new ObservableCollection<SongDifficultyItemViewModel>(mapset.Difficulties
             .OrderByDescending(difficulty => difficulty.LastEditUtc)
-            .Select(difficulty => new SongDifficultyItemViewModel(difficulty)));
+            .Select(difficulty => new SongDifficultyItemViewModel(difficulty)
+            {
+                Mapset = this
+            }));
         foreach (var difficulty in Difficulties)
         {
             difficulty.PropertyChanged += OnDifficultyPropertyChanged;
@@ -909,6 +918,12 @@ public partial class SongMapsetCardViewModel : ObservableObject, IDisposable
     [ObservableProperty] private bool _isExpanded;
     [ObservableProperty] private bool _isPreferredMapset;
     public bool IsMountedInLazer { get; }
+
+    /// <summary>
+    /// The owning song select view model. Set at construction so the card can bind to
+    /// the dialog's commands with compiled bindings (NativeAOT-safe).
+    /// </summary>
+    public SongSelectDialogViewModel? Owner { get; set; }
     public string Artist { get; }
     public string Title { get; }
     public string Creator { get; }
@@ -1028,4 +1043,10 @@ public partial class SongDifficultyItemViewModel(SongDifficultyInfo difficulty) 
 
     public string Name { get; } = difficulty.Name;
     public string OsuFilePath { get; } = difficulty.OsuFilePath;
+
+    /// <summary>
+    /// The owning mapset card. Set at construction so difficulty chips can bind to the
+    /// dialog's selection command with compiled bindings (NativeAOT-safe).
+    /// </summary>
+    public SongMapsetCardViewModel? Mapset { get; set; }
 }

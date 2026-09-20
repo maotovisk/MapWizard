@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -12,6 +13,15 @@ public class SettingsService : ISettingsService
 {
     private const string AppDirectoryName = "MapWizard";
     private const string MainSettingsFileName = "MainSettings.ini";
+
+    // Explicit enum parsing keeps NativeAOT from depending on reflection over
+    // enum metadata (Enum.Parse(Type, ...) cannot be statically analyzed).
+    private static readonly Dictionary<Type, Func<string, object>> EnumParsers = new()
+    {
+        [typeof(ThemeMode)] = static rawValue => Enum.Parse<ThemeMode>(rawValue, true),
+        [typeof(ThemePalette)] = static rawValue => Enum.Parse<ThemePalette>(rawValue, true),
+        [typeof(UpdateStream)] = static rawValue => Enum.Parse<UpdateStream>(rawValue, true),
+    };
 
     public string ConfigDirectoryPath { get; }
 
@@ -31,7 +41,8 @@ public class SettingsService : ISettingsService
         SaveSettings(settings, MainSettingsFileName);
     }
 
-    private TSettings LoadSettings<TSettings>(string settingsFileName) where TSettings : new()
+    private TSettings LoadSettings<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] TSettings>(
+        string settingsFileName) where TSettings : new()
     {
         var filePath = GetSettingsFilePath(settingsFileName);
         var document = ReadIniDocument(filePath);
@@ -59,7 +70,9 @@ public class SettingsService : ISettingsService
         return settings;
     }
 
-    private void SaveSettings<TSettings>(TSettings settings, string settingsFileName)
+    private void SaveSettings<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] TSettings>(
+        TSettings settings,
+        string settingsFileName)
     {
         var filePath = GetSettingsFilePath(settingsFileName);
         var document = ReadIniDocument(filePath);
@@ -80,7 +93,8 @@ public class SettingsService : ISettingsService
         WriteIniDocument(filePath, document);
     }
 
-    private static IEnumerable<(PropertyInfo Property, SettingAttribute Attribute)> GetAnnotatedProperties(Type settingsType)
+    private static IEnumerable<(PropertyInfo Property, SettingAttribute Attribute)> GetAnnotatedProperties(
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] Type settingsType)
     {
         return settingsType
             .GetProperties(BindingFlags.Instance | BindingFlags.Public)
@@ -196,9 +210,9 @@ public class SettingsService : ISettingsService
                 return true;
             }
 
-            if (nonNullableType.IsEnum)
+            if (EnumParsers.TryGetValue(nonNullableType, out var enumParser))
             {
-                value = Enum.Parse(nonNullableType, rawValue, true);
+                value = enumParser(rawValue);
                 return true;
             }
 

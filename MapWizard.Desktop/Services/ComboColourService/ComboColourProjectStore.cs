@@ -4,20 +4,16 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using MapWizard.Tools.ComboColourStudio;
 
 namespace MapWizard.Desktop.Services.ComboColourService;
 
-public class ComboColourProjectStore : IComboColourProjectStore
+public partial class ComboColourProjectStore : IComboColourProjectStore
 {
     private const string AppDirectoryName = "MapWizard";
     private const string ProjectDirectoryName = "ComboColourStudio";
     private const string StorageFileName = "projects.json";
-
-    private static readonly JsonSerializerOptions JsonOptions = new()
-    {
-        WriteIndented = true
-    };
 
     private readonly object _syncRoot = new();
     private readonly string _storageFilePath;
@@ -98,13 +94,13 @@ public class ComboColourProjectStore : IComboColourProjectStore
             return [];
         }
 
-        return JsonSerializer.Deserialize<List<PersistedProjectRecord>>(json, JsonOptions) ?? [];
+        return JsonSerializer.Deserialize(json, ProjectJsonContext.Default.ListPersistedProjectRecord) ?? [];
     }
 
     private void WriteRecords(List<PersistedProjectRecord> records)
     {
         var tempPath = _storageFilePath + ".tmp";
-        var json = JsonSerializer.Serialize(records, JsonOptions);
+        var json = JsonSerializer.Serialize(records, ProjectJsonContext.Default.ListPersistedProjectRecord);
 
         File.WriteAllText(tempPath, json);
         File.Move(tempPath, _storageFilePath, overwrite: true);
@@ -241,4 +237,8 @@ public class ComboColourProjectStore : IComboColourProjectStore
         public ColourPointMode Mode { get; set; } = ColourPointMode.Normal;
         public List<int> ColourSequence { get; set; } = [];
     }
+
+    [JsonSourceGenerationOptions(WriteIndented = true)]
+    [JsonSerializable(typeof(List<PersistedProjectRecord>))]
+    private sealed partial class ProjectJsonContext : JsonSerializerContext;
 }

@@ -44,6 +44,14 @@
                 <controls:BeatmapSelectionPanel
                     OriginMap="{Binding OriginBeatmap}"
                     DestinationMaps="{Binding DestinationBeatmaps}"
+                    ClearSelectionCommand="{Binding ClearSelectionCommand}"
+                    OpenOriginFolderCommand="{Binding OpenOriginFolderCommand}"
+                    SetOriginFromMemoryCommand="{Binding SetOriginFromMemoryCommand}"
+                    PickOriginFileCommand="{Binding PickOriginFileCommand}"
+                    AddDestinationFromMemoryCommand="{Binding AddDestinationFromMemoryCommand}"
+                    PickDestinationFileCommand="{Binding PickDestinationFileCommand}"
+                    SelectOriginMapCommand="{Binding SelectOriginMapCommand}"
+                    ToggleDestinationMapCommand="{Binding ToggleDestinationMapCommand}"
                     OriginMemoryToolTip="Get the current beatmap selected in the osu! client."
                     DestinationMemoryToolTip="Add the current beatmap selected in the osu! client." />
 

@@ -46,6 +46,10 @@ You can install MapWizard by downloading and running the `.exe` installer from t
 
 - .NET SDK `10.0.0` or later (see `global.json`).
 - Velopack CLI (`vpk`) for release packaging.
+- NativeAOT toolchain for release builds:
+  - Windows: Visual Studio 2022 with the "Desktop development with C++" workload.
+  - Linux: `clang` and zlib headers (`sudo apt-get install clang zlib1g-dev` on Debian/Ubuntu).
+  - macOS: Xcode command line tools.
 
 ## Run from Source
 
@@ -77,12 +81,17 @@ dotnet test MapWizard.Tests/MapWizard.Tests.csproj
 
 ## Release Builds
 
+Release packages are compiled with NativeAOT (`PublishAot` in
+`MapWizard.Desktop.csproj`), so no .NET runtime is required on user machines.
+NativeAOT cannot cross-compile between operating systems: each platform's
+package must be built on that platform. Regular `dotnet build`/`dotnet run`
+still uses the JIT for fast local iteration.
+
 Packaging scripts are in `MapWizard.Desktop/`:
 
-- `build-linux.sh`
-- `build-osx.sh`
-- `build-win.sh`
-- `build-win.bat`
+- `build-linux.sh` (Linux)
+- `build-osx.sh` (macOS)
+- `build-win.sh` / `build-win.bat` (Windows)
 
 `MapWizard.Desktop/Assets/mapwizard.svg` is the source for the app logo and all
 packaged icons. After changing it, regenerate the PNG, ICO, and ICNS files with

@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using Avalonia.Threading;
 
@@ -15,6 +16,11 @@ internal static class WaylandDispatcherTimerWorkaround
     private const string PlatformImplementationFieldName = "_impl";
     private const long MinimumClockSkewMilliseconds = 5;
 
+    [DynamicDependency(DynamicallyAccessedMemberTypes.NonPublicFields, typeof(Dispatcher))]
+    [UnconditionalSuppressMessage(
+        "Trimming",
+        "IL2075",
+        Justification = "Reflection targets Avalonia internals best-effort; missing metadata only skips the workaround.")]
     public static void ApplyIfNeeded()
     {
         if (!OperatingSystem.IsLinux() ||
@@ -65,10 +71,10 @@ internal static class WaylandDispatcherTimerWorkaround
             Trace.WriteLine(
                 $"Applied Avalonia Wayland timer workaround (dispatcher clock skew: {clockSkew} ms).");
         }
-        catch (Exception exception) when (exception is MemberAccessException or TargetException)
+        catch (Exception exception)
         {
-            // This relies on an Avalonia private field and must not prevent startup if
-            // a future framework release changes or removes that implementation detail.
+            // This relies on Avalonia private fields and must not prevent startup if
+            // a future framework release changes, trims, or removes that implementation detail.
             Trace.TraceWarning($"Could not apply the Avalonia Wayland timer workaround: {exception.Message}");
         }
     }

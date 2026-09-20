@@ -4,7 +4,6 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:vm="clr-namespace:MapWizard.Desktop.ViewModels"
-    xmlns:dialogs="clr-namespace:MapWizard.Desktop.Views.Dialogs"
     xmlns:theme="clr-namespace:MapWizard.Theme.Controls;assembly=MapWizard.Theme"
     x:Class="MapWizard.Desktop.Views.Dialogs.SongMapsetCard"
     x:DataType="vm:SongMapsetCardViewModel"
@@ -284,7 +283,7 @@
                 </Grid>
 
                 <Button Classes="CardHeaderHit"
-                        Command="{ReflectionBinding DataContext.ToggleMapsetExpansionCommand, RelativeSource={RelativeSource AncestorType=dialogs:SongSelectDialog}}"
+                        Command="{Binding Owner.ToggleMapsetExpansionCommand}"
                         CommandParameter="{Binding}" />
             </Grid>
 
@@ -302,8 +301,8 @@
                                 Classes="SelectMapsetDiffsButton"
                                 HorizontalAlignment="Right"
                                 Classes.selected="{Binding AllDifficultiesSelected}"
-                                IsVisible="{ReflectionBinding DataContext.AllowMultipleSelection, RelativeSource={RelativeSource AncestorType=dialogs:SongSelectDialog}}"
-                                Command="{ReflectionBinding DataContext.SelectAllDifficultiesInMapsetCommand, RelativeSource={RelativeSource AncestorType=dialogs:SongSelectDialog}}"
+                                IsVisible="{Binding Owner.AllowMultipleSelection}"
+                                Command="{Binding Owner.SelectAllDifficultiesInMapsetCommand}"
                                 CommandParameter="{Binding}"
                                 ToolTip.Tip="Select or clear all difficulties in this mapset">
                             <StackPanel Orientation="Horizontal" Spacing="6">
@@ -323,7 +322,7 @@
                         <DataTemplate x:DataType="vm:SongDifficultyItemViewModel">
                             <ToggleButton Classes="DifficultyChip"
                                           IsChecked="{Binding IsSelected, Mode=OneWay}"
-                                          Command="{ReflectionBinding DataContext.SelectDifficultyCommand, RelativeSource={RelativeSource AncestorType=dialogs:SongSelectDialog}}"
+                                          Command="{Binding Mapset.Owner.SelectDifficultyCommand}"
                                           CommandParameter="{Binding}">
                                 <StackPanel Orientation="Horizontal" Spacing="7">
                                     <LucideIcon Kind="CircleCheck"

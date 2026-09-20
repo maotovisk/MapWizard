@@ -54,7 +54,15 @@
 
         <controls:BeatmapSelectionPanel
           OriginMap="{Binding OriginBeatmap}"
-          DestinationMaps="{Binding DestinationBeatmaps}" />
+          DestinationMaps="{Binding DestinationBeatmaps}"
+          ClearSelectionCommand="{Binding ClearSelectionCommand}"
+          OpenOriginFolderCommand="{Binding OpenOriginFolderCommand}"
+          SetOriginFromMemoryCommand="{Binding SetOriginFromMemoryCommand}"
+          PickOriginFileCommand="{Binding PickOriginFileCommand}"
+          AddDestinationFromMemoryCommand="{Binding AddDestinationFromMemoryCommand}"
+          PickDestinationFileCommand="{Binding PickDestinationFileCommand}"
+          SelectOriginMapCommand="{Binding SelectOriginMapCommand}"
+          ToggleDestinationMapCommand="{Binding ToggleDestinationMapCommand}" />
         
         <!-- METADATA -->
         <Grid ColumnDefinitions="*,*" Margin="0,8,0,0">
@@ -179,7 +187,7 @@
                           <controls:ModernColorPicker VerticalAlignment="Center"
                                                       SelectedColor="{Binding Colour, Converter={StaticResource AvaloniaColorToColorConverter}, Mode=TwoWay}" />
                           <Button Classes="Basic" 
-                                  Command="{ReflectionBinding DataContext.RemoveColourCommand, ElementName=Root}"
+                                  Command="{Binding DataContext.RemoveColourCommand, ElementName=Root}"
                                   CommandParameter="{Binding}" 
                                   ToolTip.Tip="Remove this colour">
                             <LucideIcon Kind="X" Size="24" />

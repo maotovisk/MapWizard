@@ -2,14 +2,7 @@
     xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:vm="using:MapWizard.Desktop.ViewModels"
-    xmlns:views="clr-namespace:MapWizard.Desktop.Views"
     xmlns:theme="clr-namespace:MapWizard.Theme.Controls;assembly=MapWizard.Theme"
-    xmlns:welcomePage="clr-namespace:MapWizard.Desktop.Views.WelcomePage"
-    xmlns:hitSoundVisualizer="clr-namespace:MapWizard.Desktop.Views.HitSoundVisualizer"
-    xmlns:metadataManager="clr-namespace:MapWizard.Desktop.Views.MetadataManager"
-    xmlns:comboColourStudio="clr-namespace:MapWizard.Desktop.Views.ComboColourStudio"
-    xmlns:mapCleaner="clr-namespace:MapWizard.Desktop.Views.MapCleaner"
-    xmlns:settings="clr-namespace:MapWizard.Desktop.Views.Settings"
     xmlns:viewControls="clr-namespace:MapWizard.Desktop.Views.Controls"
     xmlns:transitions="clr-namespace:MapWizard.Desktop.Transitions"
     x:Class="MapWizard.Desktop.Views.MainWindow"
@@ -48,11 +41,8 @@
             <Setter Property="Background" Value="{DynamicResource MapWizardAccentBrush}" />
             <Setter Property="Opacity" Value="0" />
             <Setter Property="CornerRadius" Value="15" />
-            <Setter Property="Transitions">
-                <Transitions>
-                    <DoubleTransition Property="Opacity" Duration="0:0:0.12" />
-                </Transitions>
-            </Setter>
+            <!-- Hover feedback is instant (no transitions) so the nav feels responsive. -->
+            <Setter Property="Transitions"><Transitions /></Setter>
         </Style>
         <Style Selector="theme|NavigationButton.NavButton:pointerover Border.NavIconHoverLayer">
             <Setter Property="Opacity" Value="0.14" />
@@ -150,30 +140,6 @@
             <Setter Property="Background" Value="{DynamicResource MapWizardControlPressedBrush}" />
         </Style>
     </theme:MapWizardWindow.Styles>
-
-    <theme:MapWizardWindow.DataTemplates>
-        <DataTemplate DataType="{x:Type vm:WelcomePageViewModel}">
-            <welcomePage:WelcomePageView />
-        </DataTemplate>
-        <DataTemplate DataType="{x:Type vm:HitSoundCopierViewModel}">
-            <views:HitSoundCopierView />
-        </DataTemplate>
-        <DataTemplate DataType="{x:Type vm:HitSoundVisualizerViewModel}">
-            <hitSoundVisualizer:HitSoundVisualizerView />
-        </DataTemplate>
-        <DataTemplate DataType="{x:Type vm:MetadataManagerViewModel}">
-            <metadataManager:MetadataManagerView />
-        </DataTemplate>
-        <DataTemplate DataType="{x:Type vm:ComboColourStudioViewModel}">
-            <comboColourStudio:ComboColourStudioView />
-        </DataTemplate>
-        <DataTemplate DataType="{x:Type vm:MapCleanerViewModel}">
-            <mapCleaner:MapCleanerView />
-        </DataTemplate>
-        <DataTemplate DataType="{x:Type vm:SettingsViewModel}">
-            <settings:SettingsView />
-        </DataTemplate>
-    </theme:MapWizardWindow.DataTemplates>
 
     <VisualLayerManager>
         <Panel>
@@ -415,7 +381,8 @@
         </Border>
 
         <Panel Grid.Column="1"
-               Margin="0,0,10,10">
+               Margin="0,0,10,10"
+               x:Name="ContentIslandHost">
             <!-- Card chrome layer. A separate sibling from the content host so it
                  can fade/scale without dragging the page content with it, and so
                  its box shadow is not clipped by the content's rounded clip. -->
@@ -424,7 +391,7 @@
             <Border Classes="ContentIsland">
                 <TransitioningContentControl Content="{Binding CurrentPageViewModel}">
                     <TransitioningContentControl.PageTransition>
-                        <transitions:BlurSlideFadeTransition InDuration="0:0:0.3" OutDuration="0:0:0.16" SlideDistance="32" MaxBlurRadius="9" />
+                        <transitions:ScaleFadeTransition InDuration="0:0:0.3" OutDuration="0:0:0.16" />
                     </TransitioningContentControl.PageTransition>
                 </TransitioningContentControl>
             </Border>

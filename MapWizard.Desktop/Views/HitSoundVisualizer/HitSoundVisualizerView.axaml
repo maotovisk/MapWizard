@@ -239,6 +239,11 @@
                     OriginMap="{Binding OriginBeatmap}"
                     DestinationMaps="{Binding DestinationBeatmaps}"
                     ShowDestinationSelection="False"
+                    ClearSelectionCommand="{Binding ClearSelectionCommand}"
+                    OpenOriginFolderCommand="{Binding OpenOriginFolderCommand}"
+                    SetOriginFromMemoryCommand="{Binding SetOriginFromMemoryCommand}"
+                    PickOriginFileCommand="{Binding PickOriginFileCommand}"
+                    SelectOriginMapCommand="{Binding SelectOriginMapCommand}"
                     OriginMemoryToolTip="Get the current beatmap selected in the osu! client." />
 
                 <theme:BusyArea IsBusy="{Binding IsPreparingPlayback}"
