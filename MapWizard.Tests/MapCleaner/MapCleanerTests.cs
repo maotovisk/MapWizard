@@ -586,7 +586,7 @@ public class MapCleanerTests
 
                [HitObjects]
                256,192,126,1,0,0:0:0:0:
-               """.Replace("\n", "\r\n");
+               """.Replace("\r\n", "\n").Replace("\n", "\r\n");
     }
 
     private static string GetTripleRepeatSliderBeatmap()
@@ -639,7 +639,7 @@ public class MapCleanerTests
 
                [HitObjects]
                256,192,3,2,0,B|356:192,3,28
-               """.Replace("\n", "\r\n");
+               """.Replace("\r\n", "\n").Replace("\n", "\r\n");
     }
 
     private static string GetSpinnerBeatmap()
@@ -692,7 +692,7 @@ public class MapCleanerTests
 
                [HitObjects]
                256,192,3,8,0,126,0:0:0:0:
-               """.Replace("\n", "\r\n");
+               """.Replace("\r\n", "\n").Replace("\n", "\r\n");
     }
 
     private static string GetManiaHoldBeatmap()
@@ -745,7 +745,7 @@ public class MapCleanerTests
 
                [HitObjects]
                64,192,3,128,0,126:0:0:0:0:
-               """.Replace("\n", "\r\n");
+               """.Replace("\r\n", "\n").Replace("\n", "\r\n");
     }
 
     private static string GetRelativeRedlineBeatmap()
@@ -800,7 +800,7 @@ public class MapCleanerTests
 
                [HitObjects]
                256,192,0,1,0,0:0:0:0:
-               """.Replace("\n", "\r\n");
+               """.Replace("\r\n", "\n").Replace("\n", "\r\n");
     }
 
     private static string GetMutedTimingPointBeatmap()
@@ -856,7 +856,7 @@ public class MapCleanerTests
 
                [HitObjects]
                256,192,0,1,0,0:0:0:0:
-               """.Replace("\n", "\r\n");
+               """.Replace("\r\n", "\n").Replace("\n", "\r\n");
     }
 
     private static string GetAnchoredRedlineBeatmap()
@@ -910,7 +910,7 @@ public class MapCleanerTests
 
                [HitObjects]
                256,192,3012,2,0,B|356:192,1,140
-               """.Replace("\n", "\r\n");
+               """.Replace("\r\n", "\n").Replace("\n", "\r\n");
     }
 
     private static string GetAnchoredGreenlineBeatmap()
@@ -965,7 +965,7 @@ public class MapCleanerTests
 
                [HitObjects]
                256,192,3012,2,0,B|356:192,1,140
-               """.Replace("\n", "\r\n");
+               """.Replace("\r\n", "\n").Replace("\n", "\r\n");
     }
 
     private static string GetAnchoredGreenlineOffSnapSliderEndBeatmap()
@@ -1020,7 +1020,7 @@ public class MapCleanerTests
 
                [HitObjects]
                256,192,3012,2,0,B|356:192,1,145
-               """.Replace("\n", "\r\n");
+               """.Replace("\r\n", "\n").Replace("\n", "\r\n");
     }
 
     private static string GetUnanchoredGreenlineBeatmap()
@@ -1074,7 +1074,7 @@ public class MapCleanerTests
 
                [HitObjects]
                256,192,0,1,0,0:0:0:0:
-               """.Replace("\n", "\r\n");
+               """.Replace("\r\n", "\n").Replace("\n", "\r\n");
     }
 
     private static string GetClosestRedlinePhaseGreenlineBeatmap()
@@ -1130,7 +1130,7 @@ public class MapCleanerTests
 
                [HitObjects]
                256,192,0,1,0,0:0:0:0:
-               """.Replace("\n", "\r\n");
+               """.Replace("\r\n", "\n").Replace("\n", "\r\n");
     }
 
     private static string GetSliderTailOffSnapAfterRedlineResnapBeatmap()
@@ -1183,7 +1183,7 @@ public class MapCleanerTests
 
                [HitObjects]
                256,192,0,2,0,B|356:192,1,35.28
-               """.Replace("\n", "\r\n");
+               """.Replace("\r\n", "\n").Replace("\n", "\r\n");
     }
 
     private static string GetReverseSliderMultipleSpanRedlineBeatmap()
@@ -1238,7 +1238,7 @@ public class MapCleanerTests
 
                [HitObjects]
                256,192,0,2,0,B|356:192,3,38.2666666666667
-               """.Replace("\n", "\r\n");
+               """.Replace("\r\n", "\n").Replace("\n", "\r\n");
     }
 
     private static string GetReverseSliderFromRecallTheEndBeatmap()
@@ -1294,7 +1294,7 @@ public class MapCleanerTests
 
                [HitObjects]
                489,137,218717,2,0,L|441:127,3,40.393740799999996,0|0|0|0,1:0|1:0|1:0|1:0,0:0:0:0:
-               """.Replace("\n", "\r\n");
+               """.Replace("\r\n", "\n").Replace("\n", "\r\n");
     }
 
     private static string GetGreenlinePruningBeatmap()
@@ -1351,7 +1351,7 @@ public class MapCleanerTests
 
                [HitObjects]
                256,192,350,2,0,B|356:192,1,84
-               """.Replace("\n", "\r\n");
+               """.Replace("\r\n", "\n").Replace("\n", "\r\n");
     }
 
     private static string GetSliderBodyGreenlineBeatmap()
@@ -1407,7 +1407,7 @@ public class MapCleanerTests
 
                [HitObjects]
                256,192,150,2,0,B|356:192,1,84
-               """.Replace("\n", "\r\n");
+               """.Replace("\r\n", "\n").Replace("\n", "\r\n");
     }
 
     private static string GetVolumeTickAnchoringBeatmap()
@@ -1461,7 +1461,7 @@ public class MapCleanerTests
 
                [HitObjects]
                256,192,0,2,0,B|356:192,1,420
-               """.Replace("\n", "\r\n");
+               """.Replace("\r\n", "\n").Replace("\n", "\r\n");
     }
 
     private static string GetSampleSetOnlyGreenlineBeatmap()
@@ -1515,7 +1515,7 @@ public class MapCleanerTests
 
                [HitObjects]
                256,192,0,2,0,B|356:192,1,420
-               """.Replace("\n", "\r\n");
+               """.Replace("\r\n", "\n").Replace("\n", "\r\n");
     }
 
     private static string CreateSandbox(string prefix)
@@ -1575,7 +1575,7 @@ public class MapCleanerTests
 
                [HitObjects]
                256,192,0,1,2,0:0:0:0:
-               """.Replace("\n", "\r\n");
+               """.Replace("\r\n", "\n").Replace("\n", "\r\n");
     }
 
     private static string GetHeadOnlySliderTargetBeatmap()
@@ -1628,6 +1628,6 @@ public class MapCleanerTests
 
                [HitObjects]
                256,192,0,2,0,B|356:192,1,84
-               """.Replace("\n", "\r\n");
+               """.Replace("\r\n", "\n").Replace("\n", "\r\n");
     }
 }

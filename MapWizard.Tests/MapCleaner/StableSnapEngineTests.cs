@@ -133,6 +133,6 @@ public class StableSnapEngineTests
 
                [HitObjects]
                256,192,0,1,0,0:0:0:0:
-               """.Replace("\n", "\r\n");
+               """.Replace("\r\n", "\n").Replace("\n", "\r\n");
     }
 }
