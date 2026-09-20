@@ -11,6 +11,7 @@ using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Media;
 using Avalonia.VisualTree;
+using CommunityToolkit.Mvvm.Input;
 using MapWizard.Desktop.Models;
 using MapWizard.Desktop.Utils;
 
@@ -111,6 +112,30 @@ public partial class BeatmapSelectionPanel : UserControl
 
     public static readonly StyledProperty<ICommand?> OriginPathChangedCommandProperty =
         AvaloniaProperty.Register<BeatmapSelectionPanel, ICommand?>(nameof(OriginPathChangedCommand));
+
+    public static readonly StyledProperty<ICommand?> ClearSelectionCommandProperty =
+        AvaloniaProperty.Register<BeatmapSelectionPanel, ICommand?>(nameof(ClearSelectionCommand));
+
+    public static readonly StyledProperty<ICommand?> OpenOriginFolderCommandProperty =
+        AvaloniaProperty.Register<BeatmapSelectionPanel, ICommand?>(nameof(OpenOriginFolderCommand));
+
+    public static readonly StyledProperty<IAsyncRelayCommand?> SetOriginFromMemoryCommandProperty =
+        AvaloniaProperty.Register<BeatmapSelectionPanel, IAsyncRelayCommand?>(nameof(SetOriginFromMemoryCommand));
+
+    public static readonly StyledProperty<IAsyncRelayCommand?> PickOriginFileCommandProperty =
+        AvaloniaProperty.Register<BeatmapSelectionPanel, IAsyncRelayCommand?>(nameof(PickOriginFileCommand));
+
+    public static readonly StyledProperty<IAsyncRelayCommand?> PickDestinationFileCommandProperty =
+        AvaloniaProperty.Register<BeatmapSelectionPanel, IAsyncRelayCommand?>(nameof(PickDestinationFileCommand));
+
+    public static readonly StyledProperty<IAsyncRelayCommand?> AddDestinationFromMemoryCommandProperty =
+        AvaloniaProperty.Register<BeatmapSelectionPanel, IAsyncRelayCommand?>(nameof(AddDestinationFromMemoryCommand));
+
+    public static readonly StyledProperty<ICommand?> SelectOriginMapCommandProperty =
+        AvaloniaProperty.Register<BeatmapSelectionPanel, ICommand?>(nameof(SelectOriginMapCommand));
+
+    public static readonly StyledProperty<ICommand?> ToggleDestinationMapCommandProperty =
+        AvaloniaProperty.Register<BeatmapSelectionPanel, ICommand?>(nameof(ToggleDestinationMapCommand));
 
     public static readonly StyledProperty<SelectedMap?> OriginMapProperty =
         AvaloniaProperty.Register<BeatmapSelectionPanel, SelectedMap?>(nameof(OriginMap));
@@ -348,6 +373,54 @@ public partial class BeatmapSelectionPanel : UserControl
     {
         get => GetValue(OriginPathChangedCommandProperty);
         set => SetValue(OriginPathChangedCommandProperty, value);
+    }
+
+    public ICommand? ClearSelectionCommand
+    {
+        get => GetValue(ClearSelectionCommandProperty);
+        set => SetValue(ClearSelectionCommandProperty, value);
+    }
+
+    public ICommand? OpenOriginFolderCommand
+    {
+        get => GetValue(OpenOriginFolderCommandProperty);
+        set => SetValue(OpenOriginFolderCommandProperty, value);
+    }
+
+    public IAsyncRelayCommand? SetOriginFromMemoryCommand
+    {
+        get => GetValue(SetOriginFromMemoryCommandProperty);
+        set => SetValue(SetOriginFromMemoryCommandProperty, value);
+    }
+
+    public IAsyncRelayCommand? PickOriginFileCommand
+    {
+        get => GetValue(PickOriginFileCommandProperty);
+        set => SetValue(PickOriginFileCommandProperty, value);
+    }
+
+    public IAsyncRelayCommand? PickDestinationFileCommand
+    {
+        get => GetValue(PickDestinationFileCommandProperty);
+        set => SetValue(PickDestinationFileCommandProperty, value);
+    }
+
+    public IAsyncRelayCommand? AddDestinationFromMemoryCommand
+    {
+        get => GetValue(AddDestinationFromMemoryCommandProperty);
+        set => SetValue(AddDestinationFromMemoryCommandProperty, value);
+    }
+
+    public ICommand? SelectOriginMapCommand
+    {
+        get => GetValue(SelectOriginMapCommandProperty);
+        set => SetValue(SelectOriginMapCommandProperty, value);
+    }
+
+    public ICommand? ToggleDestinationMapCommand
+    {
+        get => GetValue(ToggleDestinationMapCommandProperty);
+        set => SetValue(ToggleDestinationMapCommandProperty, value);
     }
 
     public SelectedMap? OriginMap

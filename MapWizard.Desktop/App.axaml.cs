@@ -43,7 +43,11 @@ public partial class App : Application
 
         var services = _services ?? throw new InvalidOperationException("Application services were not initialized.");
         var mainWindow = services.GetRequiredService<MainWindow>();
-        mainWindow.Opened += (_, _) => mainWindow.GetViewModel().RequestStartupUpdateCheck();
+        mainWindow.Opened += (_, _) =>
+        {
+            mainWindow.GetViewModel().RequestStartupUpdateCheck();
+            mainWindow.GetViewModel().PreloadPages();
+        };
 
         switch (ApplicationLifetime)
         {

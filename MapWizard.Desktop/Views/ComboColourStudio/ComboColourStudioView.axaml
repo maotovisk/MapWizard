@@ -137,6 +137,14 @@
                 <controls:BeatmapSelectionPanel
                     OriginMap="{Binding OriginBeatmap}"
                     DestinationMaps="{Binding DestinationBeatmaps}"
+                    ClearSelectionCommand="{Binding ClearSelectionCommand}"
+                    OpenOriginFolderCommand="{Binding OpenOriginFolderCommand}"
+                    SetOriginFromMemoryCommand="{Binding SetOriginFromMemoryCommand}"
+                    PickOriginFileCommand="{Binding PickOriginFileCommand}"
+                    AddDestinationFromMemoryCommand="{Binding AddDestinationFromMemoryCommand}"
+                    PickDestinationFileCommand="{Binding PickDestinationFileCommand}"
+                    SelectOriginMapCommand="{Binding SelectOriginMapCommand}"
+                    ToggleDestinationMapCommand="{Binding ToggleDestinationMapCommand}"
                     OriginMemoryToolTip="Use currently selected osu! beatmap"
                     DestinationMemoryToolTip="Add currently selected osu! beatmap" />
 
@@ -155,9 +163,9 @@
                                         <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
                                             <controls:ModernColorPicker
                                                 SelectedColor="{Binding Colour, Converter={StaticResource AvaloniaColorToColorConverter}, Mode=TwoWay}"
-                                                SuggestedColours="{ReflectionBinding DataContext.SuggestedColours, ElementName=Root}" />
+                                                SuggestedColours="{Binding DataContext.SuggestedColours, ElementName=Root}" />
                                             <Button Classes="Basic"
-                                                    Command="{ReflectionBinding DataContext.RemoveColourCommand, ElementName=Root}"
+                                                    Command="{Binding DataContext.RemoveColourCommand, ElementName=Root}"
                                                     CommandParameter="{Binding}"
                                                     ToolTip.Tip="Remove this combo colour">
                                                 <LucideIcon Kind="X" Size="20" />
@@ -257,9 +265,9 @@
                                                                     DragDrop.DragOver="SequenceToken_OnDragOver"
                                                                     DragDrop.Drop="SequenceToken_OnDrop">
                                                                 <controls:ComboColourDropdown
-                                                                    Options="{ReflectionBinding DataContext.ColourDropdownOptions, ElementName=Root}"
+                                                                    Options="{Binding DataContext.ColourDropdownOptions, ElementName=Root}"
                                                                     SelectedComboNumber="{Binding ComboNumber, Mode=TwoWay}"
-                                                                    RemoveTokenCommand="{ReflectionBinding DataContext.RemoveColourFromPointCommand, ElementName=Root}"
+                                                                    RemoveTokenCommand="{Binding DataContext.RemoveColourFromPointCommand, ElementName=Root}"
                                                                     RemoveTokenCommandParameter="{Binding}" />
                                                             </Border>
                                                         </DataTemplate>
@@ -272,21 +280,21 @@
                                                         Spacing="6"
                                                         HorizontalAlignment="Right">
                                                 <Button Classes="Basic"
-                                                        Command="{ReflectionBinding DataContext.AddColourToPointCommand, ElementName=Root}"
+                                                        Command="{Binding DataContext.AddColourToPointCommand, ElementName=Root}"
                                                         CommandParameter="{Binding}"
                                                         ToolTip.Tip="Add combo colour to this point sequence">
                                                     <LucideIcon Kind="Plus" Size="16" />
                                                 </Button>
 
                                                 <Button Classes="Basic"
-                                                        Command="{ReflectionBinding DataContext.AddColourPointFromSequenceCommand, ElementName=Root}"
+                                                        Command="{Binding DataContext.AddColourPointFromSequenceCommand, ElementName=Root}"
                                                         CommandParameter="{Binding}"
                                                         ToolTip.Tip="Create a new colour point from this sequence">
                                                     <LucideIcon Kind="Copy" Size="16" />
                                                 </Button>
 
                                                 <Button Classes="Basic"
-                                                        Command="{ReflectionBinding DataContext.RemoveColourPointCommand, ElementName=Root}"
+                                                        Command="{Binding DataContext.RemoveColourPointCommand, ElementName=Root}"
                                                         CommandParameter="{Binding}"
                                                         ToolTip.Tip="Remove this colour point">
                                                     <LucideIcon Kind="Trash" Size="18" />

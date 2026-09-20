@@ -1,6 +1,5 @@
 using System;
 using System.Collections;
-using System.Reflection;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
@@ -20,9 +19,6 @@ public partial class AppDropdown : UserControl
 
     public static readonly StyledProperty<string> PlaceholderTextProperty =
         AvaloniaProperty.Register<AppDropdown, string>(nameof(PlaceholderText), "Select...");
-
-    public static readonly StyledProperty<string?> DisplayMemberPathProperty =
-        AvaloniaProperty.Register<AppDropdown, string?>(nameof(DisplayMemberPath));
 
     public static readonly StyledProperty<double> FlyoutMinWidthProperty =
         AvaloniaProperty.Register<AppDropdown, double>(nameof(FlyoutMinWidth), 180d);
@@ -49,12 +45,6 @@ public partial class AppDropdown : UserControl
     {
         get => GetValue(PlaceholderTextProperty);
         set => SetValue(PlaceholderTextProperty, value);
-    }
-
-    public string? DisplayMemberPath
-    {
-        get => GetValue(DisplayMemberPathProperty);
-        set => SetValue(DisplayMemberPathProperty, value);
     }
 
     public double FlyoutMinWidth
@@ -86,8 +76,7 @@ public partial class AppDropdown : UserControl
         base.OnPropertyChanged(change);
 
         if (change.Property == SelectedItemProperty ||
-            change.Property == PlaceholderTextProperty ||
-            change.Property == DisplayMemberPathProperty)
+            change.Property == PlaceholderTextProperty)
         {
             UpdateSelectedText();
         }
@@ -111,29 +100,8 @@ public partial class AppDropdown : UserControl
         SelectedText = GetItemDisplayText(SelectedItem) ?? PlaceholderText;
     }
 
-    private string? GetItemDisplayText(object? item)
+    private static string? GetItemDisplayText(object? item)
     {
-        if (item is null)
-        {
-            return null;
-        }
-
-        var path = DisplayMemberPath;
-        if (string.IsNullOrWhiteSpace(path))
-        {
-            return item.ToString();
-        }
-
-        try
-        {
-            var property = item.GetType().GetProperty(path, BindingFlags.Public | BindingFlags.Instance);
-            var value = property?.GetValue(item);
-            return value?.ToString() ?? item.ToString();
-        }
-        catch (Exception ex)
-        {
-            MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
-            return item.ToString();
-        }
+        return item?.ToString();
     }
 }

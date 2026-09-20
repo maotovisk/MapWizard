@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# NativeAOT cannot cross-compile between operating systems, so this script must
+# run on Windows (for example from Git Bash). On Windows you can also use
+# build-win.bat, which does the same thing.
+
 # Find the absolute path of the script
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
@@ -20,6 +24,10 @@ dotnet clean
 echo ""
 echo "Compiling MapWizard with dotnet..."
 dotnet publish -c Release --self-contained -r win-x64 -o "$PUBLISH_DIR"
+
+# NativeAOT emits debug symbols next to the binary; they are not needed in the
+# installer payload.
+find "$PUBLISH_DIR" -maxdepth 1 \( -name '*.dbg' -o -name '*.pdb' \) -delete
 
 echo ""
 echo "Building Velopack Release v$BUILD_VERSION"

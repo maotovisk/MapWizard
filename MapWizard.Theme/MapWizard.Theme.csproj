@@ -4,6 +4,7 @@
     <Nullable>enable</Nullable>
     <LangVersion>latestmajor</LangVersion>
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+    <IsAotCompatible>true</IsAotCompatible>
   </PropertyGroup>
 
   <ItemGroup>

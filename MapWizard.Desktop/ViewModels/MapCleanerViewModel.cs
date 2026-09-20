@@ -143,11 +143,6 @@ public partial class MapCleanerViewModel(
     }
 
     [RelayCommand]
-    private void AddDestinationFromMemory()
-    {
-    }
-
-    [RelayCommand]
     private void OpenOriginFolder()
     {
         if (BeatmapSelectionUtils.TryOpenBeatmapFolder(OriginBeatmap.Path, out var errorMessage))

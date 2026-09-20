@@ -2,14 +2,7 @@
     xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:vm="using:MapWizard.Desktop.ViewModels"
-    xmlns:views="clr-namespace:MapWizard.Desktop.Views"
     xmlns:theme="clr-namespace:MapWizard.Theme.Controls;assembly=MapWizard.Theme"
-    xmlns:welcomePage="clr-namespace:MapWizard.Desktop.Views.WelcomePage"
-    xmlns:hitSoundVisualizer="clr-namespace:MapWizard.Desktop.Views.HitSoundVisualizer"
-    xmlns:metadataManager="clr-namespace:MapWizard.Desktop.Views.MetadataManager"
-    xmlns:comboColourStudio="clr-namespace:MapWizard.Desktop.Views.ComboColourStudio"
-    xmlns:mapCleaner="clr-namespace:MapWizard.Desktop.Views.MapCleaner"
-    xmlns:settings="clr-namespace:MapWizard.Desktop.Views.Settings"
     xmlns:viewControls="clr-namespace:MapWizard.Desktop.Views.Controls"
     xmlns:transitions="clr-namespace:MapWizard.Desktop.Transitions"
     x:Class="MapWizard.Desktop.Views.MainWindow"
@@ -150,30 +143,6 @@
             <Setter Property="Background" Value="{DynamicResource MapWizardControlPressedBrush}" />
         </Style>
     </theme:MapWizardWindow.Styles>
-
-    <theme:MapWizardWindow.DataTemplates>
-        <DataTemplate DataType="{x:Type vm:WelcomePageViewModel}">
-            <welcomePage:WelcomePageView />
-        </DataTemplate>
-        <DataTemplate DataType="{x:Type vm:HitSoundCopierViewModel}">
-            <views:HitSoundCopierView />
-        </DataTemplate>
-        <DataTemplate DataType="{x:Type vm:HitSoundVisualizerViewModel}">
-            <hitSoundVisualizer:HitSoundVisualizerView />
-        </DataTemplate>
-        <DataTemplate DataType="{x:Type vm:MetadataManagerViewModel}">
-            <metadataManager:MetadataManagerView />
-        </DataTemplate>
-        <DataTemplate DataType="{x:Type vm:ComboColourStudioViewModel}">
-            <comboColourStudio:ComboColourStudioView />
-        </DataTemplate>
-        <DataTemplate DataType="{x:Type vm:MapCleanerViewModel}">
-            <mapCleaner:MapCleanerView />
-        </DataTemplate>
-        <DataTemplate DataType="{x:Type vm:SettingsViewModel}">
-            <settings:SettingsView />
-        </DataTemplate>
-    </theme:MapWizardWindow.DataTemplates>
 
     <VisualLayerManager>
         <Panel>

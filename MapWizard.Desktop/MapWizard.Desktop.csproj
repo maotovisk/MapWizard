@@ -8,6 +8,9 @@
     <SelfContained>true</SelfContained>
     <LangVersion>latestmajor</LangVersion>
     <Version>1.0.0</Version>
+    <PublishAot>true</PublishAot>
+    <IsAotCompatible>true</IsAotCompatible>
+    <StripSymbols>true</StripSymbols>
   </PropertyGroup>
   
   <ItemGroup>
@@ -26,7 +29,6 @@
     <PackageReference Include="OsuMemoryDataProvider" Version="0.12.2" />
     <PackageReference Include="OsuWineMemReader" Version="1.0.1" />
     <PackageReference Include="SkiaSharp.NativeAssets.Linux" Version="4.152.1" />
-    <PackageReference Include="System.Reactive" Version="7.0.0" />
     <PackageReference Include="Velopack" Version="1.2.0" />
     <PackageReference Include="Xaml.Behaviors" Version="12.0.7" />
   </ItemGroup>
@@ -47,6 +49,19 @@
 
   <ItemGroup>
     <Folder Include="Assets\Skins\Legacy\" />
+  </ItemGroup>
+
+  <!--
+    These libraries resolve types and members via reflection, so NativeAOT trimming
+    must keep their metadata intact.
+    - BeatmapParser: reads/writes .osu sections by enumerating properties.
+    - OsuMemoryDataProvider/ProcessMemoryDataFinder: structured memory reader maps
+      model properties via MemoryAddressAttribute.
+  -->
+  <ItemGroup>
+    <TrimmerRootAssembly Include="BeatmapParser" />
+    <TrimmerRootAssembly Include="OsuMemoryDataProvider" Condition="'$(RuntimeIdentifier)' == 'win-x64'" />
+    <TrimmerRootAssembly Include="ProcessMemoryDataFinder" Condition="'$(RuntimeIdentifier)' == 'win-x64'" />
   </ItemGroup>
 
   <ItemGroup>

@@ -120,10 +120,9 @@ public static class MapPickerDialogUtils
             useSelectedButton.Classes.Add("Compact");
             useSelectedButton.Bind(
                 Button.IsEnabledProperty,
-                new Binding(nameof(SongSelectDialogViewModel.CanConfirmSelection))
-                {
-                    Source = songSelectViewModel
-                });
+                CompiledBinding.Create(
+                    (SongSelectDialogViewModel viewModel) => viewModel.CanConfirmSelection,
+                    songSelectViewModel));
             useSelectedButton.Click += (_, _) => songSelectViewModel.ConfirmSelectionCommand.Execute(null);
             footerPanel.Children.Add(useSelectedButton);
         }

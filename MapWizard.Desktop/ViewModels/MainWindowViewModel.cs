@@ -1,6 +1,8 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using Avalonia.Controls.Notifications;
+using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MapWizard.Desktop.Enums;
@@ -23,6 +25,7 @@ namespace MapWizard.Desktop.ViewModels
         private MapCleanerViewModel? _mapCleanerViewModel;
         private readonly WelcomePageViewModel _welcomePageViewModel;
         private readonly SettingsViewModel _settingsViewModel;
+        private bool _pagesPreloaded;
 
         [ObservableProperty]
         private string _version = "MapWizard-localdev";
@@ -74,6 +77,52 @@ namespace MapWizard.Desktop.ViewModels
         /// Called from the window after it has opened, so the modal host is ready.
         /// </summary>
         public void RequestStartupUpdateCheck() => _ = _welcomePageViewModel.CheckForUpdatesOnStartupAsync();
+
+        /// <summary>
+        /// Builds every page view during idle dispatcher time after startup, so the
+        /// first navigation to each page does not pay the XAML/control construction
+        /// cost. One page is built per dispatcher turn to keep the UI responsive.
+        /// </summary>
+        public void PreloadPages()
+        {
+            if (_pagesPreloaded)
+            {
+                return;
+            }
+
+            _pagesPreloaded = true;
+            PreloadNextPage(new Queue<ViewModelBase>(GetPageViewModels()));
+        }
+
+        private void PreloadNextPage(Queue<ViewModelBase> pendingPages)
+        {
+            if (pendingPages.Count == 0)
+            {
+                return;
+            }
+
+            try
+            {
+                ViewLocator.Preload(pendingPages.Dequeue());
+            }
+            catch (Exception ex)
+            {
+                MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
+            }
+
+            Dispatcher.UIThread.Post(() => PreloadNextPage(pendingPages), DispatcherPriority.Background);
+        }
+
+        private IEnumerable<ViewModelBase> GetPageViewModels()
+        {
+            yield return _welcomePageViewModel;
+            yield return _hitSoundCopierViewModel ??= _services.GetRequiredService<HitSoundCopierViewModel>();
+            yield return _hitSoundVisualizerViewModel ??= _services.GetRequiredService<HitSoundVisualizerViewModel>();
+            yield return _metadataManagerViewModel ??= _services.GetRequiredService<MetadataManagerViewModel>();
+            yield return _comboColourStudioViewModel ??= _services.GetRequiredService<ComboColourStudioViewModel>();
+            yield return _mapCleanerViewModel ??= _services.GetRequiredService<MapCleanerViewModel>();
+            yield return _settingsViewModel;
+        }
 
         public void NavigateToWelcome() => SetPage(NavigationPage.Welcome);
 

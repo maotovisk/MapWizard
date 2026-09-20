@@ -85,6 +85,11 @@
                     OriginMap="{Binding OriginBeatmap}"
                     DestinationMaps="{Binding DestinationBeatmaps}"
                     ShowDestinationSelection="False"
+                    ClearSelectionCommand="{Binding ClearSelectionCommand}"
+                    OpenOriginFolderCommand="{Binding OpenOriginFolderCommand}"
+                    SetOriginFromMemoryCommand="{Binding SetOriginFromMemoryCommand}"
+                    PickOriginFileCommand="{Binding PickOriginFileCommand}"
+                    SelectOriginMapCommand="{Binding SelectOriginMapCommand}"
                     OriginPathChangedCommand="{Binding ReanalyzeOriginAfterPathChangeCommand}" />
 
                 <theme:CollapsibleSection Header="Beat Snaps">
@@ -105,7 +110,7 @@
                                             <StackPanel Orientation="Horizontal" Spacing="6">
                                                 <TextBlock VerticalAlignment="Center" Text="{Binding}" />
                                                 <Button Classes="SnapChipClose"
-                                                        Command="{ReflectionBinding DataContext.RemoveSnapCommand, ElementName=Root}"
+                                                        Command="{Binding DataContext.RemoveSnapCommand, ElementName=Root}"
                                                         CommandParameter="{Binding}"
                                                         ToolTip.Tip="Remove snap">
                                                     <LucideIcon Kind="X" Size="14" />
@@ -132,7 +137,7 @@
                                                            FontSize="13" />
                                                 <Separator />
                                                 <appControls:SmoothScrollViewer MaxHeight="220">
-                                                    <ItemsControl ItemsSource="{ReflectionBinding DataContext.SnapPresets, ElementName=Root}">
+                                                    <ItemsControl ItemsSource="{Binding DataContext.SnapPresets, ElementName=Root}">
                                                         <ItemsControl.ItemsPanel>
                                                             <ItemsPanelTemplate>
                                                                 <WrapPanel />
@@ -142,7 +147,7 @@
                                                             <DataTemplate>
                                                                 <Button Classes="SnapPresetBadge Compact"
                                                                         Margin="0,0,6,6"
-                                                                        Command="{ReflectionBinding DataContext.AddSnapFromFlyoutCommand, ElementName=Root}"
+                                                                        Command="{Binding DataContext.AddSnapFromFlyoutCommand, ElementName=Root}"
                                                                         CommandParameter="{Binding}">
                                                                     <TextBlock Text="{Binding}" />
                                                                 </Button>
@@ -154,9 +159,9 @@
                                                 <StackPanel Orientation="Horizontal" Spacing="8">
                                                     <TextBox Width="170"
                                                              PlaceholderText="Custom 1/x"
-                                                             Text="{ReflectionBinding DataContext.CustomSnapInput, Mode=TwoWay, ElementName=Root}" />
+                                                             Text="{Binding DataContext.CustomSnapInput, Mode=TwoWay, ElementName=Root}" />
                                                     <Button Classes="Basic Compact"
-                                                            Command="{ReflectionBinding DataContext.AddCustomSnapCommand, ElementName=Root}">
+                                                            Command="{Binding DataContext.AddCustomSnapCommand, ElementName=Root}">
                                                         <TextBlock Text="Add" />
                                                     </Button>
                                                 </StackPanel>

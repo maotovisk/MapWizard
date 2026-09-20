@@ -7,15 +7,13 @@ using Avalonia.Data.Converters;
 
 namespace MapWizard.Desktop.Converters;
 
-public sealed class MapPathSummaryConverter : IValueConverter
+public sealed partial class MapPathSummaryConverter : IValueConverter
 {
-    private static readonly Regex FullPattern =
-        new(@"^(?<artist>.+?) - (?<title>.+?) \((?<mapper>.+?)\) \[(?<diff>.+?)\]$",
-            RegexOptions.Compiled);
+    [GeneratedRegex(@"^(?<artist>.+?) - (?<title>.+?) \((?<mapper>.+?)\) \[(?<diff>.+?)\]$")]
+    private static partial Regex FullPattern();
 
-    private static readonly Regex ShortPattern =
-        new(@"^(?<artist>.+?) - (?<title>.+?) \[(?<diff>.+?)\]$",
-            RegexOptions.Compiled);
+    [GeneratedRegex(@"^(?<artist>.+?) - (?<title>.+?) \[(?<diff>.+?)\]$")]
+    private static partial Regex ShortPattern();
 
     public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
@@ -46,7 +44,7 @@ public sealed class MapPathSummaryConverter : IValueConverter
             return "No map selected";
         }
 
-        var fullMatch = FullPattern.Match(fileName);
+        var fullMatch = FullPattern().Match(fileName);
         if (fullMatch.Success)
         {
             var artist = fullMatch.Groups["artist"].Value.Trim();
@@ -55,7 +53,7 @@ public sealed class MapPathSummaryConverter : IValueConverter
             return $"{artist} - {title} [{diff}]";
         }
 
-        var shortMatch = ShortPattern.Match(fileName);
+        var shortMatch = ShortPattern().Match(fileName);
         if (shortMatch.Success)
         {
             var artist = shortMatch.Groups["artist"].Value.Trim();

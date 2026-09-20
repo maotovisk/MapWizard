@@ -439,7 +439,7 @@
                     Orientation="Horizontal"
                     Spacing="8">
           <Button Classes="Basic Compact"
-                  Command="{ReflectionBinding ClearSelectionCommand}"
+                  Command="{Binding ClearSelectionCommand, ElementName=Root}"
                   IsEnabled="{Binding CanClearSelection, ElementName=Root}"
                   ToolTip.Tip="Clear the current source and targets">
             <StackPanel Orientation="Horizontal" Spacing="5">
@@ -449,7 +449,7 @@
           </Button>
 
           <Button Classes="Basic Compact"
-                  Command="{ReflectionBinding OpenOriginFolderCommand}"
+                  Command="{Binding OpenOriginFolderCommand, ElementName=Root}"
                   IsEnabled="{Binding HasOriginSelection, ElementName=Root}"
                   ToolTip.Tip="Open the folder of the selected source beatmap">
             <StackPanel Orientation="Horizontal" Spacing="5">
@@ -512,39 +512,39 @@
                           Spacing="8"
                           VerticalAlignment="Center">
                 <Button Classes="Compact MemoryActionButton MapSourceActionButton"
-                        Command="{ReflectionBinding SetOriginFromMemoryCommand}"
+                        Command="{Binding SetOriginFromMemoryCommand, ElementName=Root}"
                         ToolTip.Tip="{Binding OriginMemoryToolTip, ElementName=Root}">
                   <StackPanel Orientation="Horizontal" Spacing="5">
                     <Grid Width="16"
                           Height="16"
                           Classes="AsyncActionActivity"
-                          Classes.busy="{ReflectionBinding SetOriginFromMemoryCommand.IsRunning}">
+                          Classes.busy="{Binding SetOriginFromMemoryCommand.IsRunning, ElementName=Root}">
                       <LucideIcon Kind="Import" Size="16" />
                       <theme:BusyIndicator Classes="AsyncActionIndicator"
-                                           IsRunning="{ReflectionBinding SetOriginFromMemoryCommand.IsRunning}"
+                                           IsRunning="{Binding SetOriginFromMemoryCommand.IsRunning, ElementName=Root}"
                                            VerticalAlignment="Center" />
                     </Grid>
                     <TextBlock Text="From osu!" VerticalAlignment="Center" />
                   </StackPanel>
                 </Button>
                 <Button Classes="Flat Compact MapSourceActionButton"
-                        Command="{ReflectionBinding PickOriginFileCommand}"
+                        Command="{Binding PickOriginFileCommand, ElementName=Root}"
                         ToolTip.Tip="Open the Map Picker">
                   <StackPanel Orientation="Horizontal" Spacing="5">
                     <Grid Width="16"
                           Height="16"
                           Classes="AsyncActionActivity"
-                          Classes.busy="{ReflectionBinding PickOriginFileCommand.IsRunning}">
+                          Classes.busy="{Binding PickOriginFileCommand.IsRunning, ElementName=Root}">
                       <LucideIcon Kind="FileSearch" Size="16" />
                       <theme:BusyIndicator Classes="AsyncActionIndicator"
-                                           IsRunning="{ReflectionBinding PickOriginFileCommand.IsRunning}"
+                                           IsRunning="{Binding PickOriginFileCommand.IsRunning, ElementName=Root}"
                                            VerticalAlignment="Center" />
                     </Grid>
                     <TextBlock Text="Map Picker" VerticalAlignment="Center" />
                   </StackPanel>
                 </Button>
                 <Button Classes="Basic Compact SourceActionButton"
-                        Command="{ReflectionBinding ClearSelectionCommand}"
+                        Command="{Binding ClearSelectionCommand, ElementName=Root}"
                         IsEnabled="{Binding CanClearSelection, ElementName=Root}"
                         IsVisible="{Binding !ShowDestinationSection, ElementName=Root}"
                         ToolTip.Tip="Clear the selected beatmap">
@@ -554,7 +554,7 @@
                   </StackPanel>
                 </Button>
                 <Button Classes="Basic Compact SourceActionButton"
-                        Command="{ReflectionBinding OpenOriginFolderCommand}"
+                        Command="{Binding OpenOriginFolderCommand, ElementName=Root}"
                         IsEnabled="{Binding HasOriginSelection, ElementName=Root}"
                         IsVisible="{Binding !ShowDestinationSection, ElementName=Root}"
                         ToolTip.Tip="Open the selected beatmap's folder">
@@ -628,7 +628,7 @@
                     <DataTemplate x:DataType="models:MapsetDifficultyCard">
                       <ToggleButton Classes="DiffRow OnArtwork"
                                     IsChecked="{Binding IsSelected, Mode=OneWay}"
-                                    Command="{ReflectionBinding DataContext.SelectOriginMapCommand, RelativeSource={RelativeSource AncestorType=controls:BeatmapSelectionPanel}}"
+                                    Command="{Binding SelectOriginMapCommand, ElementName=Root}"
                                     CommandParameter="{Binding Path}">
                         <Grid ColumnDefinitions="Auto,*"
                               ColumnSpacing="10">
@@ -728,32 +728,32 @@
                           VerticalAlignment="Center"
                           IsVisible="{Binding !HasVisibleDestinationCards, ElementName=Root}">
                 <Button Classes="Compact MemoryActionButton MapSourceActionButton"
-                        Command="{ReflectionBinding AddDestinationFromMemoryCommand}"
+                        Command="{Binding AddDestinationFromMemoryCommand, ElementName=Root}"
                         ToolTip.Tip="{Binding DestinationMemoryToolTip, ElementName=Root}">
                   <StackPanel Orientation="Horizontal" Spacing="5">
                     <Grid Width="16"
                           Height="16"
                           Classes="AsyncActionActivity"
-                          Classes.busy="{ReflectionBinding AddDestinationFromMemoryCommand.IsRunning}">
+                          Classes.busy="{Binding AddDestinationFromMemoryCommand.IsRunning, ElementName=Root}">
                       <LucideIcon Kind="Import" Size="16" />
                       <theme:BusyIndicator Classes="AsyncActionIndicator"
-                                           IsRunning="{ReflectionBinding AddDestinationFromMemoryCommand.IsRunning}"
+                                           IsRunning="{Binding AddDestinationFromMemoryCommand.IsRunning, ElementName=Root}"
                                            VerticalAlignment="Center" />
                     </Grid>
                     <TextBlock Text="From osu!" VerticalAlignment="Center" />
                   </StackPanel>
                 </Button>
                 <Button Classes="Flat Compact MapSourceActionButton"
-                        Command="{ReflectionBinding PickDestinationFileCommand}"
+                        Command="{Binding PickDestinationFileCommand, ElementName=Root}"
                         ToolTip.Tip="Open the Map Picker">
                   <StackPanel Orientation="Horizontal" Spacing="5">
                     <Grid Width="16"
                           Height="16"
                           Classes="AsyncActionActivity"
-                          Classes.busy="{ReflectionBinding PickDestinationFileCommand.IsRunning}">
+                          Classes.busy="{Binding PickDestinationFileCommand.IsRunning, ElementName=Root}">
                       <LucideIcon Kind="FileSearch" Size="16" />
                       <theme:BusyIndicator Classes="AsyncActionIndicator"
-                                           IsRunning="{ReflectionBinding PickDestinationFileCommand.IsRunning}"
+                                           IsRunning="{Binding PickDestinationFileCommand.IsRunning, ElementName=Root}"
                                            VerticalAlignment="Center" />
                     </Grid>
                     <TextBlock Text="Map Picker" VerticalAlignment="Center" />
@@ -867,7 +867,7 @@
                               <DataTemplate x:DataType="models:MapsetDifficultyCard">
                                 <ToggleButton Classes="DiffRow OnArtwork"
                                               IsChecked="{Binding IsSelected, Mode=OneWay}"
-                                              Command="{ReflectionBinding DataContext.ToggleDestinationMapCommand, RelativeSource={RelativeSource AncestorType=controls:BeatmapSelectionPanel}}"
+                                              Command="{Binding ToggleDestinationMapCommand, ElementName=Root}"
                                               CommandParameter="{Binding Path}">
                                   <Grid ColumnDefinitions="Auto,*"
                                         ColumnSpacing="10">
@@ -933,7 +933,7 @@
                 <Grid ColumnDefinitions="Auto,*,Auto,Auto"
                       ColumnSpacing="8">
                   <Button Classes="Basic Compact"
-                          Command="{ReflectionBinding PickDestinationFileCommand}"
+                          Command="{Binding PickDestinationFileCommand, ElementName=Root}"
                           ToolTip.Tip="Add a beatmap to the targets">
                     <StackPanel Orientation="Horizontal" Spacing="5">
                       <LucideIcon Kind="Plus" Size="16" />
@@ -943,16 +943,16 @@
 
                   <Button Grid.Column="2"
                           Classes="Compact MemoryActionButton MapSourceActionButton"
-                          Command="{ReflectionBinding AddDestinationFromMemoryCommand}"
+                          Command="{Binding AddDestinationFromMemoryCommand, ElementName=Root}"
                           ToolTip.Tip="{Binding DestinationMemoryToolTip, ElementName=Root}">
                     <StackPanel Orientation="Horizontal" Spacing="5">
                       <Grid Width="16"
                             Height="16"
                             Classes="AsyncActionActivity"
-                            Classes.busy="{ReflectionBinding AddDestinationFromMemoryCommand.IsRunning}">
+                            Classes.busy="{Binding AddDestinationFromMemoryCommand.IsRunning, ElementName=Root}">
                         <LucideIcon Kind="Import" Size="16" />
                         <theme:BusyIndicator Classes="AsyncActionIndicator"
-                                             IsRunning="{ReflectionBinding AddDestinationFromMemoryCommand.IsRunning}"
+                                             IsRunning="{Binding AddDestinationFromMemoryCommand.IsRunning, ElementName=Root}"
                                              VerticalAlignment="Center" />
                       </Grid>
                       <TextBlock Text="From osu!" VerticalAlignment="Center" />
@@ -961,16 +961,16 @@
 
                   <Button Grid.Column="3"
                           Classes="Flat Compact MapSourceActionButton"
-                          Command="{ReflectionBinding PickDestinationFileCommand}"
+                          Command="{Binding PickDestinationFileCommand, ElementName=Root}"
                           ToolTip.Tip="Open the Map Picker">
                     <StackPanel Orientation="Horizontal" Spacing="5">
                       <Grid Width="16"
                             Height="16"
                             Classes="AsyncActionActivity"
-                            Classes.busy="{ReflectionBinding PickDestinationFileCommand.IsRunning}">
+                            Classes.busy="{Binding PickDestinationFileCommand.IsRunning, ElementName=Root}">
                         <LucideIcon Kind="FileSearch" Size="16" />
                         <theme:BusyIndicator Classes="AsyncActionIndicator"
-                                             IsRunning="{ReflectionBinding PickDestinationFileCommand.IsRunning}"
+                                             IsRunning="{Binding PickDestinationFileCommand.IsRunning, ElementName=Root}"
                                              VerticalAlignment="Center" />
                       </Grid>
                       <TextBlock Text="Map Picker" VerticalAlignment="Center" />

@@ -8,6 +8,7 @@ using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Media;
 using Avalonia.Rendering.Composition;
+using Avalonia.Reactive;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
 using MapWizard.Theme.Motion;
@@ -144,7 +145,7 @@ public class SmoothScrollViewer : ScrollViewer
         {
             _presenterBoundsSubscription = _presenter
                 .GetObservable(BoundsProperty)
-                .Subscribe(_ => UpdateFade());
+                .Subscribe(new AnonymousObserver<Rect>(_ => UpdateFade()));
         }
 
         ResolveContentVisual();

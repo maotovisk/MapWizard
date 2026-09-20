@@ -21,6 +21,10 @@ echo ""
 echo "Compiling MapWizardDesktop with dotnet..."
 dotnet publish -c Release --self-contained -r osx-x64 -o "$PUBLISH_DIR"
 
+# NativeAOT emits debug symbols next to the binary; they are not needed in the
+# installer payload.
+find "$PUBLISH_DIR" -maxdepth 1 \( -name '*.dbg' -o -name '*.dwarf' -o -name '*.pdb' \) -delete
+
 echo ""
 echo "Building Velopack Release v$BUILD_VERSION"
 vpk [osx] pack -u MapWizard.Desktop --packTitle "MapWizard" -v $BUILD_VERSION -o "$RELEASE_DIR" -p "$PUBLISH_DIR" -e "MapWizard.Desktop" -i "$ICON_PATH" 
