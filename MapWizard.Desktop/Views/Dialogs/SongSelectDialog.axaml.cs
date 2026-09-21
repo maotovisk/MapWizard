@@ -6,17 +6,21 @@ using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
-using MapWizard.Desktop.Controls;
 using MapWizard.Desktop.ViewModels;
 
 namespace MapWizard.Desktop.Views.Dialogs;
 
 public partial class SongSelectDialog : UserControl
 {
-    private const double CenterScrollEdgeThreshold = 56d;
     private static readonly TimeSpan ScrollWorkInterval = TimeSpan.FromMilliseconds(50);
+
+    /// <summary>One corrective pass once the expand/collapse animations (~300 ms)
+    /// have settled, in case the up-front seek target estimate was off.</summary>
+    private static readonly TimeSpan ExpandSettleDelay = TimeSpan.FromMilliseconds(400);
+
+    private const double CenteredTolerance = 24d;
+
     private readonly DispatcherTimer _scrollWorkTimer;
-    private ScrollViewer? _pendingScrollViewer;
     private bool _hasPendingScrollWork;
 
     /// <summary>Raised when the header close (X) button is clicked.</summary>
@@ -32,6 +36,7 @@ public partial class SongSelectDialog : UserControl
         _scrollWorkTimer = new DispatcherTimer { Interval = ScrollWorkInterval };
         _scrollWorkTimer.Tick += OnScrollWorkTimerTick;
         InitializeComponent();
+        MapsetList.ScrollOwner = MapsetScrollViewer;
         AddHandler(
             InputElement.PointerPressedEvent,
             OnAnyPointerPressed,
@@ -41,16 +46,10 @@ public partial class SongSelectDialog : UserControl
 
     private void MapsetScrollViewer_OnScrollChanged(object? sender, ScrollChangedEventArgs e)
     {
-        if (sender is not ScrollViewer scrollViewer)
-        {
-            return;
-        }
-
-        _pendingScrollViewer = scrollViewer;
         _hasPendingScrollWork = true;
 
-        // Run the first update immediately, then cap the geometry scan at 20 Hz
-        // while precision scrolling is producing a high-frequency event stream.
+        // Run the first update immediately, then keep processing at the timer's
+        // cadence while scrolling is producing a high-frequency event stream.
         if (!_scrollWorkTimer.IsEnabled)
         {
             ProcessPendingScrollWork();
@@ -61,7 +60,6 @@ public partial class SongSelectDialog : UserControl
     protected override void OnDetachedFromVisualTree(VisualTreeAttachmentEventArgs e)
     {
         _scrollWorkTimer.Stop();
-        _pendingScrollViewer = null;
         _hasPendingScrollWork = false;
         base.OnDetachedFromVisualTree(e);
     }
@@ -80,184 +78,88 @@ public partial class SongSelectDialog : UserControl
     private void ProcessPendingScrollWork()
     {
         _hasPendingScrollWork = false;
-        if (_pendingScrollViewer is not { } scrollViewer ||
-            DataContext is not SongSelectDialogViewModel viewModel)
+        if (DataContext is not SongSelectDialogViewModel viewModel || MapsetScrollViewer is null)
         {
             return;
         }
 
-        int? firstVisibleIndex = null;
-        int? lastVisibleIndex = null;
-        try
+        var (firstVisibleIndex, lastVisibleIndex) = MapsetList.GetVisibleRange();
+        if (firstVisibleIndex < 0)
         {
-            (firstVisibleIndex, lastVisibleIndex) = GetVisibleMapsetRange(scrollViewer);
-        }
-        catch (Exception ex)
-        {
-            MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
-            // Containers can be re-realized while the window is being resized quickly.
-            // Fall back to estimated viewport math in the view-model for this tick.
+            return;
         }
 
         viewModel.TryLoadMoreFromScroll(
-            scrollViewer.Offset.Y,
-            scrollViewer.Viewport.Height,
-            scrollViewer.Extent.Height,
+            MapsetScrollViewer.Offset.Y,
+            MapsetScrollViewer.Viewport.Height,
+            MapsetScrollViewer.Extent.Height,
             firstVisibleIndex,
             lastVisibleIndex);
     }
 
-    private (int? firstVisibleIndex, int? lastVisibleIndex) GetVisibleMapsetRange(ScrollViewer scrollViewer)
-    {
-        if (MapsetItemsControl.ItemCount == 0)
-        {
-            return (null, null);
-        }
-
-        var viewportBottom = scrollViewer.Viewport.Height;
-        int? firstVisibleIndex = null;
-        int? lastVisibleIndex = null;
-
-        foreach (var container in MapsetItemsControl.GetRealizedContainers())
-        {
-            if (!container.IsVisible || container.Bounds.Height <= 0d)
-            {
-                continue;
-            }
-
-            var topLeft = container.TranslatePoint(new Point(0d, 0d), scrollViewer);
-            if (!topLeft.HasValue)
-            {
-                continue;
-            }
-
-            var top = topLeft.Value.Y;
-            var bottom = top + container.Bounds.Height;
-            if (bottom <= 0d || top >= viewportBottom)
-            {
-                continue;
-            }
-
-            var index = MapsetItemsControl.IndexFromContainer(container);
-            if (index < 0)
-            {
-                continue;
-            }
-
-            firstVisibleIndex = firstVisibleIndex.HasValue
-                ? Math.Min(firstVisibleIndex.Value, index)
-                : index;
-            lastVisibleIndex = lastVisibleIndex.HasValue
-                ? Math.Max(lastVisibleIndex.Value, index)
-                : index;
-        }
-
-        return (firstVisibleIndex, lastVisibleIndex);
-    }
-
     private void OnAnyPointerPressed(object? sender, PointerPressedEventArgs e)
     {
-        if (e.Source is not Visual source || MapsetScrollViewer is null || MapsetItemsControl.ItemCount == 0)
+        if (e.Source is not Visual source || MapsetScrollViewer is null)
         {
             return;
         }
 
-        var container = FindMapsetContainer(source);
-        if (container is null)
-        {
-            return;
-        }
-
-        var recentered = CenterContainerIfNearViewportEdge(MapsetScrollViewer, container);
-        if (!recentered ||
+        var index = MapsetList.GetItemIndexForVisual(source);
+        if (index < 0 ||
             DataContext is not SongSelectDialogViewModel viewModel ||
-            container.DataContext is not SongMapsetCardViewModel mapset ||
+            viewModel.VisibleMapsets.Count <= index ||
+            viewModel.VisibleMapsets[index] is not { } mapset ||
             mapset.IsExpanded ||
             !IsWithinCardHeaderHit(source))
         {
             return;
         }
 
-        _ = EnsureExpandedAfterRecenteringAsync(viewModel, mapset);
-    }
-
-    private Control? FindMapsetContainer(Visual source)
-    {
-        var current = source;
-        while (current is not null)
+        // One synchronized motion: the scroll glides to where the card will sit
+        // once it has expanded (computed up front from the list's exact height
+        // records), while the expansion animation runs over the same duration and
+        // easing. The toggle executes here because the glide scrolls the content
+        // out from under the pointer and would break the header button's
+        // press/release pairing.
+        if (MapsetList.TryComputeSeekTargetOffset(index, out var targetOffset))
         {
-            if (current is Control control)
-            {
-                try
-                {
-                    if (MapsetItemsControl.IndexFromContainer(control) >= 0)
-                    {
-                        return control;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
-                    // Ignore container checks while item controls are being re-realized.
-                }
-            }
-
-            current = current.GetVisualParent();
-        }
-
-        return null;
-    }
-
-    private static bool CenterContainerIfNearViewportEdge(SmoothScrollViewer scrollViewer, Control container)
-    {
-        if (container.Bounds.Height <= 0d || scrollViewer.Viewport.Height <= 0d)
-        {
-            return false;
-        }
-
-        var topLeft = container.TranslatePoint(new Point(0d, 0d), scrollViewer);
-        if (!topLeft.HasValue)
-        {
-            return false;
-        }
-
-        var top = topLeft.Value.Y;
-        var bottom = top + container.Bounds.Height;
-        var viewportHeight = scrollViewer.Viewport.Height;
-
-        var isNearTopEdge = top < CenterScrollEdgeThreshold;
-        var isNearBottomEdge = bottom > viewportHeight - CenterScrollEdgeThreshold;
-        if (!isNearTopEdge && !isNearBottomEdge)
-        {
-            return false;
-        }
-
-        var itemCenterInExtent = scrollViewer.Offset.Y + top + (container.Bounds.Height / 2d);
-        var desiredOffsetY = itemCenterInExtent - (viewportHeight / 2d);
-
-        var maxOffsetY = Math.Max(0d, scrollViewer.Extent.Height - viewportHeight);
-        desiredOffsetY = Math.Clamp(desiredOffsetY, 0d, maxOffsetY);
-
-        scrollViewer.ScrollTo(new Vector(scrollViewer.Offset.X, desiredOffsetY));
-        return true;
-    }
-
-    private async Task EnsureExpandedAfterRecenteringAsync(
-        SongSelectDialogViewModel viewModel,
-        SongMapsetCardViewModel mapset)
-    {
-        await Task.Delay(80);
-
-        if (DataContext is not SongSelectDialogViewModel currentViewModel ||
-            !ReferenceEquals(currentViewModel, viewModel) ||
-            mapset.IsExpanded)
-        {
-            return;
+            MapsetList.BeginScrollToOffset(targetOffset);
         }
 
         if (viewModel.ToggleMapsetExpansionCommand.CanExecute(mapset))
         {
             viewModel.ToggleMapsetExpansionCommand.Execute(mapset);
+        }
+
+        _ = RefineCenterAfterToggleAsync(viewModel, mapset);
+    }
+
+    private async Task RefineCenterAfterToggleAsync(
+        SongSelectDialogViewModel viewModel,
+        SongMapsetCardViewModel mapset)
+    {
+        await Task.Delay(ExpandSettleDelay);
+
+        if (DataContext is not SongSelectDialogViewModel currentViewModel ||
+            !ReferenceEquals(currentViewModel, viewModel) ||
+            MapsetScrollViewer is null ||
+            !mapset.IsExpanded)
+        {
+            return;
+        }
+
+        var index = viewModel.VisibleMapsets.IndexOf(mapset);
+        if (index < 0 || !MapsetList.TryComputeFullCardCenteredOffset(index, out var target))
+        {
+            return;
+        }
+
+        var maxOffset = Math.Max(0d, MapsetScrollViewer.Extent.Height - MapsetScrollViewer.Viewport.Height);
+        target = Math.Clamp(target, 0d, maxOffset);
+
+        if (Math.Abs(MapsetScrollViewer.Offset.Y - target) > CenteredTolerance)
+        {
+            MapsetList.BeginScrollToOffset(target, TimeSpan.FromMilliseconds(150));
         }
     }
 

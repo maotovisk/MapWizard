@@ -26,6 +26,16 @@ public static class BeatmapPanelViewModelUtils
         IReadOnlyCollection<SelectedMap> destinationBeatmaps,
         string path)
     {
+        // Entries filtered out here are dropped by the caller; release their decoded
+        // bitmaps deterministically instead of leaving them to the finalizer.
+        foreach (var removedBeatmap in destinationBeatmaps)
+        {
+            if (string.Equals(removedBeatmap.Path, path, StringComparison.OrdinalIgnoreCase))
+            {
+                removedBeatmap.Dispose();
+            }
+        }
+
         return new ObservableCollection<SelectedMap>(
             destinationBeatmaps.Where(x => !string.Equals(x.Path, path, StringComparison.OrdinalIgnoreCase)));
     }

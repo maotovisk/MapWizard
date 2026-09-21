@@ -28,7 +28,8 @@ public partial class SongSelectDialogViewModel(
     string? preferredMapsetDirectoryPath = null) : ViewModelBase, IDisposable
 {
     private const int PageSize = 20;
-    private const int BackgroundCacheSize = 20;
+    private const int BackgroundCacheSize = 12;
+    private const int MaxCachedMapsetCards = 256;
     private const int SearchDebounceMilliseconds = 2000;
     private const int StatusQueryMaxLength = 36;
     private const double EstimatedMapsetCardHeight = 104d;
@@ -39,7 +40,9 @@ public partial class SongSelectDialogViewModel(
     private readonly List<MapsetDirectoryEntry> _filteredDirectoryEntries = [];
     private readonly Dictionary<string, SongMapsetCardViewModel> _mapsetViewModelCache =
         new(StringComparer.OrdinalIgnoreCase);
+    private readonly Queue<string> _mapsetCardCacheOrder = new();
     private readonly HashSet<string> _visibleDirectoryPaths = new(StringComparer.OrdinalIgnoreCase);
+    private readonly HashSet<string> _selectedOsuFilePaths = new(StringComparer.OrdinalIgnoreCase);
     private CancellationTokenSource? _searchDebounceCts;
     private CancellationTokenSource? _searchExecutionCts;
     private bool _isDisposed;
@@ -117,7 +120,9 @@ public partial class SongSelectDialogViewModel(
         }
 
         _mapsetViewModelCache.Clear();
+        _mapsetCardCacheOrder.Clear();
         _visibleDirectoryPaths.Clear();
+        _selectedOsuFilePaths.Clear();
         _filteredDirectoryEntries.Clear();
         _mapsetDirectoryEntries.Clear();
         _mapsetDirectories.Clear();
@@ -254,7 +259,9 @@ public partial class SongSelectDialogViewModel(
             return;
         }
 
-        difficulty.IsSelected = !difficulty.IsSelected;
+        var isSelected = !difficulty.IsSelected;
+        difficulty.IsSelected = isSelected;
+        UpdateSelectionTracking(difficulty.OsuFilePath, isSelected);
         RecalculateSelectedDifficultyCount();
     }
 
@@ -309,12 +316,7 @@ public partial class SongSelectDialogViewModel(
             return;
         }
 
-        var selectedPaths = _mapsetViewModelCache.Values
-            .SelectMany(mapset => mapset.Difficulties)
-            .Where(difficulty => difficulty.IsSelected)
-            .Select(difficulty => difficulty.OsuFilePath)
-            .Distinct(StringComparer.OrdinalIgnoreCase)
-            .ToList();
+        var selectedPaths = _selectedOsuFilePaths.ToList();
 
         if (selectedPaths.Count > 0)
         {
@@ -334,9 +336,22 @@ public partial class SongSelectDialogViewModel(
         foreach (var difficulty in mapset.Difficulties)
         {
             difficulty.IsSelected = shouldSelectAll;
+            UpdateSelectionTracking(difficulty.OsuFilePath, shouldSelectAll);
         }
 
         RecalculateSelectedDifficultyCount();
+    }
+
+    private void UpdateSelectionTracking(string osuFilePath, bool isSelected)
+    {
+        if (isSelected)
+        {
+            _selectedOsuFilePaths.Add(osuFilePath);
+        }
+        else
+        {
+            _selectedOsuFilePaths.Remove(osuFilePath);
+        }
     }
 
     public void TryLoadMoreFromScroll(
@@ -457,9 +472,7 @@ public partial class SongSelectDialogViewModel(
             mapset.IsExpanded = false;
         }
 
-        SelectedDifficultyCount = _mapsetViewModelCache.Values
-            .SelectMany(mapset => mapset.Difficulties)
-            .Count(difficulty => difficulty.IsSelected);
+        SelectedDifficultyCount = _selectedOsuFilePaths.Count;
         OnPropertyChanged(nameof(CanConfirmSelection));
 
         NotifyListStateChanged();
@@ -535,13 +548,10 @@ public partial class SongSelectDialogViewModel(
                         continue;
                     }
 
-                    mapsetViewModel = new SongMapsetCardViewModel(
+                    mapsetViewModel = CreateMapsetCardViewModel(
+                        directoryEntry.DirectoryPath,
                         mapset,
-                        IsPreferredMapsetDirectory(directoryEntry.DirectoryPath))
-                    {
-                        Owner = this
-                    };
-                    _mapsetViewModelCache[directoryEntry.DirectoryPath] = mapsetViewModel;
+                        IsPreferredMapsetDirectory(directoryEntry.DirectoryPath));
                 }
                 else
                 {
@@ -565,6 +575,7 @@ public partial class SongSelectDialogViewModel(
 
             RecalculateSelectedDifficultyCount();
             UpdateBackgroundCacheForCurrentViewport();
+            EvictExcessMapsetCards();
             UpdateStatusMessage();
         }
         catch (OperationCanceledException ex)
@@ -615,16 +626,14 @@ public partial class SongSelectDialogViewModel(
                 return;
             }
 
-            var mountedViewModel = new SongMapsetCardViewModel(
+            var mountedViewModel = CreateMapsetCardViewModel(
+                normalizedDirectory,
                 mapset,
                 isPreferredMapset: false,
-                isMountedInLazer: true)
-            {
-                Owner = this
-            };
+                isMountedInLazer: true);
             mountedViewModel.SetBackgroundActive(true);
-            _mapsetViewModelCache[normalizedDirectory] = mountedViewModel;
             MountedLazerMapset = mountedViewModel;
+            EvictExcessMapsetCards();
         }
         catch (OperationCanceledException)
         {
@@ -661,11 +670,102 @@ public partial class SongSelectDialogViewModel(
 
     private void RecalculateSelectedDifficultyCount()
     {
-        SelectedDifficultyCount = _mapsetViewModelCache.Values
-            .SelectMany(mapset => mapset.Difficulties)
-            .Count(difficulty => difficulty.IsSelected);
+        SelectedDifficultyCount = _selectedOsuFilePaths.Count;
 
         OnPropertyChanged(nameof(CanConfirmSelection));
+    }
+
+    private SongMapsetCardViewModel CreateMapsetCardViewModel(
+        string directoryPath,
+        SongMapsetInfo mapset,
+        bool isPreferredMapset,
+        bool isMountedInLazer = false)
+    {
+        var mapsetViewModel = new SongMapsetCardViewModel(mapset, isPreferredMapset, isMountedInLazer)
+        {
+            Owner = this
+        };
+
+        // The mounted lazer mapset can share a directory with an already cached card;
+        // retire the orphaned entry so its difficulty VMs are released.
+        if (_mapsetViewModelCache.TryGetValue(directoryPath, out var existingCard) &&
+            !_visibleDirectoryPaths.Contains(directoryPath) &&
+            !ReferenceEquals(existingCard, MountedLazerMapset))
+        {
+            _mapsetViewModelCache.Remove(directoryPath);
+            existingCard.Dispose();
+        }
+
+        if (_selectedOsuFilePaths.Count > 0)
+        {
+            foreach (var difficulty in mapsetViewModel.Difficulties)
+            {
+                if (_selectedOsuFilePaths.Contains(difficulty.OsuFilePath))
+                {
+                    difficulty.IsSelected = true;
+                }
+            }
+        }
+
+        _mapsetViewModelCache[directoryPath] = mapsetViewModel;
+        _mapsetCardCacheOrder.Enqueue(directoryPath);
+        return mapsetViewModel;
+    }
+
+    /// <summary>
+    /// Bounds the card view-model cache. Cards are tracked in insertion order and the
+    /// oldest entries that are neither the mounted lazer mapset nor currently listed
+    /// get disposed. Selection state survives eviction because it is tracked in
+    /// <see cref="_selectedOsuFilePaths"/> and rehydrated when a card is recreated.
+    /// </summary>
+    private void EvictExcessMapsetCards()
+    {
+        while (_mapsetViewModelCache.Count > MaxCachedMapsetCards)
+        {
+            string? evictablePath = null;
+            foreach (var candidatePath in _mapsetCardCacheOrder)
+            {
+                if (!_mapsetViewModelCache.TryGetValue(candidatePath, out var candidateCard))
+                {
+                    continue;
+                }
+
+                if (_visibleDirectoryPaths.Contains(candidatePath) ||
+                    ReferenceEquals(candidateCard, MountedLazerMapset))
+                {
+                    continue;
+                }
+
+                evictablePath = candidatePath;
+                break;
+            }
+
+            if (evictablePath is null)
+            {
+                return;
+            }
+
+            if (_mapsetViewModelCache.Remove(evictablePath, out var evictedCard))
+            {
+                evictedCard.Dispose();
+            }
+
+            // Rebuild the order queue without stale and evicted entries.
+            var survivingPaths = new Queue<string>(_mapsetViewModelCache.Count);
+            foreach (var candidatePath in _mapsetCardCacheOrder)
+            {
+                if (_mapsetViewModelCache.ContainsKey(candidatePath))
+                {
+                    survivingPaths.Enqueue(candidatePath);
+                }
+            }
+
+            _mapsetCardCacheOrder.Clear();
+            foreach (var survivingPath in survivingPaths)
+            {
+                _mapsetCardCacheOrder.Enqueue(survivingPath);
+            }
+        }
     }
 
     private List<MapsetDirectoryEntry> FilterByFolderName(string query)
@@ -865,7 +965,9 @@ public partial class SongSelectDialogViewModel(
         }
 
         _mapsetViewModelCache.Clear();
+        _mapsetCardCacheOrder.Clear();
         _visibleDirectoryPaths.Clear();
+        _selectedOsuFilePaths.Clear();
         _filteredDirectoryEntries.Clear();
         _mapsetDirectoryEntries.Clear();
         _mapsetDirectories.Clear();
@@ -888,6 +990,8 @@ public partial class SongMapsetCardViewModel : ObservableObject, IDisposable
     private readonly string? _backgroundImagePath;
     private bool _backgroundLoadFailed;
     private bool _isBackgroundActive;
+    private int _backgroundGeneration;
+    private int? _backgroundDecodeGeneration;
     private bool _isDisposed;
 
     public SongMapsetCardViewModel(
@@ -990,7 +1094,45 @@ public partial class SongMapsetCardViewModel : ObservableObject, IDisposable
             return;
         }
 
-        var image = BuildBackgroundImage(_backgroundImagePath);
+        // A decode already running for this activation epoch will deliver the
+        // bitmap; decodes from an older epoch are discarded when they complete.
+        if (_backgroundDecodeGeneration == _backgroundGeneration)
+        {
+            return;
+        }
+
+        var generation = _backgroundGeneration;
+        _backgroundDecodeGeneration = generation;
+        _ = DecodeBackgroundAsync(generation);
+    }
+
+    private async Task DecodeBackgroundAsync(int generation)
+    {
+        Bitmap? image = null;
+        try
+        {
+            // The page cache serves hits with one memcpy and misses with a full
+            // decode; both happen off the UI thread so scroll bursts stay smooth.
+            image = await Task.Run(() => BuildBackgroundImage(_backgroundImagePath));
+        }
+        catch (Exception ex)
+        {
+            MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
+        }
+
+        if (_backgroundDecodeGeneration == generation)
+        {
+            _backgroundDecodeGeneration = null;
+        }
+
+        // Card state mutations happen on the UI thread; this continuation also
+        // resumes there, so the epoch and disposed checks below are race-free.
+        if (_isDisposed || generation != _backgroundGeneration || !_isBackgroundActive)
+        {
+            image?.Dispose();
+            return;
+        }
+
         if (image is null)
         {
             _backgroundLoadFailed = true;
@@ -1002,6 +1144,9 @@ public partial class SongMapsetCardViewModel : ObservableObject, IDisposable
 
     private void ReleaseBackground()
     {
+        // Invalidate any in-flight decode for this card.
+        _backgroundGeneration++;
+
         if (BackgroundImage is null)
         {
             return;

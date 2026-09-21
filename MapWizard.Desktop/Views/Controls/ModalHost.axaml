@@ -46,10 +46,18 @@
         <!-- Frozen, pre-blurred copy of the shell. A live BlurEffect over the
              shell is re-composited (and re-allocated) on every frame that
              animates above it, so the frosted plane is rasterized once per
-             open instead. -->
+             open instead. It crossfades in and out so the blur/unblur edge is
+             smooth without paying for a live effect. -->
         <Image x:Name="BackdropBlurImage"
                Stretch="Fill"
-               IsVisible="False" />
+               Opacity="0"
+               IsVisible="False">
+            <Image.Transitions>
+                <Transitions>
+                    <DoubleTransition Property="Opacity" Duration="0:0:0.26" />
+                </Transitions>
+            </Image.Transitions>
+        </Image>
 
         <Border x:Name="BackdropBorder"
                 Background="#000000"

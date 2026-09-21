@@ -145,6 +145,9 @@ public partial class ModalHost : UserControl
                 return;
             }
             BackdropBorder.Opacity = Presentation == ModalPresentation.MapPickerOverlay ? 0.2d : 0.6d;
+            // The frosted plane crossfades in with the backdrop: the blur edge
+            // becomes smooth without ever keeping a live effect attached.
+            BackdropBlurImage.Opacity = 1d;
             await Task.Delay(TimeSpan.FromMilliseconds(80), cancellationToken);
             if (version != _transitionVersion)
             {
@@ -170,6 +173,9 @@ public partial class ModalHost : UserControl
 
         DialogCard.Opacity = 0d;
         DialogCard.RenderTransform = GetClosedTransform();
+        // The frosted plane crossfades out while the card fades, so the unblur
+        // edge is smooth instead of a hard cut.
+        BackdropBlurImage.Opacity = 0d;
 
         try
         {
@@ -319,7 +325,15 @@ public partial class ModalHost : UserControl
         _backgroundSnapshot?.Dispose();
         _backgroundSnapshot = snapshot;
         BackdropBlurImage.Source = snapshot;
-        BackdropBlurImage.IsVisible = true;
+
+        // On the first capture the plane starts faded out; OpenAsync fades it in
+        // after the first frame so the blur crossfades with the backdrop. A
+        // re-capture while open (window resize) swaps the source without a fade.
+        if (!BackdropBlurImage.IsVisible)
+        {
+            BackdropBlurImage.Opacity = 0d;
+            BackdropBlurImage.IsVisible = true;
+        }
     }
 
     private static RenderTargetBitmap? CreateBlurredSnapshot(Visual target)
@@ -377,6 +391,7 @@ public partial class ModalHost : UserControl
 
         _previousBlurTargetVisibility = true;
         BackdropBlurImage.Source = null;
+        BackdropBlurImage.Opacity = 0d;
         BackdropBlurImage.IsVisible = false;
         _backgroundSnapshot?.Dispose();
         _backgroundSnapshot = null;

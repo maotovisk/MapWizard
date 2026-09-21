@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
@@ -56,8 +57,6 @@ public partial class BeatmapSourceCard : UserControl, IDisposable
         AvaloniaProperty.Register<BeatmapSourceCard, IBrush>(
             nameof(FallbackBackgroundBrush),
             new SolidColorBrush(Color.Parse("#141414")));
-
-    private string? fallbackPath;
 
     public string SourceLabel
     {
@@ -176,11 +175,37 @@ public partial class BeatmapSourceCard : UserControl, IDisposable
         FallbackDetailLabel = IsFallback
             ? $"mapped by {creator}"
             : string.Empty;
-        BackgroundImage = TryLoadBackground(firstPath, backgroundFilename);
-        HasBackgroundImage = BackgroundImage is not null;
-        FallbackBackgroundBrush = BackgroundImage is null
+
+        // The decoded preview arrives asynchronously; until then the card shows its
+        // default "no background" state (solid #141414 FallbackBackgroundBrush).
+        BeginLoadBackground(firstPath, backgroundFilename);
+    }
+
+    private string? fallbackPath;
+    private bool _isDisposed;
+
+    private void BeginLoadBackground(string beatmapPath, string? backgroundFilename)
+    {
+        _ = LoadBackgroundAsync(beatmapPath, backgroundFilename);
+    }
+
+    private async Task LoadBackgroundAsync(string beatmapPath, string? backgroundFilename)
+    {
+        var image = await Task.Run(() => TryLoadBackground(beatmapPath, backgroundFilename));
+
+        // The owner disposes on the UI thread — the same thread this continuation
+        // resumes on — so this check is race-free.
+        if (_isDisposed)
+        {
+            image?.Dispose();
+            return;
+        }
+
+        BackgroundImage = image;
+        HasBackgroundImage = image is not null;
+        FallbackBackgroundBrush = image is null
             ? new SolidColorBrush(Color.Parse("#141414"))
-            : new ImageBrush(BackgroundImage)
+            : new ImageBrush(image)
             {
                 Stretch = Stretch.UniformToFill,
                 AlignmentX = AlignmentX.Center,
@@ -190,7 +215,14 @@ public partial class BeatmapSourceCard : UserControl, IDisposable
 
     public void Dispose()
     {
+        if (_isDisposed)
+        {
+            return;
+        }
+
+        _isDisposed = true;
         BackgroundImage?.Dispose();
+        BackgroundImage = null;
     }
 
     private void DifficultyButton_OnClick(object? sender, RoutedEventArgs e)
