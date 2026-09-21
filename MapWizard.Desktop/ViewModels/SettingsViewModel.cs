@@ -60,6 +60,12 @@ public partial class SettingsViewModel(
     private bool _isSmoothWheelScrollingEnabled = true;
 
     [ObservableProperty]
+    private bool _blurModals = true;
+
+    [ObservableProperty]
+    private bool _reducedMotion;
+
+    [ObservableProperty]
     private int _audioPreviewSongVolumePercent = 80;
 
     [ObservableProperty]
@@ -254,6 +260,42 @@ public partial class SettingsViewModel(
         }
 
         settings.EnableSmoothWheelScrolling = value;
+        settingsService.SaveMainSettings(settings);
+    }
+
+    partial void OnBlurModalsChanged(bool value)
+    {
+        AppearanceSettings.BlurModals = value;
+        if (_isLoadingMainSettings)
+        {
+            return;
+        }
+
+        var settings = settingsService.GetMainSettings();
+        if (settings.BlurModals == value)
+        {
+            return;
+        }
+
+        settings.BlurModals = value;
+        settingsService.SaveMainSettings(settings);
+    }
+
+    partial void OnReducedMotionChanged(bool value)
+    {
+        AppearanceSettings.ReducedMotion = value;
+        if (_isLoadingMainSettings)
+        {
+            return;
+        }
+
+        var settings = settingsService.GetMainSettings();
+        if (settings.ReducedMotion == value)
+        {
+            return;
+        }
+
+        settings.ReducedMotion = value;
         settingsService.SaveMainSettings(settings);
     }
 
@@ -483,6 +525,8 @@ public partial class SettingsViewModel(
             var settings = settingsService.GetMainSettings();
             IsSmoothWheelScrollingEnabled = settings.EnableSmoothWheelScrolling;
             SmoothScrollViewer.SetGlobalSmoothScrollingEnabled(settings.EnableSmoothWheelScrolling);
+            BlurModals = settings.BlurModals;
+            ReducedMotion = settings.ReducedMotion;
             AudioPreviewSongVolumePercent = Math.Clamp(settings.AudioPreviewSongVolumePercent, 0, 100);
             AudioPreviewHitSoundVolumePercent = Math.Clamp(settings.AudioPreviewHitSoundVolumePercent, 0, 100);
         }

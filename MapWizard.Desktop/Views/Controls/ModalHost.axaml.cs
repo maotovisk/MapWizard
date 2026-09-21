@@ -2,12 +2,14 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Avalonia;
+using Avalonia.Animation;
+using Avalonia.Animation.Easings;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Media;
-using Avalonia.Media.Imaging;
 using Avalonia.Media.Transformation;
+using Avalonia.Styling;
 using MapWizard.Desktop.Services;
 
 namespace MapWizard.Desktop.Views.Controls;
@@ -21,16 +23,13 @@ public partial class ModalHost : UserControl
     private const double OverlayMinimumWidth = 460d;
     private const double OverlayMaximumWidth = 620d;
     private const double BackgroundBlurRadius = 10d;
-
-    // The frosted plane is frozen once per open instead of keeping a live
-    // BlurEffect on the shell: the live effect re-composites a full window-sized
-    // surface on every frame that animates above it, which measured ~10 MB of
-    // native memory per frame during the open transition and while scrolling,
-    // none of which is returned to the OS.
     private int _transitionVersion;
     private Visual? _blurredTarget;
-    private bool _previousBlurTargetVisibility = true;
-    private RenderTargetBitmap? _backgroundSnapshot;
+    private IEffect? _previousBackgroundEffect;
+    private Visual? _backgroundCacheTarget;
+    private CacheMode? _previousBackgroundCacheMode;
+    private CancellationTokenSource? _backgroundBlurAnimationCancellation;
+    private double _backgroundBlurRadius;
 
     public static readonly StyledProperty<bool> IsOpenProperty =
         AvaloniaProperty.Register<ModalHost, bool>(nameof(IsOpen));
@@ -134,6 +133,11 @@ public partial class ModalHost : UserControl
         IsVisible = true;
         IsOpen = true;
         PrepareBackgroundBlur();
+        var blurAnimation = AnimateBackgroundBlurAsync(
+            BackgroundBlurRadius,
+            TimeSpan.FromMilliseconds(260),
+            version,
+            cancellationToken);
 
         try
         {
@@ -145,9 +149,6 @@ public partial class ModalHost : UserControl
                 return;
             }
             BackdropBorder.Opacity = Presentation == ModalPresentation.MapPickerOverlay ? 0.2d : 0.6d;
-            // The frosted plane crossfades in with the backdrop: the blur edge
-            // becomes smooth without ever keeping a live effect attached.
-            BackdropBlurImage.Opacity = 1d;
             await Task.Delay(TimeSpan.FromMilliseconds(80), cancellationToken);
             if (version != _transitionVersion)
             {
@@ -156,6 +157,7 @@ public partial class ModalHost : UserControl
             DialogCard.Opacity = 1d;
             DialogCard.RenderTransform = GetOpenTransform();
             await Task.Delay(TimeSpan.FromMilliseconds(300), cancellationToken);
+            await blurAnimation;
         }
         catch (OperationCanceledException)
         {
@@ -165,23 +167,26 @@ public partial class ModalHost : UserControl
 
     public async Task CloseAsync(CancellationToken cancellationToken = default)
     {
-        _transitionVersion++;
+        var version = ++_transitionVersion;
         if (!IsOpen && !IsVisible)
         {
             return;
         }
 
+        var blurAnimation = AnimateBackgroundBlurAsync(
+            0d,
+            TimeSpan.FromMilliseconds(220),
+            version,
+            cancellationToken);
         DialogCard.Opacity = 0d;
         DialogCard.RenderTransform = GetClosedTransform();
-        // The frosted plane crossfades out while the card fades, so the unblur
-        // edge is smooth instead of a hard cut.
-        BackdropBlurImage.Opacity = 0d;
 
         try
         {
             await Task.Delay(TimeSpan.FromMilliseconds(180), cancellationToken);
             BackdropBorder.Opacity = 0d;
             await Task.Delay(TimeSpan.FromMilliseconds(180), cancellationToken);
+            await blurAnimation;
         }
         catch (OperationCanceledException)
         {
@@ -222,13 +227,6 @@ public partial class ModalHost : UserControl
 
     private void OnHostSizeChanged(object? sender, SizeChangedEventArgs e)
     {
-        if (IsOpen && _blurredTarget is not null &&
-            (Math.Abs(e.NewSize.Width - e.PreviousSize.Width) > 0.5d ||
-             Math.Abs(e.NewSize.Height - e.PreviousSize.Height) > 0.5d))
-        {
-            CaptureBackgroundSnapshot();
-        }
-
         if (Presentation == ModalPresentation.MapPickerOverlay &&
             Math.Abs(e.NewSize.Width - e.PreviousSize.Width) > 0.5d)
         {
@@ -291,18 +289,41 @@ public partial class ModalHost : UserControl
     private void PrepareBackgroundBlur()
     {
         var target = BackgroundBlurTarget;
-        if (target is null || target.Bounds.Width <= 0d || target.Bounds.Height <= 0d)
+        if (target is null || !AppearanceSettings.BlurModals)
+        {
+            // Dim-only: the dark backdrop still fades in, but no blur effect
+            // is attached to the shell.
+            return;
+        }
+
+        if (ReferenceEquals(target, _blurredTarget))
         {
             return;
         }
 
         ClearBackgroundBlur();
         _blurredTarget = target;
-        _previousBlurTargetVisibility = target.IsVisible;
-        CaptureBackgroundSnapshot();
+        _previousBackgroundEffect = target.Effect;
+        _backgroundBlurRadius = 0d;
+
+        // Cache the shell's content below the effect-bearing border. Caching
+        // the border itself would also cache the animated effect, making the
+        // transition appear to jump directly to its final frame.
+        if (target is Decorator { Child: { } child })
+        {
+            _backgroundCacheTarget = child;
+            _previousBackgroundCacheMode = child.CacheMode;
+            child.CacheMode ??= new BitmapCache();
+        }
+
+        target.Effect = new BlurEffect { Radius = 0d };
     }
 
-    private void CaptureBackgroundSnapshot()
+    private async Task AnimateBackgroundBlurAsync(
+        double targetRadius,
+        TimeSpan duration,
+        int version,
+        CancellationToken cancellationToken)
     {
         var target = _blurredTarget;
         if (target is null)
@@ -310,91 +331,102 @@ public partial class ModalHost : UserControl
             return;
         }
 
-        // The frozen copy replaces the live target while the modal is open, so
-        // the target has to be visible for the offscreen pass to draw anything.
-        target.IsVisible = true;
-        var snapshot = CreateBlurredSnapshot(target);
-        if (snapshot is null)
-        {
-            target.IsVisible = _previousBlurTargetVisibility;
-            _blurredTarget = null;
-            return;
-        }
+        // Reading before cancellation captures the currently animated effect,
+        // allowing a close that interrupts an open to reverse without a jump.
+        var startRadius = target.Effect is IBlurEffect blur
+            ? blur.Radius
+            : _backgroundBlurRadius;
 
-        target.IsVisible = false;
-        _backgroundSnapshot?.Dispose();
-        _backgroundSnapshot = snapshot;
-        BackdropBlurImage.Source = snapshot;
+        _backgroundBlurAnimationCancellation?.Cancel();
+        var animationCancellation = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+        _backgroundBlurAnimationCancellation = animationCancellation;
 
-        // On the first capture the plane starts faded out; OpenAsync fades it in
-        // after the first frame so the blur crossfades with the backdrop. A
-        // re-capture while open (window resize) swaps the source without a fade.
-        if (!BackdropBlurImage.IsVisible)
-        {
-            BackdropBlurImage.Opacity = 0d;
-            BackdropBlurImage.IsVisible = true;
-        }
-    }
+        // Keep the destination as the base value. When RunAsync removes its
+        // animation value, the rendered effect therefore remains at the end.
+        target.Effect = new BlurEffect { Radius = targetRadius };
 
-    private static RenderTargetBitmap? CreateBlurredSnapshot(Visual target)
-    {
         try
         {
-            var bounds = target.Bounds;
-            var size = new PixelSize(
-                Math.Max(1, (int)Math.Ceiling(bounds.Width)),
-                Math.Max(1, (int)Math.Ceiling(bounds.Height)));
+            await CreateBackgroundBlurAnimation(startRadius, targetRadius, duration)
+                .RunAsync(target, animationCancellation.Token);
 
-            // Both passes are 1:1 in logical pixels. Scaling the bitmap through the
-            // render target's DPI is not reliable here: an extended-client-area window
-            // renders the target unscaled into the smaller bitmap, which shows up as a
-            // magnified, cropped backdrop.
-            var frozen = new RenderTargetBitmap(size);
-            frozen.Render(target);
-
-            var blurred = new RenderTargetBitmap(size);
-            blurred.Render(CreateBlurLayer(frozen, bounds.Size));
-
-            frozen.Dispose();
-            return blurred;
+            if (version == _transitionVersion && ReferenceEquals(target, _blurredTarget))
+            {
+                _backgroundBlurRadius = targetRadius;
+                target.Effect = new BlurEffect { Radius = targetRadius };
+            }
         }
-        catch (Exception ex)
+        catch (OperationCanceledException)
         {
-            MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
-            return null;
+            // A replacement transition continues from the animated radius.
+        }
+        finally
+        {
+            if (ReferenceEquals(_backgroundBlurAnimationCancellation, animationCancellation))
+            {
+                _backgroundBlurAnimationCancellation = null;
+            }
+
+            animationCancellation.Dispose();
         }
     }
 
-    /// <summary>Lays a frozen copy of the shell out off-tree with the blur applied, ready to be rasterized.</summary>
-    private static Image CreateBlurLayer(IImage source, Size bounds)
+    private static Animation CreateBackgroundBlurAnimation(
+        double startRadius,
+        double endRadius,
+        TimeSpan duration)
     {
-        var layer = new Image
+        return new Animation
         {
-            Source = source,
-            Stretch = Stretch.Fill,
-            Width = bounds.Width,
-            Height = bounds.Height,
-            Effect = new BlurEffect { Radius = BackgroundBlurRadius }
+            Duration = duration,
+            Easing = new CubicEaseInOut(),
+            FillMode = FillMode.Forward,
+            Children =
+            {
+                new KeyFrame
+                {
+                    Cue = new Cue(0d),
+                    Setters =
+                    {
+                        new Setter(
+                            Visual.EffectProperty,
+                            new BlurEffect { Radius = startRadius }),
+                    },
+                },
+                new KeyFrame
+                {
+                    Cue = new Cue(1d),
+                    Setters =
+                    {
+                        new Setter(
+                            Visual.EffectProperty,
+                            new BlurEffect { Radius = endRadius }),
+                    },
+                },
+            },
         };
-        layer.Measure(bounds);
-        layer.Arrange(new Rect(bounds));
-        return layer;
     }
 
     private void ClearBackgroundBlur()
     {
+        _backgroundBlurAnimationCancellation?.Cancel();
+        _backgroundBlurAnimationCancellation = null;
+
         if (_blurredTarget is not null)
         {
-            _blurredTarget.IsVisible = _previousBlurTargetVisibility;
-            _blurredTarget = null;
+            _blurredTarget.Effect = _previousBackgroundEffect;
         }
 
-        _previousBlurTargetVisibility = true;
-        BackdropBlurImage.Source = null;
-        BackdropBlurImage.Opacity = 0d;
-        BackdropBlurImage.IsVisible = false;
-        _backgroundSnapshot?.Dispose();
-        _backgroundSnapshot = null;
+        if (_backgroundCacheTarget is not null)
+        {
+            _backgroundCacheTarget.CacheMode = _previousBackgroundCacheMode;
+        }
+
+        _blurredTarget = null;
+        _previousBackgroundEffect = null;
+        _backgroundCacheTarget = null;
+        _previousBackgroundCacheMode = null;
+        _backgroundBlurRadius = 0d;
     }
 
     private void BackdropBorder_OnPointerPressed(object? sender, PointerPressedEventArgs e)

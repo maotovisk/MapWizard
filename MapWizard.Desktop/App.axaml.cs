@@ -32,6 +32,7 @@ public partial class App : Application
         var settings = _services.GetRequiredService<ISettingsService>().GetMainSettings();
         RequestedThemeVariant = ThemeService.ToThemeVariant(settings.ThemeMode);
         SmoothScrollViewer.SetGlobalSmoothScrollingEnabled(settings.EnableSmoothWheelScrolling);
+        AppearanceSettings.LoadFrom(settings);
 
         AvaloniaXamlLoader.Load(this);
         _services.GetRequiredService<IThemeService>().Initialize();

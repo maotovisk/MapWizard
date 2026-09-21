@@ -53,6 +53,9 @@ public class SongSelectVirtualizedList : Panel
     public static readonly StyledProperty<Control?> HeaderContentProperty =
         AvaloniaProperty.Register<SongSelectVirtualizedList, Control?>(nameof(HeaderContent));
 
+    public static readonly StyledProperty<int> KeyboardFocusIndexProperty =
+        AvaloniaProperty.Register<SongSelectVirtualizedList, int>(nameof(KeyboardFocusIndex), -1);
+
     /// <summary>Measured height of a collapsed mapset card.</summary>
     private const double CollapsedItemHeight = 96d;
 
@@ -93,6 +96,7 @@ public class SongSelectVirtualizedList : Panel
         AffectsMeasure<SongSelectVirtualizedList>(HeaderContentProperty);
         ItemsSourceProperty.Changed.AddClassHandler<SongSelectVirtualizedList>((panel, _) => panel.OnItemsSourceChanged());
         HeaderContentProperty.Changed.AddClassHandler<SongSelectVirtualizedList>((panel, e) => panel.OnHeaderContentChanged(e));
+        KeyboardFocusIndexProperty.Changed.AddClassHandler<SongSelectVirtualizedList>((panel, _) => panel.UpdateKeyboardFocusVisuals());
     }
 
     public SongSelectVirtualizedList()
@@ -113,6 +117,17 @@ public class SongSelectVirtualizedList : Panel
     {
         get => GetValue(HeaderContentProperty);
         set => SetValue(HeaderContentProperty, value);
+    }
+
+    /// <summary>
+    /// Index of the mapset card highlighted for keyboard navigation, or −1 when
+    /// none. The highlight is applied to realized containers here so the visual
+    /// state survives container pooling (a reused container never keeps it).
+    /// </summary>
+    public int KeyboardFocusIndex
+    {
+        get => GetValue(KeyboardFocusIndexProperty);
+        set => SetValue(KeyboardFocusIndexProperty, value);
     }
 
     /// <summary>The scroller hosting this panel; used to compensate for height
@@ -141,6 +156,7 @@ public class SongSelectVirtualizedList : Panel
 
     private void OnItemsSourceChanged()
     {
+        KeyboardFocusIndex = -1;
         DetachItemObservation();
         UnrealizeAll(returnToPool: true);
         _itemHeights.Clear();
@@ -242,6 +258,7 @@ public class SongSelectVirtualizedList : Panel
                 break;
             default:
                 // Resets and structural changes: rebuild bookkeeping wholesale.
+                KeyboardFocusIndex = -1;
                 DetachItemObservation();
                 UnrealizeAll(returnToPool: true);
                 _itemHeights.Clear();
@@ -415,6 +432,7 @@ public class SongSelectVirtualizedList : Panel
 
         var container = _containerPool.Count > 0 ? _containerPool.Pop() : new SongMapsetCard();
         container.DataContext = item;
+        container.Classes.Set("kbd-focus", index == KeyboardFocusIndex);
         _realizedByIndex[index] = container;
         _indexByContainer[container] = index;
         Children.Add(container);
@@ -430,6 +448,7 @@ public class SongSelectVirtualizedList : Panel
 
         _indexByContainer.Remove(container);
         container.DataContext = null;
+        container.Classes.Set("kbd-focus", false);
         Children.Remove(container);
         _containerPool.Push(container);
     }
@@ -440,6 +459,7 @@ public class SongSelectVirtualizedList : Panel
         {
             _indexByContainer.Remove(container);
             container.DataContext = null;
+            container.Classes.Set("kbd-focus", false);
             Children.Remove(container);
             if (returnToPool)
             {
@@ -542,9 +562,52 @@ public class SongSelectVirtualizedList : Panel
         return -1;
     }
 
-    public int GetIndexForItem(SongMapsetCardViewModel item)
+    /// <summary>The realized container for an item index, or null when unrealized.</summary>
+    public Control? GetRealizedContainer(int index)
     {
-        if (ItemsSource is not { } items)
+        return _realizedByIndex.TryGetValue(index, out var container) ? container : null;
+    }
+
+    /// <summary>Scrolls the item into view with a short glide if it sits outside the viewport.</summary>
+    public void EnsureItemVisible(int index)
+    {
+        if (index < 0 || index >= _itemHeights.Count || _viewportHeight <= 0d)
+        {
+            return;
+        }
+
+        var top = GetItemExtentTop(index);
+        var bottom = top + _itemHeights[index];
+        var viewportBottom = _offsetY + _viewportHeight;
+
+        double target;
+        if (top < _offsetY)
+        {
+            target = top;
+        }
+        else if (bottom > viewportBottom)
+        {
+            target = bottom - _viewportHeight;
+        }
+        else
+        {
+            return;
+        }
+
+        BeginScrollToOffset(Math.Max(0d, target), TimeSpan.FromMilliseconds(140));
+    }
+
+    private void UpdateKeyboardFocusVisuals()
+    {
+        var focusIndex = KeyboardFocusIndex;
+        foreach (var (index, container) in _realizedByIndex)
+        {
+            container.Classes.Set("kbd-focus", index == focusIndex);
+        }
+    }
+
+    public int GetIndexForItem(SongMapsetCardViewModel item)
+    {        if (ItemsSource is not { } items)
         {
             return -1;
         }
