@@ -25,6 +25,13 @@ public partial class HitSoundVisualizerView : UserControl
             if (DataContext is HitSoundVisualizerViewModel vm)
             {
                 vm.RefreshPersistedPlaybackVolumes();
+                // Re-bind on every attach. Detaching (page warm-up, navigating
+                // away) runs BindViewModel(null) and drops the VM event
+                // subscriptions; re-entering the page does not raise
+                // DataContextChanged because the page VM is a singleton, so the
+                // subscriptions must be restored here or row flashes and
+                // playback focus silently stop working.
+                BindViewModel(vm);
             }
         };
         DetachedFromVisualTree += (_, _) => BindViewModel(null);
