@@ -128,7 +128,7 @@
                                   HorizontalAlignment="Stretch">
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
-                                <StackPanel HorizontalAlignment="Stretch" />
+                                <VirtualizingStackPanel Orientation="Vertical" HorizontalAlignment="Stretch" />
                             </ItemsPanelTemplate>
                         </ItemsControl.ItemsPanel>
                         <ItemsControl.ItemTemplate>
