@@ -10,31 +10,33 @@ public class PaletteContrastTests
 {
     public static IEnumerable<object[]> AllPalettes()
     {
-        yield return [false, true];
-        yield return [false, false];
-        yield return [true, true];
-        yield return [true, false];
+        yield return [MapWizardPalette.Noir, true];
+        yield return [MapWizardPalette.Noir, false];
+        yield return [MapWizardPalette.Classic, true];
+        yield return [MapWizardPalette.Classic, false];
+        yield return [MapWizardPalette.Gruvbox, true];
+        yield return [MapWizardPalette.Gruvbox, false];
     }
 
     [Theory]
     [MemberData(nameof(AllPalettes))]
-    public void Tooltip_text_contrasts_with_tooltip_background(bool useClassicPalette, bool isDark)
+    public void Tooltip_text_contrasts_with_tooltip_background(MapWizardPalette palette, bool isDark)
     {
-        var resources = MapWizardPaletteCatalog.GetResources(useClassicPalette, isDark);
+        var resources = MapWizardPaletteCatalog.GetResources(palette, isDark);
         var background = GetColor(resources, "MapWizardTooltipBackground");
         var text = GetColor(resources, "MapWizardTooltipText");
 
         Assert.True(
             ContrastRatio(background, text) >= 4.5,
             $"Tooltip contrast {ContrastRatio(background, text):F2} is too low for " +
-            $"(classic: {useClassicPalette}, dark: {isDark}).");
+            $"({palette}, dark: {isDark}).");
     }
 
     [Theory]
     [MemberData(nameof(AllPalettes))]
-    public void Accent_foreground_contrasts_with_accent_button_states(bool useClassicPalette, bool isDark)
+    public void Accent_foreground_contrasts_with_accent_button_states(MapWizardPalette palette, bool isDark)
     {
-        var resources = MapWizardPaletteCatalog.GetResources(useClassicPalette, isDark);
+        var resources = MapWizardPaletteCatalog.GetResources(palette, isDark);
         var foreground = GetColor(resources, "MapWizardAccentForeground");
 
         foreach (var key in new[] { "MapWizardAccent", "MapWizardAccentHover", "MapWizardAccentPressed" })
@@ -43,7 +45,7 @@ public class PaletteContrastTests
             Assert.True(
                 ContrastRatio(background, foreground) >= 3.0,
                 $"{key} contrast {ContrastRatio(background, foreground):F2} is too low for " +
-                $"(classic: {useClassicPalette}, dark: {isDark}).");
+                $"({palette}, dark: {isDark}).");
         }
     }
 

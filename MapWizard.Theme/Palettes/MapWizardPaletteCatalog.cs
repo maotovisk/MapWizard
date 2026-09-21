@@ -9,13 +9,15 @@ namespace MapWizard.Theme.Palettes;
 /// </summary>
 public static class MapWizardPaletteCatalog
 {
-    public static IReadOnlyDictionary<string, object> GetResources(bool useClassicPalette, bool isDark)
+    public static IReadOnlyDictionary<string, object> GetResources(MapWizardPalette palette, bool isDark)
     {
-        return (useClassicPalette, isDark) switch
+        return (palette, isDark) switch
         {
-            (true, true) => CreateClassicDark(),
-            (true, false) => CreateClassicLight(),
-            (false, true) => CreateNoirDark(),
+            (MapWizardPalette.Classic, true) => CreateClassicDark(),
+            (MapWizardPalette.Classic, false) => CreateClassicLight(),
+            (MapWizardPalette.Gruvbox, true) => CreateGruvboxDark(),
+            (MapWizardPalette.Gruvbox, false) => CreateGruvboxLight(),
+            (_, true) => CreateNoirDark(),
             _ => CreateNoirLight()
         };
     }
@@ -97,6 +99,46 @@ public static class MapWizardPaletteCatalog
             actionPressed: "#33483D8B", hintBackground: "#66FF4500", hintIcon: "#7B2100",
             hintText: "#3D1608", checkIcon: "#483D8B", noticeBackground: "#26FF4500",
             noticeBorder: "#99C83A00", noticeAccent: "#9B2B00");
+        return resources;
+    }
+
+    private static Dictionary<string, object> CreateGruvboxDark()
+    {
+        var resources = CreateBase(
+            window: "#1D2021", card: "#282828", surface: "#F2282828", surfaceOpaque: "#282828",
+            popup: "#3C3836", control: "#3C3836", hover: "#504945", pressed: "#665C54",
+            border: "#504945", controlBorder: "#665C54", text: "#EBDBB2", secondary: "#A89984",
+            muted: "#928374", disabled: "#7C6F64", accent: "#B8BB26", accentHover: "#C9CC3F",
+            accentPressed: "#98971A", accentForeground: "#1D2021");
+
+        AddFeatureColors(resources,
+            diff: "#282828", diffHover: "#3C3836", tooltip: "#3C3836", tooltipText: "#EBDBB2",
+            pickerSurface: "#1F1D2021", pickerDetail: "#241D2021", pickerChip: "#1F282828",
+            pickerChipHover: "#33504945", pickerChipBorder: "#33928374", pickerChipHoverBorder: "#59A89984",
+            selectedBackground: "#4DB8BB26", selectedBorder: "#B8BB26", actionHover: "#1FB8BB26",
+            actionPressed: "#33B8BB26", hintBackground: "#338EC07C", hintIcon: "#C9E8B8",
+            hintText: "#F0F7E8", checkIcon: "#B8D8A8", noticeBackground: "#1FFABD2F",
+            noticeBorder: "#73FABD2F", noticeAccent: "#FABD2F");
+        return resources;
+    }
+
+    private static Dictionary<string, object> CreateGruvboxLight()
+    {
+        var resources = CreateBase(
+            window: "#F2E5BC", card: "#FBF1C7", surface: "#F2FBF1C7", surfaceOpaque: "#FBF1C7",
+            popup: "#FBF1C7", control: "#EBDBB2", hover: "#E4D5AF", pressed: "#D5C4A1",
+            border: "#D5C4A1", controlBorder: "#BDAE93", text: "#3C3836", secondary: "#665C54",
+            muted: "#7C6F64", disabled: "#928374", accent: "#98971A", accentHover: "#878B18",
+            accentPressed: "#79740E", accentForeground: "#282828");
+
+        AddFeatureColors(resources,
+            diff: "#F2E5BC", diffHover: "#E7D8B0", tooltip: "#EBDBB2", tooltipText: "#3C3836",
+            pickerSurface: "#F4EDD8", pickerDetail: "#ECE2C4", pickerChip: "#FDF6E3",
+            pickerChipHover: "#F1E7CB", pickerChipBorder: "#D5C4A1", pickerChipHoverBorder: "#A89984",
+            selectedBackground: "#3398971A", selectedBorder: "#98971A", actionHover: "#1F98971A",
+            actionPressed: "#3398971A", hintBackground: "#6698971A", hintIcon: "#79740E",
+            hintText: "#3C3836", checkIcon: "#79740E", noticeBackground: "#26D79921",
+            noticeBorder: "#99B57614", noticeAccent: "#AF3A03");
         return resources;
     }
 

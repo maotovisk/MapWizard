@@ -160,7 +160,18 @@ public partial class SettingsViewModel(
             Avalonia.Media.Color.Parse("#F7F6FC"),
             Avalonia.Media.Color.Parse("#FFFFFF"),
             Avalonia.Media.Color.Parse("#483D8B"),
-            Avalonia.Media.Color.Parse("#272337"))
+            Avalonia.Media.Color.Parse("#272337")),
+        new(
+            ThemePalette.Gruvbox,
+            "Gruvbox",
+            Avalonia.Media.Color.Parse("#1D2021"),
+            Avalonia.Media.Color.Parse("#282828"),
+            Avalonia.Media.Color.Parse("#B8BB26"),
+            Avalonia.Media.Color.Parse("#EBDBB2"),
+            Avalonia.Media.Color.Parse("#F2E5BC"),
+            Avalonia.Media.Color.Parse("#FBF1C7"),
+            Avalonia.Media.Color.Parse("#98971A"),
+            Avalonia.Media.Color.Parse("#3C3836"))
     ];
 
     public void Initialize()
