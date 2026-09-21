@@ -43,6 +43,14 @@
     </UserControl.Styles>
 
     <Panel>
+        <!-- Frozen, pre-blurred copy of the shell. A live BlurEffect over the
+             shell is re-composited (and re-allocated) on every frame that
+             animates above it, so the frosted plane is rasterized once per
+             open instead. -->
+        <Image x:Name="BackdropBlurImage"
+               Stretch="Fill"
+               IsVisible="False" />
+
         <Border x:Name="BackdropBorder"
                 Background="#000000"
                 Opacity="0">
