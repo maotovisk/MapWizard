@@ -1027,7 +1027,7 @@ public partial class SongMapsetCardViewModel : ObservableObject, IDisposable
                 return null;
             }
 
-            return ArtworkBitmapUtils.DecodePreview(fullPath, 480);
+            return BitmapStorageHandler.Shared.Load(fullPath);
         }
         catch (Exception ex)
         {
