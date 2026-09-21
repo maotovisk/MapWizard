@@ -114,9 +114,7 @@ public sealed class ThemeService(ISettingsService settingsService) : IThemeServi
             return;
         }
 
-        var paletteResources = MapWizardPaletteCatalog.GetResources(
-            palette == ThemePalette.MapWizardClassic,
-            isDark);
+        var paletteResources = MapWizardPaletteCatalog.GetResources(ToCatalogPalette(palette), isDark);
         var variant = isDark ? ThemeVariant.Dark : ThemeVariant.Light;
         ApplyVariantResources(appResources, variant, paletteResources);
 
@@ -198,4 +196,11 @@ public sealed class ThemeService(ISettingsService settingsService) : IThemeServi
 
     private static ThemePalette NormalizePalette(ThemePalette palette) =>
         Enum.IsDefined(palette) ? palette : ThemePalette.MapWizardNoir;
+
+    private static MapWizardPalette ToCatalogPalette(ThemePalette palette) => palette switch
+    {
+        ThemePalette.MapWizardClassic => MapWizardPalette.Classic,
+        ThemePalette.Gruvbox => MapWizardPalette.Gruvbox,
+        _ => MapWizardPalette.Noir
+    };
 }

@@ -107,38 +107,28 @@
         </Border>
 
         <theme:BusyArea Grid.Row="1" BusyText="Searching songs..." IsBusy="{Binding ShowBusyBox}">
-            <appControls:SmoothScrollViewer x:Name="MapsetScrollViewer"
-                                            ScrollChanged="MapsetScrollViewer_OnScrollChanged"
-                                            HorizontalScrollBarVisibility="Disabled">
-                <StackPanel HorizontalAlignment="Stretch"
-                            Margin="0,2,4,0">
-                    <Border IsVisible="{Binding HasMountedLazerMapset}">
-                        <dialogs:SongMapsetCard DataContext="{Binding MountedLazerMapset}" />
-                    </Border>
+            <Grid>
+                <Border Classes="StatusPill"
+                        Margin="2"
+                        VerticalAlignment="Top"
+                        IsVisible="{Binding ShowEmptyState}">
+                    <TextBlock Text="{Binding StatusMessage}"
+                               FontWeight="SemiBold" />
+                </Border>
 
-                    <Border Classes="StatusPill"
-                            Margin="2"
-                            IsVisible="{Binding ShowEmptyState}">
-                        <TextBlock Text="{Binding StatusMessage}"
-                                   FontWeight="SemiBold" />
-                    </Border>
-
-                    <ItemsControl x:Name="MapsetItemsControl"
-                                  ItemsSource="{Binding VisibleMapsets}"
-                                  HorizontalAlignment="Stretch">
-                        <ItemsControl.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <StackPanel HorizontalAlignment="Stretch" />
-                            </ItemsPanelTemplate>
-                        </ItemsControl.ItemsPanel>
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate x:DataType="vm:SongMapsetCardViewModel">
-                                <dialogs:SongMapsetCard />
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-                </StackPanel>
-            </appControls:SmoothScrollViewer>
+                <appControls:SmoothScrollViewer x:Name="MapsetScrollViewer"
+                                                ScrollChanged="MapsetScrollViewer_OnScrollChanged"
+                                                HorizontalScrollBarVisibility="Disabled">
+                    <appControls:SongSelectVirtualizedList x:Name="MapsetList"
+                                                          ItemsSource="{Binding VisibleMapsets}">
+                        <appControls:SongSelectVirtualizedList.HeaderContent>
+                            <Border IsVisible="{Binding HasMountedLazerMapset}">
+                                <dialogs:SongMapsetCard DataContext="{Binding MountedLazerMapset}" />
+                            </Border>
+                        </appControls:SongSelectVirtualizedList.HeaderContent>
+                    </appControls:SongSelectVirtualizedList>
+                </appControls:SmoothScrollViewer>
+            </Grid>
         </theme:BusyArea>
 
     </Grid>

@@ -389,7 +389,8 @@
             <Border Classes="ContentIslandCard"
                     Classes.no-card="{Binding IsWelcomeSelected}" />
             <Border Classes="ContentIsland">
-                <TransitioningContentControl Content="{Binding CurrentPageViewModel}">
+                <TransitioningContentControl x:Name="PageTransitionControl"
+                                             Content="{Binding CurrentPageViewModel}">
                     <TransitioningContentControl.PageTransition>
                         <transitions:ScaleFadeTransition InDuration="0:0:0.3" OutDuration="0:0:0.16" />
                     </TransitioningContentControl.PageTransition>

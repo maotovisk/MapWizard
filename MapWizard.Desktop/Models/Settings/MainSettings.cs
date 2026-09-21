@@ -11,6 +11,12 @@ public class MainSettings
     [Setting("Appearance", "EnableSmoothWheelScrolling")]
     public bool EnableSmoothWheelScrolling { get; set; } = true;
 
+    [Setting("Appearance", "BlurModals")]
+    public bool BlurModals { get; set; } = true;
+
+    [Setting("Appearance", "ReducedMotion")]
+    public bool ReducedMotion { get; set; } = false;
+
     [Setting("General", "SongsPath")]
     public string SongsPath { get; set; } = string.Empty;
 

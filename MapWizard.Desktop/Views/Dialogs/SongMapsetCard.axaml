@@ -114,6 +114,12 @@
             <Setter Property="Opacity" Value="0.08" />
         </Style>
 
+        <!-- Keyboard navigation highlight: the picker's virtualized list tags the
+             focused card's container with the kbd-focus class. -->
+        <Style Selector=".kbd-focus Border.CardRoot">
+            <Setter Property="BorderBrush" Value="{DynamicResource MapWizardAccentBrush}" />
+        </Style>
+
         <Style Selector="theme|AnimatedHeightBorder.DetailsPanel">
             <Setter Property="Background" Value="{DynamicResource MapWizardPickerDetail}" />
             <Setter Property="Padding" Value="14,12,14,8" />

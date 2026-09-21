@@ -335,7 +335,13 @@ public partial class MetadataManagerViewModel(
     [RelayCommand]
     private void ClearSelection()
     {
+        OriginBeatmap?.Dispose();
         OriginBeatmap = new SelectedMap();
+        foreach (var beatmap in DestinationBeatmaps)
+        {
+            beatmap.Dispose();
+        }
+
         DestinationBeatmaps = [];
         HasMultiple = false;
         PreferredDirectory = string.Empty;

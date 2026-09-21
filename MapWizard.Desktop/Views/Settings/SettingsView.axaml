@@ -244,6 +244,26 @@
                                 <ToggleSwitch Grid.Column="1"
                                               IsChecked="{Binding IsSmoothWheelScrollingEnabled, Mode=TwoWay}" />
                             </Grid>
+                            <Grid ColumnDefinitions="*,Auto" VerticalAlignment="Center">
+                                <StackPanel Spacing="4">
+                                    <TextBlock Text="Blur Modals" FontWeight="Bold" />
+                                    <TextBlock Text="Blur the background behind modal dialogs. When off, modals use a plain dim backdrop."
+                                               TextWrapping="Wrap" />
+                                </StackPanel>
+                                <ToggleSwitch Grid.Column="1"
+                                              VerticalAlignment="Center"
+                                              IsChecked="{Binding BlurModals, Mode=TwoWay}" />
+                            </Grid>
+                            <Grid ColumnDefinitions="*,Auto" VerticalAlignment="Center">
+                                <StackPanel Spacing="4">
+                                    <TextBlock Text="Reduced Motion" FontWeight="Bold" />
+                                    <TextBlock Text="Replace the page transitions with a simple fade."
+                                               TextWrapping="Wrap" />
+                                </StackPanel>
+                                <ToggleSwitch Grid.Column="1"
+                                              VerticalAlignment="Center"
+                                              IsChecked="{Binding ReducedMotion, Mode=TwoWay}" />
+                            </Grid>
                         </StackPanel>
                     </theme:SectionGroup>
 

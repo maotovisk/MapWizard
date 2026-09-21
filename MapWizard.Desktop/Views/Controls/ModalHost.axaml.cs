@@ -289,8 +289,10 @@ public partial class ModalHost : UserControl
     private void PrepareBackgroundBlur()
     {
         var target = BackgroundBlurTarget;
-        if (target is null)
+        if (target is null || !AppearanceSettings.BlurModals)
         {
+            // Dim-only: the dark backdrop still fades in, but no blur effect
+            // is attached to the shell.
             return;
         }
 

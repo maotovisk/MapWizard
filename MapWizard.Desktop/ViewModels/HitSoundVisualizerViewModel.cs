@@ -45,6 +45,7 @@ public partial class HitSoundVisualizerViewModel(
     private const int PlaybackDebugInfoUpdateIntervalMs = 250;
     private const int CursorColumnToleranceMs = 2;
     private const int HitsoundDebugActiveWindowMs = 200;
+    private const int MaxHistoryStates = 100;
     private readonly string[] _sampleExtensions = [".wav", ".ogg", ".mp3"];
     private readonly ConcurrentDictionary<string, string> _resolvedPlaybackSamplePathCache =
         new(StringComparer.OrdinalIgnoreCase);
@@ -1721,10 +1722,12 @@ public partial class HitSoundVisualizerViewModel(
         if (!RestoreHistoryState(targetState))
         {
             _undoStack.Push(targetState);
+            TrimHistoryStacks();
             return;
         }
 
         _redoStack.Push(currentState);
+        TrimHistoryStacks();
     }
 
     [RelayCommand]
@@ -1740,10 +1743,38 @@ public partial class HitSoundVisualizerViewModel(
         if (!RestoreHistoryState(targetState))
         {
             _redoStack.Push(targetState);
+            TrimHistoryStacks();
             return;
         }
 
         _undoStack.Push(currentState);
+        TrimHistoryStacks();
+    }
+
+    private void TrimHistoryStacks()
+    {
+        TrimHistoryStack(_undoStack);
+        TrimHistoryStack(_redoStack);
+    }
+
+    /// <summary>
+    /// Caps the number of retained history snapshots so long editing sessions cannot
+    /// grow the undo/redo stacks without limit. The newest entries are kept.
+    /// </summary>
+    private static void TrimHistoryStack(Stack<TimelineHistoryState> stack)
+    {
+        if (stack.Count <= MaxHistoryStates)
+        {
+            return;
+        }
+
+        // Stack enumeration is newest-first; keep the newest entries in order.
+        var retained = stack.ToArray();
+        stack.Clear();
+        for (var index = Math.Min(retained.Length, MaxHistoryStates) - 1; index >= 0; index--)
+        {
+            stack.Push(retained[index]);
+        }
     }
 
     private void StartPlaybackAt(int startTimeMs)
@@ -2139,6 +2170,7 @@ public partial class HitSoundVisualizerViewModel(
         }
 
         _undoStack.Push(before);
+        TrimHistoryStacks();
         _redoStack.Clear();
     }
 

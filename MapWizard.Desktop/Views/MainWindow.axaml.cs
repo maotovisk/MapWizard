@@ -1,10 +1,12 @@
 using System;
 using Avalonia;
+using Avalonia.Animation;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Media;
 using MapWizard.Desktop.Services;
+using MapWizard.Desktop.Transitions;
 using MapWizard.Desktop.ViewModels;
 using MapWizard.Theme.Controls;
 
@@ -13,6 +15,8 @@ namespace MapWizard.Desktop.Views
     public partial class MainWindow : MapWizardWindow
     {
         private readonly IModalService _modalService;
+        private readonly IPageTransition _reducedMotionPageTransition = new FadeTransition();
+        private IPageTransition? _fullMotionPageTransition;
 
         public MainWindow(
             MainWindowViewModel viewModel,
@@ -25,6 +29,8 @@ namespace MapWizard.Desktop.Views
             NotificationHost.NotificationService = notificationService;
             DataContext = viewModel;
             ApplyPlatformWindowChrome();
+            UpdatePageTransition();
+            AppearanceSettings.Changed += OnAppearanceSettingsChanged;
             PropertyChanged += (_, args) =>
             {
                 if (args.Property == WindowStateProperty)
@@ -80,8 +86,7 @@ namespace MapWizard.Desktop.Views
             TitleIsland.Padding = new Thickness(64, 0);
         }
 
-        private void UpdateShellCorners()
-        {
+        private void UpdateShellCorners()        {
             if (OperatingSystem.IsWindows())
             {
                 WindowShell.CornerRadius = default;
@@ -101,6 +106,20 @@ namespace MapWizard.Desktop.Views
             RestoreIcon.IsVisible = maximized;
             RestoreFront.IsVisible = maximized;
         }
+
+        /// <summary>
+        /// Swaps the page transition for the simple fade when Reduced Motion is
+        /// enabled. The XAML-declared transition is kept as the full-motion one.
+        /// </summary>
+        private void UpdatePageTransition()
+        {
+            _fullMotionPageTransition ??= PageTransitionControl.PageTransition;
+            PageTransitionControl.PageTransition = AppearanceSettings.ReducedMotion
+                ? _reducedMotionPageTransition
+                : _fullMotionPageTransition;
+        }
+
+        private void OnAppearanceSettingsChanged(object? sender, EventArgs e) => UpdatePageTransition();
 
         private void MinimizeButton_OnClick(object? sender, RoutedEventArgs e) => MinimizeWindow();
 

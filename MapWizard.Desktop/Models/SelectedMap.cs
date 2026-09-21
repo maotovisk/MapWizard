@@ -146,4 +146,13 @@ public class SelectedMap : ObservableObject
         OnPropertyChanged(nameof(HasBackgroundImage));
         previous?.Dispose();
     }
+
+    /// <summary>
+    /// Releases the decoded background bitmap immediately instead of waiting for the
+    /// finalizer. Call when the entry is removed from a beatmap panel collection.
+    /// </summary>
+    public void Dispose()
+    {
+        BackgroundImage = null;
+    }
 }
