@@ -322,6 +322,7 @@ public partial class MapCleanerViewModel(
             songLibraryService,
             filesService,
             lazerLookupService,
+            osuMemoryReaderService,
             settingsService,
             "Map Cleaner",
             allowMultiple,

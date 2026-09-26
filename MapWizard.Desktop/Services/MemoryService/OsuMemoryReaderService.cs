@@ -1,46 +1,67 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.Versioning;
+using System.Threading;
 using MapWizard.Desktop.Enums;
 using MapWizard.Desktop.Models;
 using MapWizard.Desktop.Utils;
 using OsuMemoryDataProvider;
 using OsuMemoryDataProvider.OsuMemoryModels.Direct;
-using OsuWineMemReader;
+using ProcessMemoryDataFinder;
 
 namespace MapWizard.Desktop.Services.MemoryService;
 
 public class OsuMemoryReaderService(ISettingsService settingsService, ISongLibraryService songLibraryService)
     : IOsuMemoryReaderService
 {
-    [SupportedOSPlatform("windows")]
-    [SupportedOSPlatform("linux")]
+    /// <summary>
+    /// How long to wait for the reader's background process watcher to attach on first use.
+    /// </summary>
+    private static readonly TimeSpan AttachTimeout = TimeSpan.FromSeconds(2);
+
+    /// <summary>
+    /// The structured reader is a shared instance; background polling and user actions must not
+    /// read through it concurrently.
+    /// </summary>
+    private static readonly Lock ReaderLock = new();
+
+    /// <summary>
+    /// Under Wine there is no <c>kernel32</c> to query process bitness, so the check is skipped (the
+    /// default options would throw inside the reader's process watcher).
+    /// </summary>
+    private static ProcessTargetOptions StableProcessTarget { get; } = OperatingSystem.IsWindows()
+        ? new ProcessTargetOptions(OsuStableInstallLocator.ProcessName)
+        : new ProcessTargetOptions(OsuStableInstallLocator.ProcessName, Target64Bit: null);
+
     public Result<string> GetBeatmapPath()
     {
-        if (!OperatingSystem.IsLinux() && !OperatingSystem.IsWindows())
+        if (!OperatingSystem.IsWindows() && !OperatingSystem.IsLinux())
         {
-            return new Result<string>()
-            {
-                Value = null,
-                Status = ResultStatus.Error,
-                ErrorMessage = "This feature is not yet supported on your operating system."
-            };
+            return Error<string>("This feature is not yet supported on your operating system.");
         }
 
-        return OperatingSystem.IsWindows() ? GetBeatmapWindows() : GetBeatmapLinux();
+        var memoryResult = GetBeatmapFromMemory();
+        if (memoryResult.Status == ResultStatus.Success && !string.IsNullOrWhiteSpace(memoryResult.Value))
+        {
+            return memoryResult;
+        }
+
+        var fallbackIpcResult = GetBeatmapFromFallbackIpc();
+        if (fallbackIpcResult.Status == ResultStatus.Success && !string.IsNullOrWhiteSpace(fallbackIpcResult.Value))
+        {
+            return fallbackIpcResult;
+        }
+
+        return Error<string>("Memory read failed and fallback IPC path could not be resolved.");
     }
 
     public Result<int> GetCurrentTimestamp()
     {
         if (!OperatingSystem.IsWindows() && !OperatingSystem.IsLinux())
         {
-            return new Result<int>
-            {
-                Value = 0,
-                Status = ResultStatus.Error,
-                ErrorMessage = "Timestamp reading is currently supported only on Windows and Linux."
-            };
+            return Error<int>("Timestamp reading is currently supported only on Windows and Linux.");
         }
 
         if (FallbackClientIpc.TryReadEditorTime(out var timestamp, out var ipcError))
@@ -53,309 +74,143 @@ public class OsuMemoryReaderService(ISettingsService settingsService, ISongLibra
             };
         }
 
-        return new Result<int>
-        {
-            Value = 0,
-            Status = ResultStatus.Error,
-            ErrorMessage = $"Unable to read current timestamp from fallback IPC. {ipcError}"
-        };
+        return Error<int>($"Unable to read current timestamp from fallback IPC. {ipcError}");
     }
 
-    [SupportedOSPlatform("linux")]
-    private static Result<string> GetBeatmapLinux()
+    private Result<string> GetBeatmapFromMemory()
     {
-        var memoryResult = GetBeatmapLinuxFromMemory();
-        if (memoryResult.Status == ResultStatus.Success && !string.IsNullOrWhiteSpace(memoryResult.Value))
-        {
-            return memoryResult;
-        }
-        
-        var fallbackIpcResult = GetBeatmapLinuxFromFallbackIpc();
-        if (fallbackIpcResult.Status == ResultStatus.Success && !string.IsNullOrWhiteSpace(fallbackIpcResult.Value))
-        {
-            return fallbackIpcResult;
-        }
-
-        return new Result<string>
-        {
-            Value = null,
-            Status = ResultStatus.Error,
-            ErrorMessage = $"Memory read failed and fallback IPC path could not be resolved."
-        };
-    }
-
-    private static Result<string> GetBeatmapLinuxFromMemory()
-    {
-        var options = new OsuMemory.OsuMemoryOptions()
-        {
-            WriteToFile = false,
-            RunOnce = true
-        };
-
-        var running = true;
+        CurrentBeatmap currentBeatmap;
         try
         {
-            OsuMemory.StartBeatmapPathReading(ref running, out var beatmapPath, options);
-
-            return new Result<string>()
+            if (!OsuStableInstallLocator.IsRunning())
             {
-                Value = beatmapPath,
-                Status = ResultStatus.Success,
-                ErrorMessage = null
-            };
+                return Error<string>("osu!stable is not running.");
+            }
+
+            lock (ReaderLock)
+            {
+                var reader = StructuredOsuMemoryReader.GetInstance(StableProcessTarget);
+                if (!WaitForAttach(reader))
+                {
+                    return Error<string>("Unable to attach to the osu! process.");
+                }
+
+                currentBeatmap = new CurrentBeatmap();
+                if (!reader.TryRead(currentBeatmap))
+                {
+                    return Error<string>("Unable to read current beatmap.");
+                }
+            }
         }
         catch (Exception ex)
         {
             MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
-            return new Result<string>()
-            {
-                Value = null,
-                Status = ResultStatus.Error,
-                ErrorMessage = ex.Message
-            };
+            return Error<string>(ex.Message);
         }
+
+        if (string.IsNullOrEmpty(currentBeatmap.OsuFileName) || string.IsNullOrEmpty(currentBeatmap.FolderName))
+        {
+            return Error<string>("No beatmap is currently loaded.");
+        }
+
+        // Prefer the configured/detected Songs folder, but fall back to the one the running client
+        // uses in case the settings point at a different install.
+        foreach (var songsFolder in EnumerateSongsFolders())
+        {
+            var beatmapPath = Path.Combine(songsFolder, currentBeatmap.FolderName, currentBeatmap.OsuFileName);
+            if (!OperatingSystem.IsWindows())
+            {
+                beatmapPath = beatmapPath.Replace('\\', '/');
+            }
+
+            if (File.Exists(beatmapPath))
+            {
+                return Success(Path.GetFullPath(beatmapPath));
+            }
+        }
+
+        return Error<string>("Beatmap file does not exist. Check configured Songs folder in Settings.");
     }
-    
+
+    private static bool WaitForAttach(StructuredOsuMemoryReader reader)
+    {
+        var stopwatch = Stopwatch.StartNew();
+        while (!reader.CanRead)
+        {
+            if (stopwatch.Elapsed >= AttachTimeout)
+            {
+                return false;
+            }
+
+            Thread.Sleep(25);
+        }
+
+        return true;
+    }
+
+    [SupportedOSPlatform("windows")]
     [SupportedOSPlatform("linux")]
-    private static Result<string> GetBeatmapLinuxFromFallbackIpc()
+    private Result<string> GetBeatmapFromFallbackIpc()
     {
         if (!FallbackClientIpc.TryReadBeatmapPath(out var beatmapPath, out var ipcError))
         {
-            return new Result<string>
-            {
-                Value = null,
-                Status = ResultStatus.Error,
-                ErrorMessage = ipcError ?? "Unable to read beatmap path from fallback IPC."
-            };
+            return Error<string>(ipcError ?? "Unable to read beatmap path from fallback IPC.");
         }
 
         if (string.IsNullOrWhiteSpace(beatmapPath))
         {
-            return new Result<string>
-            {
-                Value = null,
-                Status = ResultStatus.Error,
-                ErrorMessage = "Fallback IPC returned an empty beatmap path."
-            };
-        }
-
-        if (!File.Exists(beatmapPath))
-        {
-            return new Result<string>
-            {
-                Value = null,
-                Status = ResultStatus.Error,
-                ErrorMessage = "Beatmap file from fallback IPC does not exist."
-            };
-        }
-
-        return new Result<string>
-        {
-            Value = Path.GetFullPath(beatmapPath),
-            Status = ResultStatus.Success,
-            ErrorMessage = null
-        };
-    }
-
-    [SupportedOSPlatform("windows")]
-    private Result<string> GetBeatmapWindows()
-    {
-        var memoryResult = GetBeatmapWindowsFromMemory();
-        if (memoryResult.Status == ResultStatus.Success && !string.IsNullOrWhiteSpace(memoryResult.Value))
-        {
-            return memoryResult;
-        }
-
-        var fallbackIpcResult = GetBeatmapWindowsFromFallbackIpc();
-        if (fallbackIpcResult.Status == ResultStatus.Success && !string.IsNullOrWhiteSpace(fallbackIpcResult.Value))
-        {
-            return fallbackIpcResult;
-        }
-
-        return new Result<string>
-        {
-            Value = null,
-            Status = ResultStatus.Error,
-            ErrorMessage = $"Memory read failed and fallback IPC path could not be resolved."
-        };
-    }
-    
-    [SupportedOSPlatform("windows")]
-    private Result<string> GetBeatmapWindowsFromMemory()
-    {
-        var reader = StructuredOsuMemoryReader.GetInstance(null);
-
-        if (reader == null)
-        {
-            return new Result<string>()
-            {
-                Value = null,
-                Status = ResultStatus.Error,
-                ErrorMessage = "Unable to create reader instance."
-            };
-        }
-
-        var currentBeatmap = new CurrentBeatmap();
-        if (!reader.TryRead(currentBeatmap))
-        {
-            return new Result<string>()
-            {
-                Value = null,
-                Status = ResultStatus.Error,
-                ErrorMessage = "Unable to read current beatmap."
-            };
-        }
-
-        if (string.IsNullOrEmpty(currentBeatmap.OsuFileName))
-        {
-            return new Result<string>()
-            {
-                Value = null,
-                Status = ResultStatus.Error,
-                ErrorMessage = "No beatmap is currently loaded."
-            };
-        }
-
-        var songsFolder = GetSongsFolderWindows();
-        if (string.IsNullOrWhiteSpace(songsFolder))
-        {
-            return new Result<string>
-            {
-                Value = null,
-                Status = ResultStatus.Error,
-                ErrorMessage = "Unable to resolve Songs folder."
-            };
-        }
-
-        var beatmapPath = Path.Combine(songsFolder, currentBeatmap.FolderName, currentBeatmap.OsuFileName);
-
-        if (!File.Exists(beatmapPath))
-        {
-            return new Result<string>()
-            {
-                Value = null,
-                Status = ResultStatus.Error,
-                ErrorMessage = "Beatmap file does not exist."
-            };
-        }
-
-        return new Result<string>()
-        {
-            Value = beatmapPath,
-            Status = ResultStatus.Success,
-            ErrorMessage = null
-        };
-    }
-
-    [SupportedOSPlatform("windows")]
-    private Result<string> GetBeatmapWindowsFromFallbackIpc()
-    {
-        if (!FallbackClientIpc.TryReadBeatmapPath(out var beatmapPath, out var ipcError))
-        {
-            return new Result<string>
-            {
-                Value = null,
-                Status = ResultStatus.Error,
-                ErrorMessage = ipcError ?? "Unable to read beatmap path from fallback IPC."
-            };
-        }
-
-        if (string.IsNullOrWhiteSpace(beatmapPath))
-        {
-            return new Result<string>
-            {
-                Value = null,
-                Status = ResultStatus.Error,
-                ErrorMessage = "Fallback IPC returned an empty beatmap path."
-            };
+            return Error<string>("Fallback IPC returned an empty beatmap path.");
         }
 
         beatmapPath = beatmapPath.Trim().Trim('"');
-        var songsFolder = GetSongsFolderWindows();
-
-        var candidates = new[]
+        if (File.Exists(beatmapPath))
         {
-            beatmapPath,
-            !Path.IsPathRooted(beatmapPath) && !string.IsNullOrWhiteSpace(songsFolder)
-                ? Path.Combine(songsFolder, beatmapPath)
-                : string.Empty
-        };
+            return Success(Path.GetFullPath(beatmapPath));
+        }
 
-        foreach (var candidate in candidates)
+        if (!Path.IsPathRooted(beatmapPath))
         {
-            if (string.IsNullOrWhiteSpace(candidate))
+            foreach (var songsFolder in EnumerateSongsFolders())
             {
-                continue;
-            }
-
-            var fullCandidate = Path.GetFullPath(candidate);
-            if (File.Exists(fullCandidate))
-            {
-                return new Result<string>
+                var candidate = Path.Combine(songsFolder, beatmapPath);
+                if (File.Exists(candidate))
                 {
-                    Value = fullCandidate,
-                    Status = ResultStatus.Success,
-                    ErrorMessage = null
-                };
+                    return Success(Path.GetFullPath(candidate));
+                }
             }
         }
 
-        if (!File.Exists(beatmapPath))
-        {
-            return new Result<string>
-            {
-                Value = null,
-                Status = ResultStatus.Error,
-                ErrorMessage = "Beatmap file from fallback IPC does not exist. Check configured Songs folder in Settings."
-            };
-        }
-
-        return new Result<string>
-        {
-            Value = Path.GetFullPath(beatmapPath),
-            Status = ResultStatus.Success,
-            ErrorMessage = null
-        };
+        return Error<string>(
+            "Beatmap file from fallback IPC does not exist. Check configured Songs folder in Settings.");
     }
 
-    [SupportedOSPlatform("windows")]
-    private string GetSongsFolderWindows()
+    private IEnumerable<string> EnumerateSongsFolders()
     {
         var configuredOrDetected = SongsPathResolver.ResolveSongsPath(settingsService, songLibraryService);
         if (!string.IsNullOrWhiteSpace(configuredOrDetected))
         {
-            return configuredOrDetected;
+            yield return configuredOrDetected;
         }
 
-        return GetRunningSongsFolderWindows();
+        var running = OsuStableInstallLocator.TryGetRunningSongsFolder();
+        if (!string.IsNullOrWhiteSpace(running) &&
+            !string.Equals(running, configuredOrDetected, StringComparison.Ordinal))
+        {
+            yield return running;
+        }
     }
 
-    [SupportedOSPlatform("windows")]
-    private static string GetRunningSongsFolderWindows()
+    private static Result<string> Success(string value) => new()
     {
-        var processes = Process.GetProcessesByName("osu!");
-        if (processes.Length <= 0) return string.Empty;
-        
-        var path = processes[0].Modules[0].FileName;
-        
-        var basePath = path.Remove(path.LastIndexOf('\\'));
-        
-        var configPath = $"osu!.{Environment.UserName}.cfg";
-        var configFile = File.OpenRead(Path.Combine(basePath, configPath));
-        using var reader = new StreamReader(configFile);
-        while (reader.ReadLine() is { } line)
-        {
-            if (!line.StartsWith("BeatmapDirectory")) continue;
-            
-            var customPath = line.Split('=')[1].Trim();
-            return Path.IsPathRooted(customPath) ? customPath : Path.Combine(basePath, customPath);
-        }
-        
-        if (!string.IsNullOrEmpty(path))
-        {
-            path = Path.Combine(path, "Songs");
-        }
+        Value = value,
+        Status = ResultStatus.Success,
+        ErrorMessage = null
+    };
 
-        return path;
-    }
+    private static Result<T> Error<T>(string message) => new()
+    {
+        Value = default,
+        Status = ResultStatus.Error,
+        ErrorMessage = message
+    };
 }

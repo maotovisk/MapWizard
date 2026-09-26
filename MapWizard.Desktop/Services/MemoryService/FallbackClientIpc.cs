@@ -12,6 +12,7 @@ namespace MapWizard.Desktop.Services.MemoryService;
 internal static class FallbackClientIpc
 {
     private const string PipeName = "mtipc";
+    private const string LinuxSocketPath = $"/tmp/{PipeName}.sock";
     private static readonly Lock Sync = new();
     private static NamedPipeClientStream? _pipeClient;
     private static Socket? _socketClient;
@@ -22,6 +23,12 @@ internal static class FallbackClientIpc
     {
         beatmapPath = null;
         error = null;
+
+        if (!IsEndpointAvailable())
+        {
+            error = "No fallback client is listening.";
+            return false;
+        }
 
         try
         {
@@ -62,6 +69,12 @@ internal static class FallbackClientIpc
         timestamp = 0;
         error = null;
 
+        if (!IsEndpointAvailable())
+        {
+            error = "No fallback client is listening.";
+            return false;
+        }
+
         try
         {
             using var reader = SendMessage(MessageType.EditorTime);
@@ -74,6 +87,30 @@ internal static class FallbackClientIpc
             InvalidateConnection();
             error = ex.Message;
             return false;
+        }
+    }
+
+    /// <summary>
+    /// Checks for the client's endpoint without connecting, so callers (including background polling)
+    /// skip the connect timeout and exception logging when no fallback client is running.
+    /// Pipes are enumerated rather than probed because opening one would consume a server instance.
+    /// </summary>
+    private static bool IsEndpointAvailable()
+    {
+        try
+        {
+            if (OperatingSystem.IsWindows())
+            {
+                return Directory.EnumerateFiles(@"\\.\pipe\")
+                    .Any(path => string.Equals(Path.GetFileName(path), PipeName, StringComparison.OrdinalIgnoreCase));
+            }
+
+            return File.Exists(LinuxSocketPath);
+        }
+        catch (Exception)
+        {
+            // Enumeration failures should not hide a working endpoint; let the connect attempt decide.
+            return true;
         }
     }
 
@@ -205,7 +242,7 @@ internal static class FallbackClientIpc
 
         _socketClient?.Dispose();
         _socketClient = new Socket(AddressFamily.Unix, SocketType.Stream, ProtocolType.IP);
-        _socketClient.Connect(new UnixDomainSocketEndPoint($"/tmp/{PipeName}.sock"));
+        _socketClient.Connect(new UnixDomainSocketEndPoint(LinuxSocketPath));
 
         using var reader = SendMessage(MessageType.Hello);
         if (reader.ReadInt32() != 1337)

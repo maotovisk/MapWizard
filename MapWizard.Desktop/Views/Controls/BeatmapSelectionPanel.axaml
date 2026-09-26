@@ -136,10 +136,33 @@
       <Setter Property="Foreground" Value="{DynamicResource MapWizardTextBrush}" />
     </Style>
 
+    <!-- Once osu! reports an open beatmap, "From osu!" becomes an artwork strip and
+         "Map Picker" steps down to the neutral style (bound classes on both buttons). -->
     <Style Selector="Button.MapSourceActionButton">
       <Setter Property="MinWidth" Value="108" />
       <Setter Property="Height" Value="34" />
       <Setter Property="Padding" Value="10,5" />
+    </Style>
+
+    <Style Selector="Button.OsuFromButton">
+      <Setter Property="Padding" Value="0" />
+      <Setter Property="CornerRadius" Value="8" />
+      <Setter Property="BorderThickness" Value="0" />
+      <Setter Property="ClipToBounds" Value="True" />
+      <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+      <Setter Property="VerticalContentAlignment" Value="Stretch" />
+    </Style>
+
+    <Style Selector="StackPanel.OsuFromPlain">
+      <Setter Property="Margin" Value="10,5" />
+      <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+
+    <!-- With artwork the strip draws everything; keep the button chrome fully transparent in
+         every state so nothing lighter shows at the rounded corners. -->
+    <Style Selector="Button.OsuFromButton.Void:pointerover, Button.OsuFromButton.Void:pressed">
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="BorderBrush" Value="Transparent" />
     </Style>
 
     <Style Selector="theme|BusyIndicator.AsyncActionIndicator">
@@ -186,6 +209,60 @@
 
     <Style Selector="Border.EmptyState TextBlock">
       <Setter Property="Foreground" Value="{DynamicResource MapWizardTextSecondaryBrush}" />
+    </Style>
+
+    <!-- Offer for the beatmap open in osu!, shown inside empty source/target states. -->
+    <Style Selector="Button.OsuSuggestion">
+      <Setter Property="HorizontalAlignment" Value="Center" />
+      <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+      <Setter Property="MaxWidth" Value="440" />
+      <Setter Property="MinWidth" Value="300" />
+      <Setter Property="Margin" Value="0,10,0,0" />
+      <Setter Property="Padding" Value="6,6,8,6" />
+      <Setter Property="CornerRadius" Value="10" />
+      <Setter Property="Background" Value="{DynamicResource MapWizardSurfaceOpaqueBrush}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource MapWizardBorderBrush}" />
+      <Setter Property="BorderThickness" Value="1" />
+    </Style>
+
+    <Style Selector="Button.OsuSuggestion:pointerover">
+      <Setter Property="Background" Value="{DynamicResource MapWizardAccent25Brush}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource MapWizardAccent50Brush}" />
+    </Style>
+
+    <Style Selector="Border.SuggestionArtwork">
+      <Setter Property="Width" Value="72" />
+      <Setter Property="Height" Value="40" />
+      <Setter Property="CornerRadius" Value="6" />
+      <Setter Property="ClipToBounds" Value="True" />
+      <Setter Property="Background" Value="{DynamicResource MapWizardControlBackgroundBrush}" />
+    </Style>
+
+    <Style Selector="Button.OsuSuggestion TextBlock.SuggestionTitle">
+      <Setter Property="Foreground" Value="{DynamicResource MapWizardTextBrush}" />
+      <Setter Property="FontSize" Value="13" />
+      <Setter Property="FontWeight" Value="SemiBold" />
+      <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+      <Setter Property="MaxLines" Value="1" />
+    </Style>
+
+    <Style Selector="Button.OsuSuggestion TextBlock.SuggestionByline">
+      <Setter Property="FontSize" Value="11.5" />
+      <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+      <Setter Property="MaxLines" Value="1" />
+    </Style>
+
+    <Style Selector="Border.SuggestionAction">
+      <Setter Property="Background" Value="{DynamicResource MapWizardAccentBrush}" />
+      <Setter Property="CornerRadius" Value="6" />
+      <Setter Property="Padding" Value="10,4" />
+      <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+
+    <Style Selector="Border.SuggestionAction TextBlock">
+      <Setter Property="Foreground" Value="{DynamicResource MapWizardAccentForegroundBrush}" />
+      <Setter Property="FontSize" Value="12" />
+      <Setter Property="FontWeight" Value="SemiBold" />
     </Style>
 
     <Style Selector="Border.TargetMapsetCard">
@@ -518,23 +595,55 @@
                           Orientation="Horizontal"
                           Spacing="8"
                           VerticalAlignment="Center">
-                <Button Classes="Compact MemoryActionButton MapSourceActionButton"
+                <Button Classes="Compact MapSourceActionButton OsuFromButton"
+                        Classes.MemoryActionButton="{Binding !NowPlaying.HasCurrent, ElementName=Root}"
+                        Classes.Void="{Binding NowPlaying.HasCurrent, ElementName=Root}"
                         Command="{Binding SetOriginFromMemoryCommand, ElementName=Root}"
-                        ToolTip.Tip="{Binding OriginMemoryToolTip, ElementName=Root}">
-                  <StackPanel Orientation="Horizontal" Spacing="5">
-                    <Grid Width="16"
-                          Height="16"
-                          Classes="AsyncActionActivity"
-                          Classes.busy="{Binding SetOriginFromMemoryCommand.IsRunning, ElementName=Root}">
-                      <LucideIcon Kind="Import" Size="16" />
-                      <theme:BusyIndicator Classes="AsyncActionIndicator"
-                                           IsRunning="{Binding SetOriginFromMemoryCommand.IsRunning, ElementName=Root}"
-                                           VerticalAlignment="Center" />
-                    </Grid>
-                    <TextBlock Text="From osu!" VerticalAlignment="Center" />
-                  </StackPanel>
+                        ToolTip.Tip="{Binding OriginMemoryHint, ElementName=Root}">
+                  <Panel>
+                    <StackPanel Classes="OsuFromPlain"
+                                Orientation="Horizontal"
+                                Spacing="5"
+                                IsVisible="{Binding !NowPlaying.HasCurrent, ElementName=Root}">
+                      <Grid Width="16"
+                            Height="16"
+                            Classes="AsyncActionActivity"
+                            Classes.busy="{Binding SetOriginFromMemoryCommand.IsRunning, ElementName=Root}">
+                        <LucideIcon Kind="Import" Size="16" />
+                        <theme:BusyIndicator Classes="AsyncActionIndicator"
+                                             IsRunning="{Binding SetOriginFromMemoryCommand.IsRunning, ElementName=Root}"
+                                             VerticalAlignment="Center" />
+                      </Grid>
+                      <TextBlock Text="From osu!" VerticalAlignment="Center" />
+                    </StackPanel>
+
+                    <!-- Two-piece: icon strap + the open beatmap's artwork as the button body. -->
+                    <controls:ArtworkStrip IsVisible="{Binding NowPlaying.HasCurrent, ElementName=Root}"
+                                           CornerRadius="8"
+                                           StrapWidth="40"
+                                           Artwork="{Binding NowPlaying.Current.Background, ElementName=Root}">
+                      <controls:ArtworkStrip.StrapContent>
+                        <Grid Width="16"
+                              Height="16"
+                              Classes="AsyncActionActivity"
+                              Classes.busy="{Binding SetOriginFromMemoryCommand.IsRunning, ElementName=Root}">
+                          <LucideIcon Kind="Import" Size="15" />
+                          <theme:BusyIndicator Classes="AsyncActionIndicator"
+                                               IsRunning="{Binding SetOriginFromMemoryCommand.IsRunning, ElementName=Root}"
+                                               VerticalAlignment="Center" />
+                        </Grid>
+                      </controls:ArtworkStrip.StrapContent>
+                      <controls:ArtworkStrip.BodyContent>
+                        <TextBlock Text="From osu!"
+                                   FontWeight="SemiBold"
+                                   Foreground="#FFF8F9FA" />
+                      </controls:ArtworkStrip.BodyContent>
+                    </controls:ArtworkStrip>
+                  </Panel>
                 </Button>
-                <Button Classes="Flat Compact MapSourceActionButton"
+                <Button Classes="Compact MapSourceActionButton"
+                        Classes.Flat="{Binding !NowPlaying.HasCurrent, ElementName=Root}"
+                        Classes.MemoryActionButton="{Binding NowPlaying.HasCurrent, ElementName=Root}"
                         Command="{Binding PickOriginFileCommand, ElementName=Root}"
                         ToolTip.Tip="Open the Map Picker">
                   <StackPanel Orientation="Horizontal" Spacing="5">
@@ -687,6 +796,37 @@
                              TextAlignment="Center"
                              MaxWidth="320"
                              HorizontalAlignment="Center" />
+                  <Button Classes="OsuSuggestion"
+                          Command="{Binding SetOriginFromMemoryCommand, ElementName=Root}"
+                          IsVisible="{Binding NowPlaying.HasCurrent, ElementName=Root}"
+                          ToolTip.Tip="{Binding OriginMemoryHint, ElementName=Root}">
+                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10">
+                      <Border Classes="SuggestionArtwork">
+                        <Panel>
+                          <LucideIcon Kind="Music"
+                                      Size="16"
+                                      Opacity="0.5"
+                                      HorizontalAlignment="Center"
+                                      VerticalAlignment="Center"
+                                      IsVisible="{Binding !NowPlaying.Current.HasBackground, ElementName=Root}" />
+                          <Image Source="{Binding NowPlaying.Current.Background, ElementName=Root}"
+                                 Stretch="UniformToFill" />
+                        </Panel>
+                      </Border>
+                      <StackPanel Grid.Column="1"
+                                  VerticalAlignment="Center"
+                                  Spacing="1">
+                        <TextBlock Classes="SuggestionTitle"
+                                   Text="{Binding NowPlaying.Current.Headline, ElementName=Root}" />
+                        <TextBlock Classes="SuggestionByline">
+                          <Run Text="{Binding NowPlaying.Current.Byline, ElementName=Root}" />
+                        </TextBlock>
+                      </StackPanel>
+                      <Border Grid.Column="2" Classes="SuggestionAction">
+                        <TextBlock Text="Use" />
+                      </Border>
+                    </Grid>
+                  </Button>
                 </StackPanel>
               </Border>
 
@@ -734,23 +874,55 @@
                           Spacing="8"
                           VerticalAlignment="Center"
                           IsVisible="{Binding !HasVisibleDestinationCards, ElementName=Root}">
-                <Button Classes="Compact MemoryActionButton MapSourceActionButton"
+                <Button Classes="Compact MapSourceActionButton OsuFromButton"
+                        Classes.MemoryActionButton="{Binding !NowPlaying.HasCurrent, ElementName=Root}"
+                        Classes.Void="{Binding NowPlaying.HasCurrent, ElementName=Root}"
                         Command="{Binding AddDestinationFromMemoryCommand, ElementName=Root}"
-                        ToolTip.Tip="{Binding DestinationMemoryToolTip, ElementName=Root}">
-                  <StackPanel Orientation="Horizontal" Spacing="5">
-                    <Grid Width="16"
-                          Height="16"
-                          Classes="AsyncActionActivity"
-                          Classes.busy="{Binding AddDestinationFromMemoryCommand.IsRunning, ElementName=Root}">
-                      <LucideIcon Kind="Import" Size="16" />
-                      <theme:BusyIndicator Classes="AsyncActionIndicator"
-                                           IsRunning="{Binding AddDestinationFromMemoryCommand.IsRunning, ElementName=Root}"
-                                           VerticalAlignment="Center" />
-                    </Grid>
-                    <TextBlock Text="From osu!" VerticalAlignment="Center" />
-                  </StackPanel>
+                        ToolTip.Tip="{Binding DestinationMemoryHint, ElementName=Root}">
+                  <Panel>
+                    <StackPanel Classes="OsuFromPlain"
+                                Orientation="Horizontal"
+                                Spacing="5"
+                                IsVisible="{Binding !NowPlaying.HasCurrent, ElementName=Root}">
+                      <Grid Width="16"
+                            Height="16"
+                            Classes="AsyncActionActivity"
+                            Classes.busy="{Binding AddDestinationFromMemoryCommand.IsRunning, ElementName=Root}">
+                        <LucideIcon Kind="Import" Size="16" />
+                        <theme:BusyIndicator Classes="AsyncActionIndicator"
+                                             IsRunning="{Binding AddDestinationFromMemoryCommand.IsRunning, ElementName=Root}"
+                                             VerticalAlignment="Center" />
+                      </Grid>
+                      <TextBlock Text="From osu!" VerticalAlignment="Center" />
+                    </StackPanel>
+
+                    <!-- Two-piece: icon strap + the open beatmap's artwork as the button body. -->
+                    <controls:ArtworkStrip IsVisible="{Binding NowPlaying.HasCurrent, ElementName=Root}"
+                                           CornerRadius="8"
+                                           StrapWidth="40"
+                                           Artwork="{Binding NowPlaying.Current.Background, ElementName=Root}">
+                      <controls:ArtworkStrip.StrapContent>
+                        <Grid Width="16"
+                              Height="16"
+                              Classes="AsyncActionActivity"
+                              Classes.busy="{Binding AddDestinationFromMemoryCommand.IsRunning, ElementName=Root}">
+                          <LucideIcon Kind="Import" Size="15" />
+                          <theme:BusyIndicator Classes="AsyncActionIndicator"
+                                               IsRunning="{Binding AddDestinationFromMemoryCommand.IsRunning, ElementName=Root}"
+                                               VerticalAlignment="Center" />
+                        </Grid>
+                      </controls:ArtworkStrip.StrapContent>
+                      <controls:ArtworkStrip.BodyContent>
+                        <TextBlock Text="From osu!"
+                                   FontWeight="SemiBold"
+                                   Foreground="#FFF8F9FA" />
+                      </controls:ArtworkStrip.BodyContent>
+                    </controls:ArtworkStrip>
+                  </Panel>
                 </Button>
-                <Button Classes="Flat Compact MapSourceActionButton"
+                <Button Classes="Compact MapSourceActionButton"
+                        Classes.Flat="{Binding !NowPlaying.HasCurrent, ElementName=Root}"
+                        Classes.MemoryActionButton="{Binding NowPlaying.HasCurrent, ElementName=Root}"
                         Command="{Binding PickDestinationFileCommand, ElementName=Root}"
                         ToolTip.Tip="Open the Map Picker">
                   <StackPanel Orientation="Horizontal" Spacing="5">
@@ -931,6 +1103,37 @@
                              TextAlignment="Center"
                              MaxWidth="320"
                              HorizontalAlignment="Center" />
+                  <Button Classes="OsuSuggestion"
+                          Command="{Binding AddDestinationFromMemoryCommand, ElementName=Root}"
+                          IsVisible="{Binding NowPlaying.HasCurrent, ElementName=Root}"
+                          ToolTip.Tip="{Binding DestinationMemoryHint, ElementName=Root}">
+                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10">
+                      <Border Classes="SuggestionArtwork">
+                        <Panel>
+                          <LucideIcon Kind="Music"
+                                      Size="16"
+                                      Opacity="0.5"
+                                      HorizontalAlignment="Center"
+                                      VerticalAlignment="Center"
+                                      IsVisible="{Binding !NowPlaying.Current.HasBackground, ElementName=Root}" />
+                          <Image Source="{Binding NowPlaying.Current.Background, ElementName=Root}"
+                                 Stretch="UniformToFill" />
+                        </Panel>
+                      </Border>
+                      <StackPanel Grid.Column="1"
+                                  VerticalAlignment="Center"
+                                  Spacing="1">
+                        <TextBlock Classes="SuggestionTitle"
+                                   Text="{Binding NowPlaying.Current.Headline, ElementName=Root}" />
+                        <TextBlock Classes="SuggestionByline">
+                          <Run Text="{Binding NowPlaying.Current.Byline, ElementName=Root}" />
+                        </TextBlock>
+                      </StackPanel>
+                      <Border Grid.Column="2" Classes="SuggestionAction">
+                        <TextBlock Text="Add" />
+                      </Border>
+                    </Grid>
+                  </Button>
                 </StackPanel>
               </Border>
 
@@ -949,25 +1152,57 @@
                   </Button>
 
                   <Button Grid.Column="2"
-                          Classes="Compact MemoryActionButton MapSourceActionButton"
+                          Classes="Compact MapSourceActionButton OsuFromButton"
+                        Classes.MemoryActionButton="{Binding !NowPlaying.HasCurrent, ElementName=Root}"
+                        Classes.Void="{Binding NowPlaying.HasCurrent, ElementName=Root}"
                           Command="{Binding AddDestinationFromMemoryCommand, ElementName=Root}"
-                          ToolTip.Tip="{Binding DestinationMemoryToolTip, ElementName=Root}">
-                    <StackPanel Orientation="Horizontal" Spacing="5">
-                      <Grid Width="16"
-                            Height="16"
-                            Classes="AsyncActionActivity"
-                            Classes.busy="{Binding AddDestinationFromMemoryCommand.IsRunning, ElementName=Root}">
-                        <LucideIcon Kind="Import" Size="16" />
-                        <theme:BusyIndicator Classes="AsyncActionIndicator"
-                                             IsRunning="{Binding AddDestinationFromMemoryCommand.IsRunning, ElementName=Root}"
-                                             VerticalAlignment="Center" />
-                      </Grid>
-                      <TextBlock Text="From osu!" VerticalAlignment="Center" />
-                    </StackPanel>
+                          ToolTip.Tip="{Binding DestinationMemoryHint, ElementName=Root}">
+                    <Panel>
+                      <StackPanel Classes="OsuFromPlain"
+                                  Orientation="Horizontal"
+                                  Spacing="5"
+                                  IsVisible="{Binding !NowPlaying.HasCurrent, ElementName=Root}">
+                        <Grid Width="16"
+                              Height="16"
+                              Classes="AsyncActionActivity"
+                              Classes.busy="{Binding AddDestinationFromMemoryCommand.IsRunning, ElementName=Root}">
+                          <LucideIcon Kind="Import" Size="16" />
+                          <theme:BusyIndicator Classes="AsyncActionIndicator"
+                                               IsRunning="{Binding AddDestinationFromMemoryCommand.IsRunning, ElementName=Root}"
+                                               VerticalAlignment="Center" />
+                        </Grid>
+                        <TextBlock Text="From osu!" VerticalAlignment="Center" />
+                      </StackPanel>
+
+                      <!-- Two-piece: icon strap + the open beatmap's artwork as the button body. -->
+                      <controls:ArtworkStrip IsVisible="{Binding NowPlaying.HasCurrent, ElementName=Root}"
+                                             CornerRadius="8"
+                                             StrapWidth="40"
+                                             Artwork="{Binding NowPlaying.Current.Background, ElementName=Root}">
+                        <controls:ArtworkStrip.StrapContent>
+                          <Grid Width="16"
+                                Height="16"
+                                Classes="AsyncActionActivity"
+                                Classes.busy="{Binding AddDestinationFromMemoryCommand.IsRunning, ElementName=Root}">
+                            <LucideIcon Kind="Import" Size="15" />
+                            <theme:BusyIndicator Classes="AsyncActionIndicator"
+                                                 IsRunning="{Binding AddDestinationFromMemoryCommand.IsRunning, ElementName=Root}"
+                                                 VerticalAlignment="Center" />
+                          </Grid>
+                        </controls:ArtworkStrip.StrapContent>
+                        <controls:ArtworkStrip.BodyContent>
+                          <TextBlock Text="From osu!"
+                                     FontWeight="SemiBold"
+                                     Foreground="#FFF8F9FA" />
+                        </controls:ArtworkStrip.BodyContent>
+                      </controls:ArtworkStrip>
+                    </Panel>
                   </Button>
 
                   <Button Grid.Column="3"
-                          Classes="Flat Compact MapSourceActionButton"
+                          Classes="Compact MapSourceActionButton"
+                        Classes.Flat="{Binding !NowPlaying.HasCurrent, ElementName=Root}"
+                        Classes.MemoryActionButton="{Binding NowPlaying.HasCurrent, ElementName=Root}"
                           Command="{Binding PickDestinationFileCommand, ElementName=Root}"
                           ToolTip.Tip="Open the Map Picker">
                     <StackPanel Orientation="Horizontal" Spacing="5">

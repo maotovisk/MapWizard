@@ -1,0 +1,65 @@
+<UserControl
+  xmlns="https://github.com/avaloniaui"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  xmlns:controls="clr-namespace:MapWizard.Desktop.Views.Controls"
+  x:Class="MapWizard.Desktop.Views.Controls.ArtworkStrip"
+  x:DataType="controls:ArtworkStrip"
+  x:Name="Root">
+
+  <!-- One rounded clip for every layer: stacking separately rounded layers leaves
+       light anti-aliasing fringes at the corners. -->
+  <Border CornerRadius="{Binding CornerRadius, ElementName=Root}"
+          ClipToBounds="True">
+    <Grid ColumnDefinitions="Auto,*">
+      <!-- Body layers span the strap column so the artwork grows into it on collapse. Their left
+           edge follows the strap (see ApplyReveal) so nothing sits under the strap's rounded corner. -->
+      <Border x:Name="BodyBase" Grid.ColumnSpan="2" Background="#FF1B2026" />
+      <Border x:Name="BodyArtwork"
+              Grid.ColumnSpan="2"
+              RenderTransformOrigin="0%,50%">
+        <Border.Background>
+          <ImageBrush Source="{Binding Artwork, ElementName=Root}"
+                      Stretch="UniformToFill" />
+        </Border.Background>
+      </Border>
+      <Border x:Name="Shade" Grid.ColumnSpan="2">
+        <Border.Background>
+          <LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,0%">
+            <GradientStop Color="#C80B0E11" Offset="0" />
+            <GradientStop Color="#990B0E11" Offset="0.55" />
+            <GradientStop Color="#590B0E11" Offset="1" />
+          </LinearGradientBrush>
+        </Border.Background>
+      </Border>
+
+      <!-- Strap: a slanted neutral tab. Its host width is animated; the tab keeps its
+           width and slides out to the left, clipped by the rounded border. -->
+      <Panel x:Name="StrapHost" Grid.Column="0">
+        <Border x:Name="Strap"
+                HorizontalAlignment="Right"
+                Background="{DynamicResource MapWizardSurfaceOpaqueBrush}">
+          <Panel>
+            <Border Background="{DynamicResource MapWizardControlPressedBrush}" />
+            <!-- Highlight on the slanted edge, so the shear reads even over dark artwork. -->
+            <Border x:Name="StrapEdge"
+                    Width="2"
+                    HorizontalAlignment="Right"
+                    Background="#59FFFFFF" />
+          </Panel>
+        </Border>
+        <ContentPresenter x:Name="StrapPresenter"
+                          Content="{Binding StrapContent, ElementName=Root}"
+                          HorizontalAlignment="Right"
+                          VerticalAlignment="Center"
+                          HorizontalContentAlignment="Center"
+                          Foreground="{DynamicResource MapWizardTextBrush}" />
+      </Panel>
+
+      <ContentPresenter x:Name="BodyPresenter"
+                        Grid.Column="1"
+                        VerticalAlignment="Center"
+                        Foreground="#FFF8F9FA"
+                        Content="{Binding BodyContent, ElementName=Root}" />
+    </Grid>
+  </Border>
+</UserControl>

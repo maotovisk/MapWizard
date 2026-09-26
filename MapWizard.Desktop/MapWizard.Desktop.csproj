@@ -29,7 +29,6 @@
     <PackageReference Include="Lucide.Avalonia" Version="0.2.22" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.12" />
     <PackageReference Include="OsuMemoryDataProvider" Version="0.12.2" />
-    <PackageReference Include="OsuWineMemReader" Version="1.0.1" />
     <PackageReference Include="SkiaSharp.NativeAssets.Linux" Version="4.152.1" />
     <PackageReference Include="Velopack" Version="1.2.0" />
     <PackageReference Include="Xaml.Behaviors" Version="12.0.7" />
@@ -62,8 +61,8 @@
   -->
   <ItemGroup>
     <TrimmerRootAssembly Include="BeatmapParser" />
-    <TrimmerRootAssembly Include="OsuMemoryDataProvider" Condition="'$(RuntimeIdentifier)' == 'win-x64'" />
-    <TrimmerRootAssembly Include="ProcessMemoryDataFinder" Condition="'$(RuntimeIdentifier)' == 'win-x64'" />
+    <TrimmerRootAssembly Include="OsuMemoryDataProvider" />
+    <TrimmerRootAssembly Include="ProcessMemoryDataFinder" />
   </ItemGroup>
 
   <ItemGroup>

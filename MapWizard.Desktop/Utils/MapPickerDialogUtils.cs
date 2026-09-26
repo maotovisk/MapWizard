@@ -22,6 +22,7 @@ public static class MapPickerDialogUtils
         ISongLibraryService songLibraryService,
         IFilesService filesService,
         ILazerLookupService lazerLookupService,
+        IOsuMemoryReaderService osuMemoryReaderService,
         ISettingsService settingsService,
         string featureName,
         bool allowMultiple,
@@ -40,6 +41,7 @@ public static class MapPickerDialogUtils
             songLibraryService,
             filesService,
             lazerLookupService,
+            osuMemoryReaderService,
             songsPath,
             allowMultiple,
             preferredMapsetDirectoryPath);

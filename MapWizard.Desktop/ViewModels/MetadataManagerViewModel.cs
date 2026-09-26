@@ -417,6 +417,7 @@ public partial class MetadataManagerViewModel(
             songLibraryService,
             filesService,
             lazerLookupService,
+            osuMemoryReaderService,
             settingsService,
             "Metadata Manager",
             allowMultiple,
