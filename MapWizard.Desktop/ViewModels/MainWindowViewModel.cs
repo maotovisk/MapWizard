@@ -79,8 +79,8 @@ namespace MapWizard.Desktop.ViewModels
             Version = updateService.VersionLabel;
 
             SetPage(NavigationPage.Welcome);
+            // Also starts the now-playing monitor when it is enabled in the settings.
             settingsViewModel.Initialize();
-            nowPlaying.Start();
         }
 
         /// <summary>

@@ -49,7 +49,22 @@ public sealed partial class OsuNowPlayingMonitor(
     /// </summary>
     public string? StableBeatmapPath { get; private set; }
 
-    public void Start()
+    /// <summary>
+    /// Starts or stops polling. Stopping clears <see cref="Current"/>.
+    /// </summary>
+    public void SetEnabled(bool enabled)
+    {
+        if (enabled)
+        {
+            Start();
+        }
+        else
+        {
+            Stop();
+        }
+    }
+
+    private void Start()
     {
         if (_pollCts is not null)
         {
@@ -58,6 +73,24 @@ public sealed partial class OsuNowPlayingMonitor(
 
         _pollCts = new CancellationTokenSource();
         _ = PollAsync(_pollCts.Token);
+    }
+
+    private void Stop()
+    {
+        if (_pollCts is null)
+        {
+            return;
+        }
+
+        _pollCts.Cancel();
+        _pollCts.Dispose();
+        _pollCts = null;
+        _currentKey = null;
+        StableBeatmapPath = null;
+
+        var previous = Current;
+        Current = null;
+        previous?.Dispose();
     }
 
     /// <summary>
@@ -87,15 +120,27 @@ public sealed partial class OsuNowPlayingMonitor(
         try
         {
             var probe = await Task.Run(Probe, cancellationToken);
-            StableBeatmapPath = probe.StableBeatmapPath;
             if (probe.Key == _currentKey)
             {
+                if (!cancellationToken.IsCancellationRequested)
+                {
+                    StableBeatmapPath = probe.StableBeatmapPath;
+                }
+
                 return;
             }
 
-            _currentKey = probe.Key;
             await Dispatcher.UIThread.InvokeAsync(() =>
             {
+                // Stop() runs on the UI thread, so this sees a cancellation that raced the probe.
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    probe.Snapshot?.Dispose();
+                    return;
+                }
+
+                _currentKey = probe.Key;
+                StableBeatmapPath = probe.StableBeatmapPath;
                 var previous = Current;
                 Current = probe.Snapshot;
                 previous?.Dispose();

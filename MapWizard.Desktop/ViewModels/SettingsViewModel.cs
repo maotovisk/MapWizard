@@ -14,6 +14,7 @@ using MapWizard.Desktop.Extensions;
 using MapWizard.Desktop.Models;
 using MapWizard.Desktop.Models.Settings;
 using MapWizard.Desktop.Services;
+using MapWizard.Desktop.Services.MemoryService;
 using MapWizard.Desktop.Services.Playback;
 using Velopack;
 
@@ -26,7 +27,8 @@ public partial class SettingsViewModel(
     ISongLibraryService songLibraryService,
     IUpdateService updateService,
     IAudioPlaybackService audioPlaybackService,
-    INotificationService notificationService) : ViewModelBase
+    INotificationService notificationService,
+    OsuNowPlayingMonitor nowPlayingMonitor) : ViewModelBase
 {
     private bool _isUpdatingFromThemeService;
     private bool _isUpdatingSongsPath;
@@ -64,6 +66,9 @@ public partial class SettingsViewModel(
 
     [ObservableProperty]
     private bool _reducedMotion;
+
+    [ObservableProperty]
+    private bool _nowPlayingTracking;
 
     [ObservableProperty]
     private int _audioPreviewSongVolumePercent = 80;
@@ -310,6 +315,24 @@ public partial class SettingsViewModel(
         settingsService.SaveMainSettings(settings);
     }
 
+    partial void OnNowPlayingTrackingChanged(bool value)
+    {
+        nowPlayingMonitor.SetEnabled(value);
+        if (_isLoadingMainSettings)
+        {
+            return;
+        }
+
+        var settings = settingsService.GetMainSettings();
+        if (settings.NowPlayingTracking == value)
+        {
+            return;
+        }
+
+        settings.NowPlayingTracking = value;
+        settingsService.SaveMainSettings(settings);
+    }
+
     partial void OnAudioPreviewSongVolumePercentChanged(int value)
     {
         AudioPreviewSongVolumePercent = Math.Clamp(value, 0, 100);
@@ -547,6 +570,7 @@ public partial class SettingsViewModel(
             SmoothScrollViewer.SetGlobalSmoothScrollingEnabled(settings.EnableSmoothWheelScrolling);
             BlurModals = settings.BlurModals;
             ReducedMotion = settings.ReducedMotion;
+            NowPlayingTracking = settings.NowPlayingTracking;
             AudioPreviewSongVolumePercent = Math.Clamp(settings.AudioPreviewSongVolumePercent, 0, 100);
             AudioPreviewHitSoundVolumePercent = Math.Clamp(settings.AudioPreviewHitSoundVolumePercent, 0, 100);
         }

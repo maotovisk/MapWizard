@@ -99,6 +99,7 @@
             <RadioButton x:Name="GeneralNav" Classes="SettingsNav" Content="General" Tag="General" IsChecked="True" Click="CategoryButton_OnClick" />
             <RadioButton x:Name="AppearanceNav" Classes="SettingsNav" Content="Appearance" Tag="Appearance" Click="CategoryButton_OnClick" />
             <RadioButton x:Name="AudioNav" Classes="SettingsNav" Content="Audio" Tag="Audio" Click="CategoryButton_OnClick" />
+            <RadioButton x:Name="ExperimentalNav" Classes="SettingsNav" Content="Experimental" Tag="Experimental" Click="CategoryButton_OnClick" />
             <RadioButton x:Name="InformationNav" Classes="SettingsNav" Content="Information" Tag="Information" Click="CategoryButton_OnClick" />
             <RadioButton x:Name="SupportNav" Classes="SettingsNav" Content="Support" Tag="Support" Click="CategoryButton_OnClick" />
         </StackPanel>
@@ -340,6 +341,21 @@
                                     <TextBlock VerticalAlignment="Center"
                                                Text="{Binding AudioPreviewHitSoundVolumePercent, StringFormat={}{0}%}" />
                                 </StackPanel>
+                            </Grid>
+                        </StackPanel>
+                    </theme:SectionGroup>
+
+                    <theme:SectionGroup x:Name="ExperimentalSection" Header="Experimental">
+                        <StackPanel Spacing="20">
+                            <Grid ColumnDefinitions="*,Auto" VerticalAlignment="Center">
+                                <StackPanel Spacing="4">
+                                    <TextBlock Text="Now Playing Tracking" FontWeight="Bold" />
+                                    <TextBlock Text="Periodically check osu! for the open beatmap and show it in the beatmap picker."
+                                               TextWrapping="Wrap" />
+                                </StackPanel>
+                                <ToggleSwitch Grid.Column="1"
+                                              VerticalAlignment="Center"
+                                              IsChecked="{Binding NowPlayingTracking, Mode=TwoWay}" />
                             </Grid>
                         </StackPanel>
                     </theme:SectionGroup>

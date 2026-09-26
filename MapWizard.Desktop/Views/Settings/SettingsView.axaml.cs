@@ -62,6 +62,7 @@ public partial class SettingsView : UserControl
             (GeneralSection, GeneralNav),
             (AppearanceSection, AppearanceNav),
             (AudioSection, AudioNav),
+            (ExperimentalSection, ExperimentalNav),
             (InformationSection, InformationNav),
             (SupportSection, SupportNav)
         };
@@ -86,6 +87,7 @@ public partial class SettingsView : UserControl
     {
         "Appearance" => AppearanceSection,
         "Audio" => AudioSection,
+        "Experimental" => ExperimentalSection,
         "Information" => InformationSection,
         "Support" => SupportSection,
         _ => GeneralSection

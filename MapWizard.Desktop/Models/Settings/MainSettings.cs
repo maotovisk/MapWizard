@@ -31,4 +31,7 @@ public class MainSettings
 
     [Setting("Audio", "OutputDeviceId")]
     public string AudioOutputDeviceId { get; set; } = "default";
+
+    [Setting("Experimental", "NowPlayingTracking")]
+    public bool NowPlayingTracking { get; set; } = false;
 }

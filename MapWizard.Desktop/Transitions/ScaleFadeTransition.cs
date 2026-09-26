@@ -18,13 +18,13 @@ public sealed class ScaleFadeTransition : IPageTransition
 {
     private readonly SemaphoreSlim _transitionGate = new(1, 1);
 
-    public TimeSpan OutDuration { get; set; } = TimeSpan.FromMilliseconds(200);
+    public TimeSpan OutDuration { get; set; } = TimeSpan.FromMilliseconds(110);
 
-    public TimeSpan InDuration { get; set; } = TimeSpan.FromMilliseconds(500);
+    public TimeSpan InDuration { get; set; } = TimeSpan.FromMilliseconds(200);
 
-    public double InStartScale { get; set; } = 0.96d;
+    public double InStartScale { get; set; } = 0.985d;
 
-    public double OutEndScale { get; set; } = 1.05d;
+    public double OutEndScale { get; set; } = 1.015d;
 
     public async Task Start(Visual? from, Visual? to, bool forward, CancellationToken cancellationToken)
     {
