@@ -42,6 +42,8 @@ namespace MapWizard.Desktop.Views
             UpdateShellCorners();
             UpdateWindowControlGlyphs();
             AddHandler(KeyDownEvent, OnWindowKeyDownTunnel, RoutingStrategies.Tunnel, handledEventsToo: true);
+            Activated += (_, _) => viewModel.NowPlaying.SetForeground(true);
+            Deactivated += (_, _) => viewModel.NowPlaying.SetForeground(false);
         }
 
         private MainWindowViewModel ViewModel => (MainWindowViewModel)DataContext!;

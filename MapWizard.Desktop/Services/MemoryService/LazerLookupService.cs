@@ -20,18 +20,31 @@ public sealed class LazerLookupService : ILazerLookupService
 {
     private static readonly string[] lazerProcessNames = ["osu!", "osu", "osu.Desktop"];
 
-    public Result<LazerSessionState> GetSessionState()
+    public Result<LazerSessionState> GetSessionState() => Lookup(requireProcessState: true);
+
+    public Result<LazerSessionState> GetMountedSessionState() => Lookup(requireProcessState: false);
+
+    private static Result<LazerSessionState> Lookup(bool requireProcessState)
     {
         try
         {
+            var candidates = Directory.EnumerateDirectories(Path.GetTempPath(), "*", SearchOption.TopDirectoryOnly)
+                .Where(path => IsSha256DirectoryName(Path.GetFileName(path)))
+                .ToList();
+
+            // Enumerating processes is far more expensive than listing the temp folder.
+            if (candidates.Count == 0 && !requireProcessState)
+            {
+                return Success(isRunning: false, []);
+            }
+
             var processStartUtc = GetRunningLazerStartTimeUtc();
             if (processStartUtc is null)
             {
                 return Success(isRunning: false, []);
             }
 
-            var mountedSet = Directory.EnumerateDirectories(Path.GetTempPath(), "*", SearchOption.TopDirectoryOnly)
-                .Where(path => IsSha256DirectoryName(Path.GetFileName(path)))
+            var mountedSet = candidates
                 .Select(path => TryReadMountedSet(path, processStartUtc.Value))
                 .Where(candidate => candidate is not null)
                 .OrderByDescending(candidate => candidate!.LastWriteUtc)
@@ -55,7 +68,8 @@ public sealed class LazerLookupService : ILazerLookupService
     {
         DateTime? latestStartUtc = null;
 
-        foreach (var process in Process.GetProcesses())
+        // Filtering by name up front avoids materialising every process on the system.
+        foreach (var process in lazerProcessNames.SelectMany(Process.GetProcessesByName))
         {
             using (process)
             {

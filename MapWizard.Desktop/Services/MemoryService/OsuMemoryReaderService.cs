@@ -28,6 +28,13 @@ public class OsuMemoryReaderService(ISettingsService settingsService, ISongLibra
     private static readonly Lock ReaderLock = new();
 
     /// <summary>
+    /// Whether the attach timeout has already been waited out for the running osu! process. Clients
+    /// the reader cannot attach to (e.g. ones only reachable through fallback IPC) would otherwise
+    /// stall every poll for the full timeout.
+    /// </summary>
+    private static bool _attachWaited;
+
+    /// <summary>
     /// Under Wine there is no <c>kernel32</c> to query process bitness, so the check is skipped (the
     /// default options would throw inside the reader's process watcher).
     /// </summary>
@@ -84,13 +91,20 @@ public class OsuMemoryReaderService(ISettingsService settingsService, ISongLibra
         {
             if (!OsuStableInstallLocator.IsRunning())
             {
+                lock (ReaderLock)
+                {
+                    _attachWaited = false;
+                }
+
                 return Error<string>("osu!stable is not running.");
             }
 
             lock (ReaderLock)
             {
                 var reader = StructuredOsuMemoryReader.GetInstance(StableProcessTarget);
-                if (!WaitForAttach(reader))
+                var attached = reader.CanRead || (!_attachWaited && WaitForAttach(reader));
+                _attachWaited = true;
+                if (!attached)
                 {
                     return Error<string>("Unable to attach to the osu! process.");
                 }

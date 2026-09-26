@@ -21,10 +21,18 @@ public sealed partial class OsuNowPlayingMonitor(
     IOsuMemoryReaderService osuMemoryReaderService,
     ILazerLookupService lazerLookupService) : ObservableObject, IDisposable
 {
-    private static readonly TimeSpan PollInterval = TimeSpan.FromSeconds(2);
+    private static readonly TimeSpan ForegroundPollInterval = TimeSpan.FromSeconds(2);
+
+    /// <summary>
+    /// Nothing reads the now-playing card while MapWizard is in the background, so polling slows
+    /// down there and catches up as soon as the window is focused again.
+    /// </summary>
+    private static readonly TimeSpan BackgroundPollInterval = TimeSpan.FromSeconds(45);
     private const int BackgroundDecodeWidth = 320;
 
     private readonly SemaphoreSlim _refreshGate = new(1, 1);
+    private readonly SemaphoreSlim _wakeSignal = new(0, 1);
+    private volatile bool _isForeground = true;
     private CancellationTokenSource? _pollCts;
     private string? _currentKey;
     private string? _lastLoggedError;
@@ -50,6 +58,27 @@ public sealed partial class OsuNowPlayingMonitor(
 
         _pollCts = new CancellationTokenSource();
         _ = PollAsync(_pollCts.Token);
+    }
+
+    /// <summary>
+    /// Switches between the foreground and background poll rates; regaining focus polls right away.
+    /// </summary>
+    public void SetForeground(bool isForeground)
+    {
+        _isForeground = isForeground;
+        if (!isForeground)
+        {
+            return;
+        }
+
+        try
+        {
+            _wakeSignal.Release();
+        }
+        catch (SemaphoreFullException)
+        {
+            // A wake-up is already pending.
+        }
     }
 
     public async Task RefreshAsync(CancellationToken cancellationToken = default)
@@ -88,10 +117,9 @@ public sealed partial class OsuNowPlayingMonitor(
 
     private async Task PollAsync(CancellationToken cancellationToken)
     {
-        using var timer = new PeriodicTimer(PollInterval);
         try
         {
-            do
+            while (true)
             {
                 try
                 {
@@ -101,7 +129,10 @@ public sealed partial class OsuNowPlayingMonitor(
                 {
                     LogOnce(ex);
                 }
-            } while (await timer.WaitForNextTickAsync(cancellationToken));
+
+                var interval = _isForeground ? ForegroundPollInterval : BackgroundPollInterval;
+                await _wakeSignal.WaitAsync(interval, cancellationToken);
+            }
         }
         catch (OperationCanceledException)
         {
@@ -116,7 +147,7 @@ public sealed partial class OsuNowPlayingMonitor(
             ? stableResult.Value
             : null;
 
-        var lazerResult = lazerLookupService.GetSessionState();
+        var lazerResult = lazerLookupService.GetMountedSessionState();
         if (lazerResult.Status == ResultStatus.Success &&
             lazerResult.Value?.MountedBeatmapPaths is { Count: > 0 } mountedPaths)
         {
