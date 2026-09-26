@@ -17,57 +17,67 @@ internal static class FallbackClientIpc
     private static NamedPipeClientStream? _pipeClient;
     private static Socket? _socketClient;
 
+    /// <summary>
+    /// After a failed request the client is left alone for a while, doubling up to
+    /// <see cref="MaxRetryDelay"/>. Some clients accept the connection but drop it on every request
+    /// (and notify the player each time), so reconnecting on every poll would spam them.
+    /// </summary>
+    private static readonly TimeSpan InitialRetryDelay = TimeSpan.FromSeconds(5);
+    private static readonly TimeSpan MaxRetryDelay = TimeSpan.FromMinutes(1);
+    private static DateTime _retryAfterUtc = DateTime.MinValue;
+    private static TimeSpan _retryDelay = TimeSpan.Zero;
+    private static string? _lastError;
+
     [SupportedOSPlatform("windows")]
     [SupportedOSPlatform("linux")]
     public static bool TryReadBeatmapPath(out string? beatmapPath, out string? error)
     {
         beatmapPath = null;
-        error = null;
 
-        if (!IsEndpointAvailable())
+        if (!TryRequest(MessageType.ReadBeatmap, ReadBeatmapPathPayload, out var payload, out error))
         {
-            error = "No fallback client is listening.";
             return false;
         }
 
-        try
+        var (containingFolder, filename) = payload;
+        if (string.IsNullOrWhiteSpace(filename))
         {
-            using var reader = SendMessage(MessageType.ReadBeatmap);
-            var (containingFolder, filename) = ReadBeatmapPathPayload(reader);
-
-            if (string.IsNullOrWhiteSpace(filename))
-            {
-                error = "No beatmap is currently loaded.";
-                return false;
-            }
-
-            beatmapPath = Path.IsPathRooted(filename)
-                ? filename
-                : Path.Combine(containingFolder, filename);
-
-            if (string.IsNullOrWhiteSpace(beatmapPath))
-            {
-                error = "Unable to resolve beatmap path from fallback IPC.";
-                return false;
-            }
-
-            return true;
-        }
-        catch (Exception ex)
-        {
-            MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
-            InvalidateConnection();
-            error = ex.Message;
+            error = "No beatmap is currently loaded.";
             return false;
         }
+
+        beatmapPath = Path.IsPathRooted(filename)
+            ? filename
+            : Path.Combine(containingFolder, filename);
+
+        if (string.IsNullOrWhiteSpace(beatmapPath))
+        {
+            error = "Unable to resolve beatmap path from fallback IPC.";
+            return false;
+        }
+
+        return true;
     }
 
     [SupportedOSPlatform("windows")]
     [SupportedOSPlatform("linux")]
-    public static bool TryReadEditorTime(out int timestamp, out string? error)
+    public static bool TryReadEditorTime(out int timestamp, out string? error) =>
+        TryRequest(MessageType.EditorTime, reader => reader.ReadInt32(), out timestamp, out error);
+
+    private static bool TryRequest<T>(MessageType messageType, Func<BinaryReader, T> parse, out T value,
+        out string? error)
     {
-        timestamp = 0;
+        value = default!;
         error = null;
+
+        lock (Sync)
+        {
+            if (DateTime.UtcNow < _retryAfterUtc)
+            {
+                error = _lastError ?? "Fallback client is unavailable.";
+                return false;
+            }
+        }
 
         if (!IsEndpointAvailable())
         {
@@ -77,15 +87,39 @@ internal static class FallbackClientIpc
 
         try
         {
-            using var reader = SendMessage(MessageType.EditorTime);
-            timestamp = reader.ReadInt32();
+            using var reader = SendMessage(messageType);
+            value = parse(reader);
+
+            lock (Sync)
+            {
+                _retryDelay = TimeSpan.Zero;
+                _lastError = null;
+            }
+
             return true;
         }
         catch (Exception ex)
         {
-            MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
             InvalidateConnection();
             error = ex.Message;
+
+            lock (Sync)
+            {
+                _retryDelay = _retryDelay == TimeSpan.Zero
+                    ? InitialRetryDelay
+                    : TimeSpan.FromTicks(Math.Min(_retryDelay.Ticks * 2, MaxRetryDelay.Ticks));
+                _retryAfterUtc = DateTime.UtcNow + _retryDelay;
+
+                // Polling hits the same failure repeatedly (e.g. a stale socket after the game closes).
+                if (ex.Message == _lastError)
+                {
+                    return false;
+                }
+
+                _lastError = ex.Message;
+            }
+
+            MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
             return false;
         }
     }
