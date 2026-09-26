@@ -24,7 +24,19 @@ public class UpdateService(ISettingsService settingsService) : IUpdateService
     private bool _simulatedUpdateApplied;
 
     public bool IsInstalled => IsTestFlowEnabled || CreateUpdateManager().IsInstalled;
-    public bool IsRestartRequired => _simulatedUpdateDownloaded && !_simulatedUpdateApplied;
+    public bool IsRestartRequired
+    {
+        get
+        {
+            if (IsTestFlowEnabled)
+            {
+                return _simulatedUpdateDownloaded && !_simulatedUpdateApplied;
+            }
+
+            var updateManager = CreateUpdateManager();
+            return updateManager.IsInstalled && updateManager.UpdatePendingRestart != null;
+        }
+    }
 
     public string VersionLabel
     {

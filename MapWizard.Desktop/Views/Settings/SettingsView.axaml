@@ -129,6 +129,26 @@
                                                       SelectedItem="{Binding UpdateStream, Mode=TwoWay}" />
                             </Grid>
 
+                            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12" VerticalAlignment="Center">
+                                <LucideIcon Kind="Info" Size="20" VerticalAlignment="Center" />
+                                <StackPanel Grid.Column="1" Spacing="2">
+                                    <TextBlock Text="{Binding VersionLabel}" FontWeight="Bold" />
+                                    <TextBlock Text="The MapWizard build currently running."
+                                               FontSize="12"
+                                               Opacity="0.82" />
+                                </StackPanel>
+                                <Button Grid.Column="2"
+                                        Classes="Basic Compact"
+                                        Padding="0"
+                                        VerticalAlignment="Center"
+                                        IsEnabled="{Binding CanRestartToApplyUpdate}"
+                                        Command="{Binding RestartToApplyUpdateCommand}">
+                                    <TextBlock Text="{Binding UpdateStreamBadgeText}"
+                                               FontSize="12"
+                                               FontWeight="Normal" />
+                                </Button>
+                            </Grid>
+
                             <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="8" VerticalAlignment="Top">
                                 <StackPanel Spacing="4">
                                     <TextBlock Text="Songs Folder" FontWeight="Bold" />
@@ -349,26 +369,6 @@
 
                     <theme:SectionGroup x:Name="SupportSection" Header="Support">
                         <StackPanel Spacing="16">
-                            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12" VerticalAlignment="Center">
-                                <LucideIcon Kind="Info" Size="20" VerticalAlignment="Center" />
-                                <StackPanel Grid.Column="1" Spacing="2">
-                                    <TextBlock Text="{Binding VersionLabel}" FontWeight="Bold" />
-                                    <TextBlock Text="The MapWizard build currently running."
-                                               FontSize="12"
-                                               Opacity="0.82" />
-                                </StackPanel>
-                                <Button Grid.Column="2"
-                                        Classes="Basic Compact"
-                                        Padding="0"
-                                        VerticalAlignment="Center"
-                                        IsEnabled="{Binding CanRestartToApplyUpdate}"
-                                        Command="{Binding RestartToApplyUpdateCommand}">
-                                    <TextBlock Text="{Binding UpdateStreamBadgeText}"
-                                               FontSize="12"
-                                               FontWeight="Normal" />
-                                </Button>
-                            </Grid>
-
                             <TextBlock TextWrapping="Wrap"
                                        Text="Need a hand or found a bug? Join the Discord for quick questions, or open an issue on GitHub. When reporting a problem, include your version, operating system, and the steps that reproduce it." />
 

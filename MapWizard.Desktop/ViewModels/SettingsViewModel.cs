@@ -371,11 +371,20 @@ public partial class SettingsViewModel(
 
         if (updateService.IsRestartRequired)
         {
-            if (!updateService.RestartToApplyPendingUpdate())
+            try
             {
-                await RefreshUpdateStreamBadgeAsync();
+                // Exits the process on success in installed builds; the simulated flow keeps running.
+                updateService.RestartToApplyPendingUpdate();
+            }
+            catch (Exception ex)
+            {
+                MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
+                UpdateStreamBadgeText = "Could not apply update right now.";
+                CanRestartToApplyUpdate = true;
+                return;
             }
 
+            await RefreshUpdateStreamBadgeAsync();
             return;
         }
 
