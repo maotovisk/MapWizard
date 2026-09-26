@@ -267,6 +267,7 @@ public partial class HitSoundCopierViewModel(
             songLibraryService,
             filesService,
             lazerLookupService,
+            osuMemoryReaderService,
             settingsService,
             "HitSound Copier",
             allowMultiple,

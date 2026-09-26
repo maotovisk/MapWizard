@@ -257,6 +257,19 @@
                         </Border>
 
                         <Border Classes="HintPill"
+                                IsVisible="{Binding IsOpenInStable}">
+                            <StackPanel Orientation="Horizontal" Spacing="5">
+                                <LucideIcon Kind="Pin"
+                                                            Size="11"
+                                                            Foreground="{DynamicResource MapWizardPickerHintIcon}" />
+                                <TextBlock Text="Open in osu!stable"
+                                           FontSize="11"
+                                           FontWeight="SemiBold"
+                                           Foreground="{DynamicResource MapWizardPickerHintText}" />
+                            </StackPanel>
+                        </Border>
+
+                        <Border Classes="HintPill"
                                 IsVisible="{Binding IsPreferredMapset}">
                             <StackPanel Orientation="Horizontal" Spacing="5">
                                 <LucideIcon Kind="Pin"
@@ -337,6 +350,11 @@
                                     <TextBlock Text="{Binding Name}"
                                                TextTrimming="CharacterEllipsis"
                                                MaxWidth="260" />
+                                    <LucideIcon Kind="Pin"
+                                                Size="12"
+                                                Opacity="0.75"
+                                                IsVisible="{Binding IsOpenInOsu}"
+                                                ToolTip.Tip="Open in osu!stable" />
                                 </StackPanel>
                             </ToggleButton>
                         </DataTemplate>

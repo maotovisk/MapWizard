@@ -7,6 +7,7 @@
     xmlns:transitions="clr-namespace:MapWizard.Desktop.Transitions"
     x:Class="MapWizard.Desktop.Views.MainWindow"
     x:DataType="vm:MainWindowViewModel"
+    viewControls:NowPlayingContext.Monitor="{Binding NowPlaying}"
     TransparencyBackgroundFallback="{DynamicResource MapWizardWindowBackgroundBrush}"
     MinWidth="800"
     MinHeight="600"
@@ -122,6 +123,13 @@
             <Setter Property="BorderThickness" Value="0" />
             <Setter Property="CornerRadius" Value="12" />
             <Setter Property="ClipToBounds" Value="True" />
+        </Style>
+        <Style Selector="Border.NowPlayingIsland">
+            <Setter Property="Height" Value="42" />
+            <Setter Property="MaxWidth" Value="760" />
+            <Setter Property="HorizontalAlignment" Value="Center" />
+            <Setter Property="CornerRadius" Value="12" />
+            <Setter Property="BoxShadow" Value="0 5 16 0 #26000000" />
         </Style>
         <Style Selector="Button.TitleBarActionButton">
             <Setter Property="Width" Value="42" />
@@ -434,6 +442,44 @@
                                    FontWeight="SemiBold"
                                    VerticalAlignment="Center" />
                     </StackPanel>
+                </Border>
+
+                <!-- Beatmap currently open in osu! (lazer mount first, then stable).
+                     Not a button, so the title bar stays draggable through it. -->
+                <!-- Beatmap currently open in osu! (lazer mount first, then stable).
+                     Not a button, so the title bar stays draggable through it. -->
+                <Border Grid.Column="1"
+                        Classes="NowPlayingIsland"
+                        IsVisible="{Binding NowPlaying.HasCurrent}"
+                        ToolTip.Tip="{Binding NowPlaying.Current.ToolTip}">
+                    <viewControls:ArtworkStrip CornerRadius="12"
+                                               StrapWidth="132"
+                                               CollapseStrapOnHover="False"
+                                               Artwork="{Binding NowPlaying.Current.Background}">
+                        <viewControls:ArtworkStrip.StrapContent>
+                            <StackPanel Orientation="Horizontal"
+                                        Spacing="6"
+                                        Margin="10,0,0,0">
+                                <LucideIcon Kind="AudioLines" Size="14" VerticalAlignment="Center" />
+                                <TextBlock Text="Now playing"
+                                           FontSize="11.5"
+                                           FontWeight="SemiBold"
+                                           VerticalAlignment="Center" />
+                            </StackPanel>
+                        </viewControls:ArtworkStrip.StrapContent>
+                        <viewControls:ArtworkStrip.BodyContent>
+                            <TextBlock FontSize="12.5"
+                                       Foreground="#FFD6DDE2"
+                                       TextTrimming="CharacterEllipsis"
+                                       MaxLines="1">
+                                <Run Text="{Binding NowPlaying.Current.Headline}"
+                                     FontWeight="SemiBold"
+                                     Foreground="#FFF8F9FA" />
+                                <Run Text="  ·  " />
+                                <Run Text="{Binding NowPlaying.Current.Byline}" />
+                            </TextBlock>
+                        </viewControls:ArtworkStrip.BodyContent>
+                    </viewControls:ArtworkStrip>
                 </Border>
 
                 <Border Grid.Column="2"

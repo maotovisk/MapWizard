@@ -23,6 +23,7 @@ public partial class SongSelectDialogViewModel(
     ISongLibraryService songLibraryService,
     IFilesService filesService,
     ILazerLookupService lazerLookupService,
+    IOsuMemoryReaderService osuMemoryReaderService,
     string songsPath,
     bool allowMultipleSelection,
     string? preferredMapsetDirectoryPath = null) : ViewModelBase, IDisposable
@@ -79,6 +80,17 @@ public partial class SongSelectDialogViewModel(
     [NotifyPropertyChangedFor(nameof(ShowEmptyState))]
     private SongMapsetCardViewModel? _mountedLazerMapset;
 
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasOpenInStableMapset))]
+    [NotifyPropertyChangedFor(nameof(ShowEmptyState))]
+    private SongMapsetCardViewModel? _openInStableMapset;
+
+    /// <summary>
+    /// Folder of <see cref="OpenInStableMapset"/>; excluded from the regular list so the pinned card
+    /// is not shown twice.
+    /// </summary>
+    private string? _openInStableDirectoryPath;
+
     public bool AllowMultipleSelection { get; } = allowMultipleSelection;
     public bool HasSongsPath => !string.IsNullOrWhiteSpace(songsPath);
     public bool HasMoreResults => _filteredCursor < _filteredDirectoryEntries.Count;
@@ -86,6 +98,7 @@ public partial class SongSelectDialogViewModel(
     public bool ShowEmptyState => !ShowBusyBox &&
                                   VisibleMapsets.Count == 0 &&
                                   !HasMountedLazerMapset &&
+                                  !HasOpenInStableMapset &&
                                   !ShowNotFoundBadge;
     public bool ShowNotFoundBadge => !ShowBusyBox &&
                                      !HasMoreResults &&
@@ -94,6 +107,7 @@ public partial class SongSelectDialogViewModel(
     public bool CanConfirmSelection => AllowMultipleSelection && SelectedDifficultyCount > 0;
     public bool CanReloadLibrary => !IsBusyAreaActive && !IsLoading && !IsSearchPending;
     public bool HasMountedLazerMapset => MountedLazerMapset is not null;
+    public bool HasOpenInStableMapset => OpenInStableMapset is not null;
 
     public event Action<IReadOnlyList<string>>? SelectionSubmitted;
 
@@ -142,6 +156,7 @@ public partial class SongSelectDialogViewModel(
         try
         {
             await LoadMountedLazerMapsetAsync(cancellationToken);
+            await LoadOpenInStableMapsetAsync(cancellationToken);
 
             if (!HasSongsPath)
             {
@@ -157,6 +172,7 @@ public partial class SongSelectDialogViewModel(
             _mapsetDirectoryEntries.Clear();
             _mapsetDirectoryEntries.AddRange(_mapsetDirectories.Select(path =>
                 new MapsetDirectoryEntry(path, Path.GetFileName(path))));
+            ExcludePinnedStableMapsetEntry();
             PrioritizePreferredMapsetEntry();
 
             if (_mapsetDirectories.Count == 0)
@@ -245,6 +261,11 @@ public partial class SongSelectDialogViewModel(
         if (!ReferenceEquals(MountedLazerMapset, mapset) && MountedLazerMapset is not null)
         {
             MountedLazerMapset.IsExpanded = false;
+        }
+
+        if (!ReferenceEquals(OpenInStableMapset, mapset) && OpenInStableMapset is not null)
+        {
+            OpenInStableMapset.IsExpanded = false;
         }
 
         mapset.IsExpanded = !mapset.IsExpanded;
@@ -646,6 +667,78 @@ public partial class SongSelectDialogViewModel(
         }
     }
 
+    /// <summary>
+    /// Pins the mapset of the beatmap selected in osu!stable, mirroring the mounted osu!lazer card.
+    /// </summary>
+    private async Task LoadOpenInStableMapsetAsync(CancellationToken cancellationToken)
+    {
+        OpenInStableMapset = null;
+        _openInStableDirectoryPath = null;
+
+        try
+        {
+            var stableResult = await Task.Run(osuMemoryReaderService.GetBeatmapPath, cancellationToken);
+            cancellationToken.ThrowIfCancellationRequested();
+            if (stableResult.Status != ResultStatus.Success || string.IsNullOrWhiteSpace(stableResult.Value))
+            {
+                return;
+            }
+
+            var openBeatmapPath = Path.GetFullPath(stableResult.Value);
+            var directory = NormalizeDirectoryPath(Path.GetDirectoryName(openBeatmapPath));
+            if (directory is null || !Directory.Exists(directory))
+            {
+                return;
+            }
+
+            var mapset = await songLibraryService.LoadMapsetAsync(
+                directory,
+                cancellationToken,
+                bypassCache: true);
+            cancellationToken.ThrowIfCancellationRequested();
+            if (mapset is null)
+            {
+                return;
+            }
+
+            var stableViewModel = CreateMapsetCardViewModel(
+                directory,
+                mapset,
+                isPreferredMapset: IsPreferredMapsetDirectory(directory),
+                openInStableBeatmapPath: openBeatmapPath);
+            stableViewModel.SetBackgroundActive(true);
+            _openInStableDirectoryPath = directory;
+            OpenInStableMapset = stableViewModel;
+            EvictExcessMapsetCards();
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
+        catch (Exception ex)
+        {
+            MapWizard.Tools.HelperExtensions.MapWizardLogger.LogException(ex);
+            OpenInStableMapset = null;
+            _openInStableDirectoryPath = null;
+        }
+    }
+
+    private void ExcludePinnedStableMapsetEntry()
+    {
+        if (_openInStableDirectoryPath is null)
+        {
+            return;
+        }
+
+        _mapsetDirectoryEntries.RemoveAll(entry => string.Equals(
+            NormalizeDirectoryPath(entry.DirectoryPath),
+            _openInStableDirectoryPath,
+            StringComparison.OrdinalIgnoreCase));
+    }
+
+    private bool IsPinnedMapset(SongMapsetCardViewModel mapset) =>
+        ReferenceEquals(mapset, MountedLazerMapset) || ReferenceEquals(mapset, OpenInStableMapset);
+
     private void UpdateStatusMessage()
     {
         if (_mapsetDirectories.Count == 0)
@@ -679,18 +772,19 @@ public partial class SongSelectDialogViewModel(
         string directoryPath,
         SongMapsetInfo mapset,
         bool isPreferredMapset,
-        bool isMountedInLazer = false)
+        bool isMountedInLazer = false,
+        string? openInStableBeatmapPath = null)
     {
-        var mapsetViewModel = new SongMapsetCardViewModel(mapset, isPreferredMapset, isMountedInLazer)
+        var mapsetViewModel = new SongMapsetCardViewModel(mapset, isPreferredMapset, isMountedInLazer, openInStableBeatmapPath)
         {
             Owner = this
         };
 
-        // The mounted lazer mapset can share a directory with an already cached card;
+        // A pinned mapset can share a directory with an already cached card;
         // retire the orphaned entry so its difficulty VMs are released.
         if (_mapsetViewModelCache.TryGetValue(directoryPath, out var existingCard) &&
             !_visibleDirectoryPaths.Contains(directoryPath) &&
-            !ReferenceEquals(existingCard, MountedLazerMapset))
+            !IsPinnedMapset(existingCard))
         {
             _mapsetViewModelCache.Remove(directoryPath);
             existingCard.Dispose();
@@ -714,7 +808,7 @@ public partial class SongSelectDialogViewModel(
 
     /// <summary>
     /// Bounds the card view-model cache. Cards are tracked in insertion order and the
-    /// oldest entries that are neither the mounted lazer mapset nor currently listed
+    /// oldest entries that are neither pinned (lazer mount / open in stable) nor currently listed
     /// get disposed. Selection state survives eviction because it is tracked in
     /// <see cref="_selectedOsuFilePaths"/> and rehydrated when a card is recreated.
     /// </summary>
@@ -731,7 +825,7 @@ public partial class SongSelectDialogViewModel(
                 }
 
                 if (_visibleDirectoryPaths.Contains(candidatePath) ||
-                    ReferenceEquals(candidateCard, MountedLazerMapset))
+                    IsPinnedMapset(candidateCard))
                 {
                     continue;
                 }
@@ -936,7 +1030,7 @@ public partial class SongSelectDialogViewModel(
     {
         foreach (var mapset in _mapsetViewModelCache.Values)
         {
-            mapset.SetBackgroundActive(ReferenceEquals(mapset, MountedLazerMapset));
+            mapset.SetBackgroundActive(IsPinnedMapset(mapset));
         }
     }
 
@@ -958,6 +1052,8 @@ public partial class SongSelectDialogViewModel(
     {
         DeactivateAllCachedBackgrounds();
         MountedLazerMapset = null;
+        OpenInStableMapset = null;
+        _openInStableDirectoryPath = null;
 
         foreach (var mapset in _mapsetViewModelCache.Values)
         {
@@ -997,7 +1093,8 @@ public partial class SongMapsetCardViewModel : ObservableObject, IDisposable
     public SongMapsetCardViewModel(
         SongMapsetInfo mapset,
         bool isPreferredMapset,
-        bool isMountedInLazer = false)
+        bool isMountedInLazer = false,
+        string? openInStableBeatmapPath = null)
     {
         Artist = mapset.Artist;
         Title = mapset.Title;
@@ -1006,11 +1103,16 @@ public partial class SongMapsetCardViewModel : ObservableObject, IDisposable
         _backgroundImagePath = mapset.BackgroundImagePath;
         IsPreferredMapset = isPreferredMapset;
         IsMountedInLazer = isMountedInLazer;
+        IsOpenInStable = openInStableBeatmapPath is not null;
         Difficulties = new ObservableCollection<SongDifficultyItemViewModel>(mapset.Difficulties
             .OrderByDescending(difficulty => difficulty.LastEditUtc)
             .Select(difficulty => new SongDifficultyItemViewModel(difficulty)
             {
-                Mapset = this
+                Mapset = this,
+                IsOpenInOsu = openInStableBeatmapPath is not null && string.Equals(
+                    Path.GetFullPath(difficulty.OsuFilePath),
+                    openInStableBeatmapPath,
+                    StringComparison.OrdinalIgnoreCase)
             }));
         foreach (var difficulty in Difficulties)
         {
@@ -1022,6 +1124,7 @@ public partial class SongMapsetCardViewModel : ObservableObject, IDisposable
     [ObservableProperty] private bool _isExpanded;
     [ObservableProperty] private bool _isPreferredMapset;
     public bool IsMountedInLazer { get; }
+    public bool IsOpenInStable { get; }
 
     /// <summary>
     /// The owning song select view model. Set at construction so the card can bind to
@@ -1188,6 +1291,11 @@ public partial class SongDifficultyItemViewModel(SongDifficultyInfo difficulty) 
 
     public string Name { get; } = difficulty.Name;
     public string OsuFilePath { get; } = difficulty.OsuFilePath;
+
+    /// <summary>
+    /// The difficulty currently selected in osu!stable.
+    /// </summary>
+    public bool IsOpenInOsu { get; init; }
 
     /// <summary>
     /// The owning mapset card. Set at construction so difficulty chips can bind to the

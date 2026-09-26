@@ -122,9 +122,14 @@
                     <appControls:SongSelectVirtualizedList x:Name="MapsetList"
                                                           ItemsSource="{Binding VisibleMapsets}">
                         <appControls:SongSelectVirtualizedList.HeaderContent>
-                            <Border IsVisible="{Binding HasMountedLazerMapset}">
-                                <dialogs:SongMapsetCard DataContext="{Binding MountedLazerMapset}" />
-                            </Border>
+                            <StackPanel>
+                                <Border IsVisible="{Binding HasMountedLazerMapset}">
+                                    <dialogs:SongMapsetCard DataContext="{Binding MountedLazerMapset}" />
+                                </Border>
+                                <Border IsVisible="{Binding HasOpenInStableMapset}">
+                                    <dialogs:SongMapsetCard DataContext="{Binding OpenInStableMapset}" />
+                                </Border>
+                            </StackPanel>
                         </appControls:SongSelectVirtualizedList.HeaderContent>
                     </appControls:SongSelectVirtualizedList>
                 </appControls:SmoothScrollViewer>

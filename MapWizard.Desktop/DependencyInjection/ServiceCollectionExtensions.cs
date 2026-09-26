@@ -58,6 +58,7 @@ public static class ServiceCollectionExtensions
         collection.AddSingleton<IComboColourProjectStore, ComboColourProjectStore>();
         collection.AddScoped<IOsuMemoryReaderService, OsuMemoryReaderService>();
         collection.AddScoped<ILazerLookupService, LazerLookupService>();
+        collection.AddSingleton<OsuNowPlayingMonitor>();
         collection.AddSingleton<ISongLibraryService, SongLibraryService>();
         collection.AddSingleton<ISettingsService, SettingsService>();
         collection.AddSingleton<IThemeService, ThemeService>();

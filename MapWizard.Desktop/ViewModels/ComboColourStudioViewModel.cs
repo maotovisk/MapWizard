@@ -722,6 +722,7 @@ public partial class ComboColourStudioViewModel(
             songLibraryService,
             filesService,
             lazerLookupService,
+            osuMemoryReaderService,
             settingsService,
             "Combo Colour Studio",
             allowMultiple,

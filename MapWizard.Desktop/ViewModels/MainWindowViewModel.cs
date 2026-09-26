@@ -10,6 +10,7 @@ using MapWizard.Desktop.Enums;
 using MapWizard.Desktop.Extensions;
 using MapWizard.Desktop.Models;
 using MapWizard.Desktop.Services;
+using MapWizard.Desktop.Services.MemoryService;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace MapWizard.Desktop.ViewModels
@@ -17,6 +18,11 @@ namespace MapWizard.Desktop.ViewModels
     public partial class MainWindowViewModel : ObservableObject
     {
         public INotificationService NotificationService { get; }
+
+        /// <summary>
+        /// Beatmap currently open in osu!. Shown in the title bar and inherited by beatmap panels.
+        /// </summary>
+        public OsuNowPlayingMonitor NowPlaying { get; }
 
         private readonly IServiceProvider _services;
         private HitSoundCopierViewModel? _hitSoundCopierViewModel;
@@ -60,8 +66,10 @@ namespace MapWizard.Desktop.ViewModels
             SettingsViewModel settingsViewModel,
             IUpdateService updateService,
             INotificationService notificationService,
+            OsuNowPlayingMonitor nowPlaying,
             IServiceProvider services)
         {
+            NowPlaying = nowPlaying;
             _services = services;
             NotificationService = notificationService;
             _welcomePageViewModel = welcomePageViewModel;
@@ -72,6 +80,7 @@ namespace MapWizard.Desktop.ViewModels
 
             SetPage(NavigationPage.Welcome);
             settingsViewModel.Initialize();
+            nowPlaying.Start();
         }
 
         /// <summary>

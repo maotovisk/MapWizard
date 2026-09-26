@@ -2087,6 +2087,7 @@ public partial class HitSoundVisualizerViewModel(
             songLibraryService,
             filesService,
             lazerLookupService,
+            osuMemoryReaderService,
             settingsService,
             "HitSound Editor",
             allowMultiple,

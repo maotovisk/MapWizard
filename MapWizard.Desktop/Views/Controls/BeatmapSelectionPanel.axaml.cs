@@ -13,6 +13,7 @@ using Avalonia.Media;
 using Avalonia.VisualTree;
 using CommunityToolkit.Mvvm.Input;
 using MapWizard.Desktop.Models;
+using MapWizard.Desktop.Services.MemoryService;
 using MapWizard.Desktop.Utils;
 
 namespace MapWizard.Desktop.Views.Controls;
@@ -24,6 +25,19 @@ public partial class BeatmapSelectionPanel : UserControl
     private readonly HashSet<SelectedMap> _observedDestinationMaps = [];
     private readonly Dictionary<string, bool> _destinationMapsetExpansionStates = new(System.StringComparer.OrdinalIgnoreCase);
     private bool _isBulkUpdatingDestinationMaps;
+    private OsuNowPlayingMonitor? _observedNowPlaying;
+
+    /// <summary>
+    /// Inherited from the main window; drives the "From osu!" hints.
+    /// </summary>
+    public static readonly AttachedProperty<OsuNowPlayingMonitor?> NowPlayingProperty =
+        NowPlayingContext.MonitorProperty.AddOwner<BeatmapSelectionPanel>();
+
+    public static readonly StyledProperty<string> OriginMemoryHintProperty =
+        AvaloniaProperty.Register<BeatmapSelectionPanel, string>(nameof(OriginMemoryHint), string.Empty);
+
+    public static readonly StyledProperty<string> DestinationMemoryHintProperty =
+        AvaloniaProperty.Register<BeatmapSelectionPanel, string>(nameof(DestinationMemoryHint), string.Empty);
 
     public static readonly StyledProperty<string> SectionTitleProperty =
         AvaloniaProperty.Register<BeatmapSelectionPanel, string>(nameof(SectionTitle), "Beatmap Selection");
@@ -201,6 +215,25 @@ public partial class BeatmapSelectionPanel : UserControl
         UpdateDestinationSelectionState();
         RebuildMapsetDifficultyCards();
         UpdateOriginEmptyPrompt();
+        UpdateMemoryHints();
+    }
+
+    public OsuNowPlayingMonitor? NowPlaying
+    {
+        get => GetValue(NowPlayingProperty);
+        set => SetValue(NowPlayingProperty, value);
+    }
+
+    public string OriginMemoryHint
+    {
+        get => GetValue(OriginMemoryHintProperty);
+        private set => SetValue(OriginMemoryHintProperty, value);
+    }
+
+    public string DestinationMemoryHint
+    {
+        get => GetValue(DestinationMemoryHintProperty);
+        private set => SetValue(DestinationMemoryHintProperty, value);
     }
 
     public ObservableCollection<MapsetDifficultyCard> OriginDifficultyCards { get; } = [];
@@ -529,6 +562,20 @@ public partial class BeatmapSelectionPanel : UserControl
     {
         base.OnPropertyChanged(change);
 
+        if (change.Property == NowPlayingProperty)
+        {
+            ObserveNowPlaying(IsAttachedToVisualTree() ? change.GetNewValue<OsuNowPlayingMonitor?>() : null);
+            UpdateMemoryHints();
+            return;
+        }
+
+        if (change.Property == OriginMemoryToolTipProperty ||
+            change.Property == DestinationMemoryToolTipProperty)
+        {
+            UpdateMemoryHints();
+            return;
+        }
+
         if (change.Property == OriginMapProperty)
         {
             DetachOriginMapObserver(_observedOriginMap);
@@ -567,6 +614,8 @@ public partial class BeatmapSelectionPanel : UserControl
     protected override void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e)
     {
         base.OnAttachedToVisualTree(e);
+        ObserveNowPlaying(NowPlaying);
+        UpdateMemoryHints();
         AttachOriginMapObserver(OriginMap);
         AttachDestinationMapCollectionObserver(DestinationMaps);
     }
@@ -574,9 +623,53 @@ public partial class BeatmapSelectionPanel : UserControl
     protected override void OnDetachedFromVisualTree(VisualTreeAttachmentEventArgs e)
     {
         base.OnDetachedFromVisualTree(e);
+        ObserveNowPlaying(null);
         DetachOriginMapObserver(_observedOriginMap);
         DetachDestinationMapCollectionObserver(_observedDestinationCollection);
     }
+
+    /// <summary>
+    /// The monitor is an app-lifetime singleton, so the subscription only lives while attached.
+    /// </summary>
+    private void ObserveNowPlaying(OsuNowPlayingMonitor? monitor)
+    {
+        if (ReferenceEquals(monitor, _observedNowPlaying))
+        {
+            return;
+        }
+
+        if (_observedNowPlaying is not null)
+        {
+            _observedNowPlaying.PropertyChanged -= NowPlayingOnPropertyChanged;
+        }
+
+        _observedNowPlaying = monitor;
+        if (monitor is not null)
+        {
+            monitor.PropertyChanged += NowPlayingOnPropertyChanged;
+        }
+    }
+
+    private void NowPlayingOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(OsuNowPlayingMonitor.Current))
+        {
+            UpdateMemoryHints();
+        }
+    }
+
+    private void UpdateMemoryHints()
+    {
+        var current = NowPlaying?.Current;
+        OriginMemoryHint = current is null
+            ? OriginMemoryToolTip
+            : $"Use {current.Headline} from {current.ClientLabel}";
+        DestinationMemoryHint = current is null
+            ? DestinationMemoryToolTip
+            : $"Add {current.Headline} from {current.ClientLabel}";
+    }
+
+    private bool IsAttachedToVisualTree() => TopLevel.GetTopLevel(this) is not null;
 
     private void AttachOriginMapObserver(SelectedMap? originMap)
     {
