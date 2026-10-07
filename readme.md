@@ -79,39 +79,6 @@ MAPWIZARD_FORCE_SOFTWARE_RENDERING=1 dotnet run --project MapWizard.Desktop
 dotnet test MapWizard.Tests/MapWizard.Tests.csproj
 ```
 
-## Release Builds
-
-Release packages are compiled with NativeAOT (`PublishAot` in
-`MapWizard.Desktop.csproj`), so no .NET runtime is required on user machines.
-NativeAOT cannot cross-compile between operating systems: each platform's
-package must be built on that platform. Regular `dotnet build`/`dotnet run`
-still uses the JIT for fast local iteration.
-
-Packaging scripts are in `MapWizard.Desktop/`:
-
-- `build-linux.sh` (Linux)
-- `build-osx.sh` (macOS)
-- `build-win.sh` / `build-win.bat` (Windows)
-
-`MapWizard.Desktop/Assets/mapwizard.svg` is the source for the app logo and all
-packaged icons. After changing it, regenerate the PNG, ICO, and ICNS files with
-`python3 MapWizard.Desktop/Assets/generate-app-icons.py` (requires
-`rsvg-convert` and Pillow) before building a release.
-
-## Config and Data Paths
-
-Settings file: `MainSettings.ini`
-
-- Windows: `%APPDATA%\MapWizard\MainSettings.ini`
-- macOS: `~/Library/Application Support/MapWizard/MainSettings.ini`
-- Linux: `$XDG_CONFIG_HOME/MapWizard/MainSettings.ini` (fallback: `~/.config/MapWizard/MainSettings.ini`)
-
-Combo Colour Studio local projects:
-
-- Windows: `%APPDATA%\MapWizard\ComboColourStudio\projects.json`
-- macOS: `~/Library/Application Support/MapWizard/ComboColourStudio/projects.json`
-- Linux: `$XDG_DATA_HOME/MapWizard/ComboColourStudio/projects.json` (fallback: `~/.local/share/MapWizard/ComboColourStudio/projects.json`)
-
 ## Credits and Special Thanks
 
 - [OliBomby's Mapping Tools](https://github.com/olibomby/mapping_tools) for inspiration.
