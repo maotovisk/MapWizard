@@ -51,7 +51,7 @@ public class ManiaGuardTests
 
         Assert.True(result.IsFailure);
         Assert.Equal("hitsounds.mania_not_supported", result.Error.Code);
-        Assert.Equal("Mania HS copying is WIP and not supported.", result.Error.Message);
+        Assert.Equal("Hit Sound copying for mania is currently WIP and not supported yet.", result.Error.Message);
     }
 
     [Fact]
