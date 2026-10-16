@@ -1,4 +1,6 @@
 using BeatmapParser;
+using BeatmapParser.Enums;
+using MapWizard.Tools.Results;
 using MapWizard.Tools.HelperExtensions;
 using MapWizard.Tools.HitSounds.Extensions;
 
@@ -14,8 +16,12 @@ public static class HitSoundCopier
     /// <param name="source">Source `Beatmap` object.</param>
     /// <param name="target">Target `Beatmap` object.</param>
     /// <param name="options">Options for the hit sound copying.</param>
-    public static Beatmap CopyFromBeatmap(Beatmap source, Beatmap target, HitSoundCopierOptions options)
+    /// <returns>The target with the hit sounds applied, or a failure when the source can't be copied from.</returns>
+    public static Result<Beatmap> CopyFromBeatmap(Beatmap source, Beatmap target, HitSoundCopierOptions options)
     {
+        if (source.GeneralSection.Mode == Ruleset.Mania)
+            return HitSoundErrors.ManiaNotSupported;
+
         if (source.TimingPoints == null) return target;
         
         // This is a timeline map of the sound events in the source beatmap,
@@ -43,13 +49,22 @@ public static class HitSoundCopier
     /// <param name="sourcePath"></param>
     /// <param name="targetPath"></param>
     /// <param name="options"></param>
-    public static void CopyFromBeatmapToTarget(string sourcePath, string[] targetPath, HitSoundCopierOptions options)
+    /// <returns>Success, or the first failure. On failure nothing has been written to the targets.</returns>
+    public static Result CopyFromBeatmapToTarget(string sourcePath, string[] targetPath, HitSoundCopierOptions options)
     {
+        foreach (var path in targetPath.Prepend(sourcePath))
+        {
+            if (!File.Exists(path)) return HitSoundErrors.FileNotFound(path);
+        }
+
         var sourceFile = Beatmap.Decode(File.ReadAllText(sourcePath));
         foreach (var path in targetPath)
         {
             var targetFile = Beatmap.Decode(File.ReadAllText(path));
-            var output = CopyFromBeatmap(sourceFile, targetFile, options);
+            var copy = CopyFromBeatmap(sourceFile, targetFile, options);
+            if (copy.IsFailure) return copy;
+
+            var output = copy.Value;
             HitSoundSampleSynchronizer.SynchronizeIfNeeded(sourceFile, sourcePath, output, path, options);
 
             if (!File.Exists(path)) continue;
@@ -58,5 +73,7 @@ public static class HitSoundCopier
                 
             File.WriteAllText(path, output.Encode().Replace("\r\n", "\n").Replace("\n", "\r\n"));
         }
+
+        return Result.Success();
     }
 }

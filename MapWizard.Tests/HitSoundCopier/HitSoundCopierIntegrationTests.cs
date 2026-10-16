@@ -35,7 +35,7 @@ public class HitSoundCopierIntegrationTests
         // Act
         var beatmap = Beatmap.Decode(beatmapString);
         
-        var copyedBeatmap = Tools.HitSounds.Copier.HitSoundCopier.CopyFromBeatmap(beatmap, beatmap, hsOptions);
+        var copyedBeatmap = Tools.HitSounds.Copier.HitSoundCopier.CopyFromBeatmap(beatmap, beatmap, hsOptions).Value;
         
         var encodedBeatmap = copyedBeatmap.Encode();
         

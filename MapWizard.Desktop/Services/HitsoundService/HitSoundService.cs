@@ -16,6 +16,7 @@ using MapWizard.Tools.HitSounds.Event;
 using MapWizard.Tools.HitSounds.Extensions;
 using MapWizard.Tools.HitSounds.Timeline;
 using MapWizard.Tools.MapCleaner.Snapping;
+using MapWizard.Tools.Results;
 
 namespace MapWizard.Desktop.Services.HitsoundService;
 
@@ -49,20 +50,18 @@ public class HitSoundService : IHitSoundService
         };
     }
 
-    public bool CopyHitsounds(string sourcePath, string[] targetPaths, HitSoundCopierOptions options)
+    public Result CopyHitsounds(string sourcePath, string[] targetPaths, HitSoundCopierOptions options)
     {
         try
         {
-            HitSoundCopier.CopyFromBeatmapToTarget(sourcePath: sourcePath, targetPath: targetPaths, options: options);
+            return HitSoundCopier.CopyFromBeatmapToTarget(sourcePath: sourcePath, targetPath: targetPaths, options: options);
         }
         catch (Exception ex)
         {
             MapWizardLogger.LogException(ex);
             Console.WriteLine(ex.Message);
-            return false;
+            return new Error("hitsounds.unexpected", "Failed to copy hitsounds. Check the console/log output for more details.");
         }
-        
-        return true;
     }
 
     public HitSoundVisualizerDocument LoadHitsoundVisualizerDocument(string beatmapPath)

@@ -512,7 +512,7 @@ public class MapCleanerTests
         {
             CopySliderBodySounds = false,
             OverwriteEverything = true
-        });
+        }).Value;
 
         var copiedSlider = copied.HitObjects.Objects.OfType<Slider>().Single();
         Assert.Single(copiedSlider.HeadSounds.Sounds);
