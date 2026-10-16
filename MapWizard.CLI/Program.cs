@@ -165,7 +165,13 @@ static class Program
     {
         var hitSoundService = new HitSoundService();
         
-        hitSoundService.CopyHitsounds(sourcePath, targetPath, options);
+        var result = hitSoundService.CopyHitsounds(sourcePath, targetPath, options);
+        if (result.IsFailure)
+        {
+            Console.Error.WriteLine($"Failed to copy hitsounds: {result.Error.Message}");
+            Environment.ExitCode = 1;
+            return;
+        }
         
         Console.WriteLine("Hitsounds copied successfully!");
     }

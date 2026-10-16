@@ -16,7 +16,8 @@ public static class HitSoundCopierExtensions
         {
             return origin.GeneralSection.Mode switch
             {
-                Ruleset.Osu => HitSoundTimeline.BuildStandardTimeline(origin),
+                // Taiko and Catch share the standard hit object format (circles, sliders, spinners)
+                Ruleset.Osu or Ruleset.Taiko or Ruleset.Catch => HitSoundTimeline.BuildStandardTimeline(origin),
                 Ruleset.Mania => HitSoundTimeline.BuildManiaSoundTimelines(origin),
                 _ => new HitSoundTimeline()
             };

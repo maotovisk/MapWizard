@@ -32,7 +32,7 @@ public class HitSoundSampleSynchronizationTests
                 CopyUsedSamplesIfDifferentMapset = true
             };
 
-            MapWizard.Tools.HitSounds.Copier.HitSoundCopier.CopyFromBeatmapToTarget(sourcePath, [targetPath], options);
+            Assert.True(MapWizard.Tools.HitSounds.Copier.HitSoundCopier.CopyFromBeatmapToTarget(sourcePath, [targetPath], options).IsSuccess);
 
             Assert.True(File.Exists(Path.Combine(targetDir.FullName, "normal-hitclap3.wav")));
             Assert.True(File.Exists(Path.Combine(targetDir.FullName, "custom-hit.wav")));
@@ -81,7 +81,7 @@ public class HitSoundSampleSynchronizationTests
                 CopyUsedSamplesIfDifferentMapset = true
             };
 
-            MapWizard.Tools.HitSounds.Copier.HitSoundCopier.CopyFromBeatmapToTarget(sourcePath, [targetPath], options);
+            Assert.True(MapWizard.Tools.HitSounds.Copier.HitSoundCopier.CopyFromBeatmapToTarget(sourcePath, [targetPath], options).IsSuccess);
 
             Assert.False(File.Exists(Path.Combine(targetDir.FullName, "normal-hitclap3.wav")));
             Assert.Equal("shared-indexed", File.ReadAllText(Path.Combine(targetDir.FullName, "normal-hitclap2.wav")));

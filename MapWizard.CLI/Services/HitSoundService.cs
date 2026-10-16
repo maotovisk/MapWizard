@@ -1,11 +1,12 @@
 using MapWizard.Tools.HitSounds.Copier;
+using MapWizard.Tools.Results;
 
 namespace MapWizard.CLI.Services;
 
 public class HitSoundService
 {
-    public void CopyHitsounds(string sourcePath, string targetPath, HitSoundCopierOptions options)
+    public Result CopyHitsounds(string sourcePath, string targetPath, HitSoundCopierOptions options)
     {
-        HitSoundCopier.CopyFromBeatmapToTarget(sourcePath, new []{targetPath}, options);
+        return HitSoundCopier.CopyFromBeatmapToTarget(sourcePath, new []{targetPath}, options);
     }
 }

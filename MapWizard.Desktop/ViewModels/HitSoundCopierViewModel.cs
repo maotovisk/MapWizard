@@ -342,14 +342,15 @@ public partial class HitSoundCopierViewModel(
                     Leniency = suggestedLeniency;
                 }
 
-                if (hitSoundService.CopyHitsounds(OriginBeatmap.Path, destinationPaths, options))
+                var copyResult = hitSoundService.CopyHitsounds(OriginBeatmap.Path, destinationPaths, options);
+                if (copyResult.IsSuccess)
                 {
                     type = NotificationType.Success;
                     message = $"HitSounds applied successfully to {destinationPaths.Length} beatmap(s)!";
                 }
                 else
                 {
-                    message = "Failed to copy hitsounds. Check the console/log output for more details.";
+                    message = copyResult.Error.Message;
                 }
             }
         }
